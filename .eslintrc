@@ -1,0 +1,11 @@
+{
+    "parser": "babel-eslint",
+    "extends": ["airbnb"],
+    "plugins": [
+      
+    ],
+    "rules": {
+      "max-len": ["error", {"code": 120}],
+      "no-plusplus": 0,
+    }
+  }
