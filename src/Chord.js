@@ -8,7 +8,7 @@ import ChordInterval from './ChordInterval';
 import Scale from './Scale';
 
 // Alias
-const CI = ChordInterval;
+const CI = ChordInterval.create;
 
 const mod = Note.modifier;
 
@@ -141,7 +141,7 @@ class Chord {
 
       let i;
       for (i = 0; i < this.mTemplate.length; i++) {
-        const deg = this.mScale.degree(this.mTemplate[i].interval - 1); // -1 to include zero index - root note
+        const deg = this.mScale.degree(this.mTemplate[i].interval); // -1 to include zero index - root note
 
         switch (this.mTemplate[i].modifier) {
           case mod.NATURAL:
