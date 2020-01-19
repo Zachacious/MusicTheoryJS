@@ -34,6 +34,15 @@ class Note {
     TOTAL_HALF_TONES: 12,
   }
 
+  static modifier = {
+    NATURAL: 1,
+    SHARP: 2,
+    SHARP_SHARP: 3,
+    FLAT: 4,
+    FLAT_FLAT: 5,
+    TOTAL_MODIFIERS: 5,
+  }
+
     mTone = 0;
 
     mOctave = 0;

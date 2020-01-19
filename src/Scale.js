@@ -27,7 +27,7 @@ class Scale {
     constructor(pRootNote = new Note()/* C5 */, pTemplate = [2, 2, 1, 2, 2, 2] /* Major scale template */) {
       this.root(pRootNote);
       this.template(pTemplate);
-      this.mComputeNotes();
+    //   this.mComputeNotes();
     }
 
     root(pRootNote) {
