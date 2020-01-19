@@ -93,9 +93,9 @@ class Note {
     }
 
     flat() {
-      const { value, octave } = wrapRange(this.mTone - 1, 1, 12);
+      const { value, wraps } = wrapRange(this.mTone - 1, 1, 12);
       this.mTone = value;
-      this.mOctave += octave;
+      this.mOctave += wraps;
 
       return this;
     }
