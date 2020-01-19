@@ -4,7 +4,7 @@ Author: Zach Moore
 */
 
 import Note from './Note';
-import { wrapRange, clampNumber } from './util';
+import { wrapRange } from './util';
 
 class Scale {
     static modes = {
@@ -73,9 +73,8 @@ class Scale {
 
       const { value, wraps } = wrapRange(pDegree, 1, this.mNotes.length);
       const note = this.mNotes[value - 1];
-      const octave = clampNumber(note.octave() + wraps, 0, 10);
 
-      return note.octave(octave);
+      return new Note(note.tone(), note.octave() + wraps);
     }
 
     relativeMajor() {
