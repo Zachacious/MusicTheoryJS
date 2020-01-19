@@ -69,6 +69,73 @@ class Chord {
       return this.mNotes;
     }
 
+    octave(pOctave) {
+      if (!pOctave) {
+        return this.mRootnote.octave();
+      }
+
+      this.root(new Note(this.mRootnote.tone(), pOctave));
+
+      return this;
+    }
+
+    invert() {
+      const templateSize = this.mTemplate.length;
+      // const templateCopy = [...this.mTemplate];
+
+      if (templateSize < 2) {
+        throw new Error('Chord doesn\'t have enough notes to invert');
+      }
+
+      const newTemplate = [];
+
+      let i;
+      for (i = 1; i < templateSize; i++) {
+        newTemplate.push(this.mTemplate[i]);
+      }
+
+      const scaleSize = this.mScale.length;
+
+      const interval = this.mTemplate[0];
+      interval.interval += scaleSize;
+      newTemplate.push(interval);
+
+      this.template(newTemplate);
+
+      return this;
+
+
+      //   const notesSize = this.mNotes.length;
+      //   const notesCopy = [...this.mNotes]; // actual copy rather than reference
+
+      //   if (this.mNotes.length < 2) {
+      //     throw new Error('Chord doesn\'t have enough notes to invert');
+      //   }
+
+      //   this.mNotes = [];
+
+      //   // skip root note
+      //   let i;
+      //   for (i = 1; i < notesSize; i++) {
+      //     this.mNotes.push(notesCopy[i]);
+      //   }
+
+    //   // root note + 1 octave added to the end
+    //   const root = notesCopy[0];
+    //   root.octave(root.octave() + 1);
+    //   this.mNotes.push(root);
+    }
+
+    equals(pChord) {
+      return (pChord.mRootnote.equals(this.mRootnote)
+        && pChord.mScale.equals(this.mScale)
+        && pChord.mTemplate === this.mTemplate);
+    }
+
+    copy() {
+      return new Chord(this.mRootnote, this.mTemplate, this.mScale);
+    }
+
     mComputeNotes() {
       this.mNotes = [];
 

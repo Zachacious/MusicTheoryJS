@@ -183,7 +183,7 @@ class Scale {
     }
 
     copy() {
-      return new Scale(this.mRootNote, this.mTemplate);
+      return new Scale(this.mRootNote, [...this.mTemplate]);
     }
 
     static wholeTone(pRootNote = new Note()) { return new Scale(pRootNote, [2, 2, 2, 2, 2, 2]); }

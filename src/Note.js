@@ -133,9 +133,8 @@ class Note {
     }
 
     equals(pNote) {
-      if (pNote.tone() !== this.mTone) { return false; }
-      if (pNote.octave() !== this.mOctave) { return false; }
-      return true;
+      return (pNote.tone() === this.mTone
+      && pNote.octave() === this.mOctave);
     }
 
     copy() {
