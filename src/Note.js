@@ -59,7 +59,7 @@ class Note {
 
       const { value, wraps } = wrapRange(pTone, 1, 12);
       this.mTone = value;
-      this.mOctave += wraps;
+      this.mOctave = clampNumber(this.mOctave + wraps, 0, 10);
 
       return this;
     }
@@ -141,53 +141,19 @@ class Note {
       return new Note(this.mTone, this.mOctave);
     }
 
-    // createFromName(pName){
+    static a(pOctave = 5) { return new Note(2, pOctave); }
 
-    //   let name = String(pName);
-    //   let tone = 0;
+    static b(pOctave = 5) { return new Note(4, pOctave); }
 
-    //   switch (name) {
-    //     case 'Ab': tone = Note.tones.A_FLAT; break;
-    //     case 'A': tone = Note.tones.A; break;
-    //     case 'A#': tone = Note.tones.A_SHARP; break;
-    //     case 'Bb': tone = Note.tones.B_FLAT; break;
-    //     case 'B': tone = Note.tones.B; break;
-    //     case 'B#': tone = Note.tones.B_SHARP; break;
-    //     case 'Cb': tone = Note.tones.C_FLAT; break;
-    //     case 'C': tone = Note.tones.C; break;
-    //     case 'C#': tone = Note.tones.C_SHARP; break;
-    //     case 'Db': tone = Note.tones.D_FLAT; break;
-    //     case 'D': tone = Note.tones.D; break;
-    //     case 'D#': tone = Note.tones.D_SHARP; break;
-    //     case 'Eb': tone = Note.tones.E_FLAT; break;
-    //     case 'E': tone = Note.tones.E; break;
-    //     case 'E#': tone = Note.tones.E_SHARP; break;
-    //     case 'Fb': tone = Note.tones.F_FLAT; break;
-    //     case 'F': tones = Note.tones.F; break;
-    //     case 'F#': tones = Note.tones.F_SHARP; break;
-    //     case 'Gb': tones = Note.tones.G_FLAT; break;
-    //     case 'G': tones = Note.tones.G; break;
-    //     case 'G#': tones = Note.tones.G_SHARP; break;
-    //     default: tone = 0; break;
-    //   }
+    static c(pOctave = 5) { return new Note(5, pOctave); }
 
-    //   this.
+    static d(pOctave = 5) { return new Note(7, pOctave); }
 
-    // }
+    static e(pOctave = 5) { return new Note(9, pOctave); }
 
-    static a() { return new Note(2); }
+    static f(pOctave = 5) { return new Note(10, pOctave); }
 
-    static b() { return new Note(4); }
-
-    static c() { return new Note(5); }
-
-    static d() { return new Note(7); }
-
-    static e() { return new Note(9); }
-
-    static f() { return new Note(10); }
-
-    static g() { return new Note(12); }
+    static g(pOctave = 5) { return new Note(12, pOctave); }
 }
 
 export default Note;
