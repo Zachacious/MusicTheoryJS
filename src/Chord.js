@@ -83,6 +83,15 @@ class Chord {
       return this.mNotes;
     }
 
+    get asString() {
+      const names = [];
+      this.mNotes.forEach((item) => {
+        names.push(item.asString);
+      });
+
+      return names;
+    }
+
     octave(pOctave) {
       if (!pOctave) {
         return this.mRootnote.octave();
