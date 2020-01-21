@@ -1,6 +1,5 @@
 /*
 Chord.js
-Author: Zach Moore
 */
 
 import Note from './Note';
@@ -182,13 +181,13 @@ class Chord {
         // if the segment contains a root note - EX: A# or C
         if (Chord.mRootNoteRE.test(typeIdentifier)) {
           switch (typeIdentifier) {
-            case 'A': root = 2; break; // semitones
-            case 'B': root = 4; break;
-            case 'C': root = 5; break;
-            case 'D': root = 7; break;
-            case 'E': root = 9; break;
-            case 'F': root = 10; break;
-            case 'G': root = 12; break;
+            case 'A': root = Note.tones.A; break; // semitones
+            case 'B': root = Note.tones.B; break;
+            case 'C': root = Note.tones.C; break;
+            case 'D': root = Note.tones.D; break;
+            case 'E': root = Note.tones.E; break;
+            case 'F': root = Note.tones.F; break;
+            case 'G': root = Note.tones.G; break;
             default: break;
           }
           // if the note has a modifier -- EX A#

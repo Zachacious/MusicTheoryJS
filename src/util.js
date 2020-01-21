@@ -1,7 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 /*
 util.js
-Author: Zach Moore
 */
 
 const clampNumber = (num, a, b) => Math.max(Math.min(num, Math.max(a, b)), Math.min(a, b));

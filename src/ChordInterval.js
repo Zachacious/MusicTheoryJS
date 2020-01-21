@@ -1,6 +1,5 @@
 /*
 ChordInterval.js
-Author: Zach Moore
 */
 
 import { clampNumber } from './util';

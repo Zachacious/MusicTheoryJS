@@ -1,6 +1,5 @@
 /*
 Scale.js
-Author: Zach Moore
 */
 
 import Note from './Note';
