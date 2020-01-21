@@ -43,6 +43,19 @@ class Chord {
       this.root(cRootNote);
     }
 
+    get notes() {
+      return this.mNotes;
+    }
+
+    get asString() {
+      const names = [];
+      this.mNotes.forEach((item) => {
+        names.push(item.asString);
+      });
+
+      return names;
+    }
+
     root(pRootNote) {
       if (!pRootNote) {
         return this.mRootnote;
@@ -77,19 +90,6 @@ class Chord {
       this.mComputeNotes();
 
       return this;
-    }
-
-    get notes() {
-      return this.mNotes;
-    }
-
-    get asString() {
-      const names = [];
-      this.mNotes.forEach((item) => {
-        names.push(item.asString);
-      });
-
-      return names;
     }
 
     octave(pOctave) {

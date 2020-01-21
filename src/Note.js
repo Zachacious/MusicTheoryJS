@@ -50,6 +50,34 @@ class Note {
       this.octave(pOctave);
     }
 
+    get midiKey() {
+      let key = (this.mOctave * 12) + (this.mTone - midiKeyOffset);
+      key = clampNumber(key, 0, 127); // 128 midi keys
+      return key;
+    }
+
+    get asString() {
+      let ret = '';
+
+      switch (this.mTone) {
+        case Note.tones.A: ret = 'A'; break;
+        case Note.tones.A_SHARP: ret = 'A#/Bb'; break;
+        case Note.tones.B: ret = 'B'; break;
+        case Note.tones.C: ret = 'C'; break;
+        case Note.tones.C_SHARP: ret = 'C#/Db'; break;
+        case Note.tones.D: ret = 'D'; break;
+        case Note.tones.D_SHARP: ret = 'D#/Eb'; break;
+        case Note.tones.E: ret = 'E'; break;
+        case Note.tones.F: ret = 'F'; break;
+        case Note.tones.F_SHARP: ret = 'F#/Gb'; break;
+        case Note.tones.G: ret = 'G'; break;
+        case Note.tones.G_SHARP: ret = 'G#/Ab'; break;
+        default: ret = 'A'; break;
+      }
+
+      return ret;
+    }
+
     tone(pTone) {
       if (!pTone) {
         return this.mTone;
@@ -100,34 +128,6 @@ class Note {
 
     isFlat() {
       return this.isSharp();
-    }
-
-    get midiKey() {
-      let key = (this.mOctave * 12) + (this.mTone - midiKeyOffset);
-      key = clampNumber(key, 0, 127); // 128 midi keys
-      return key;
-    }
-
-    get asString() {
-      let ret = '';
-
-      switch (this.mTone) {
-        case Note.tones.A: ret = 'A'; break;
-        case Note.tones.A_SHARP: ret = 'A#/Bb'; break;
-        case Note.tones.B: ret = 'B'; break;
-        case Note.tones.C: ret = 'C'; break;
-        case Note.tones.C_SHARP: ret = 'C#/Db'; break;
-        case Note.tones.D: ret = 'D'; break;
-        case Note.tones.D_SHARP: ret = 'D#/Eb'; break;
-        case Note.tones.E: ret = 'E'; break;
-        case Note.tones.F: ret = 'F'; break;
-        case Note.tones.F_SHARP: ret = 'F#/Gb'; break;
-        case Note.tones.G: ret = 'G'; break;
-        case Note.tones.G_SHARP: ret = 'G#/Ab'; break;
-        default: ret = 'A'; break;
-      }
-
-      return ret;
     }
 
     equals(pNote) {

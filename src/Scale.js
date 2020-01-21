@@ -26,7 +26,18 @@ class Scale {
     constructor(pRootNote = new Note()/* C5 */, pTemplate = [2, 2, 1, 2, 2, 2] /* Major scale template */) {
       this.root(pRootNote);
       this.template(pTemplate);
-    //   this.mComputeNotes();
+    }
+
+    get length() {
+      return this.mNotes.length;
+    }
+
+    get notes() {
+      return this.mNotes;
+    }
+
+    get key() {
+      return this.mRootNote.name;
     }
 
     root(pRootNote) {
@@ -53,18 +64,6 @@ class Scale {
       this.mComputeNotes();
 
       return this;
-    }
-
-    get length() {
-      return this.mNotes.length;
-    }
-
-    get notes() {
-      return this.mNotes;
-    }
-
-    get key() {
-      return this.mRootNote.name;
     }
 
     degree(pDegree = 0) {
