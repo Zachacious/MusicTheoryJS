@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /*
 note.js
 Author: Zach Moore
@@ -35,11 +34,11 @@ class Note {
   }
 
   static modifier = {
-    NATURAL: 1,
-    SHARP: 2,
-    SHARP_SHARP: 3,
-    FLAT: 4,
-    FLAT_FLAT: 5,
+    NATURAL: 0,
+    SHARP: 1,
+    SHARP_SHARP: 2,
+    FLAT: -1,
+    FLAT_FLAT: -2,
     TOTAL_MODIFIERS: 5,
   }
 
