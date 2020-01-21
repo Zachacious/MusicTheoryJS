@@ -57,8 +57,6 @@ class Scale {
         return this.mTemplate;
       }
 
-      // TODO: assert array with length > 1
-
       this.mTemplate = pTemplate;
 
       this.mComputeNotes();
