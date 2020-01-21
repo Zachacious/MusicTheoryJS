@@ -6,6 +6,7 @@ Author: Zach Moore
 import Note from './Note';
 import ChordInterval from './ChordInterval';
 import Scale from './Scale';
+// import { clampNumber } from './util';
 
 // Alias
 const CI = ChordInterval.create;
@@ -21,12 +22,26 @@ class Chord {
 
     mNotes = [];
 
+    mChordRE = /(?:(?:([A-G])([#b]*))|([mM])|(dim|aug|sus4|sus2)|(?:([b#]*)([4-9]|1[01])))/g;
+
+    mRootNoteRE = /[A-G]/g;
+
+    mModifierRE = /(#|b)*/g;
+
     constructor(pRootNote = new Note(), pTemplate = [CI(1), CI(3), CI(5)]/* Major Chord */, pScale = new Scale()) {
+      let cRootNote = pRootNote;
+      let cTemplate = pTemplate;
+
+      // if the user typed a chord name as a string
+      if (typeof pRootNote === 'string') {
+        const { root, template } = Chord.mParseName(pRootNote);
+        cRootNote = new Note(root);
+        cTemplate = template;
+      }
+
       this.mScale = pScale;
-      this.mTemplate = pTemplate;
-      this.root(pRootNote);
-    //   this.template(pTemplate);
-    //   this.scale(pScale);
+      this.mTemplate = cTemplate;
+      this.root(cRootNote);
     }
 
     root(pRootNote) {
@@ -119,7 +134,7 @@ class Chord {
 
       let i;
       for (i = 0; i < this.mTemplate.length; i++) {
-        const deg = this.mScale.degree(this.mTemplate[i].interval); // -1 to include zero index - root note
+        const deg = this.mScale.degree(this.mTemplate[i].interval);
 
         switch (this.mTemplate[i].modifier) {
           case mod.NATURAL:
@@ -141,6 +156,145 @@ class Chord {
         }
 
         this.mNotes.push(deg);
+      }
+    }
+
+    static mParseName(pName = '') {
+      if (!pName) {
+        throw new Error('Chord.byName(String) requires a chord name be given');
+      }
+
+      let root;
+
+      const template = [CI(1)]; // all chords have the I
+
+      // get all the segments -- EX: A#m | b5 | #11 from 'A#mb5#11'
+      const segments = [...pName.matchAll(Chord.mChordRE)];
+
+      // parse each segment
+      const numSegments = segments.length;
+      let i = 0;
+      for (i; i < numSegments; i++) {
+        const seg = segments[i];
+        const cleanSeg = seg.filter((el) => el != null); // remove empty indexes from segment
+        const typeIdentifier = String(cleanSeg[1].charAt(0));
+
+        // if the segment contains a root note - EX: A# or C
+        if (Chord.mRootNoteRE.test(typeIdentifier)) {
+          switch (typeIdentifier) {
+            case 'A': root = 2; break; // semitones
+            case 'B': root = 4; break;
+            case 'C': root = 5; break;
+            case 'D': root = 7; break;
+            case 'E': root = 9; break;
+            case 'F': root = 10; break;
+            case 'G': root = 12; break;
+            default: break;
+          }
+          // if the note has a modifier -- EX A#
+          if (cleanSeg.length > 2) {
+            // cleanSeg[2] should contain the string of modifiers -- EX: '##' or '#' or 'bb##'?...
+            const chars = Array.from(cleanSeg[2]);
+            // eslint-disable-next-line no-loop-func
+            chars.forEach((item) => {
+              // add or remove a semitone
+              if (item === '#') {
+                root += 1;
+              } else if (item === 'b') {
+                root -= 1;
+              }
+            });
+          }
+        } else if (typeIdentifier === 'm') { // minor - EX: A#(m)
+          // check if the template already has a 3rd and 5th
+          const thirdDegree = template.findIndex((el) => el.interval === 3);
+          const fifthDegree = template.findIndex((el) => el.interval === 5);
+
+          if (thirdDegree > -1) { // already has a 3rd
+            template[thirdDegree].modifier = mod.FLAT;
+          } else {
+            template.push(CI(3, mod.FLAT)); // flat 3rd makes it minor
+          }
+
+          if (fifthDegree === -1) {
+            template.push(CI(5));
+          }
+        } else if (typeIdentifier === 'M') { // major - EX: C#(M)
+          // check if the template already has a 3rd and 5th
+          const thirdDegree = template.findIndex((el) => el.interval === 3);
+          const fifthDegree = template.findIndex((el) => el.interval === 5);
+
+          if (thirdDegree > -1) { // already has a 3rd
+            template[thirdDegree].modifier = mod.NATURAL;
+          } else {
+            template.push(CI(3));
+          }
+
+          if (fifthDegree === -1) {
+            template.push(CI(5));
+          }
+        } else if (Chord.mModifierRE.test(typeIdentifier)) { // series of sharps and flats + scale degree - EX: A#m(b5)(##11)
+          // note modifiers - range from -2(FLAT FLAT) to 2(SHARP SHARP) - 0 is NATURAL
+          let noteMod = 0;
+          const chars = Array.from(cleanSeg[1]); // second index should be the sequence of modifiers - EX: ##, b
+          chars.forEach((item) => {
+            if (item === '#') {
+              noteMod++;
+            } else {
+              noteMod--;
+            }
+          });
+          const degree = Math.round(cleanSeg[2]); // index 2 should be the scale degree - EX b(5) or ##(11)
+          // check if the degree already exist in the template
+          const degreeIndex = template.findIndex((el) => el.interval === degree);
+          if (degreeIndex > -1) { // already exist in template
+            template[degreeIndex].modifier = noteMod;
+          } else {
+            template.push(CI(degree, noteMod));
+          }
+        } else if (cleanSeg[0] === 'dim') { // segment contains dim - EX: A#m7(dim)
+          // check if 5th degree already exist
+          const fifthDegree = template.findIndex((el) => el.interval === 5);
+          if (fifthDegree > -1) { // already exist
+            template[fifthDegree].modifier = mod.FLAT;
+          } else {
+            template.push(CI(5, mod.FLAT));
+          }
+        } else if (cleanSeg[0] === 'aug') { // segment contains aug - EX: A#m7(aug)
+          // check if 5th degree already exist
+          const fifthDegree = template.findIndex((el) => el.interval === 5);
+          if (fifthDegree > -1) { // already exist
+            template[fifthDegree].modifier = mod.SHARP;
+          } else {
+            template.push(CI(5, mod.SHARP));
+          }
+        } else if (cleanSeg[0] === 'sus2') { // segment contains aug - EX: Am(sus2)
+          // check if 3rd degree already exist
+          const thirdDegree = template.findIndex((el) => el.interval === 3);
+          if (thirdDegree > -1) { // already exist
+            template[thirdDegree].interval = 2; // change 3rd to a 2nd
+          } else {
+            template.push(CI(2));
+          }
+        } else if (typeIdentifier === 'sus4') { // segment contains aug - EX: Am(sus4)
+          // check if 3rd degree already exist
+          const thirdDegree = template.findIndex((el) => el.interval === 3);
+          if (thirdDegree > -1) { // already exist
+            template[thirdDegree].interval = 4; // change 3rd to a 4th
+            template[thirdDegree].modifier = mod.FLAT;
+          } else {
+            template.push(CI(4, mod.FLAT));
+          }
+        }
+      }
+
+      if (!root || template.length < 2) {
+        throw new Error('Invalid chord name given');
+      } else {
+        // sort template by scale degree
+        template.sort((a, b) => a.interval - b.interval);
+        return { root, template };
+        // return new Chord(new Note(root), template);
       }
     }
 
