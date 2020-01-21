@@ -1,6 +1,5 @@
 /*
 note.js
-Author: Zach Moore
 */
 
 import { wrapRange, clampNumber } from './util';
@@ -109,7 +108,7 @@ class Note {
       return key;
     }
 
-    get name() {
+    get asString() {
       let ret = '';
 
       switch (this.mTone) {
