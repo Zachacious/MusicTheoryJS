@@ -46,8 +46,16 @@ class Note {
     mOctave = 0;
 
     constructor(pTone = 5, pOctave = 5) {
-      this.tone(pTone);
-      this.octave(pOctave);
+      let cTone = pTone;
+      let cOctave = pOctave;
+
+      if (typeof pTone === 'string') {
+        const { tone, octave } = Note.mParseName(pTone);
+        cTone = tone;
+        if (octave) cOctave = octave;
+      }
+      this.tone(cTone);
+      this.octave(cOctave);
     }
 
     get midiKey() {
@@ -137,6 +145,58 @@ class Note {
 
     copy() {
       return new Note(this.mTone, this.mOctave);
+    }
+
+    static mParseName(pName = '') {
+      let tone;
+      let octave = null;
+
+      const mRootNoteRE = /(?:[A-G])|(?:(#|b)+)|([0-9]|10)/g;
+      const modRE = /(#|b)/g;
+      const octaveRE = /([0-9]|10)/g;
+
+      // split into segments - EX: C##7 = 'C' '##' '7'
+      const segments = [...pName.matchAll(mRootNoteRE)];
+
+      if (!segments.length) throw new Error('Invalid Note Name Given');
+
+      const cleanSegs = segments.filter((el) => el != null); // remove empty indexes from segment
+
+      const cleanNoteSeg = segments[0].filter((el) => el != null); // remove empty indexes from segment
+
+      switch (cleanNoteSeg[0]) {
+        case 'A': tone = Note.tones.A; break;
+        case 'B': tone = Note.tones.B; break;
+        case 'C': tone = Note.tones.C; break;
+        case 'D': tone = Note.tones.D; break;
+        case 'E': tone = Note.tones.E; break;
+        case 'F': tone = Note.tones.F; break;
+        case 'G': tone = Note.tones.G; break;
+        default: break;
+      }
+
+      // process anything after the Root -- sharp flat or octave
+      const numSegments = cleanSegs.length;
+      let i = 1;
+      for (i; i < numSegments; i++) {
+        const seg = cleanSegs[i];
+        const cleanSeg = seg.filter((el) => el != null);// remove empty indexes from segment
+        if (modRE.test(cleanSeg[0])) { // is a modifier or series of modifiers -- # or b
+          const chars = Array.from(cleanSeg[0]);
+          // eslint-disable-next-line no-loop-func
+          chars.forEach((item) => {
+            if (item === '#') {
+              tone++;
+            } else if (item === 'b') {
+              tone--;
+            }
+          });
+        } else if (octaveRE.test(cleanSeg[0])) { // is a number -- octave
+          octave = Number(cleanSeg[0]);
+        }
+      }
+
+      return { tone, octave };
     }
 
     static a(pOctave = 5) { return new Note(2, pOctave); }
