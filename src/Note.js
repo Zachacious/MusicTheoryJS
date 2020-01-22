@@ -43,6 +43,8 @@ class Note {
 
     mOctave = 0;
 
+    mA4Tuning = 440;
+
     constructor(pTone = 5, pOctave = 5) {
       let cTone = pTone;
       let cOctave = pOctave;
@@ -60,6 +62,10 @@ class Note {
       let key = 21 + (this.mOctave * 12) + (this.mTone - 2); // - 2 because our semitones start at G# instead of A
       key = clampNumber(key, 0, 127); // 128 midi keys
       return key;
+    }
+
+    get freq() {
+      return 2 ** ((this.midiKey - 69) / 12) * this.A4Tuning;
     }
 
     get asString() {
@@ -82,6 +88,16 @@ class Note {
       }
 
       return ret;
+    }
+
+    A4Tuning(pFreq) {
+      if (!pFreq) {
+        return this.mA4Tuning;
+      }
+
+      this.A4Tuning = pFreq;
+
+      return this;
     }
 
     tone(pTone) {
