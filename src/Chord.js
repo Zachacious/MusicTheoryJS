@@ -121,6 +121,91 @@ class Chord {
       return this;
     }
 
+    major() {
+      const degree = this.mTemplate.findIndex((el) => el.interval === 3); // find the III interval if exist
+
+      if (degree > -1) { // the III exist
+        this.mTemplate[degree].modifier = mod.NATURAL;
+      } else {
+        this.mTemplate.push(CI(3, mod.NATURAL));
+      }
+
+      // sort template by scale degree
+      this.mTemplate.sort((a, b) => a.interval - b.interval);
+
+      this.mComputeNotes();
+
+      return this;
+    }
+
+    minor() {
+      const degree = this.mTemplate.findIndex((el) => el.interval === 3); // find the III interval if exist
+
+      if (degree > -1) { // the III exist
+        this.mTemplate[degree].modifier = mod.FLAT;
+      } else {
+        this.mTemplate.push(CI(3, mod.FLAT));
+      }
+
+      // sort template by scale degree
+      this.mTemplate.sort((a, b) => a.interval - b.interval);
+
+      this.mComputeNotes();
+
+      return this;
+    }
+
+    diminish() {
+      const degree = this.mTemplate.findIndex((el) => el.interval === 5); // find the V interval if exist
+
+      if (degree > -1) { // the V exist
+        this.mTemplate[degree].modifier = mod.FLAT;
+      } else {
+        this.mTemplate.push(CI(5, mod.FLAT));
+      }
+
+      // sort template by scale degree
+      this.mTemplate.sort((a, b) => a.interval - b.interval);
+
+      this.mComputeNotes();
+
+      return this;
+    }
+
+    halfDiminish() {
+      const degree = this.mTemplate.findIndex((el) => el.interval === 7); // find the VII interval if exist
+
+      if (degree > -1) { // the V exist
+        this.mTemplate[degree].modifier = mod.FLAT;
+      } else {
+        this.mTemplate.push(CI(7, mod.FLAT));
+      }
+
+      // sort template by scale degree
+      this.mTemplate.sort((a, b) => a.interval - b.interval);
+
+      this.mComputeNotes();
+
+      return this;
+    }
+
+    augment() {
+      const degree = this.mTemplate.findIndex((el) => el.interval === 5); // find the V interval if exist
+
+      if (degree > -1) { // the V exist
+        this.mTemplate[degree].modifier = mod.SHARP;
+      } else {
+        this.mTemplate.push(CI(5, mod.SHARP));
+      }
+
+      // sort template by scale degree
+      this.mTemplate.sort((a, b) => a.interval - b.interval);
+
+      this.mComputeNotes();
+
+      return this;
+    }
+
     equals(pChord) {
       return (pChord.mRootnote.equals(this.mRootnote)
         && pChord.mScale.equals(this.mScale)
