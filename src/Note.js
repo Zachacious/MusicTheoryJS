@@ -4,8 +4,6 @@ note.js
 
 import { wrapRange, clampNumber } from './util';
 
-const midiKeyOffset = 5;
-
 class Note {
   static tones = {
     G_SHARP: 1,
@@ -59,7 +57,7 @@ class Note {
     }
 
     get midiKey() {
-      let key = (this.mOctave * 12) + (this.mTone - midiKeyOffset);
+      let key = 21 + (this.mOctave * 12) + (this.mTone - 2); // - 2 because our semitones start at G# instead of A
       key = clampNumber(key, 0, 127); // 128 midi keys
       return key;
     }
