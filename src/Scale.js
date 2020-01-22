@@ -40,6 +40,15 @@ class Scale {
       return this.mRootNote.name;
     }
 
+    get asString() {
+      const names = [];
+      this.mNotes.forEach((item) => {
+        names.push(item.asString);
+      });
+
+      return names;
+    }
+
     root(pRootNote) {
       if (!pRootNote) {
         return this.mRootNote;

@@ -21,12 +21,6 @@ class Chord {
 
     mNotes = [];
 
-    mChordRE = /(?:(?:([A-G])([#b]*))|([mM])|(dim|aug|sus4|sus2)|(?:([b#]*)([4-9]|1[01])))/g;
-
-    mRootNoteRE = /[A-G]/g;
-
-    mModifierRE = /(#|b)*/g;
-
     constructor(pRootNote = new Note(), pTemplate = [CI(1), CI(3), CI(5)]/* Major Chord */, pScale = new Scale()) {
       let cRootNote = pRootNote;
       let cTemplate = pTemplate;
@@ -176,8 +170,14 @@ class Chord {
 
       const template = [CI(1)]; // all chords have the I
 
+      const chordRE = /(?:(?:([A-G])([#b]*))|([mM])|(dim|aug|sus4|sus2)|(?:([b#]*)([4-9]|1[01])))/g;
+
+      const rootNoteRE = /[A-G]/g;
+
+      const modifierRE = /(#|b)*/g;
+
       // get all the segments -- EX: A#m | b5 | #11 from 'A#mb5#11'
-      const segments = [...pName.matchAll(Chord.mChordRE)];
+      const segments = [...pName.matchAll(chordRE)];
 
       // parse each segment
       const numSegments = segments.length;
@@ -188,7 +188,7 @@ class Chord {
         const typeIdentifier = String(cleanSeg[1].charAt(0));
 
         // if the segment contains a root note - EX: A# or C
-        if (Chord.mRootNoteRE.test(typeIdentifier)) {
+        if (rootNoteRE.test(typeIdentifier)) {
           switch (typeIdentifier) {
             case 'A': root = Note.tones.A; break; // semitones
             case 'B': root = Note.tones.B; break;
@@ -241,7 +241,7 @@ class Chord {
           if (fifthDegree === -1) {
             template.push(CI(5));
           }
-        } else if (Chord.mModifierRE.test(typeIdentifier)) { // series of sharps and flats + scale degree - EX: A#m(b5)(##11)
+        } else if (modifierRE.test(typeIdentifier)) { // series of sharps and flats + scale degree - EX: A#m(b5)(##11)
           // note modifiers - range from -2(FLAT FLAT) to 2(SHARP SHARP) - 0 is NATURAL
           let noteMod = 0;
           const chars = Array.from(cleanSeg[1]); // second index should be the sequence of modifiers - EX: ##, b
