@@ -1,3 +1,5 @@
+const JsDocPlugin = require('jsdoc-webpack-plugin');
+
 module.exports = {
   entry: './src/index.js',
   module: {
@@ -20,6 +22,13 @@ module.exports = {
     // globalObject: 'this',
     library: '',
   },
+  plugins: [
+    // new JsDocPlugin({
+    //   conf: 'jsdoc.json',
+    //   cwd: '.',
+    //   preserveTmpFile: false,
+    // }),
+  ],
   devServer: {
     contentBase: './dist',
   },

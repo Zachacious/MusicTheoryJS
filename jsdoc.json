@@ -1,0 +1,48 @@
+{
+    "plugins": [],
+    "recurseDepth": 10,
+    "source": {
+        "include": ["./src"],
+        "includePattern": ".+\\.js(doc|x)?$",
+        "excludePattern": "(^|\\/|\\\\)_"
+    },
+    "sourceType": "module",
+    "tags": {
+        "allowUnknownTags": true,
+        "dictionaries": ["jsdoc","closure"]
+    },
+    "templates": {
+        "cleverLinks": false,
+        "monospaceLinks": false,
+        "default": {
+            "staticFiles": {
+              "include": [
+                  "./docs-src/statics"
+              ]
+            }
+        },
+        "better-docs": {
+            "name": "TonicJS Documentation",
+            "logo": "images/logo.png",
+	        "hideGenerator": false,
+            "navigation": [
+                {
+                    "label": "Github",
+                    "href": "https://github.com/zachacious/tonicjs"
+                },
+                {
+                    "label": "Example Application",
+                    "href": "https://admin-bro-example-app.herokuapp.com/admin"
+                }
+            ]
+        }
+    },
+    "opts": {
+        "encoding": "utf8",
+        "destination": "docs/",
+        "readme": "readme.md",
+        "recurse": true,
+        "verbose": true,
+        "template": "node_modules/better-docs"
+      }
+}
