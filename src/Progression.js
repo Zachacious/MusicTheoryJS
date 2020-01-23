@@ -6,10 +6,10 @@ import Scale from './Scale';
 import Chord from './Chord';
 
 /**
- * Generate Chords from a scale and template - [1 ,4, 5]
+ * Generate Chords from a scale and template
  * @example
- * const chords = new Progression(Scale.major(Note.a()), [1, 4, 5, 7]);
- * console.log(chords.asString);
+ * const myProgression = new Progression(Scale.major(Note.a()), [1, 4, 5, 7]);
+ * console.log(myProgression.asString);
  * // returns Progression: (Chord: A C#/Db E ) (Chord: D F#/Gb A ) (Chord: E G#/Ab B ) (Chord: G#/Ab C D#/Eb )
  */
 class Progression {
@@ -53,6 +53,9 @@ class Progression {
      * @chainable
      * @param {Scale} [pScale]
      * @returns {(Scale|Progression)} Returns this object if a value is set or returns the scale
+     * @example
+     * let myProgression = new Progression();
+     * myProgression.scale(Scale.minor()).template([1, 2, 6]);
      */
     scale(pScale) {
       if (!pScale) {
@@ -71,6 +74,9 @@ class Progression {
      *
      * @param {Array} [pTemplate] - An array of numbers denoting the scale degree to create the progression from. Ex: [1, 4, 5]
      * @returns {(Array|Progression)} Returns this object if a value is set or returns the template
+     * @example
+     * let myProgression = new Progression();
+     * myProgression.scale(Scale.minor()).template([1, 2, 6]);
      */
     template(pTemplate) {
       if (!pTemplate) {
