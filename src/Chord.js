@@ -42,9 +42,9 @@ class Chord {
     }
 
     get asString() {
-      const names = [];
+      let names = 'Chord: ';
       this.mNotes.forEach((item) => {
-        names.push(item.asString);
+        names += `${item.asString} `;
       });
 
       return names;

@@ -41,9 +41,9 @@ class Scale {
     }
 
     get asString() {
-      const names = [];
+      let names = 'Scale: ';
       this.mNotes.forEach((item) => {
-        names.push(item.asString);
+        names += `${item.asString} `;
       });
 
       return names;

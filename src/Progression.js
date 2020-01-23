@@ -14,15 +14,13 @@ class Progression {
 
     constructor(pScale = new Scale(), pTemplate = [1, 4, 5]) {
       this.mScale = pScale;
-      //   this.mTemplate = pTemplate;
       this.template(pTemplate);
-    //   this.scale(pScale);
     }
 
     get asString() {
-      const chords = [];
+      let chords = 'Progression: ';
       this.mChords.forEach((item) => {
-        chords.push(item.asString);
+        chords += `(${item.asString}) `;
       });
       return chords;
     }
