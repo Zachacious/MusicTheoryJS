@@ -48,12 +48,11 @@ class Progression {
     }
 
     /**
-     *Sets or returns the scale
-     * CHAINABLE method
+     * (chainable) Sets or returns the scale
      *
+     * @chainable
      * @param {Scale} [pScale]
-     * @returns {Scale|Progression} - The scale | Reference to this object
-     * @memberof Progression
+     * @returns {(Scale|Progression)} Returns this object if a value is set or returns the scale
      */
     scale(pScale) {
       if (!pScale) {
@@ -68,12 +67,10 @@ class Progression {
     }
 
     /**
-     *Sets or returns the template
-     * CHAINABLE method
+     * (chainable) Sets or returns the template
      *
      * @param {Array} [pTemplate] - An array of numbers denoting the scale degree to create the progression from. Ex: [1, 4, 5]
-     * @returns {Array|Progression} - The template array | Reference to this object
-     * @memberof Progression
+     * @returns {(Array|Progression)} Returns this object if a value is set or returns the template
      */
     template(pTemplate) {
       if (!pTemplate) {
@@ -108,7 +105,7 @@ class Progression {
      * Check equality with another Progression
      *
      * @param {Progression} pProgression
-     * @returns {Boolean} - True if the given Progression is equal
+     * @returns {Boolean} True if the given Progression is equal
      */
     equals(pProgression) {
       return (pProgression.scale() === this.mScale
