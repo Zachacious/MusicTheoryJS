@@ -1,9 +1,11 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     
     <meta charset="utf-8">
-    <title>JSDoc: this</title>
+    <title>JSDoc: ChordInterval.js</title>
 
     <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -29,7 +31,7 @@
                         <img src="images/logo.png" alt="logo">
                     
                      
-                        <h1 class="navbar-item">TonicJS Documentation</h1>
+                        <h1 class="navbar-item">MusicTheoryJS Documentation</h1>
                     
                     <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
                         <span aria-hidden="true"></span>
@@ -64,163 +66,72 @@
             <div class="column is-3" id="sidebarNav">
                 <div class="sidebar">
                     <nav>
-                        <h2><a href="index.html">Home</a></h2><div class="category"><h3>Modules</h3><ul><li><a href="module-this.html">this</a></li></ul><h3>Classes</h3><ul><li><a href="module-this-Progression.html">Progression</a></li></ul></div>
+                        <h2><a href="index.html">Home</a></h2><div class="category"><h3>Modules</h3><ul><li><a href="module-MT.html">MT</a></li></ul><h3>Classes</h3><ul><li><a href="module-MT.Chord.html">Chord</a></li><li><a href="module-MT.ChordInterval.html">ChordInterval</a></li><li><a href="module-MT.Note.html">Note</a></li><li><a href="module-MT.Progression.html">Progression</a></li><li><a href="module-MT.Scale.html">Scale</a></li></ul></div>
                     </nav>
                 </div>
             </div>
             <div class="column is-9-desktop">
                 <div class="content" id="main-content-wrapper">
                     <header class="page-title">
-                        <p>Module</p>
-                        <h1>this</h1>
+                        <p>Source</p>
+                        <h1>ChordInterval.js</h1>
                     </header>
                     
                     
 
 
 
-
-<section>
-
-<header>
     
-        
-            
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-            <div class="description">Progression.js</div>
-        
-
-        
-            
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-version">Version:</dt>
-    <dd class="tag-version"><ul class="dummy"><li>0.1</li></ul></dd>
-    
-
-    
-    <dt class="tag-since">Since:</dt>
-    <dd class="tag-since"><ul class="dummy"><li>0.1</li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-author">Author:</dt>
-    <dd class="tag-author">
-        <ul>
-            <li>Zach Moore</li>
-        </ul>
-    </dd>
-    
-
-    
-
-    
-
-    
-    
-
-    
-
-    
-
-    
-        <p class="tag-source">
-            <a href="Progression.js.html" class="button">View Source</a>
-            <span>
-                <a href="Progression.js.html">Progression.js</a>, <a href="Progression.js.html#line1">line 1</a>
-            </span>
-        </p>
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-    
-    </div>
-    
-    
-
-    
-
-    
-        <h3 class="subsection-title">Classes</h3>
-
-        <dl>
-            <dt><a href="module-this-Progression.html">Progression</a></dt>
-            <dd></dd>
-        </dl>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*
+ChordInterval.js
+*/
+
+import { clampNumber } from './util';
+
+/**
+ * Chord intervals contain an integer representing a scale degree and a modifier-- #, ##, b, bb, or Natural
+ * &lt;br> 'ChordInterval' can be a lot to type so use an alias like:
+ * &lt;br> const CI = MT.ChordInterval.create;
+ *
+ * @memberof module:MT
+ * @example
+ * const mod = MT.Note.modifier;
+ * const CI = MT.ChordInterval.create;
+ *
+ * const sharpRoot = CI(1, mod.SHARP);
+ */
+class ChordInterval {
+  /**
+   *Creates an instance of ChordInterval.
+   *
+   * @param {number} [pInterval=0] Scale degree
+   * @param {number} [pModifier=0] modifier
+   * @memberof ChordInterval
+   */
+  constructor(pInterval = 0/* 0 scale degree - root note */, pModifier = 0/* Natural */) {
+    this.interval = pInterval;
+    this.modifier = clampNumber(pModifier, -2, 2);
+  }
+
+  /**
+   * An alias for the constructor
+   *
+   * @static
+   * @param {number} [pInterval=0] Scale degree
+   * @param {number} [pModifier=0] modifier
+   * @returns {ChordInterval}
+   */
+  static create(pInterval = 0, pModifier = 0) {
+    return new ChordInterval(pInterval, pModifier);
+  }
+}
+
+export default ChordInterval;
+</code></pre>
+        </article>
+    </section>
 
 
 

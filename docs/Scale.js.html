@@ -1,4 +1,90 @@
-/*
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>JSDoc: Scale.js</title>
+
+    <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="./build/entry.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link href="https://fonts.googleapis.com/css?family=Muli:100,400,700|Oswald:300|Inconsolata,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+    <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+</head>
+
+<body>
+    <div id="stickyNavbarOverlay"></div>
+    <div class="top-navbar">
+        <div class="container">
+            <nav class="navbar" role="navigation" aria-label="main navigation">
+                <div class="navbar-brand">
+                     
+                        <img src="images/logo.png" alt="logo">
+                    
+                     
+                        <h1 class="navbar-item">MusicTheoryJS Documentation</h1>
+                    
+                    <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+                        <span aria-hidden="true"></span>
+                        <span aria-hidden="true"></span>
+                        <span aria-hidden="true"></span>
+                    </a>
+                </div>
+                 
+                <div class="navbar-menu">
+                    <div class="navbar-end">
+                    
+                        <div class="navbar-item">
+                            <a href="https://github.com/zachacious/tonicjs" target="_blank">
+                                Github
+                            </a>
+                        </div>
+                    
+                        <div class="navbar-item">
+                            <a href="https://admin-bro-example-app.herokuapp.com/admin" target="_blank">
+                                Example Application
+                            </a>
+                        </div>
+                    
+                    </div>
+                </div>
+                
+            </nav>
+        </div>
+    </div>
+    <div class="container">
+        <div class="columns">
+            <div class="column is-3" id="sidebarNav">
+                <div class="sidebar">
+                    <nav>
+                        <h2><a href="index.html">Home</a></h2><div class="category"><h3>Modules</h3><ul><li><a href="module-MT.html">MT</a></li></ul><h3>Classes</h3><ul><li><a href="module-MT.Chord.html">Chord</a></li><li><a href="module-MT.ChordInterval.html">ChordInterval</a></li><li><a href="module-MT.Note.html">Note</a></li><li><a href="module-MT.Progression.html">Progression</a></li><li><a href="module-MT.Scale.html">Scale</a></li></ul></div>
+                    </nav>
+                </div>
+            </div>
+            <div class="column is-9-desktop">
+                <div class="content" id="main-content-wrapper">
+                    <header class="page-title">
+                        <p>Source</p>
+                        <h1>Scale.js</h1>
+                    </header>
+                    
+                    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*
 Scale.js
 */
 
@@ -7,137 +93,137 @@ import { wrapRange } from './util';
 
 /**
  * Scales consist of a root note(tonic or key) and a template(array of integers) that
- * <br> represents the interval of steps between each note.
- * <br><br>Scale intervals are represented by an integer 1 - 4:
- * <br>1 = half step
- * <br>2 = whole step
- * <br>3 = one and one half steps
- * <br>4 = double step
- * <br>[2, 2, 1, 2, 2, 2] represents the major scale
- * <br><br> Scale templates may have arbitray lengths and do NOT include the root note
- * <br><br>
- * <strong>Built-ins</strong>
- * <br> Static factory methods for convinence
- * <br>
- * <table class="params">
- * <tbody>
- * <tr class="deep-level-0">
- * <td>Scale.WholeTone(Note)</td>
- * <td>Scale.Major(Note)</td>
- * <td>Scale.Major7s4s5(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Scale.Minor(Note)</td>
- * <td>Scale.Minor7b9(Note)</td>
- * <td>Scale.Minor7b5(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Scale.HalfDim(Note)</td>
- * <td>Scale.HarmonicMajor(Note)</td>
- * <td>Scale.HarmonicMinor(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Scale.MelodicMinorAscend(Note)</td>
- * <td>Scale.MelodicMinorDesend(Note)</td>
- * <td>Scale.EnigmaticMajor(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Scale.EnigmaticMinor(Note)</td>
- * <td>Scale.PentatonicMajor(Note)</td>
- * <td>Scale.PentatonicMajorBlues(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Scale.b5Pentatonic(Note)</td>
- * <td>Scale.Minor6Pentatonic(Note)</td>
- * <td>Scale.Dim8Tone(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Scale.Dom8Tone(Note)</td>
- * <td>Scale.NeopolitanMajor(Note)</td>
- * <td>Scale.NeopolitanMinor(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Scale.HungarianMajor(Note)</td>
- * <td>Scale.HungarianMinor(Note)</td>
- * <td>Scale.HungarianGypsy(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Scale.Spanish(Note)</td>
- * <td>Scale.SpanishGypsy(Note)</td>
- * <td>Scale.Spanish8Tone(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Scale.Jewish(Note)</td>
- * <td>Scale.Augmented(Note)</td>
- * <td>Scale.DominantSuspended(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Scale.BebopMajor(Note)</td>
- * <td>Scale.BebopDominant(Note)</td>
- * <td>Scale.Mystic(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Scale.Overtone(Note)</td>
- * <td>Scale.LeadingTone(Note)</td>
- * <td>Scale.DoubleHarmonic(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Scale.Byzantine(Note)</td>
- * <td>Scale.Hirojoshi(Note)</td>
- * <td>Scale.JapaneseA(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Scale.JapaneseB(Note)</td>
- * <td>Scale.Oriental(Note)</td>
- * <td>Scale.Persian(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Scale.Arabian(Note)</td>
- * <td>Scale.Balinese(Note)</td>
- * <td>Scale.Kumoi(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Scale.Pelog(Note)</td>
- * <td>Scale.Algerian(Note)</td>
- * <td>Scale.Chinese(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Scale.Egyptian(Note)</td>
- * <td>Scale.Romanian(Note)</td>
- * <td>Scale.Hindu(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Scale.Insen(Note)</td>
- * <td>Scale.Iwato(Note)</td>
- * <td>Scale.Scottish(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Scale.Yo(Note)</td>
- * <td>Scale.Mongolian(Note)</td>
- * <td>Scale.Istrian(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Scale.UkranianDorian(Note)</td>
- * <td>Scale.Petrushka(Note)</td>
- * <td>Scale.Dorian(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Scale.Phrygian(Note)</td>
- * <td>Scale.Lydian(Note)</td>
- * <td>Scale.LydianDominate(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Scale.Acoustic(Note)</td>
- * <td>Scale.Mixolydian(Note)</td>
- * <td>Scale.MixolydianFlat6(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Scale.Locrian(Note)</td>
- * <td>Scale.SuperLocrian(Note)</td>
- * <td>Scale.AhavaRaba(Note)</td>
- * </tr>
- * </tbody>
- * </table>
+ * &lt;br> represents the interval of steps between each note.
+ * &lt;br>&lt;br>Scale intervals are represented by an integer 1 - 4:
+ * &lt;br>1 = half step
+ * &lt;br>2 = whole step
+ * &lt;br>3 = one and one half steps
+ * &lt;br>4 = double step
+ * &lt;br>[2, 2, 1, 2, 2, 2] represents the major scale
+ * &lt;br>&lt;br> Scale templates may have arbitray lengths and do NOT include the root note
+ * &lt;br>&lt;br>
+ * &lt;strong>Built-ins&lt;/strong>
+ * &lt;br> Static factory methods for convinence
+ * &lt;br>
+ * &lt;table class="params">
+ * &lt;tbody>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Scale.WholeTone(Note)&lt;/td>
+ * &lt;td>Scale.Major(Note)&lt;/td>
+ * &lt;td>Scale.Major7s4s5(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Scale.Minor(Note)&lt;/td>
+ * &lt;td>Scale.Minor7b9(Note)&lt;/td>
+ * &lt;td>Scale.Minor7b5(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Scale.HalfDim(Note)&lt;/td>
+ * &lt;td>Scale.HarmonicMajor(Note)&lt;/td>
+ * &lt;td>Scale.HarmonicMinor(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Scale.MelodicMinorAscend(Note)&lt;/td>
+ * &lt;td>Scale.MelodicMinorDesend(Note)&lt;/td>
+ * &lt;td>Scale.EnigmaticMajor(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Scale.EnigmaticMinor(Note)&lt;/td>
+ * &lt;td>Scale.PentatonicMajor(Note)&lt;/td>
+ * &lt;td>Scale.PentatonicMajorBlues(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Scale.b5Pentatonic(Note)&lt;/td>
+ * &lt;td>Scale.Minor6Pentatonic(Note)&lt;/td>
+ * &lt;td>Scale.Dim8Tone(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Scale.Dom8Tone(Note)&lt;/td>
+ * &lt;td>Scale.NeopolitanMajor(Note)&lt;/td>
+ * &lt;td>Scale.NeopolitanMinor(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Scale.HungarianMajor(Note)&lt;/td>
+ * &lt;td>Scale.HungarianMinor(Note)&lt;/td>
+ * &lt;td>Scale.HungarianGypsy(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Scale.Spanish(Note)&lt;/td>
+ * &lt;td>Scale.SpanishGypsy(Note)&lt;/td>
+ * &lt;td>Scale.Spanish8Tone(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Scale.Jewish(Note)&lt;/td>
+ * &lt;td>Scale.Augmented(Note)&lt;/td>
+ * &lt;td>Scale.DominantSuspended(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Scale.BebopMajor(Note)&lt;/td>
+ * &lt;td>Scale.BebopDominant(Note)&lt;/td>
+ * &lt;td>Scale.Mystic(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Scale.Overtone(Note)&lt;/td>
+ * &lt;td>Scale.LeadingTone(Note)&lt;/td>
+ * &lt;td>Scale.DoubleHarmonic(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Scale.Byzantine(Note)&lt;/td>
+ * &lt;td>Scale.Hirojoshi(Note)&lt;/td>
+ * &lt;td>Scale.JapaneseA(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Scale.JapaneseB(Note)&lt;/td>
+ * &lt;td>Scale.Oriental(Note)&lt;/td>
+ * &lt;td>Scale.Persian(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Scale.Arabian(Note)&lt;/td>
+ * &lt;td>Scale.Balinese(Note)&lt;/td>
+ * &lt;td>Scale.Kumoi(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Scale.Pelog(Note)&lt;/td>
+ * &lt;td>Scale.Algerian(Note)&lt;/td>
+ * &lt;td>Scale.Chinese(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Scale.Egyptian(Note)&lt;/td>
+ * &lt;td>Scale.Romanian(Note)&lt;/td>
+ * &lt;td>Scale.Hindu(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Scale.Insen(Note)&lt;/td>
+ * &lt;td>Scale.Iwato(Note)&lt;/td>
+ * &lt;td>Scale.Scottish(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Scale.Yo(Note)&lt;/td>
+ * &lt;td>Scale.Mongolian(Note)&lt;/td>
+ * &lt;td>Scale.Istrian(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Scale.UkranianDorian(Note)&lt;/td>
+ * &lt;td>Scale.Petrushka(Note)&lt;/td>
+ * &lt;td>Scale.Dorian(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Scale.Phrygian(Note)&lt;/td>
+ * &lt;td>Scale.Lydian(Note)&lt;/td>
+ * &lt;td>Scale.LydianDominate(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Scale.Acoustic(Note)&lt;/td>
+ * &lt;td>Scale.Mixolydian(Note)&lt;/td>
+ * &lt;td>Scale.MixolydianFlat6(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Scale.Locrian(Note)&lt;/td>
+ * &lt;td>Scale.SuperLocrian(Note)&lt;/td>
+ * &lt;td>Scale.AhavaRaba(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;/tbody>
+ * &lt;/table>
  *
  * @memberof module:MT
  * @example
@@ -400,8 +486,8 @@ class Scale {
 
     /**
      * (chainable) Sets the mode to one of MT.Scale.modes enum.
-     * <br> This operation converts the scale to the given mode no matter what(A Dorian is A Dorian)
-     * <br> the root note stays the same.
+     * &lt;br> This operation converts the scale to the given mode no matter what(A Dorian is A Dorian)
+     * &lt;br> the root note stays the same.
      *
      * @see #modes
      * @param {Number} pMode The mode to transform into
@@ -411,7 +497,7 @@ class Scale {
      * console.log(s.parallelMode(MT.Scale.modes.DORIAN).asString);
      */
     parallelMode(pMode) {
-      if (!(pMode >= Scale.modes.IONIAN && pMode <= Scale.modes.LOCRIAN)) {
+      if (!(pMode >= Scale.modes.IONIAN &amp;&amp; pMode &lt;= Scale.modes.LOCRIAN)) {
         throw new Error('Invalid scale mode given');
       }
 
@@ -470,7 +556,7 @@ class Scale {
       const octave = this.mRootNote.octave();
 
       let i;
-      for (i = 0; i < this.mTemplate.length; i++) {
+      for (i = 0; i &lt; this.mTemplate.length; i++) {
         iter += this.mTemplate[i];
         this.mNotes.push(new Note(iter, octave));
       }
@@ -488,7 +574,7 @@ class Scale {
      */
     equals(pScale) {
       return (pScale.root() === this.root()
-        && pScale.template() === this.template());
+        &amp;&amp; pScale.template() === this.template());
     }
 
     /**
@@ -647,3 +733,21 @@ class Scale {
 }
 
 export default Scale;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+<script src="scripts/app.min.js"></script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

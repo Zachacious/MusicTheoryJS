@@ -1,4 +1,90 @@
-/*
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>JSDoc: Chord.js</title>
+
+    <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="./build/entry.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link href="https://fonts.googleapis.com/css?family=Muli:100,400,700|Oswald:300|Inconsolata,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+    <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+</head>
+
+<body>
+    <div id="stickyNavbarOverlay"></div>
+    <div class="top-navbar">
+        <div class="container">
+            <nav class="navbar" role="navigation" aria-label="main navigation">
+                <div class="navbar-brand">
+                     
+                        <img src="images/logo.png" alt="logo">
+                    
+                     
+                        <h1 class="navbar-item">MusicTheoryJS Documentation</h1>
+                    
+                    <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+                        <span aria-hidden="true"></span>
+                        <span aria-hidden="true"></span>
+                        <span aria-hidden="true"></span>
+                    </a>
+                </div>
+                 
+                <div class="navbar-menu">
+                    <div class="navbar-end">
+                    
+                        <div class="navbar-item">
+                            <a href="https://github.com/zachacious/tonicjs" target="_blank">
+                                Github
+                            </a>
+                        </div>
+                    
+                        <div class="navbar-item">
+                            <a href="https://admin-bro-example-app.herokuapp.com/admin" target="_blank">
+                                Example Application
+                            </a>
+                        </div>
+                    
+                    </div>
+                </div>
+                
+            </nav>
+        </div>
+    </div>
+    <div class="container">
+        <div class="columns">
+            <div class="column is-3" id="sidebarNav">
+                <div class="sidebar">
+                    <nav>
+                        <h2><a href="index.html">Home</a></h2><div class="category"><h3>Modules</h3><ul><li><a href="module-MT.html">MT</a></li></ul><h3>Classes</h3><ul><li><a href="module-MT.Chord.html">Chord</a></li><li><a href="module-MT.ChordInterval.html">ChordInterval</a></li><li><a href="module-MT.Note.html">Note</a></li><li><a href="module-MT.Progression.html">Progression</a></li><li><a href="module-MT.Scale.html">Scale</a></li></ul></div>
+                    </nav>
+                </div>
+            </div>
+            <div class="column is-9-desktop">
+                <div class="content" id="main-content-wrapper">
+                    <header class="page-title">
+                        <p>Source</p>
+                        <h1>Chord.js</h1>
+                    </header>
+                    
+                    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*
 Chord.js
 */
 
@@ -15,85 +101,85 @@ const mod = Note.modifier;
 
 /**
  * Chords are created from a root note, template, and a scale.
- * <br>The template is created from an array of Chord Interval objects representing the scale degree and alterations of each note in the chord.
- * <br><br>
- * <strong>Built-ins</strong>
- * <br> Static factory methods for convienence
- * <br>
- * <table class="params">
- * <tbody>
- * <tr class="deep-level-0">
- * <td>Chord.M(Note)</td>
- * <td>Chord.Madd4(Note)</td>
- * <td>Chord.M6(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Chord.M69(Note)</td>
- * <td>Chord.M7(Note)</td>
- * <td>Chord.M9(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Chord.M11(Note)</td>
- * <td>Chord.M13(Note)</td>
- * <td>Chord.M7s11(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Chord.Mb5(Note)</td>
- * <td>Chord.m(Note)</td>
- * <td>Chord.madd4(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Chord.m6(Note)</td>
- * <td>Chord.m7(Note)</td>
- * <td>Chord.madd9(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Chord.m6add9(Note)</td>
- * <td>Chord.m9(Note)</td>
- * <td>Chord.m11(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Chord.m13(Note)</td>
- * <td>Chord.m7b5(Note)</td>
- * <td>Chord.dom7(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Chord.dom9(Note)</td>
- * <td>Chord.dom11(Note)</td>
- * <td>Chord.dom13(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Chord.dom7s5(Note)</td>
- * <td>Chord.dom7b5(Note)</td>
- * <td>Chord.dom7b9(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Chord.dom7s9(Note)</td>
- * <td>Chord.dom7s9(Note)</td>
- * <td>Chord.dom9s5(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Chord.dom9b5(Note)</td>
- * <td>Chord.dom7s5s9(Note)</td>
- * <td>Chord.dom7s5b9(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Chord.dom7s11(Note)</td>
- * <td>Chord.dim(Note)</td>
- * <td>Chord.dim7(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Chord.aug(Note)</td>
- * <td>Chord.fifth(Note)</td>
- * <td>Chord.b5(Note)</td>
- * </tr>
- * <tr class="deep-level-0">
- * <td>Chord.sus4(Note)</td>
- * <td>Chord.sus2(Note)</td>
- * <td>Chord.s11(Note)</td>
- * </tr>
- * </tbody>
- * </table>
+ * &lt;br>The template is created from an array of Chord Interval objects representing the scale degree and alterations of each note in the chord.
+ * &lt;br>&lt;br>
+ * &lt;strong>Built-ins&lt;/strong>
+ * &lt;br> Static factory methods for convienence
+ * &lt;br>
+ * &lt;table class="params">
+ * &lt;tbody>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Chord.M(Note)&lt;/td>
+ * &lt;td>Chord.Madd4(Note)&lt;/td>
+ * &lt;td>Chord.M6(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Chord.M69(Note)&lt;/td>
+ * &lt;td>Chord.M7(Note)&lt;/td>
+ * &lt;td>Chord.M9(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Chord.M11(Note)&lt;/td>
+ * &lt;td>Chord.M13(Note)&lt;/td>
+ * &lt;td>Chord.M7s11(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Chord.Mb5(Note)&lt;/td>
+ * &lt;td>Chord.m(Note)&lt;/td>
+ * &lt;td>Chord.madd4(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Chord.m6(Note)&lt;/td>
+ * &lt;td>Chord.m7(Note)&lt;/td>
+ * &lt;td>Chord.madd9(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Chord.m6add9(Note)&lt;/td>
+ * &lt;td>Chord.m9(Note)&lt;/td>
+ * &lt;td>Chord.m11(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Chord.m13(Note)&lt;/td>
+ * &lt;td>Chord.m7b5(Note)&lt;/td>
+ * &lt;td>Chord.dom7(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Chord.dom9(Note)&lt;/td>
+ * &lt;td>Chord.dom11(Note)&lt;/td>
+ * &lt;td>Chord.dom13(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Chord.dom7s5(Note)&lt;/td>
+ * &lt;td>Chord.dom7b5(Note)&lt;/td>
+ * &lt;td>Chord.dom7b9(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Chord.dom7s9(Note)&lt;/td>
+ * &lt;td>Chord.dom7s9(Note)&lt;/td>
+ * &lt;td>Chord.dom9s5(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Chord.dom9b5(Note)&lt;/td>
+ * &lt;td>Chord.dom7s5s9(Note)&lt;/td>
+ * &lt;td>Chord.dom7s5b9(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Chord.dom7s11(Note)&lt;/td>
+ * &lt;td>Chord.dim(Note)&lt;/td>
+ * &lt;td>Chord.dim7(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Chord.aug(Note)&lt;/td>
+ * &lt;td>Chord.fifth(Note)&lt;/td>
+ * &lt;td>Chord.b5(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;tr class="deep-level-0">
+ * &lt;td>Chord.sus4(Note)&lt;/td>
+ * &lt;td>Chord.sus2(Note)&lt;/td>
+ * &lt;td>Chord.s11(Note)&lt;/td>
+ * &lt;/tr>
+ * &lt;/tbody>
+ * &lt;/table>
  *
  * @memberof module:MT
  * @example
@@ -239,7 +325,7 @@ class Chord {
 
     /**
      * (chainable) Sets or returns the octave
-     * <br> Sets the octave of each note relative to the root
+     * &lt;br> Sets the octave of each note relative to the root
      *
      * @chainable
      * @param {Number} [pOctave] the new octave - clamped 0 - 10
@@ -270,14 +356,14 @@ class Chord {
     invert() {
       const templateSize = this.mTemplate.length;
 
-      if (templateSize < 2) {
+      if (templateSize &lt; 2) {
         throw new Error('Chord doesn\'t have enough notes to invert');
       }
 
       const newTemplate = [];
 
       let i;
-      for (i = 1; i < templateSize; i++) {
+      for (i = 1; i &lt; templateSize; i++) {
         newTemplate.push(this.mTemplate[i]);
       }
 
@@ -434,8 +520,8 @@ class Chord {
      */
     equals(pChord) {
       return (pChord.mRootnote.equals(this.mRootnote)
-        && pChord.mScale.equals(this.mScale)
-        && pChord.mTemplate === this.mTemplate);
+        &amp;&amp; pChord.mScale.equals(this.mScale)
+        &amp;&amp; pChord.mTemplate === this.mTemplate);
     }
 
     /**
@@ -459,7 +545,7 @@ class Chord {
       this.mNotes = [];
 
       let i;
-      for (i = 0; i < this.mTemplate.length; i++) {
+      for (i = 0; i &lt; this.mTemplate.length; i++) {
         const deg = this.mScale.degree(this.mTemplate[i].interval);
 
         switch (this.mTemplate[i].modifier) {
@@ -487,7 +573,7 @@ class Chord {
 
     /**
      * Parses a string representation of a chord name and
-     * <br> returns the root note and template
+     * &lt;br> returns the root note and template
      *
      * @static
      * @private
@@ -516,7 +602,7 @@ class Chord {
       // parse each segment
       const numSegments = segments.length;
       let i = 0;
-      for (i; i < numSegments; i++) {
+      for (i; i &lt; numSegments; i++) {
         const seg = segments[i];
         const cleanSeg = seg.filter((el) => el != null); // remove empty indexes from segment
         const typeIdentifier = String(cleanSeg[1].charAt(0));
@@ -630,7 +716,7 @@ class Chord {
         }
       }
 
-      if (!root || template.length < 2) {
+      if (!root || template.length &lt; 2) {
         throw new Error('Invalid chord name given');
       } else {
         // sort template by scale degree
@@ -734,3 +820,21 @@ class Chord {
 }
 
 export default Chord;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+<script src="scripts/app.min.js"></script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

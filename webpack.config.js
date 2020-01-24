@@ -20,7 +20,7 @@ module.exports = {
     filename: 'musictheory.js',
     libraryTarget: 'umd',
     // globalObject: 'this',
-    library: '',
+    library: 'MT',
   },
   plugins: [
     // new JsDocPlugin({

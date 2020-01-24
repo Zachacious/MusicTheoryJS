@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>JSDoc: Progression</title>
+    <title>JSDoc: ChordInterval</title>
 
     <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -29,7 +29,7 @@
                         <img src="images/logo.png" alt="logo">
                     
                      
-                        <h1 class="navbar-item">TonicJS Documentation</h1>
+                        <h1 class="navbar-item">MusicTheoryJS Documentation</h1>
                     
                     <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
                         <span aria-hidden="true"></span>
@@ -64,7 +64,7 @@
             <div class="column is-3" id="sidebarNav">
                 <div class="sidebar">
                     <nav>
-                        <h2><a href="index.html">Home</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Progression.html">Progression</a></li></ul></div>
+                        <h2><a href="index.html">Home</a></h2><div class="category"><h3>Modules</h3><ul><li><a href="module-MT.html">MT</a></li></ul><h3>Classes</h3><ul><li><a href="module-MT.Chord.html">Chord</a></li><li><a href="module-MT.ChordInterval.html">ChordInterval</a></li><li><a href="module-MT.Note.html">Note</a></li><li><a href="module-MT.Progression.html">Progression</a></li><li><a href="module-MT.Scale.html">Scale</a></li></ul></div>
                     </nav>
                 </div>
             </div>
@@ -72,7 +72,7 @@
                 <div class="content" id="main-content-wrapper">
                     <header class="page-title">
                         <p>Class</p>
-                        <h1>Progression</h1>
+                        <h1>ChordInterval</h1>
                     </header>
                     
                     
@@ -84,9 +84,12 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>Progression<span class="signature">(pScale<span class="signature-attributes">opt</span>, pTemplate<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>
+            <span class="ancestors"><a href="module-MT.html">MT</a>.</span>ChordInterval<span class="signature">(pInterval<span class="signature-attributes">opt</span>, pModifier<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
         
-            <div class="class-description">Generate Chords from a scale and template - [1 ,4, 5]</div>
+            <div class="class-description"><p>Chord intervals contain an integer representing a scale degree and a modifier-- #, ##, b, bb, or Natural
+<br> 'ChordInterval' can be a lot to type so use an alias like:
+<br> const CI = MT.ChordInterval.create;</p></div>
         
     
 </header>
@@ -102,12 +105,12 @@
 
 
     
-    <h4 class="name" id="Progression">
-        <a class="href-link" href="#Progression">#</a>
+    <h4 class="name" id="ChordInterval">
+        <a class="href-link" href="#ChordInterval">#</a>
         
         <span class="code-name">
             
-                new Progression<span class="signature">(pScale<span class="signature-attributes">opt</span>, pTemplate<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span>
+                new ChordInterval<span class="signature">(pInterval<span class="signature-attributes">opt</span>, pModifier<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span>
             
         </span>
     </h4>
@@ -116,7 +119,7 @@
     
     
     <div class="description">
-        Creates an instance of Progression.
+        <p>Creates an instance of ChordInterval.</p>
     </div>
     
 
@@ -158,13 +161,13 @@
         
 <tr class="deep-level-0">
   
-      <td class="name"><code>pScale</code></td>
+      <td class="name"><code>pInterval</code></td>
   
 
   <td class="type">
   
       
-<span class="param-type">Scale</span>
+<span class="param-type">number</span>
 
 
   
@@ -185,12 +188,12 @@
   
       <td class="default">
       
-          new Scale()
+          0
       
       </td>
   
 
-  <td class="description last">pScale - The scale to build the chords upon</td>
+  <td class="description last"><p>Scale degree</p></td>
 </tr>
 
 
@@ -199,13 +202,13 @@
         
 <tr class="deep-level-0">
   
-      <td class="name"><code>pTemplate</code></td>
+      <td class="name"><code>pModifier</code></td>
   
 
   <td class="type">
   
       
-<span class="param-type">Array</span>
+<span class="param-type">number</span>
 
 
   
@@ -226,12 +229,12 @@
   
       <td class="default">
       
-          [1, 4, 5]
+          0
       
       </td>
   
 
-  <td class="description last">pTemplate - An array containing the scale degrees from which to generate the chords</td>
+  <td class="description last"><p>modifier</p></td>
 </tr>
 
 
@@ -276,9 +279,9 @@
 
     
         <p class="tag-source">
-            <a href="Progression.js.html" class="button">View Source</a>
+            <a href="ChordInterval.js.html" class="button">View Source</a>
             <span>
-                <a href="Progression.js.html">Progression.js</a>, <a href="Progression.js.html#line24">line 24</a>
+                <a href="ChordInterval.js.html">ChordInterval.js</a>, <a href="ChordInterval.js.html#line27">line 27</a>
             </span>
         </p>
     
@@ -302,6 +305,16 @@
 
 
 
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>const mod = MT.Note.modifier;
+const CI = MT.ChordInterval.create;
+
+const sharpRoot = CI(1, mod.SHARP);</code></pre>
+    
 
 
 </div>
@@ -324,234 +337,156 @@
     
 
     
+
+    
         <div class='vertical-section'>
-            <h3 class="title"><span>Members</span></h3>
+            <h3 class="title"><span>Methods</span></h3>
             <div class="members">
             
                 <div class="member">
 
-<h4 class="name" id="asString">
-    <a class="href-link" href="#asString">#</a>
+
     
+    <h4 class="name" id=".create">
+        <a class="href-link" href="#.create">#</a>
         
-            <span class='tag'>readonly</span>
-        
-    
-    <span class="code-name">
-        asString
-    </span>
-    
-</h4>
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    
-
-    
-
-    
-
-    
-        <p class="tag-source">
-            <a href="Progression.js.html" class="button">View Source</a>
-            <span>
-                <a href="Progression.js.html">Progression.js</a>, <a href="Progression.js.html#line35">line 35</a>
-            </span>
-        </p>
-    
-</dl>
-
-
-
-
-
-</div>
             
-                <div class="member">
-
-<h4 class="name" id="mChords">
-    <a class="href-link" href="#mChords">#</a>
-    
-        
-            <span class='tag'>private</span>
-        
-    
-    <span class="code-name">
-        mChords
-    </span>
-    
-</h4>
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    
-
-    
-
-    
-
-    
-        <p class="tag-source">
-            <a href="Progression.js.html" class="button">View Source</a>
-            <span>
-                <a href="Progression.js.html">Progression.js</a>, <a href="Progression.js.html#line14">line 14</a>
-            </span>
-        </p>
-    
-</dl>
-
-
-
-
-
-</div>
+                <span class='tag'>static</span>
             
-                <div class="member">
-
-<h4 class="name" id="mScale">
-    <a class="href-link" href="#mScale">#</a>
-    
         
-            <span class='tag'>private</span>
-        
-    
-    <span class="code-name">
-        mScale
-    </span>
-    
-</h4>
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    
-
-    
-
-    
-
-    
-        <p class="tag-source">
-            <a href="Progression.js.html" class="button">View Source</a>
-            <span>
-                <a href="Progression.js.html">Progression.js</a>, <a href="Progression.js.html#line11">line 11</a>
-            </span>
-        </p>
-    
-</dl>
-
-
-
-
-
-</div>
+        <span class="code-name">
             
-                <div class="member">
-
-<h4 class="name" id="mTemplate">
-    <a class="href-link" href="#mTemplate">#</a>
+                create<span class="signature">(pInterval<span class="signature-attributes">opt</span>, pModifier<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="ChordInterval.html">ChordInterval</a>}</span>
+            
+        </span>
+    </h4>
     
+
+    
+    
+    <div class="description">
+        <p>An alias for the constructor</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
         
-            <span class='tag'>private</span>
+        <th>Name</th>
         
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
     
-    <span class="code-name">
-        mTemplate
-    </span>
+
+        
+<tr class="deep-level-0">
+  
+      <td class="name"><code>pInterval</code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">number</span>
+
+
+  
+  </td>
+
+  
+      <td class="attributes">
+      
+          &lt;optional><br>
+      
+
+      
+
+      
+      </td>
+  
+
+  
+      <td class="default">
+      
+          0
+      
+      </td>
+  
+
+  <td class="description last"><p>Scale degree</p></td>
+</tr>
+
+
     
-</h4>
+
+        
+<tr class="deep-level-0">
+  
+      <td class="name"><code>pModifier</code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">number</span>
 
 
+  
+  </td>
 
+  
+      <td class="attributes">
+      
+          &lt;optional><br>
+      
+
+      
+
+      
+      </td>
+  
+
+  
+      <td class="default">
+      
+          0
+      
+      </td>
+  
+
+  <td class="description last"><p>modifier</p></td>
+</tr>
+
+
+    
+    </tbody>
+</table>
 
 
 
@@ -590,14 +525,53 @@
 
     
         <p class="tag-source">
-            <a href="Progression.js.html" class="button">View Source</a>
+            <a href="ChordInterval.js.html" class="button">View Source</a>
             <span>
-                <a href="Progression.js.html">Progression.js</a>, <a href="Progression.js.html#line17">line 17</a>
+                <a href="ChordInterval.js.html">ChordInterval.js</a>, <a href="ChordInterval.js.html#line40">line 40</a>
             </span>
         </p>
     
 </dl>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<span class="param-type"><a href="ChordInterval.html">ChordInterval</a></span>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
 
 
 
@@ -606,8 +580,6 @@
             
             </div>
         </div>
-    
-
     
 
     

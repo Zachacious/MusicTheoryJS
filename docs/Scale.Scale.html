@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    tracking-code-which-will-go-to-the-HEAD
+    
     <meta charset="utf-8">
-    <title>JSDoc: Progression</title>
+    <title>JSDoc: Scale</title>
 
     <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -29,7 +29,7 @@
                         <img src="images/logo.png" alt="logo">
                     
                      
-                        <h1 class="navbar-item">TonicJS Documentation</h1>
+                        <h1 class="navbar-item">MusicTheoryJS Documentation</h1>
                     
                     <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
                         <span aria-hidden="true"></span>
@@ -64,7 +64,7 @@
             <div class="column is-3" id="sidebarNav">
                 <div class="sidebar">
                     <nav>
-                        <h2><a href="index.html">Home</a></h2><div class="category"><h3>Modules</h3><ul><li><a href="Progression.module_js.html">Progression.js</a></li></ul><h3>Classes</h3><ul><li><a href="Progression.module_js-Progression.html">Progression</a></li></ul></div>
+                        <h2><a href="index.html">Home</a></h2><div class="category"><h3>Modules</h3><ul><li><a href="module-MT.html">MT</a></li></ul><h3>Classes</h3><ul><li><a href="Chord.html">Chord</a></li><li><a href="module-MT.Note.html">Note</a></li><li><a href="module-MT.Progression.html">Progression</a></li><li><a href="module-MT.Scale.html">Scale</a></li><li><a href="Note.Note.html">Note</a></li><li><a href="Progression.Progression.html">Progression</a></li><li><a href="Scale.Scale.html">Scale</a></li></ul></div>
                     </nav>
                 </div>
             </div>
@@ -72,7 +72,7 @@
                 <div class="content" id="main-content-wrapper">
                     <header class="page-title">
                         <p>Class</p>
-                        <h1>Progression</h1>
+                        <h1>Scale</h1>
                     </header>
                     
                     
@@ -84,10 +84,7 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>
-            <span class="ancestors"><a href="Progression.module_js.html">Progression.js</a>~</span>Progression<span class="signature">(pScale<span class="signature-attributes">opt</span>, pTemplate<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
-        
-            <div class="class-description">Generate Chords from a scale and template - [1 ,4, 5]</div>
+        <h2><span class="attribs"><span class="type-signature"></span></span>Scale<span class="signature">(pRootNote<span class="signature-attributes">opt</span>, pTemplate<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
         
     
 </header>
@@ -103,12 +100,12 @@
 
 
     
-    <h4 class="name" id="Progression">
-        <a class="href-link" href="#Progression">#</a>
+    <h4 class="name" id="Scale">
+        <a class="href-link" href="#Scale">#</a>
         
         <span class="code-name">
             
-                new Progression<span class="signature">(pScale<span class="signature-attributes">opt</span>, pTemplate<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span>
+                new Scale<span class="signature">(pRootNote<span class="signature-attributes">opt</span>, pTemplate<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span>
             
         </span>
     </h4>
@@ -117,7 +114,7 @@
     
     
     <div class="description">
-        Creates an instance of Progression.
+        <p>Creates an instance of Scale.</p>
     </div>
     
 
@@ -159,13 +156,13 @@
         
 <tr class="deep-level-0">
   
-      <td class="name"><code>pScale</code></td>
+      <td class="name"><code>pRootNote</code></td>
   
 
   <td class="type">
   
       
-<span class="param-type">Scale</span>
+<span class="param-type"><a href="Note.html">Note</a></span>
 
 
   
@@ -186,12 +183,12 @@
   
       <td class="default">
       
-          new Scale()
+          new Note()
       
       </td>
   
 
-  <td class="description last">pScale - The scale to build the chords upon</td>
+  <td class="description last"><p>The root note of the scale - tonic</p></td>
 </tr>
 
 
@@ -227,12 +224,12 @@
   
       <td class="default">
       
-          [1, 4, 5]
+          [2, 2, 1, 2, 2, 2]
       
       </td>
   
 
-  <td class="description last">pTemplate - An array containing the scale degrees from which to generate the chords</td>
+  <td class="description last"><p>An array of integers representing the intervals between scale degrees(not including the root)</p></td>
 </tr>
 
 
@@ -277,9 +274,9 @@
 
     
         <p class="tag-source">
-            <a href="Progression.js.html" class="button">View Source</a>
+            <a href="Scale.js.html" class="button">View Source</a>
             <span>
-                <a href="Progression.js.html">Progression.js</a>, <a href="Progression.js.html#line28">line 28</a>
+                <a href="Scale.js.html">Scale.js</a>, <a href="Scale.js.html#line67">line 67</a>
             </span>
         </p>
     

@@ -1,5 +1,7 @@
 {
-    "plugins": [],
+    "plugins": [
+        "plugins/markdown"
+    ],
     "recurseDepth": 10,
     "source": {
         "include": ["./src"],
@@ -14,6 +16,7 @@
     "templates": {
         "cleverLinks": false,
         "monospaceLinks": false,
+        "useShortNamesInLinks": true,
         "default": {
             "staticFiles": {
               "include": [
@@ -22,7 +25,7 @@
             }
         },
         "better-docs": {
-            "name": "TonicJS Documentation",
+            "name": "MusicTheoryJS Documentation",
             "logo": "images/logo.png",
 	        "hideGenerator": false,
             "navigation": [
@@ -40,9 +43,10 @@
     "opts": {
         "encoding": "utf8",
         "destination": "docs/",
-        "readme": "readme.md",
+        "readme": "README.md",
         "recurse": true,
         "verbose": true,
+        "lenient": true,
         "template": "node_modules/better-docs"
       }
 }

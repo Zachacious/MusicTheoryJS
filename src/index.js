@@ -1,4 +1,9 @@
-// eslint-disable-next-line import/prefer-default-export
+/**
+ * MusicTheoryJS
+ * @version 0.1
+ * @module MT
+ */
+
 export { default as Note } from './Note';
 export { default as Scale } from './Scale';
 export { default as Chord } from './Chord';
