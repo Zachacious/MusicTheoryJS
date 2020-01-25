@@ -26,16 +26,16 @@
         },
         "better-docs": {
             "name": "MusicTheoryJS Documentation",
-            "logo": "images/logo.png",
+            "logo": "mtjs.jpg",
 	        "hideGenerator": false,
             "navigation": [
                 {
                     "label": "Github",
-                    "href": "https://github.com/zachacious/tonicjs"
+                    "href": "https://github.com/zachacious/musictheoryjs"
                 },
                 {
                     "label": "Example Application",
-                    "href": "https://admin-bro-example-app.herokuapp.com/admin"
+                    "href": "#"
                 }
             ]
         }
