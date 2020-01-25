@@ -1,4 +1,4 @@
-const JsDocPlugin = require('jsdoc-webpack-plugin');
+// const JsDocPlugin = require('jsdoc-webpack-plugin');
 
 // eslint-disable-next-line prefer-const
 let config = {
@@ -24,11 +24,11 @@ let config = {
     library: 'MT',
   },
   plugins: [
-    new JsDocPlugin({
-      conf: 'jsdoc.json',
-      cwd: '.',
-      preserveTmpFile: false,
-    }),
+    // new JsDocPlugin({
+    //   conf: 'jsdoc.json',
+    //   cwd: '.',
+    //   preserveTmpFile: false,
+    // }),
   ],
   devServer: {
     contentBase: './dist',
