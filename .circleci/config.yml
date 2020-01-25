@@ -89,14 +89,11 @@ workflows:
     jobs:
       - build
       - buildDocs
-      # - buildDocs:
-      #     requires:
-      #       - build
+      - hold:
+          type: approval
       - deploy:
           requires:
             - build
-          hold:
-          type: approval
           filters:
             tags:
               only: /^v.*/
