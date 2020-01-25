@@ -7,7 +7,7 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: circleci/node:7.10
+      - image: circleci/node:10.16.3
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -21,20 +21,20 @@ jobs:
 
       # Download and cache dependencies
       - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "package.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+      # - restore_cache:
+      #     keys:
+      #       - v1-dependencies-{{ checksum "package.json" }}
+      #       # fallback to using the latest cache if no exact match is found
+      #       - v1-dependencies-
 
       - run: 
-          command:
-            npm install
+          command: npm install
 
       - save_cache:
           paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
+            - ./node_modules
+          key: v1-dependencies-{{ checksum "package-lock.json" }}
 
       - run: 
-          command:
-            npm run build
+          command: npm run build
