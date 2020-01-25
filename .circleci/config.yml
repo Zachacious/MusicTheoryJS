@@ -59,9 +59,12 @@ jobs:
     docker:
       # specify the version you desire here
       - image: circleci/node:10.13.0
-    working_directory: ~/repo
     steps:
-      - run: npm run docs
+      - attach_workspace:
+          at: ~/repo
+      - run: 
+          name: Build Docs
+          command: npm run docs
 
   deploy:
     docker:
