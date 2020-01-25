@@ -1,6 +1,6 @@
 {
   "name": "musictheoryjs",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Music theory lib for JavaScript",
   "main": "dist/musictheory.min.js",
   "np": {
@@ -49,7 +49,5 @@
     "webpack-cli": "^3.3.10",
     "webpack-dev-server": "^3.10.1"
   },
-  "dependencies": {
-    
-  }
+  "dependencies": {}
 }
