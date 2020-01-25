@@ -1,6 +1,7 @@
 const JsDocPlugin = require('jsdoc-webpack-plugin');
 
-module.exports = {
+// eslint-disable-next-line prefer-const
+let config = {
   entry: './src/index.js',
   module: {
     rules: [
@@ -23,18 +24,34 @@ module.exports = {
     library: 'MT',
   },
   plugins: [
-    // new JsDocPlugin({
-    //   conf: 'jsdoc.json',
-    //   cwd: '.',
-    //   preserveTmpFile: false,
-    // }),
+    new JsDocPlugin({
+      conf: 'jsdoc.json',
+      cwd: '.',
+      preserveTmpFile: false,
+    }),
   ],
   devServer: {
     contentBase: './dist',
   },
-  optimization: {
-    minimize: false,
-  },
-  mode: 'development',
-  devtool: 'sourceMap',
+  // optimization: {
+  //   minimize: false,
+  // },
+  // mode: 'development',
+  // devtool: 'sourceMap',
+};
+
+module.exports = (env, argv) => {
+  if (argv.mode === 'development') {
+    config.mode = 'development';
+    config.devtool = 'source-map';
+    config.optimization = {
+      minimize: false,
+    };
+  }
+
+  if (argv.mode === 'production') {
+    config.output.filename = 'musictheory.min.js';
+  }
+
+  return config;
 };

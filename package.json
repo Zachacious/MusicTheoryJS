@@ -4,6 +4,7 @@
   "description": "Music theory lib for JavaScript",
   "main": "dist/musictheory.js",
   "scripts": {
+    "build": "webpack -p --progress --config ./webpack.config.js --mode production",
     "start": "webpack -p --progress && webpack-dev-server --config ./webpack.config.js --mode development",
     "docs": "jsdoc -c jsdoc.json",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -37,12 +38,12 @@
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.14.3",
     "eslint-plugin-react-hooks": "^1.7.0",
+    "jsdoc-webpack-plugin": "^0.2.0",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10",
     "webpack-dev-server": "^3.10.1"
   },
   "dependencies": {
-    "@babel/plugin-proposal-private-methods": "^7.8.3",
-    "jsdoc-webpack-plugin": "^0.2.0"
+    "@babel/plugin-proposal-private-methods": "^7.8.3"
   }
 }

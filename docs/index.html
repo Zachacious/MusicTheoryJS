@@ -64,7 +64,7 @@
             <div class="column is-3" id="sidebarNav">
                 <div class="sidebar">
                     <nav>
-                        <h2><a href="index.html">Home</a></h2><div class="category"><h3>Modules</h3><ul><li><a href="module-MT.html">MT</a></li></ul><h3>Classes</h3><ul><li><a href="module-MT.Chord.html">Chord</a></li><li><a href="module-MT.ChordInterval.html">ChordInterval</a></li><li><a href="module-MT.Note.html">Note</a></li><li><a href="module-MT.Progression.html">Progression</a></li><li><a href="module-MT.Scale.html">Scale</a></li></ul></div>
+                        <h2><a href="index.html">Home</a></h2><div class="category"><h3>Modules</h3><ul><li><a href="module-MT.html">MT</a></li></ul><h3>Classes</h3><ul><li><a href="module-MT.Chord.html">Chord</a></li><li><a href="module-MT.ChordInterval.html">ChordInterval</a></li><li><a href="module-MT.Note.html">Note</a></li><li><a href="module-MT.Scale.html">Scale</a></li></ul></div>
                     </nav>
                 </div>
             </div>
@@ -99,7 +99,129 @@
 
 
     <section>
-        <article><p>Music Theory</p></article>
+        <article><h1>MusicTheoryJS</h1>
+<p>MusicTheoryJS is a fully documented, lightweight(5kb gzip), chainable music theory library for realtime procedural music generation, analysis and computer aided music composition.</p>
+<p>Includes nearly 70 built in scales and over 40 built in chords</p>
+<hr>
+<h2>Install</h2>
+<blockquote>
+<p>npm i ...(todo)</p>
+</blockquote>
+<hr>
+<h2>Classes</h2>
+<p>MusicTheoryJS is comprised of 3 main classes:</p>
+<h3>Note</h3>
+<p>Notes consist of a semitone interval (G#(1) - G(12)) and an octave(0-10).</p>
+<pre class="prettyprint source lang-Javascript"><code>// Notes can be created from a string
+// 'note[alterations][octave]'
+let A4 = new MT.Note('A#4');
+
+// ... or created directly from a semiton and octave
+let A5 = new MT.Note(2, 5); // A semitone = 2 -- octave 5
+
+// ... or from the tones enum
+let A6 = new MT.Note(MT.Note.tones.A, 6);
+
+// ... or from a builtin
+let A7 = MT.Note.A(7); // built in
+
+// modifiers can be chained
+A4.tone(MT.Note.tones.D_FLAT).octave(7).sharp(); // A4 becomes D7
+A4.tone(2).octave(4); // change back to A4
+
+// The tuning can be altered by changing the A4 base frequency
+// Note: this will change the frequency returned by every note 
+MT.Note.A4Tuning(432); // default is 440
+
+// other methods
+console.log(A7.asString); // A7
+console.log(A4.midiKey); // 69
+console.log(A7.isFlat()); // false
+console.log(A4.freq); // 432 - because we changed it above
+</code></pre>
+<h3>Scale</h3>
+<p>Scales consist of a root note(tonic or key) and a template(array of integers) that
+represents the interval of steps between each note.</p>
+<p>Scale intervals are represented by an integer 1 - 4:</p>
+<ul>
+<li>1 = half step</li>
+<li>2 = whole step</li>
+<li>3 = one and one half steps</li>
+<li>4 = double step</li>
+</ul>
+<p>[2, 2, 1, 2, 2, 2] represents the major scale</p>
+<p>Scale templates may have arbitray lengths and do NOT include the root note</p>
+<p>Check the docs - nearly 70 built in scales</p>
+<pre class="prettyprint source lang-Javascript"><code>// Create from a root note and a template
+let aMajor = MT.Scale(MT.Note.A(), [2, 2, 1, 2, 2, 2]);
+
+// ... or from a builtin
+let aPentatonicMajorBlues = MT.Scale.PentatonicMajorBlues(MT.Note.A());
+
+// relative modes
+// returns a new scale
+let aMDor = aMajor.dorianMode();
+let aMLoc = aMajor.locrianMode(); 
+
+// parallel modes
+aMajor.parallelMode(MT.Scale.modes.PHRYGIAN);
+
+// chainable
+aMajor.minor().tone(MT.Note.tones.F);
+
+// relativeMajor/relativeMinor
+let s = aMajor.relativeMajor();
+</code></pre>
+<h3>Chord</h3>
+<p>Chords are created from a root note, template, and a scale.
+The template is created from an array of Chord Interval objects representing the scale degree and alterations of each note in the chord.</p>
+<p>Over 40 builtin chords</p>
+<pre class="prettyprint source lang-Javascript"><code>const CI = MT.ChordInterval.create; // alias
+const mod = MT.Note.modifier; // alias
+
+// Create from string
+// If performance matters, avoid this method
+let AbM7s11 = new MT.Chord('AbM7s11'); 
+
+// ... or from root note and template
+let Cm = new MT.Chord(MT.Note.C(), [CI(1), CI(3, mod.FLAT), CI(5)]);
+
+// ... or from a builtin
+let Fdom7s11 = MT.Chord.dom7s11(MT.Note.F()); 
+
+// chains
+Cm.root(new MT.Note(2)).octave(2).diminish().major();
+
+// invert
+Cm.invert().invert();
+
+// create chord progressions
+
+let s = MT.Scale.HarmonicMajor(MT.Note.A(4));
+
+let progression = [];
+progression.push(MT.Chord.M(s.degree(1))); // creates I chord 
+progression.push(MT.Chord.M7b5(s.degree(4))); // creates IV chord 
+progression.push(MT.Chord.M7s11(s.degree(5))); // creates V chord 
+</code></pre>
+<h2>Dev Setup</h2>
+<p>Clone the project</p>
+<p>Install Deps:</p>
+<blockquote>
+<p>npm install</p>
+</blockquote>
+<p>Build:</p>
+<blockquote>
+<p>npm run build</p>
+</blockquote>
+<p>Dev Server:</p>
+<blockquote>
+<p>npm start</p>
+</blockquote>
+<p>Build Docs:</p>
+<blockquote>
+<p>npm run docs</p>
+</blockquote></article>
     </section>
 
 

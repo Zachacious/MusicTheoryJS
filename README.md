@@ -1,8 +1,8 @@
 # MusicTheoryJS
 
-MusicTheoryJS is a fully documented, lightweight, chainable music theory library for realtime procedural music generation, analysis and computer aided music composition.
+MusicTheoryJS is a fully documented, lightweight(5kb gzip), chainable music theory library for realtime procedural music generation, analysis and computer aided music composition.
 
-This library is NOT a midi library and does not create sound but could easily be coupled with one.
+Includes nearly 70 built in scales and over 40 built in chords
 
 - - -
 ## Install
@@ -122,16 +122,24 @@ progression.push(MT.Chord.M7b5(s.degree(4))); // creates IV chord
 progression.push(MT.Chord.M7s11(s.degree(5))); // creates V chord 
 ```
 
+- - -
+
 ## Dev Setup
 
 Clone the project
 
+Install Deps:
+
 >npm install
 
-Build
+Build:
 
 >npm run build
 
-Build Docs
+Dev Server:
+
+> npm start
+
+Build Docs:
 
 >npm run docs
