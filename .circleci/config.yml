@@ -49,11 +49,18 @@ jobs:
           key: v1-dependencies-{{ checksum "package.json" }}
 
       - run: npm run build
-      - run: npm run docs
+      # - run: npm run docs
       
       - persist_to_workspace:
           root: ~/repo
           paths: [.]
+
+  buildDocs:
+    docker:
+      # specify the version you desire here
+      - image: circleci/node:10.13.0
+    steps:
+      - run: npm run docs
 
   deploy:
     docker:
@@ -75,12 +82,13 @@ workflows:
   build-deploy:
     jobs:
       - build
-      - hold:
-          type: approval
+      - buildDocs
+      # - hold:
+      #     type: approval
       - deploy:
           requires:
             - build
-            - hold
+            - buildDocs
           filters:
             tags:
               only: /^v.*/
