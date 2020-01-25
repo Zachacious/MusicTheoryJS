@@ -89,14 +89,14 @@ workflows:
     jobs:
       - build
       # - buildDocs
-      - hold:
-          type: approval
-      - deploy:
-          requires:
-            - build
-            - hold
-          filters:
-            tags:
-              only: /^v.*/
-            branches:
-              only: master
+      # - hold:
+      #     type: approval
+      # - deploy:
+      #     requires:
+      #       - build
+      #       - hold
+      #     filters:
+      #       tags:
+      #         only: /^v.*/
+      #       branches:
+      #         only: master
