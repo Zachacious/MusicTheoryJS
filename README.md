@@ -1,12 +1,15 @@
-# MusicTheoryJS
+# 🎵MusicTheoryJS 
+[![Inline docs](http://inch-ci.org/github/zachacious/musictheoryjs.svg?branch=master)](http://inch-ci.org/github/zachacious/musictheoryjs)
 
 MusicTheoryJS is a fully documented, lightweight(5kb gzip), chainable music theory library for realtime procedural music generation, analysis and computer aided music composition.
 
 Includes nearly 70 built in scales and over 40 built in chords
 
+📘[Documentation](https://www.zachacious.github.io/musictheoryjs)
+
 - - -
 ## Install
->npm i ...(todo)
+```npm i ...(todo)```
 - - -
 
 ## Classes
@@ -130,16 +133,16 @@ Clone the project
 
 Install Deps:
 
->npm install
+```npm install```
 
 Build:
 
->npm run build
+```npm run build```
 
 Dev Server:
 
-> npm start
+```npm start```
 
 Build Docs:
 
->npm run docs
+```npm run docs```
