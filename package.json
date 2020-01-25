@@ -1,8 +1,8 @@
 {
   "name": "musictheoryjs",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Music theory lib for JavaScript",
-  "main": "dist/musictheory.js",
+  "main": "dist/musictheory.min.js",
   "scripts": {
     "build": "webpack -p --progress --config ./webpack.config.js --mode production",
     "start": "webpack -p --progress && webpack-dev-server --config ./webpack.config.js --mode development",
@@ -44,6 +44,6 @@
     "webpack-dev-server": "^3.10.1"
   },
   "dependencies": {
-    "@babel/plugin-proposal-private-methods": "^7.8.3"
+    
   }
 }
