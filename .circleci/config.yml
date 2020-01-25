@@ -49,29 +49,29 @@ jobs:
           key: v1-dependencies-{{ checksum "package.json" }}
 
       - run: npm run build
-      # - run: npm run docs
+      - run: npm run docs
       
       - persist_to_workspace:
           root: ~/repo
           paths: [.]
 
-  buildDocs:
-    docker:
-      # specify the version you desire here
-      - image: circleci/node:10.13.0
-    steps:
-      - attach_workspace:
-          at: ~/repo
-      - run: 
-          name: Build Docs
-          command: npm run docs
+  # buildDocs:
+  #   docker:
+  #     # specify the version you desire here
+  #     - image: circleci/node:10.13.0
+  #   steps:
+  #     - attach_workspace:
+  #         at: ~/repo
+  #     - run: 
+  #         name: Build Docs
+  #         command: npm run docs
 
   deploy:
     docker:
       # specify the version you desire here
       - image: circleci/node:10.13.0
     steps:
-      - early_return_for_forked_pull_requests
+      # - early_return_for_forked_pull_requests
       - attach_workspace:
           at: ~/repo
       - run:
