@@ -1,4 +1,5 @@
 # 🎵MusicTheoryJS 
+[![CircleCI](https://circleci.com/gh/Zachacious/MusicTheoryJS/tree/master.svg?style=svg)](https://circleci.com/gh/Zachacious/MusicTheoryJS/tree/master)
 [![Inline docs](http://inch-ci.org/github/zachacious/musictheoryjs.svg?branch=master)](http://inch-ci.org/github/zachacious/musictheoryjs)
 
 MusicTheoryJS is a fully documented, lightweight(5kb gzip), chainable music theory library for realtime procedural music generation, analysis and computer aided music composition.
