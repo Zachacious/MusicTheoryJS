@@ -10,7 +10,16 @@ Includes nearly 70 built in scales and over 40 built in chords
 
 - - -
 ## Install
-```npm i ...(todo)```
+
+npm:
+
+```npm i musictheoryjs```
+
+CDN:
+
+```html
+<script src="https://unpkg.com/musictheoryjs@latest/dist/musictheory.min.js">
+```
 - - -
 
 ## Classes
