@@ -35,3 +35,21 @@ jobs:
 
       - run: npm run build
       - run: npm run docs
+      
+      - persist_to_workspace:
+          root: ~/repo
+          paths: [.]
+
+  deploy:
+    docker:
+      # specify the version you desire here
+      - image: circleci/node:10.13.0
+    steps:
+      - attach_workspace:
+          at: ~/repo
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
+      - run:
+          name: Publish package
+          command: npm publish
