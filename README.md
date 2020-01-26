@@ -13,7 +13,9 @@ Includes nearly 70 built in scales and over 40 built in chords
 
 npm:
 
-```npm i musictheoryjs```
+```
+npm i musictheoryjs
+```
 
 CDN:
 
@@ -143,16 +145,24 @@ Clone the project
 
 Install Deps:
 
-```npm install```
+```
+npm install
+```
 
 Build:
 
-```npm run build```
+```
+npm run build
+```
 
 Dev Server:
 
-```npm start```
+```
+npm start
+```
 
 Build Docs:
 
-```npm run docs```
+```
+npm run docs
+```
