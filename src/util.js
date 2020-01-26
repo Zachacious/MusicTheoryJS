@@ -22,7 +22,7 @@ const clampNumber = (pNum, pLower, pUpper) => Math.max(Math.min(pNum, Math.max(p
  * @param {Number} pValue value to wrap
  * @param {Number} pLower lower bound
  * @param {Number} pUpper upper bound
- * @returns {Number, Number} wraped value, number of wraps
+ * @returns {(Number|Number)} wraped value, number of wraps
  */
 const wrapRange = (pValue, pLower, pUpper) => {
   let value = pValue;
