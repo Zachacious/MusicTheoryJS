@@ -33,11 +33,6 @@ let config = {
   devServer: {
     contentBase: './dist',
   },
-  // optimization: {
-  //   minimize: false,
-  // },
-  // mode: 'development',
-  // devtool: 'sourceMap',
 };
 
 module.exports = (env, argv) => {
