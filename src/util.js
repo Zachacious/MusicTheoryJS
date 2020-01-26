@@ -3,9 +3,27 @@
 util.js
 */
 
-const clampNumber = (num, a, b) => Math.max(Math.min(num, Math.max(a, b)), Math.min(a, b));
+/**
+ * Clamps the given number to the given range
+ *
+ * @private
+ * @param {Number} pNum The number to clamp
+ * @param {Number} pLower lower bound
+ * @param {Number} pUpper upper bound
+ * @returns {Number}
+ */
+const clampNumber = (pNum, pLower, pUpper) => Math.max(Math.min(pNum, Math.max(pLower, pUpper)), Math.min(pLower, pUpper));
 
-// const wrapRange = function (pValue, pLower, pUpper) {
+/**
+ * Wrap a value to a range
+ * - if the value is higher than the upper bound then it wraps around and the wraps counter is inc'd
+ *
+ * @private
+ * @param {Number} pValue value to wrap
+ * @param {Number} pLower lower bound
+ * @param {Number} pUpper upper bound
+ * @returns {Number, Number} wraped value, number of wraps
+ */
 const wrapRange = (pValue, pLower, pUpper) => {
   let value = pValue;
   let wraps = 0;
