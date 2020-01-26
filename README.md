@@ -22,8 +22,8 @@ npm i musictheoryjs
 
 CDN:
 
-```html
-<script src="https://unpkg.com/musictheoryjs@latest/dist/musictheory.min.js">
+```
+https://unpkg.com/musictheoryjs@latest/dist/musictheory.min.js
 ```
 - - -
 
