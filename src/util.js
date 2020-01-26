@@ -17,7 +17,7 @@ const clampNumber = (pNum, pLower, pUpper) => Math.max(Math.min(pNum, Math.max(p
 /**
  * Wrap a value to a range
  * - if the value is higher than the upper bound then it wraps around and the wraps counter is inc'd
- *
+ * - bounds should be unsigned integers
  * @private
  * @param {Number} pValue value to wrap
  * @param {Number} pLower lower bound
@@ -30,6 +30,7 @@ const wrapRange = (pValue, pLower, pUpper) => {
 
   wraps = Math.trunc(value / (pUpper + 1)); // must truncate the remainder
   value -= (pUpper * wraps);
+  value += pLower;
 
   return { value, wraps };
 };
