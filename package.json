@@ -2,11 +2,7 @@
   "name": "musictheoryjs",
   "version": "0.1.2",
   "description": "Music theory lib for JavaScript",
-  "main": "dist/musictheory.min.js",
-  "np": {
-    "yarn": false,
-    "contents": "dist"
-  },
+  "main": "src/index.js",
   "scripts": {
     "deploy": "np --no-publish",
     "build": "webpack -p --progress --config ./webpack.config.js --mode production",
@@ -29,6 +25,15 @@
   ],
   "author": "Zach Moore",
   "license": "ISC",
+  "homepage": "https://github.com/zachacious/musictheoryjs",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/Zachacious/MusicTheoryJS.git"
+  },
+  "np": {
+    "yarn": false,
+    "contents": "dist"
+  },
   "devDependencies": {
     "@babel/core": "^7.8.3",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
