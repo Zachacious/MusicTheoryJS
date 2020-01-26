@@ -1,6 +1,9 @@
 # 🎵MusicTheoryJS 
 [![CircleCI](https://circleci.com/gh/Zachacious/MusicTheoryJS/tree/master.svg?style=svg)](https://circleci.com/gh/Zachacious/MusicTheoryJS/tree/master)
+[![npm version](http://img.shields.io/npm/v/REPO.svg?style=flat)](https://npmjs.org/package/musictheoryjs "View this project on npm")
+[![npm](https://img.shields.io/npm/dw/musictheoryjs)]
 [![Inline docs](http://inch-ci.org/github/zachacious/musictheoryjs.svg?branch=master)](http://inch-ci.org/github/zachacious/musictheoryjs)
+[![ISC license](http://img.shields.io/badge/license-ISC-brightgreen.svg)](http://opensource.org/licenses/ISC)
 
 MusicTheoryJS is a fully documented, lightweight(5kb gzip), chainable music theory library for realtime procedural music generation, analysis and computer aided music composition.
 
