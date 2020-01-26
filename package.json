@@ -6,7 +6,7 @@
   "scripts": {
     "deploy": "np --no-publish",
     "build": "webpack -p --progress --config ./webpack.config.js --mode production",
-    "start": "webpack -p --progress && webpack-dev-server --config ./webpack.config.js --mode development",
+    "start": "webpack -p --progress --mode development && webpack-dev-server --config ./webpack.config.js --mode development",
     "docs": "jsdoc -c jsdoc.json",
     "test": "echo \"Error: no test specified\""
   },
