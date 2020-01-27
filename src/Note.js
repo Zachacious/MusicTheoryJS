@@ -126,7 +126,7 @@ class Note {
       if (typeof pTone === 'string') {
         const { tone, octave } = Note.mParseName(pTone);
         cTone = tone;
-        if (octave) cOctave = octave;
+        cOctave = octave;
       }
       this.tone(cTone);
       this.octave(cOctave);
@@ -352,7 +352,7 @@ class Note {
      */
     static mParseName(pName = '') {
       let tone;
-      let octave = null;
+      let octave = 5;
 
       const mRootNoteRE = /(?:[A-G])|(?:(#|b)+)|([0-9]|10)/g;
       const modRE = /(#|b)/g;

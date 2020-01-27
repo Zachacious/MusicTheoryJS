@@ -1,6 +1,9 @@
 # 🎵MusicTheoryJS 
 [![CircleCI](https://circleci.com/gh/Zachacious/MusicTheoryJS/tree/master.svg?style=svg)](https://circleci.com/gh/Zachacious/MusicTheoryJS/tree/master)
+![npm](https://img.shields.io/npm/v/musictheoryjs)
+![npm](https://img.shields.io/npm/dw/musictheoryjs)
 [![Inline docs](http://inch-ci.org/github/zachacious/musictheoryjs.svg?branch=master)](http://inch-ci.org/github/zachacious/musictheoryjs)
+[![ISC license](http://img.shields.io/badge/license-ISC-brightgreen.svg)](http://opensource.org/licenses/ISC)
 
 MusicTheoryJS is a fully documented, lightweight(5kb gzip), chainable music theory library for realtime procedural music generation, analysis and computer aided music composition.
 
@@ -13,12 +16,17 @@ Includes nearly 70 built in scales and over 40 built in chords
 
 npm:
 
-```npm i musictheoryjs```
+```
+npm i musictheoryjs
+```
+```javascript
+import * as MT from 'musictheoryjs';
+```
 
 CDN:
 
-```html
-<script src="https://unpkg.com/musictheoryjs@latest/dist/musictheory.min.js">
+```
+https://unpkg.com/musictheoryjs@latest/dist/musictheory.min.js
 ```
 - - -
 
@@ -143,16 +151,24 @@ Clone the project
 
 Install Deps:
 
-```npm install```
+```
+npm install
+```
 
 Build:
 
-```npm run build```
+```
+npm run build
+```
 
 Dev Server:
 
-```npm start```
+```
+npm start
+```
 
 Build Docs:
 
-```npm run docs```
+```
+npm run docs
+```

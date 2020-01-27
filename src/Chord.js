@@ -648,9 +648,9 @@ class Chord {
 
     static M6(pRootNote = new Note()) { return new Chord(pRootNote, [CI(1), CI(3), CI(5), CI(6)]); }
 
-    static M69(pRootNote = new Note()) { return new Chord(pRootNote, [CI(1), CI(3), CI(5)], CI(6), CI(9)); }
+    static M69(pRootNote = new Note()) { return new Chord(pRootNote, [CI(1), CI(3), CI(5), CI(6), CI(9)]); }
 
-    static M7(pRootNote = new Note()) { return new Chord(pRootNote, [CI(1), CI(3), CI(5)], CI(7)); }
+    static M7(pRootNote = new Note()) { return new Chord(pRootNote, [CI(1), CI(3), CI(5), CI(7)]); }
 
     static M9(pRootNote = new Note()) { return new Chord(pRootNote, [CI(1), CI(3), CI(5), CI(7), CI(9)]); }
 
