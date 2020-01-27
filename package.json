@@ -1,6 +1,6 @@
 {
   "name": "musictheoryjs",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Music theory lib for JavaScript",
   "main": "src/index.js",
   "scripts": {
@@ -27,8 +27,8 @@
   "license": "ISC",
   "homepage": "https://github.com/zachacious/musictheoryjs",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/Zachacious/MusicTheoryJS.git"
+    "type": "git",
+    "url": "https://github.com/Zachacious/MusicTheoryJS.git"
   },
   "np": {
     "yarn": false,
