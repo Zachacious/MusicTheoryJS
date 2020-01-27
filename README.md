@@ -19,6 +19,9 @@ npm:
 ```
 npm i musictheoryjs
 ```
+```javascript
+import * as MT from 'musictheoryjs';
+```
 
 CDN:
 
