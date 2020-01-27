@@ -330,13 +330,7 @@
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>let A4 = new MT.Note('A4');
-let A5 = new MT.Note(2, 5); // A semitone = 2 -- octave 5
-let A6 = new MT.Note(MT.Note.tones.A, 6);
-let A7 = MT.Note.A(7); // built in
-
-// chaining
-A4.tone(MT.Note.tones.D_FLAT).octave(7).sharp(); // A4 becomes D7</code></pre>
+        <pre class="prettyprint"><code>let A4 = new MT.Note('A4');let A5 = new MT.Note(2, 5); // A semitone = 2 -- octave 5let A6 = new MT.Note(MT.Note.tones.A, 6);let A7 = MT.Note.A(7); // built in// chainingA4.tone(MT.Note.tones.D_FLAT).octave(7).sharp(); // A4 becomes D7</code></pre>
     
 
 
@@ -438,8 +432,7 @@ A4.tone(MT.Note.tones.D_FLAT).octave(7).sharp(); // A4 becomes D7</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>console.log(MT.Note.A().asString)
-// 'A'</code></pre>
+        <pre class="prettyprint"><code>console.log(MT.Note.A().asString)// 'A'</code></pre>
     
 
 
@@ -519,8 +512,7 @@ A4.tone(MT.Note.tones.D_FLAT).octave(7).sharp(); // A4 becomes D7</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>let A4 = MT.Note(4);
-console.log(A4.freq); // -> 440</code></pre>
+        <pre class="prettyprint"><code>let A4 = MT.Note(4);console.log(A4.freq); // -> 440</code></pre>
     
 
 
@@ -600,8 +592,7 @@ console.log(A4.freq); // -> 440</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>let A4 = MT.Note(4);
-console.log(A4.midiKey); // -> 69</code></pre>
+        <pre class="prettyprint"><code>let A4 = MT.Note(4);console.log(A4.midiKey); // -> 69</code></pre>
     
 
 
@@ -1742,8 +1733,7 @@ console.log(A4.midiKey); // -> 69</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>let C5 = MT.Note.C(5);
-let copy = C5.copy();</code></pre>
+        <pre class="prettyprint"><code>let C5 = MT.Note.C(5);let copy = C5.copy();</code></pre>
     
 
 
@@ -1920,9 +1910,7 @@ let copy = C5.copy();</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>let C5 = MT.Note.C(5);
-let B5 = MT.Note.B(5);
-console.log(C5.equals(B5.sharp()));</code></pre>
+        <pre class="prettyprint"><code>let C5 = MT.Note.C(5);let B5 = MT.Note.B(5);console.log(C5.equals(B5.sharp()));</code></pre>
     
 
 
@@ -2178,8 +2166,7 @@ console.log(C5.equals(B5.sharp()));</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>let Ab4 = MT.Note.A(4).flat();
-console.log(As4.isFlat()); // => true</code></pre>
+        <pre class="prettyprint"><code>let Ab4 = MT.Note.A(4).flat();console.log(As4.isFlat()); // => true</code></pre>
     
 
 
@@ -2306,8 +2293,7 @@ console.log(As4.isFlat()); // => true</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>let As4 = MT.Note.A(4).sharp();
-console.log(As4.isSharp()); // => true</code></pre>
+        <pre class="prettyprint"><code>let As4 = MT.Note.A(4).sharp();console.log(As4.isSharp()); // => true</code></pre>
     
 
 
@@ -2489,8 +2475,7 @@ console.log(As4.isSharp()); // => true</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>let A4 = MT.Note.A(4);
-A4.tone(5).octave(3);</code></pre>
+        <pre class="prettyprint"><code>let A4 = MT.Note.A(4);A4.tone(5).octave(3);</code></pre>
     
 
 
@@ -2801,8 +2786,7 @@ A4.tone(5).octave(3);</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>let A4 = MT.Note.A(4);
-A4.tone(5).octave(3);</code></pre>
+        <pre class="prettyprint"><code>let A4 = MT.Note.A(4);A4.tone(5).octave(3);</code></pre>
     
 
 
