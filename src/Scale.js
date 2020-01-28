@@ -360,7 +360,7 @@ class Scale {
      * @example
      * let s = MT.Scale.Major(MT.Note.C()).phrygianMode();
      */
-    prygianMode() { return Scale.Phrygian(this.degree(3)); }
+    phrygianMode() { return Scale.Phrygian(this.degree(3)); }
 
     /**
      * Returns a new scale as the relative mode
