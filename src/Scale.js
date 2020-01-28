@@ -387,7 +387,7 @@ class Scale {
      * @example
      * let s = MT.Scale.Major(MT.Note.C()).aeolianMode();
      */
-    aeolianMode() { return Scale.AEOLIAN(this.degree(6)); }
+    aeolianMode() { return Scale.Aeolian(this.degree(6)); }
 
     /**
      * Returns a new scale as the relative mode
