@@ -2,7 +2,7 @@
   "name": "musictheoryjs",
   "version": "0.2.2",
   "description": "Music theory lib for JavaScript",
-  "main": "dist/musictheoryjs.min.js",
+  "main": "dist/musictheory.min.js",
   "scripts": {
     "deploy": "np --no-publish",
     "build": "webpack -p --progress --config ./webpack.config.js --mode production",
