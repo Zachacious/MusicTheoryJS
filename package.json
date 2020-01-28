@@ -3,9 +3,6 @@
   "version": "0.2.1",
   "description": "Music theory lib for JavaScript",
   "main": "src/index.js",
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  },
   "scripts": {
     "deploy": "np --no-publish",
     "build": "webpack -p --progress --config ./webpack.config.js --mode production",
