@@ -7,6 +7,6 @@
     "rules": {
       "max-len": ["error", {"code": 150}],
       "no-plusplus": 0,
-      "linebreak-style": 0
+      "linebreak-style": 0,
     }
   }

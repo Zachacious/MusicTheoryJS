@@ -28,8 +28,8 @@
   "license": "ISC",
   "homepage": "https://github.com/zachacious/musictheoryjs",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/Zachacious/MusicTheoryJS.git"
+    "type": "git",
+    "url": "https://github.com/Zachacious/MusicTheoryJS.git"
   },
   "np": {
     "yarn": false,
