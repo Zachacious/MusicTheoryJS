@@ -17,7 +17,7 @@ Includes nearly 70 built in scales and over 40 built in chords
 npm:
 
 ```
-npm i musictheoryjs
+npm i musictheoryjs@latest
 ```
 ```javascript
 import * as MT from 'musictheoryjs';
