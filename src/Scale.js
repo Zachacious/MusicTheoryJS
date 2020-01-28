@@ -635,6 +635,8 @@ class Scale {
 
     static Acoustic = Scale.LydianDominate;
 
+    static Aeolian = Scale.Minor;
+
     static Mixolydian(pRootNote = new Note()) { return new Scale(pRootNote, [2, 2, 1, 2, 2, 1]); }
 
     static MixolydianFlat6(pRootNote = new Note()) { return new Scale(pRootNote, [2, 2, 1, 2, 1, 2]); }
