@@ -11,6 +11,8 @@ Includes nearly 70 built in scales and over 40 built in chords
 
 📘[Documentation](https://zachacious.github.io/MusicTheoryJS/)
 
+▶️[Chord Progression Demo](https://zachacious.github.io/MusicTheoryJSDemo/)
+
 - - -
 ## Install
 

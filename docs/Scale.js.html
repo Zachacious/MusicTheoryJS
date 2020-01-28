@@ -50,8 +50,8 @@
                         </div>
                     
                         <div class="navbar-item">
-                            <a href="#" target="_blank">
-                                Example Application
+                            <a href="https://zachacious.github.io/MusicTheoryJSDemo/" target="_blank">
+                                Demo App ▶️
                             </a>
                         </div>
                     
@@ -720,6 +720,8 @@ class Scale {
     static LydianDominate(pRootNote = new Note()) { return new Scale(pRootNote, [2, 2, 2, 1, 2, 1]); }
 
     static Acoustic = Scale.LydianDominate;
+
+    static Aeolian = Scale.Minor;
 
     static Mixolydian(pRootNote = new Note()) { return new Scale(pRootNote, [2, 2, 1, 2, 2, 1]); }
 
