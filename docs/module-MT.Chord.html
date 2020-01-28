@@ -431,11 +431,7 @@
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>const mod = MT.Note.modifier; // alias
-
-let AbM7s11 = new MT.Chord('AbM7s11'); // from string - slowest method
-let Cm = new MT.Chord(MT.Note.C(), [CI(1), CI(3, mod.FLAT), CI(5)]);
-let Fdom7s11 = MT.Chord.dom7s11(MT.Note.F()); // from built in</code></pre>
+        <pre class="prettyprint"><code>const mod = MT.Note.modifier; // aliaslet AbM7s11 = new MT.Chord('AbM7s11'); // from string - slowest methodlet Cm = new MT.Chord(MT.Note.C(), [CI(1), CI(3, mod.FLAT), CI(5)]);let Fdom7s11 = MT.Chord.dom7s11(MT.Note.F()); // from built in</code></pre>
     
 
 
@@ -537,8 +533,7 @@ let Fdom7s11 = MT.Chord.dom7s11(MT.Note.F()); // from built in</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>let c = MT.Chord.M7(MT.Note.C());
-console.log(c.asString);</code></pre>
+        <pre class="prettyprint"><code>let c = MT.Chord.M7(MT.Note.C());console.log(c.asString);</code></pre>
     
 
 
@@ -618,8 +613,7 @@ console.log(c.asString);</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>let c = MT.Chord.M7(MT.Note.C());
-console.log(c.notes);</code></pre>
+        <pre class="prettyprint"><code>let c = MT.Chord.M7(MT.Note.C());console.log(c.notes);</code></pre>
     
 
 
@@ -757,8 +751,7 @@ console.log(c.notes);</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>let c = MT.Chord.M7(MT.Note.C());
-c.invert().major().invert().augment();</code></pre>
+        <pre class="prettyprint"><code>let c = MT.Chord.M7(MT.Note.C());c.invert().major().invert().augment();</code></pre>
     
 
 
@@ -887,8 +880,7 @@ c.invert().major().invert().augment();</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>let c = MT.Chord.M7(MT.Note.C());
-let copy = c.copy();</code></pre>
+        <pre class="prettyprint"><code>let c = MT.Chord.M7(MT.Note.C());let copy = c.copy();</code></pre>
     
 
 
@@ -1017,8 +1009,7 @@ let copy = c.copy();</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>let c = MT.Chord.M7(MT.Note.C());
-c.invert().major().invert().diminish();</code></pre>
+        <pre class="prettyprint"><code>let c = MT.Chord.M7(MT.Note.C());c.invert().major().invert().diminish();</code></pre>
     
 
 
@@ -1197,9 +1188,7 @@ c.invert().major().invert().diminish();</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>let c = MT.Chord.M7(MT.Note.C());
-let c2 = MT.Chord.m(MT.Note.F());
-console.log(c.equals(c2)); // => false</code></pre>
+        <pre class="prettyprint"><code>let c = MT.Chord.M7(MT.Note.C());let c2 = MT.Chord.m(MT.Note.F());console.log(c.equals(c2)); // => false</code></pre>
     
 
 
@@ -1328,8 +1317,7 @@ console.log(c.equals(c2)); // => false</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>let c = MT.Chord.M7(MT.Note.C());
-c.invert().major().invert().haldDiminish();</code></pre>
+        <pre class="prettyprint"><code>let c = MT.Chord.M7(MT.Note.C());c.invert().major().invert().haldDiminish();</code></pre>
     
 
 
@@ -1458,8 +1446,7 @@ c.invert().major().invert().haldDiminish();</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>let c = MT.Chord.M7(MT.Note.C());
-c.root(MT.Note.F(4)).template([CI(1), CI(3), CI(5)]).scale(MT.Scale.Jewish()).octave(7).invert().invert();</code></pre>
+        <pre class="prettyprint"><code>let c = MT.Chord.M7(MT.Note.C());c.root(MT.Note.F(4)).template([CI(1), CI(3), CI(5)]).scale(MT.Scale.Jewish()).octave(7).invert().invert();</code></pre>
     
 
 
@@ -1588,8 +1575,7 @@ c.root(MT.Note.F(4)).template([CI(1), CI(3), CI(5)]).scale(MT.Scale.Jewish()).oc
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>let c = MT.Chord.M7(MT.Note.C());
-c.invert().major().invert();</code></pre>
+        <pre class="prettyprint"><code>let c = MT.Chord.M7(MT.Note.C());c.invert().major().invert();</code></pre>
     
 
 
@@ -1718,8 +1704,7 @@ c.invert().major().invert();</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>let c = MT.Chord.M7(MT.Note.C());
-c.invert().minor().invert();</code></pre>
+        <pre class="prettyprint"><code>let c = MT.Chord.M7(MT.Note.C());c.invert().minor().invert();</code></pre>
     
 
 
@@ -1914,8 +1899,7 @@ c.invert().minor().invert();</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>let c = MT.Chord.M7(MT.Note.C());
-c.root(MT.Note.F(4)).template([CI(1), CI(3), CI(5)]).scale(MT.Scale.Jewish()).octave(7);</code></pre>
+        <pre class="prettyprint"><code>let c = MT.Chord.M7(MT.Note.C());c.root(MT.Note.F(4)).template([CI(1), CI(3), CI(5)]).scale(MT.Scale.Jewish()).octave(7);</code></pre>
     
 
 
@@ -2109,8 +2093,7 @@ c.root(MT.Note.F(4)).template([CI(1), CI(3), CI(5)]).scale(MT.Scale.Jewish()).oc
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>let c = MT.Chord.M7(MT.Note.C());
-c.root(MT.Note.F(4)).template([CI(1), CI(3), CI(5)]);</code></pre>
+        <pre class="prettyprint"><code>let c = MT.Chord.M7(MT.Note.C());c.root(MT.Note.F(4)).template([CI(1), CI(3), CI(5)]);</code></pre>
     
 
 
@@ -2304,8 +2287,7 @@ c.root(MT.Note.F(4)).template([CI(1), CI(3), CI(5)]);</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>let c = MT.Chord.M7(MT.Note.C());
-c.root(MT.Note.F(4)).template([CI(1), CI(3), CI(5)]).scale(MT.Scale.Jewish());</code></pre>
+        <pre class="prettyprint"><code>let c = MT.Chord.M7(MT.Note.C());c.root(MT.Note.F(4)).template([CI(1), CI(3), CI(5)]).scale(MT.Scale.Jewish());</code></pre>
     
 
 
@@ -2499,8 +2481,7 @@ c.root(MT.Note.F(4)).template([CI(1), CI(3), CI(5)]).scale(MT.Scale.Jewish());</
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>let c = MT.Chord.M7(MT.Note.C());
-c.root(MT.Note.F(4)).template([CI(1), CI(3), CI(5)]);</code></pre>
+        <pre class="prettyprint"><code>let c = MT.Chord.M7(MT.Note.C());c.root(MT.Note.F(4)).template([CI(1), CI(3), CI(5)]);</code></pre>
     
 
 

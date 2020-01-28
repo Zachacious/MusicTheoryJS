@@ -9,7 +9,7 @@ MusicTheoryJS is a fully documented, lightweight(5kb gzip), chainable music theo
 
 Includes nearly 70 built in scales and over 40 built in chords
 
-📘[Documentation](https://www.zachacious.github.io/musictheoryjs)
+📘[Documentation](https://zachacious.github.io/MusicTheoryJS/)
 
 - - -
 ## Install
