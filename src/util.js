@@ -30,7 +30,7 @@ const wrapRange = (pValue, pLower, pUpper) => {
 
   wraps = Math.trunc(value / (pUpper + 1)); // must truncate the remainder
   value -= (pUpper * wraps);
-  value += pLower;
+  value += (pLower - 1);
 
   return { value, wraps };
 };
