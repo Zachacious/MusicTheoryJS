@@ -1,7 +1,6 @@
 # 🎵MusicTheoryJS 
 [![CircleCI](https://circleci.com/gh/Zachacious/MusicTheoryJS/tree/master.svg?style=svg)](https://circleci.com/gh/Zachacious/MusicTheoryJS/tree/master)
 ![npm](https://img.shields.io/npm/v/musictheoryjs)
-![npm](https://img.shields.io/npm/dw/musictheoryjs)
 [![Inline docs](http://inch-ci.org/github/zachacious/musictheoryjs.svg?branch=master)](http://inch-ci.org/github/zachacious/musictheoryjs)
 [![ISC license](http://img.shields.io/badge/license-ISC-brightgreen.svg)](http://opensource.org/licenses/ISC)
 
