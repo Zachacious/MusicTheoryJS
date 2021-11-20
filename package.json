@@ -1,58 +1,39 @@
 {
   "name": "musictheoryjs",
-  "version": "0.3.1",
-  "description": "Music theory lib for JavaScript",
-  "main": "dist/musictheory.min.js",
+  "version": "2.0.0",
+  "description": "A music theory library",
+  "source": "src/index.ts",
+  "main": "dist/musictheory.js",
+  "module": "dist/module.js",
+  "types": "dist/types.d.ts",
   "scripts": {
-    "deploy": "np --no-publish",
-    "build": "webpack -p --progress --config ./webpack.config.js --mode production",
-    "start": "webpack -p --progress --mode development && webpack-dev-server --config ./webpack.config.js --mode development",
-    "docs": "jsdoc -c jsdoc.json",
-    "test": "echo \"Error: no test specified\""
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "parcel",
+    "dev": "parcel serve -p 1234",
+    "dev-watch": "parcel watch -p 1234",
+    "build": "parcel build index.ts --out-dir dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zachacious/MusicTheoryJS.git"
   },
   "keywords": [
     "music",
     "theory",
+    "js",
     "note",
-    "scale",
-    "interval",
     "chord",
-    "key",
-    "progression",
-    "mode",
-    "major",
-    "minor"
+    "scale",
+    "timbre"
   ],
   "author": "Zach Moore",
-  "license": "ISC",
-  "homepage": "https://github.com/zachacious/musictheoryjs",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Zachacious/MusicTheoryJS.git"
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Zachacious/MusicTheoryJS/issues"
   },
-  "np": {
-    "yarn": false,
-    "contents": "dist"
+  "homepage": "https://github.com/Zachacious/MusicTheoryJS#readme",
+  "dependencies": {
+    "parcel": "latest"
   },
-  "devDependencies": {
-    "@babel/core": "^7.8.3",
-    "@babel/plugin-proposal-class-properties": "^7.8.3",
-    "@babel/plugin-proposal-private-methods": "^7.8.3",
-    "@babel/preset-env": "^7.8.3",
-    "babel-eslint": "^10.0.3",
-    "babel-loader": "^8.0.6",
-    "better-docs": "^1.4.7",
-    "eslint": "^6.1.0",
-    "eslint-config-airbnb": "^18.0.1",
-    "eslint-loader": "^3.0.3",
-    "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-jsx-a11y": "^6.2.3",
-    "eslint-plugin-react": "^7.14.3",
-    "eslint-plugin-react-hooks": "^1.7.0",
-    "jsdoc-webpack-plugin": "^0.2.0",
-    "webpack": "^4.41.5",
-    "webpack-cli": "^3.3.10",
-    "webpack-dev-server": "^3.10.1"
-  },
-  "dependencies": {}
+  "browserslist": "> 0.5%, last 2 versions, not dead"
 }
