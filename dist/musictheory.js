@@ -1,8 +1,8 @@
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('uid')) :
-    typeof define === 'function' && define.amd ? define(['exports', 'uid'], factory) :
-    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.MusicTheory = {}, global.uid));
-})(this, (function (exports, uid) { 'use strict';
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+    typeof define === 'function' && define.amd ? define(['exports'], factory) :
+    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.MusicTheory = {}));
+})(this, (function (exports) { 'use strict';
 
     /*! *****************************************************************************
     Copyright (c) Microsoft Corporation.
@@ -26,69 +26,158 @@
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     }
 
+    var CTonable = function () {
+        return function (target) {
+            target.prototype.tone = function (tone) {
+                if (target.prototype._tone === undefined)
+                    target.prototype._tone = 4;
+                if (tone) {
+                    target.prototype._tone = tone;
+                }
+                return target.prototype._tone;
+            };
+        };
+    };
+
+    var IDX=256, HEX=[], SIZE=256, BUFFER;
+    while (IDX--) HEX[IDX] = (IDX + 256).toString(16).substring(1);
+
+    function uid(len) {
+    	var i=0, tmp=(len || 11);
+    	if (!BUFFER || ((IDX + tmp) > SIZE*2)) {
+    		for (BUFFER='',IDX=0; i < SIZE; i++) {
+    			BUFFER += HEX[Math.random() * 256 | 0];
+    		}
+    	}
+
+    	return BUFFER.substring(IDX, IDX++ + tmp);
+    }
+
     var CIdentifiable = function () {
         return function (target) {
-            return (target.prototype.id = function (id) {
-                if (id === void 0) { id = ""; }
-                id ? (target.prototype.id = id) : (target.prototype.id = uid.uid(10));
-                return target.prototype.id;
-            });
+            target.prototype.id = function (id) {
+                if (target.prototype._id === undefined)
+                    target.prototype._id = uid();
+                if (id) {
+                    target.prototype._id = id;
+                }
+                return target.prototype._id;
+            };
         };
     };
 
     var COctivable = function () {
         return function (target) {
-            return (target.prototype.octave = function (octave) {
-                octave
-                    ? (target.prototype.octave = octave)
-                    : (target.prototype.octave = 4);
-                return target.prototype.octave;
-            });
+            target.prototype.octave = function (octave) {
+                if (target.prototype._octave === undefined)
+                    target.prototype._octave = 4;
+                if (octave) {
+                    target.prototype._octave = octave;
+                }
+                return target.prototype._octave;
+            };
         };
     };
 
-    var halftone;
-    (function (halftone) {
-        halftone[halftone["A"] = 1] = "A";
-        halftone[halftone["A$"] = 2] = "A$";
-        halftone[halftone["Bb"] = 2] = "Bb";
-        halftone[halftone["B"] = 3] = "B";
-        halftone[halftone["B$"] = 4] = "B$";
-        halftone[halftone["Cb"] = 3] = "Cb";
-        halftone[halftone["C"] = 4] = "C";
-        halftone[halftone["C$"] = 5] = "C$";
-        halftone[halftone["Db"] = 5] = "Db";
-        halftone[halftone["D"] = 6] = "D";
-        halftone[halftone["D$"] = 7] = "D$";
-        halftone[halftone["Eb"] = 7] = "Eb";
-        halftone[halftone["E"] = 8] = "E";
-        halftone[halftone["E$"] = 9] = "E$";
-        halftone[halftone["Fb"] = 8] = "Fb";
-        halftone[halftone["F"] = 9] = "F";
-        halftone[halftone["F$"] = 10] = "F$";
-        halftone[halftone["Gb"] = 10] = "Gb";
-        halftone[halftone["G"] = 11] = "G";
-        halftone[halftone["G$"] = 12] = "G$";
-        halftone[halftone["Ab"] = 12] = "Ab";
-    })(halftone || (halftone = {}));
-    var halftone$1 = halftone;
+    var Halftone;
+    (function (Halftone) {
+        Halftone[Halftone["A"] = 1] = "A";
+        Halftone[Halftone["A$"] = 2] = "A$";
+        Halftone[Halftone["Bb"] = 2] = "Bb";
+        Halftone[Halftone["B"] = 3] = "B";
+        Halftone[Halftone["B$"] = 4] = "B$";
+        Halftone[Halftone["Cb"] = 3] = "Cb";
+        Halftone[Halftone["C"] = 4] = "C";
+        Halftone[Halftone["C$"] = 5] = "C$";
+        Halftone[Halftone["Db"] = 5] = "Db";
+        Halftone[Halftone["D"] = 6] = "D";
+        Halftone[Halftone["D$"] = 7] = "D$";
+        Halftone[Halftone["Eb"] = 7] = "Eb";
+        Halftone[Halftone["E"] = 8] = "E";
+        Halftone[Halftone["E$"] = 9] = "E$";
+        Halftone[Halftone["Fb"] = 8] = "Fb";
+        Halftone[Halftone["F"] = 9] = "F";
+        Halftone[Halftone["F$"] = 10] = "F$";
+        Halftone[Halftone["Gb"] = 10] = "Gb";
+        Halftone[Halftone["G"] = 11] = "G";
+        Halftone[Halftone["G$"] = 12] = "G$";
+        Halftone[Halftone["Ab"] = 12] = "Ab";
+    })(Halftone || (Halftone = {}));
+    var Halftone$1 = Halftone;
+
+    var midiLookup = {};
+    var midikeyStart = 21;
+    var createMidiLookup = function () {
+        var i = 0;
+        var octaves = 12;
+        var halftones = 12;
+        for (i = 0; i < octaves; ++i) {
+            for (var j = 0; j < halftones; ++j) {
+                var key = "".concat(i, "-").concat(j);
+                midiLookup[key] = midikeyStart + i * halftones + j;
+            }
+        }
+    };
+    // Lets go ahead and create the lookup table
+    createMidiLookup();
+    var getMidiKey = function (octave, halftone) {
+        var key = "".concat(octave, "-").concat(halftone);
+        var midiKey = midiLookup[key];
+        if (midiKey === undefined) {
+            throw new Error("Invalid midi key: ".concat(key));
+        }
+        return midiKey;
+    };
 
     var Note = /** @class */ (function () {
-        function Note(tone, octave, id) {
-            if (tone === void 0) { tone = halftone$1.A; }
-            this.tone = tone;
-            // this.octave = octave;
-            // this.id(id);
-            // this.octave(octave);
+        //   moctave: (octave?: number) => number = this.octave;
+        //   mtone: (tone?: Halftone) => Halftone = this.tone;
+        function Note(values) {
+            var _a, _b;
+            this.octave((_a = values === null || values === void 0 ? void 0 : values.octave) !== null && _a !== void 0 ? _a : 4);
+            this.tone((_b = values === null || values === void 0 ? void 0 : values.tone) !== null && _b !== void 0 ? _b : 4);
         }
+        Note.prototype.id = function (id) {
+            return "";
+        };
+        Note.prototype.octave = function (octave) {
+            return 0;
+        };
+        Note.prototype.tone = function (tone) {
+            return Halftone$1.C;
+        };
+        Note.prototype.getMidikey = function () {
+            return getMidiKey(this.tone(), this.octave());
+        };
         Note = __decorate([
             CIdentifiable(),
-            COctivable()
+            COctivable(),
+            CTonable()
         ], Note);
         return Note;
     }());
+    // @ts-expecct-error - ts doesn't recognize the prototype changes made by the decorators
 
+    var Modifier;
+    (function (Modifier) {
+        Modifier[Modifier["NATURAL"] = 0] = "NATURAL";
+        Modifier[Modifier["SHARP"] = 1] = "SHARP";
+        Modifier[Modifier["FLAT"] = 2] = "FLAT";
+    })(Modifier || (Modifier = {}));
+    var Modifier$1 = Modifier;
+
+    var wrap = function (value, lower, upper) {
+        var wraps = Math.trunc(value / (upper + 1));
+        var wrappedValue = value;
+        wrappedValue -= upper * wraps;
+        wrappedValue += lower - 1;
+        return { wrappedValue: wrappedValue, wraps: wraps };
+    };
+
+    exports.Halftone = Halftone$1;
+    exports.Modifier = Modifier$1;
     exports.Note = Note;
+    exports.wrap = wrap;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 

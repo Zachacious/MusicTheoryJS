@@ -6,7 +6,7 @@
       "strictPropertyInitialization": true,
       "noImplicitThis": true,
       "alwaysStrict": true,
-      "strict": true,
+      // "strict": true,
       "experimentalDecorators": true,
       "declaration": true,
     },

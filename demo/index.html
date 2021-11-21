@@ -1,17 +1,27 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
 <head>
-<meta charset="utf-8">
-<title>MusicTheoryJS Demo/title>
-    <script src="../dist/musictheory.min.js" />
-</head> 
+    <script src="../dist/musictheory.js"></script>
+</head>
 <body>
+Your HTML here
 
 <script>
-    window.onload = function() {
-        
-    }
-    </script>
+// self executing function here
+(function() {
+   console.log(window);
+   var note = new window.MusicTheory.Note({octave: 20});
+   var wrap = window.MusicTheory.wrap;
+   console.log(note);
+//    console.log(note.octave(2));
+//    console.log(note.octave(8));
+   console.log(note.octave());
+   console.log(note.id());
+   console.log(note.tone());
 
+   console.log(wrap(33, 0, 10));
+   console.log(wrap(3,1,9));
+})();
+</script>
 </body>
 </html>

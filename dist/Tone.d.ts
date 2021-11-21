@@ -1,4 +1,4 @@
-declare enum halftone {
+declare enum Halftone {
     A = 1,
     A$ = 2,
     Bb = 2,
@@ -21,4 +21,4 @@ declare enum halftone {
     G$ = 12,
     Ab = 12
 }
-export default halftone;
+export default Halftone;

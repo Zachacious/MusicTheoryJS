@@ -1,11 +1,18 @@
-import Tone from "./Tone";
+import Halftone from "./Tone";
 interface INote {
-    id?(id: number): number;
-    octave?(octave: number): number;
-    tone: Tone;
+    id?(id?: string): string;
+    octave(octave?: number): number;
+    tone(tone?: Halftone): Halftone;
+}
+interface INoteInitializer {
+    tone?: Halftone;
+    octave?: number;
 }
 declare class Note implements INote {
-    tone: Tone;
-    constructor(tone?: Tone, octave?: number, id?: number);
+    id(id?: string): string;
+    octave(octave?: number): number;
+    tone(tone?: Halftone): Halftone;
+    constructor(values: INoteInitializer);
+    getMidikey(): number;
 }
 export default Note;

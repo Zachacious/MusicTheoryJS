@@ -1,6 +1,7 @@
 import typescript from "rollup-plugin-typescript2";
 import { uglify } from "rollup-plugin-uglify";
 import dts from "rollup-plugin-dts";
+import { nodeResolve } from "@rollup/plugin-node-resolve";
 
 const uglifyOptions = {
   sourcemap: true,
@@ -16,7 +17,7 @@ export default [
         format: "umd",
       },
     ],
-    plugins: [typescript()],
+    plugins: [typescript(), nodeResolve()],
   },
 
   {
@@ -28,7 +29,7 @@ export default [
         format: "umd",
       },
     ],
-    plugins: [typescript(), uglify(uglifyOptions)],
+    plugins: [typescript(), nodeResolve(), uglify(uglifyOptions)],
   },
 
   {
