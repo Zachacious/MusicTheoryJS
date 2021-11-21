@@ -1,9 +1,19 @@
 {
     "compilerOptions": {
+      "isolatedModules": true,
       "noImplicitAny": true,
       "strictNullChecks": true,
       "strictPropertyInitialization": true,
       "noImplicitThis": true,
-      "alwaysStrict": false
-    }
+      "alwaysStrict": true,
+      "strict": true,
+      "experimentalDecorators": true,
+      "declaration": true,
+    },
+    "include": [
+      "src/**/*"
+    ],
+    "exclude": [
+      "src/**/*.test.ts"
+    ]
   }
