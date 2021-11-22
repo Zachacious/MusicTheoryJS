@@ -1,25 +1,49 @@
+// enum Halftone {
+//   A = 0,
+//   As, // save as Bb
+//   Bb = 1,
+//   B,
+//   Bs, // is C
+//   Cb = 2, // is B
+//   C,
+//   Cs, //same as Db
+//   Db = 4,
+//   D,
+//   Ds, // same as Eb
+//   Eb = 6,
+//   E,
+//   Es, // is F
+//   Fb = 7, // is E
+//   F,
+//   Fs, // same as Gb
+//   Gb = 9,
+//   G,
+//   Gs, // same as Ab
+//   Ab = 11,
+// }
+
 enum Halftone {
-  A = 1,
-  A$, // save as Bb
-  Bb = 2,
+  A = 9,
+  As, // save as Bb
+  Bb = 10,
   B,
-  B$, // is C
-  Cb = 3, // is B
-  C,
-  C$, //same as Db
-  Db = 5,
+  Bs = 0, // is C
+  Cb = 11, // is B
+  C = 0,
+  Cs, //same as Db
+  Db = 1,
   D,
-  D$, // same as Eb
-  Eb = 7,
+  Ds, // same as Eb
+  Eb = 3,
   E,
-  E$, // is F
-  Fb = 8, // is E
+  Es, // is F
+  Fb = 4, // is E
   F,
-  F$, // same as Gb
-  Gb = 10,
+  Fs, // same as Gb
+  Gb = 6,
   G,
-  G$, // same as Ab
-  Ab = 12,
+  Gs, // same as Ab
+  Ab = 8,
 }
 
 export default Halftone;

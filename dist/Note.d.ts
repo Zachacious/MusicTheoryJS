@@ -13,6 +13,7 @@ declare class Note implements INote {
     octave(octave?: number): number;
     tone(tone?: Halftone): Halftone;
     constructor(values: INoteInitializer);
-    getMidiKey(): number;
+    midiKey(): number;
+    frequency(): number;
 }
 export default Note;

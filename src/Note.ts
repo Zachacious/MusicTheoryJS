@@ -3,6 +3,7 @@ import CIdentifiable from "./composables/Identifiable";
 import COctivable from "./composables/Octivable";
 import Halftone from "./Tone";
 import getMidiKey from "./MidiKey";
+import getFrequency from "./Frequency";
 
 interface INote {
   id?(id?: string): string;
@@ -36,7 +37,11 @@ class Note implements INote {
   }
 
   public midiKey(): number {
-    return getMidiKey(this.tone(), this.octave());
+    return getMidiKey(this.octave(), this.tone());
+  }
+
+  public frequency(): number {
+    return getFrequency(this.octave(), this.tone());
   }
 }
 

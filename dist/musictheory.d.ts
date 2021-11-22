@@ -1,25 +1,25 @@
 declare enum Halftone {
-    A = 1,
-    A$ = 2,
-    Bb = 2,
-    B = 3,
-    B$ = 4,
-    Cb = 3,
-    C = 4,
-    C$ = 5,
-    Db = 5,
-    D = 6,
-    D$ = 7,
-    Eb = 7,
-    E = 8,
-    E$ = 9,
-    Fb = 8,
-    F = 9,
-    F$ = 10,
-    Gb = 10,
-    G = 11,
-    G$ = 12,
-    Ab = 12
+    A = 9,
+    As = 10,
+    Bb = 10,
+    B = 11,
+    Bs = 0,
+    Cb = 11,
+    C = 0,
+    Cs = 1,
+    Db = 1,
+    D = 2,
+    Ds = 3,
+    Eb = 3,
+    E = 4,
+    Es = 5,
+    Fb = 4,
+    F = 5,
+    Fs = 6,
+    Gb = 6,
+    G = 7,
+    Gs = 8,
+    Ab = 8
 }
 
 interface INote {
@@ -36,7 +36,8 @@ declare class Note implements INote {
     octave(octave?: number): number;
     tone(tone?: Halftone): Halftone;
     constructor(values: INoteInitializer);
-    getMidiKey(): number;
+    midiKey(): number;
+    frequency(): number;
 }
 
 declare enum Modifier {
@@ -45,6 +46,10 @@ declare enum Modifier {
     FLAT = 2
 }
 
-declare const wrap: (value: number, lower: number, upper: number) => object;
+declare type wrappedNumber = {
+    value: number;
+    numWraps: number;
+};
+declare const wrap: (value: number, lower: number, upper: number) => wrappedNumber;
 
 export { Halftone, Modifier, Note, wrap };

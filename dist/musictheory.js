@@ -19,6 +19,17 @@
     PERFORMANCE OF THIS SOFTWARE.
     ***************************************************************************** */
 
+    var __assign = function() {
+        __assign = Object.assign || function __assign(t) {
+            for (var s, i = 1, n = arguments.length; i < n; i++) {
+                s = arguments[i];
+                for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+            }
+            return t;
+        };
+        return __assign.apply(this, arguments);
+    };
+
     function __decorate(decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
         if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -26,13 +37,21 @@
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     }
 
+    var wrap = function (value, lower, upper) {
+        var wraps = Math.trunc(value / (upper + 1));
+        var wrappedValue = value;
+        wrappedValue -= upper * wraps;
+        wrappedValue += lower;
+        return { value: wrappedValue, numWraps: wraps };
+    };
+
     var CTonable = function () {
         return function (target) {
             target.prototype.tone = function (tone) {
                 if (target.prototype._tone === undefined)
                     target.prototype._tone = 4;
-                if (tone) {
-                    target.prototype._tone = tone;
+                if (tone !== undefined) {
+                    target.prototype._tone = wrap(tone, 0, 11).value;
                 }
                 return target.prototype._tone;
             };
@@ -71,62 +90,110 @@
             target.prototype.octave = function (octave) {
                 if (target.prototype._octave === undefined)
                     target.prototype._octave = 4;
-                if (octave) {
-                    target.prototype._octave = octave;
+                if (octave !== undefined) {
+                    target.prototype._octave = wrap(octave, 0, 12).value;
                 }
                 return target.prototype._octave;
             };
         };
     };
 
+    // enum Halftone {
+    //   A = 0,
+    //   As, // save as Bb
+    //   Bb = 1,
+    //   B,
+    //   Bs, // is C
+    //   Cb = 2, // is B
+    //   C,
+    //   Cs, //same as Db
+    //   Db = 4,
+    //   D,
+    //   Ds, // same as Eb
+    //   Eb = 6,
+    //   E,
+    //   Es, // is F
+    //   Fb = 7, // is E
+    //   F,
+    //   Fs, // same as Gb
+    //   Gb = 9,
+    //   G,
+    //   Gs, // same as Ab
+    //   Ab = 11,
+    // }
     var Halftone;
     (function (Halftone) {
-        Halftone[Halftone["A"] = 1] = "A";
-        Halftone[Halftone["A$"] = 2] = "A$";
-        Halftone[Halftone["Bb"] = 2] = "Bb";
-        Halftone[Halftone["B"] = 3] = "B";
-        Halftone[Halftone["B$"] = 4] = "B$";
-        Halftone[Halftone["Cb"] = 3] = "Cb";
-        Halftone[Halftone["C"] = 4] = "C";
-        Halftone[Halftone["C$"] = 5] = "C$";
-        Halftone[Halftone["Db"] = 5] = "Db";
-        Halftone[Halftone["D"] = 6] = "D";
-        Halftone[Halftone["D$"] = 7] = "D$";
-        Halftone[Halftone["Eb"] = 7] = "Eb";
-        Halftone[Halftone["E"] = 8] = "E";
-        Halftone[Halftone["E$"] = 9] = "E$";
-        Halftone[Halftone["Fb"] = 8] = "Fb";
-        Halftone[Halftone["F"] = 9] = "F";
-        Halftone[Halftone["F$"] = 10] = "F$";
-        Halftone[Halftone["Gb"] = 10] = "Gb";
-        Halftone[Halftone["G"] = 11] = "G";
-        Halftone[Halftone["G$"] = 12] = "G$";
-        Halftone[Halftone["Ab"] = 12] = "Ab";
+        Halftone[Halftone["A"] = 9] = "A";
+        Halftone[Halftone["As"] = 10] = "As";
+        Halftone[Halftone["Bb"] = 10] = "Bb";
+        Halftone[Halftone["B"] = 11] = "B";
+        Halftone[Halftone["Bs"] = 0] = "Bs";
+        Halftone[Halftone["Cb"] = 11] = "Cb";
+        Halftone[Halftone["C"] = 0] = "C";
+        Halftone[Halftone["Cs"] = 1] = "Cs";
+        Halftone[Halftone["Db"] = 1] = "Db";
+        Halftone[Halftone["D"] = 2] = "D";
+        Halftone[Halftone["Ds"] = 3] = "Ds";
+        Halftone[Halftone["Eb"] = 3] = "Eb";
+        Halftone[Halftone["E"] = 4] = "E";
+        Halftone[Halftone["Es"] = 5] = "Es";
+        Halftone[Halftone["Fb"] = 4] = "Fb";
+        Halftone[Halftone["F"] = 5] = "F";
+        Halftone[Halftone["Fs"] = 6] = "Fs";
+        Halftone[Halftone["Gb"] = 6] = "Gb";
+        Halftone[Halftone["G"] = 7] = "G";
+        Halftone[Halftone["Gs"] = 8] = "Gs";
+        Halftone[Halftone["Ab"] = 8] = "Ab";
     })(Halftone || (Halftone = {}));
     var Halftone$1 = Halftone;
 
+    var _tuning = {
+        a4: 440
+    };
+    var tuning = function (tuning) {
+        if (tuning) {
+            _tuning = __assign(__assign({}, _tuning), tuning);
+        }
+        return _tuning;
+    };
+
+    var freqLookup = {};
     var midiLookup = {};
-    var midikeyStart = 21;
-    var createMidiLookup = function () {
-        var i = 0;
+    var midikeyStart = 12;
+    var createTables = function () {
+        var iOctave = 0;
+        var iSemitone = 0;
         var octaves = 12;
         var halftones = 12;
-        for (i = 0; i < octaves; ++i) {
-            for (var j = 0; j < halftones; ++j) {
-                var key = "".concat(i, "-").concat(j);
-                midiLookup[key] = midikeyStart + i * halftones + j;
+        for (iOctave = 0; iOctave < octaves; ++iOctave) {
+            for (iSemitone = 0; iSemitone < halftones; ++iSemitone) {
+                var key = "".concat(iOctave, "-").concat(iSemitone);
+                var mkey = midikeyStart + iOctave * halftones + iSemitone;
+                var freq = Math.pow(2, ((mkey - 69) / 12)) * tuning().a4;
+                midiLookup[key] = mkey;
+                freqLookup[key] = freq;
             }
         }
     };
-    // Lets go ahead and create the lookup table
-    createMidiLookup();
+    createTables();
+    console.log("lookup", freqLookup);
+
     var getMidiKey = function (octave, halftone) {
-        var key = "".concat(octave, "-").concat(halftone - 1);
+        var key = "".concat(octave, "-").concat(halftone); // -1 because list of halftones is not zero indexed
         var midiKey = midiLookup[key];
         if (midiKey === undefined) {
             throw new Error("Invalid midi key: ".concat(key));
         }
         return midiKey;
+    };
+
+    var getFrequency = function (octave, halftone) {
+        var key = "".concat(octave, "-").concat(halftone); // -1 because list of halftones is not zero indexed
+        var freq = freqLookup[key];
+        if (freq === undefined) {
+            throw new Error("Invalid frequency key: ".concat(key));
+        }
+        return freq;
     };
 
     var Note = /** @class */ (function () {
@@ -145,8 +212,11 @@
         Note.prototype.tone = function (tone) {
             return Halftone$1.C;
         };
-        Note.prototype.getMidiKey = function () {
-            return getMidiKey(this.tone(), this.octave());
+        Note.prototype.midiKey = function () {
+            return getMidiKey(this.octave(), this.tone());
+        };
+        Note.prototype.frequency = function () {
+            return getFrequency(this.octave(), this.tone());
         };
         Note = __decorate([
             CIdentifiable(),
@@ -164,14 +234,6 @@
         Modifier[Modifier["FLAT"] = 2] = "FLAT";
     })(Modifier || (Modifier = {}));
     var Modifier$1 = Modifier;
-
-    var wrap = function (value, lower, upper) {
-        var wraps = Math.trunc(value / (upper + 1));
-        var wrappedValue = value;
-        wrappedValue -= upper * wraps;
-        wrappedValue += lower - 1;
-        return { wrappedValue: wrappedValue, wraps: wraps };
-    };
 
     exports.Halftone = Halftone$1;
     exports.Modifier = Modifier$1;
