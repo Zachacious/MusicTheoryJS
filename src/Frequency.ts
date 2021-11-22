@@ -1,8 +1,6 @@
-const midiLookup: { [key: string]: number } = {};
+const freqLookup: { [key: string]: number } = {};
 
-const midikeyStart = 21;
-
-const createMidiLookup: Function = (): void => {
+const createFreqLookup: Function = (): void => {
   let i: number = 0;
   let octaves = 12;
   let halftones = 12;
@@ -15,9 +13,9 @@ const createMidiLookup: Function = (): void => {
 };
 
 // Lets go ahead and create the lookup table
-createMidiLookup();
+createFreqLookup();
 
-const getMidiKey: Function = (octave: number, halftone: number): number => {
+const getFrequency: Function = (octave: number, halftone: number): number => {
   const key = `${octave}-${halftone - 1}`; // -1 because list of halftones is not zero indexed
   const midiKey = midiLookup[key];
   if (midiKey === undefined) {
@@ -26,4 +24,4 @@ const getMidiKey: Function = (octave: number, halftone: number): number => {
   return midiKey;
 };
 
-export default getMidiKey;
+export default getFrequency;

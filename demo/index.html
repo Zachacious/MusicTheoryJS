@@ -10,7 +10,7 @@ Your HTML here
 // self executing function here
 (function() {
    console.log(window);
-   var note = new window.MusicTheory.Note({octave: 20});
+   var note = new window.MusicTheory.Note({octave: 5});
    var wrap = window.MusicTheory.wrap;
    console.log(note);
 //    console.log(note.octave(2));
@@ -19,8 +19,7 @@ Your HTML here
    console.log(note.id());
    console.log(note.tone());
 
-   console.log(wrap(33, 0, 10));
-   console.log(wrap(3,1,9));
+   console.log(note.getMidiKey());
 })();
 </script>
 </body>

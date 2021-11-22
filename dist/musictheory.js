@@ -121,7 +121,7 @@
     // Lets go ahead and create the lookup table
     createMidiLookup();
     var getMidiKey = function (octave, halftone) {
-        var key = "".concat(octave, "-").concat(halftone);
+        var key = "".concat(octave, "-").concat(halftone - 1);
         var midiKey = midiLookup[key];
         if (midiKey === undefined) {
             throw new Error("Invalid midi key: ".concat(key));
@@ -130,13 +130,12 @@
     };
 
     var Note = /** @class */ (function () {
-        //   moctave: (octave?: number) => number = this.octave;
-        //   mtone: (tone?: Halftone) => Halftone = this.tone;
         function Note(values) {
             var _a, _b;
             this.octave((_a = values === null || values === void 0 ? void 0 : values.octave) !== null && _a !== void 0 ? _a : 4);
             this.tone((_b = values === null || values === void 0 ? void 0 : values.tone) !== null && _b !== void 0 ? _b : 4);
         }
+        // must set defaults for interface props
         Note.prototype.id = function (id) {
             return "";
         };
@@ -146,7 +145,7 @@
         Note.prototype.tone = function (tone) {
             return Halftone$1.C;
         };
-        Note.prototype.getMidikey = function () {
+        Note.prototype.getMidiKey = function () {
             return getMidiKey(this.tone(), this.octave());
         };
         Note = __decorate([

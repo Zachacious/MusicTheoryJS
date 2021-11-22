@@ -35,7 +35,7 @@ class Note implements INote {
     this.tone(values?.tone ?? 4);
   }
 
-  public getMidikey(): number {
+  public midiKey(): number {
     return getMidiKey(this.tone(), this.octave());
   }
 }

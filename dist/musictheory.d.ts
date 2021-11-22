@@ -36,7 +36,7 @@ declare class Note implements INote {
     octave(octave?: number): number;
     tone(tone?: Halftone): Halftone;
     constructor(values: INoteInitializer);
-    getMidikey(): number;
+    getMidiKey(): number;
 }
 
 declare enum Modifier {
