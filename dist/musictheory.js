@@ -38,10 +38,13 @@
     }
 
     var wrap = function (value, lower, upper) {
-        var wraps = Math.trunc(value / upper);
+        var wraps = Math.trunc(Math.abs(value) / upper);
+        if (wraps === 0 && value < lower)
+            wraps = 1;
         var wrappedValue = value;
-        wrappedValue -= (upper + 1) * wraps;
-        wrappedValue += lower;
+        var offset = (upper + 1) * wraps;
+        wrappedValue += (value < lower ? offset : -offset) + lower;
+        // wrappedValue += lower;
         return {
             value: wrappedValue >= lower ? wrappedValue : wrappedValue + 1,
             numWraps: wraps
@@ -188,6 +191,48 @@
         return freq;
     };
 
+    var sharpTones = [1, 3, 4, 6, 8, 10];
+    var CSharpable = function () {
+        return function (target) {
+            target.prototype.sharpen = function () {
+                if (!target.prototype.tone) {
+                    throw new Error("Tone doesn't exist on the object");
+                }
+                var tone = target.prototype.tone;
+                var currentTone = tone();
+                tone(currentTone + 1);
+            };
+            target.prototype.isSharp = function () {
+                if (!target.prototype.tone) {
+                    throw new Error("Tone doesn't exist on the object");
+                }
+                var tone = target.prototype.tone();
+                return sharpTones.includes(tone);
+            };
+        };
+    };
+
+    var flatTones = [1, 3, 4, 6, 8, 10];
+    var CFlattable = function () {
+        return function (target) {
+            target.prototype.flatten = function () {
+                if (!target.prototype.tone) {
+                    throw new Error("Tone doesn't exist on the object");
+                }
+                var tone = target.prototype.tone;
+                var currentTone = tone();
+                tone(currentTone - 1);
+            };
+            target.prototype.isFlat = function () {
+                if (!target.prototype.tone) {
+                    throw new Error("Tone doesn't exist on the object");
+                }
+                var tone = target.prototype.tone();
+                return flatTones.includes(tone);
+            };
+        };
+    };
+
     var Note = /** @class */ (function () {
         function Note(values) {
             var _a, _b;
@@ -212,6 +257,8 @@
         };
         Note = __decorate([
             CIdentifiable(),
+            CSharpable(),
+            CFlattable(),
             COctivable(),
             CTonable()
         ], Note);

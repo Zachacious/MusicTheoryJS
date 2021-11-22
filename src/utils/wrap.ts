@@ -4,10 +4,13 @@ type wrappedNumber = {
 };
 
 const wrap = (value: number, lower: number, upper: number): wrappedNumber => {
-  const wraps: number = Math.trunc(value / upper);
+  let wraps: number = Math.trunc(Math.abs(value) / upper);
+  if (wraps === 0 && value < lower) wraps = 1;
+
   let wrappedValue: number = value;
-  wrappedValue -= (upper + 1) * wraps;
-  wrappedValue += lower;
+  const offset = (upper + 1) * wraps;
+  wrappedValue += (value < lower ? offset : -offset) + lower;
+  // wrappedValue += lower;
 
   return {
     value: wrappedValue >= lower ? wrappedValue : wrappedValue + 1,

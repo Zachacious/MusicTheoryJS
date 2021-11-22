@@ -4,6 +4,8 @@ import COctivable from "./composables/Octivable";
 import Semitone from "./Tone";
 import getMidiKey from "./MidiKey";
 import getFrequency from "./Frequency";
+import CSharpable from "./composables/Sharpable";
+import CFlatable from "./composables/Flatable";
 
 interface INote {
   id?(id?: string): string;
@@ -17,6 +19,8 @@ type INoteInitializer = {
 };
 
 @CIdentifiable()
+@CSharpable()
+@CFlatable()
 @COctivable()
 @CTonable()
 class Note implements INote {
