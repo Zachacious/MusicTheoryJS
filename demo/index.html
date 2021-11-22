@@ -10,17 +10,20 @@ Your HTML here
 // self executing function here
 (function() {
    console.log(window);
-   var note = new window.MusicTheory.Note({octave: 4, tone: window.MusicTheory.Semitone.F});
-//    var wrap = window.MusicTheory.wrap;
-   console.log(note);
+   var note = new window.MusicTheory.Note({octave: 4, tone: window.MusicTheory.Semitone.C});
+   var wrap = window.MusicTheory.wrap;
+//    console.log(note);
 //    console.log(note.octave(2));
 //    console.log(note.octave(8));
-   console.log(note.octave());
-   console.log(note.id());
-   console.log(note.tone());
+//    console.log(note.octave());
+//    console.log(note.id());
+   console.log(note.tone(23));
+   console.log('octave',note.octave());
 
    console.log(note.midiKey());
    console.log(note.frequency());
+
+//    console.log(wrap(4, 0, 11));
 })();
 </script>
 </body>

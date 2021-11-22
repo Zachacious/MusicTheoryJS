@@ -4,3 +4,4 @@ declare type wrappedNumber = {
 };
 declare const wrap: (value: number, lower: number, upper: number) => wrappedNumber;
 export default wrap;
+export type { wrappedNumber };

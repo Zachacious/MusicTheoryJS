@@ -38,11 +38,14 @@
     }
 
     var wrap = function (value, lower, upper) {
-        var wraps = Math.trunc(value / (upper + 1));
+        var wraps = Math.trunc(value / upper);
         var wrappedValue = value;
-        wrappedValue -= upper * wraps;
+        wrappedValue -= (upper + 1) * wraps;
         wrappedValue += lower;
-        return { value: wrappedValue, numWraps: wraps };
+        return {
+            value: wrappedValue >= lower ? wrappedValue : wrappedValue + 1,
+            numWraps: wraps
+        };
     };
 
     var CTonable = function () {
@@ -51,7 +54,13 @@
                 if (target.prototype._tone === undefined)
                     target.prototype._tone = 4;
                 if (tone !== undefined) {
-                    target.prototype._tone = wrap(tone, 0, 11).value;
+                    var wrappedTone = wrap(tone, 0, 11);
+                    target.prototype._tone = wrappedTone.value;
+                    var octave = target.prototype.octave;
+                    if (octave !== undefined) {
+                        var currentOctave = octave();
+                        octave(currentOctave + wrappedTone.numWraps);
+                    }
                 }
                 return target.prototype._tone;
             };
