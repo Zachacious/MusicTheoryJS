@@ -1,20 +1,20 @@
 import CTonable from "./composables/Tonable";
 import CIdentifiable from "./composables/Identifiable";
 import COctivable from "./composables/Octivable";
-import Halftone from "./Tone";
+import Semitone from "./Tone";
 import getMidiKey from "./MidiKey";
 import getFrequency from "./Frequency";
 
 interface INote {
   id?(id?: string): string;
   octave(octave?: number): number;
-  tone(tone?: Halftone): Halftone;
+  tone(tone?: Semitone): Semitone;
 }
 
-interface INoteInitializer {
-  tone?: Halftone;
+type INoteInitializer = {
+  tone?: Semitone;
   octave?: number;
-}
+};
 
 @CIdentifiable()
 @COctivable()
@@ -27,8 +27,8 @@ class Note implements INote {
   octave(octave?: number): number {
     return 0;
   }
-  tone(tone?: Halftone): Halftone {
-    return Halftone.C;
+  tone(tone?: Semitone): Semitone {
+    return Semitone.C;
   }
 
   constructor(values: INoteInitializer) {
@@ -46,4 +46,3 @@ class Note implements INote {
 }
 
 export default Note;
-// @ts-expecct-error - ts doesn't recognize the prototype changes made by the decorators

@@ -1,9 +1,9 @@
-import Halftone from "../Tone";
+import Semitone from "../Tone";
 import wrap from "../utils/wrap";
 
 const CTonable: Function = () => {
   return (target: any) => {
-    target.prototype.tone = (tone?: Halftone) => {
+    target.prototype.tone = (tone?: Semitone) => {
       if (target.prototype._tone === undefined) target.prototype._tone = 4;
 
       if (tone !== undefined) {

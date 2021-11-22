@@ -98,54 +98,31 @@
         };
     };
 
-    // enum Halftone {
-    //   A = 0,
-    //   As, // save as Bb
-    //   Bb = 1,
-    //   B,
-    //   Bs, // is C
-    //   Cb = 2, // is B
-    //   C,
-    //   Cs, //same as Db
-    //   Db = 4,
-    //   D,
-    //   Ds, // same as Eb
-    //   Eb = 6,
-    //   E,
-    //   Es, // is F
-    //   Fb = 7, // is E
-    //   F,
-    //   Fs, // same as Gb
-    //   Gb = 9,
-    //   G,
-    //   Gs, // same as Ab
-    //   Ab = 11,
-    // }
-    var Halftone;
-    (function (Halftone) {
-        Halftone[Halftone["A"] = 9] = "A";
-        Halftone[Halftone["As"] = 10] = "As";
-        Halftone[Halftone["Bb"] = 10] = "Bb";
-        Halftone[Halftone["B"] = 11] = "B";
-        Halftone[Halftone["Bs"] = 0] = "Bs";
-        Halftone[Halftone["Cb"] = 11] = "Cb";
-        Halftone[Halftone["C"] = 0] = "C";
-        Halftone[Halftone["Cs"] = 1] = "Cs";
-        Halftone[Halftone["Db"] = 1] = "Db";
-        Halftone[Halftone["D"] = 2] = "D";
-        Halftone[Halftone["Ds"] = 3] = "Ds";
-        Halftone[Halftone["Eb"] = 3] = "Eb";
-        Halftone[Halftone["E"] = 4] = "E";
-        Halftone[Halftone["Es"] = 5] = "Es";
-        Halftone[Halftone["Fb"] = 4] = "Fb";
-        Halftone[Halftone["F"] = 5] = "F";
-        Halftone[Halftone["Fs"] = 6] = "Fs";
-        Halftone[Halftone["Gb"] = 6] = "Gb";
-        Halftone[Halftone["G"] = 7] = "G";
-        Halftone[Halftone["Gs"] = 8] = "Gs";
-        Halftone[Halftone["Ab"] = 8] = "Ab";
-    })(Halftone || (Halftone = {}));
-    var Halftone$1 = Halftone;
+    var Semitone;
+    (function (Semitone) {
+        Semitone[Semitone["A"] = 9] = "A";
+        Semitone[Semitone["As"] = 10] = "As";
+        Semitone[Semitone["Bb"] = 10] = "Bb";
+        Semitone[Semitone["B"] = 11] = "B";
+        Semitone[Semitone["Bs"] = 0] = "Bs";
+        Semitone[Semitone["Cb"] = 11] = "Cb";
+        Semitone[Semitone["C"] = 0] = "C";
+        Semitone[Semitone["Cs"] = 1] = "Cs";
+        Semitone[Semitone["Db"] = 1] = "Db";
+        Semitone[Semitone["D"] = 2] = "D";
+        Semitone[Semitone["Ds"] = 3] = "Ds";
+        Semitone[Semitone["Eb"] = 3] = "Eb";
+        Semitone[Semitone["E"] = 4] = "E";
+        Semitone[Semitone["Es"] = 5] = "Es";
+        Semitone[Semitone["Fb"] = 4] = "Fb";
+        Semitone[Semitone["F"] = 5] = "F";
+        Semitone[Semitone["Fs"] = 6] = "Fs";
+        Semitone[Semitone["Gb"] = 6] = "Gb";
+        Semitone[Semitone["G"] = 7] = "G";
+        Semitone[Semitone["Gs"] = 8] = "Gs";
+        Semitone[Semitone["Ab"] = 8] = "Ab";
+    })(Semitone || (Semitone = {}));
+    var Semitone$1 = Semitone;
 
     var _tuning = {
         a4: 440
@@ -160,16 +137,22 @@
     var freqLookup = {};
     var midiLookup = {};
     var midikeyStart = 12;
+    var octaves = 12;
+    var semitones = 12;
+    var calcMidiKey = function (octave, semitone) {
+        return midikeyStart + octave * semitones + semitone;
+    };
+    var calcFrequency = function (midiKey) {
+        return Math.pow(2, ((midiKey - 69) / 12)) * tuning().a4;
+    };
     var createTables = function () {
         var iOctave = 0;
         var iSemitone = 0;
-        var octaves = 12;
-        var halftones = 12;
         for (iOctave = 0; iOctave < octaves; ++iOctave) {
-            for (iSemitone = 0; iSemitone < halftones; ++iSemitone) {
+            for (iSemitone = 0; iSemitone < semitones; ++iSemitone) {
                 var key = "".concat(iOctave, "-").concat(iSemitone);
-                var mkey = midikeyStart + iOctave * halftones + iSemitone;
-                var freq = Math.pow(2, ((mkey - 69) / 12)) * tuning().a4;
+                var mkey = calcMidiKey(iOctave, iSemitone);
+                var freq = calcFrequency(mkey);
                 midiLookup[key] = mkey;
                 freqLookup[key] = freq;
             }
@@ -178,8 +161,8 @@
     createTables();
     console.log("lookup", freqLookup);
 
-    var getMidiKey = function (octave, halftone) {
-        var key = "".concat(octave, "-").concat(halftone); // -1 because list of halftones is not zero indexed
+    var getMidiKey = function (octave, semitone) {
+        var key = "".concat(octave, "-").concat(semitone); // -1 because list of semitones is not zero indexed
         var midiKey = midiLookup[key];
         if (midiKey === undefined) {
             throw new Error("Invalid midi key: ".concat(key));
@@ -187,8 +170,8 @@
         return midiKey;
     };
 
-    var getFrequency = function (octave, halftone) {
-        var key = "".concat(octave, "-").concat(halftone); // -1 because list of halftones is not zero indexed
+    var getFrequency = function (octave, semitone) {
+        var key = "".concat(octave, "-").concat(semitone); // -1 because list of semitones is not zero indexed
         var freq = freqLookup[key];
         if (freq === undefined) {
             throw new Error("Invalid frequency key: ".concat(key));
@@ -210,7 +193,7 @@
             return 0;
         };
         Note.prototype.tone = function (tone) {
-            return Halftone$1.C;
+            return Semitone$1.C;
         };
         Note.prototype.midiKey = function () {
             return getMidiKey(this.octave(), this.tone());
@@ -225,7 +208,6 @@
         ], Note);
         return Note;
     }());
-    // @ts-expecct-error - ts doesn't recognize the prototype changes made by the decorators
 
     var Modifier;
     (function (Modifier) {
@@ -235,9 +217,9 @@
     })(Modifier || (Modifier = {}));
     var Modifier$1 = Modifier;
 
-    exports.Halftone = Halftone$1;
     exports.Modifier = Modifier$1;
     exports.Note = Note;
+    exports.Semitone = Semitone$1;
     exports.wrap = wrap;
 
     Object.defineProperty(exports, '__esModule', { value: true });

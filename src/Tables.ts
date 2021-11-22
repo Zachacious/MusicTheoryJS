@@ -5,17 +5,24 @@ const freqLookup: { [key: string]: number } = {};
 const midiLookup: { [key: string]: number } = {};
 
 const midikeyStart = 12;
+const octaves = 12;
+const semitones = 12;
+
+const calcMidiKey = (octave: number, semitone: number): number =>
+  midikeyStart + octave * semitones + semitone;
+
+const calcFrequency = (midiKey: number): number =>
+  2 ** ((midiKey - 69) / 12) * tuning().a4;
 
 const createTables: Function = (): void => {
   let iOctave: number = 0;
   let iSemitone: number = 0;
-  let octaves = 12;
-  let halftones = 12;
+
   for (iOctave = 0; iOctave < octaves; ++iOctave) {
-    for (iSemitone = 0; iSemitone < halftones; ++iSemitone) {
+    for (iSemitone = 0; iSemitone < semitones; ++iSemitone) {
       const key = `${iOctave}-${iSemitone}`;
-      const mkey = midikeyStart + iOctave * halftones + iSemitone;
-      const freq = 2 ** ((mkey - 69) / 12) * tuning().a4;
+      const mkey = calcMidiKey(iOctave, iSemitone);
+      const freq = calcFrequency(mkey);
       midiLookup[key] = mkey;
       freqLookup[key] = freq;
     }

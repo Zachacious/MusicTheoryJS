@@ -1,4 +1,4 @@
-declare enum Halftone {
+declare enum Semitone {
     A = 9,
     As = 10,
     Bb = 10,
@@ -25,16 +25,16 @@ declare enum Halftone {
 interface INote {
     id?(id?: string): string;
     octave(octave?: number): number;
-    tone(tone?: Halftone): Halftone;
+    tone(tone?: Semitone): Semitone;
 }
-interface INoteInitializer {
-    tone?: Halftone;
+declare type INoteInitializer = {
+    tone?: Semitone;
     octave?: number;
-}
+};
 declare class Note implements INote {
     id(id?: string): string;
     octave(octave?: number): number;
-    tone(tone?: Halftone): Halftone;
+    tone(tone?: Semitone): Semitone;
     constructor(values: INoteInitializer);
     midiKey(): number;
     frequency(): number;
@@ -52,4 +52,4 @@ declare type wrappedNumber = {
 };
 declare const wrap: (value: number, lower: number, upper: number) => wrappedNumber;
 
-export { Halftone, Modifier, Note, wrap };
+export { Modifier, Note, Semitone, wrap };
