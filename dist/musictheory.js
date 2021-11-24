@@ -37,16 +37,53 @@
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     }
 
+    // const wrap = (value: number, lower: number, upper: number): wrappedNumber => {
+    //   let wraps: number = Math.trunc(Math.abs(value) / upper);
+    //   if (wraps === 0 && value < lower) wraps = 1;
+    //   let wrappedValue: number = value;
+    //   const offset = (upper + 1) * wraps;
+    //   wrappedValue += (value < lower ? offset : -offset) + lower;
+    //   // wrappedValue += lower;
+    //   return {
+    //     value: wrappedValue >= lower ? wrappedValue : wrappedValue + 1,
+    //     numWraps: wraps,
+    //   };
+    // };
     var wrap = function (value, lower, upper) {
-        var wraps = Math.trunc(Math.abs(value) / upper);
-        if (wraps === 0 && value < lower)
-            wraps = 1;
-        var wrappedValue = value;
-        var offset = (upper + 1) * wraps;
-        wrappedValue += (value < lower ? offset : -offset) + lower;
-        // wrappedValue += lower;
+        var lbound = lower; //5
+        var ubound = upper; //11
+        if (upper < lower) {
+            //false
+            lbound = upper;
+            ubound = lower;
+        }
+        var val = value; //12
+        var zeroOffset = 0 - lbound; //-5
+        lbound += zeroOffset; //0
+        ubound += zeroOffset; //6
+        val += zeroOffset; //7
+        var wraps = Math.trunc(val / ubound); //1
+        if (wraps === 0 && val < lbound)
+            wraps = -1; //-1
+        var valOffset = 0;
+        var wrapOffset = 0;
+        if (wraps >= -1 && wraps <= 1)
+            wrapOffset = 1;
+        if (val < lbound) {
+            valOffset = (val % ubound) + wrapOffset; //-4
+            val = ubound + valOffset; //2
+        }
+        else if (val > ubound) {
+            valOffset = (val % ubound) - wrapOffset; //1
+            val = lbound + valOffset; //2
+        }
+        // const offset: number = (ubound + 1) * wraps; // assume abs
+        // val += val > ubound ? -offset : offset; //6
+        // val = Math.ceil(Math.abs(ubound/(val%ubound))); //
+        // add back the zeroOffset
+        val -= zeroOffset; //7
         return {
-            value: wrappedValue >= lower ? wrappedValue : wrappedValue + 1,
+            value: val,
             numWraps: wraps
         };
     };
