@@ -17,7 +17,7 @@
         "whitespace": [false, "check-module"],
         "no-angle-bracket-type-assertion": false,
         "ordered-imports": false,
-        "quotemark": [true, "single", "avoid-escape"],
+        "quotemark": [false, "single", "avoid-escape"],
         "object-curly-spacing":[true, "always"]
       },
       "rulesDirectory": []

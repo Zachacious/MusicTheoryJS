@@ -37,51 +37,51 @@
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     }
 
-    // const wrap = (value: number, lower: number, upper: number): wrappedNumber => {
-    //   let wraps: number = Math.trunc(Math.abs(value) / upper);
-    //   if (wraps === 0 && value < lower) wraps = 1;
-    //   let wrappedValue: number = value;
-    //   const offset = (upper + 1) * wraps;
-    //   wrappedValue += (value < lower ? offset : -offset) + lower;
-    //   // wrappedValue += lower;
-    //   return {
-    //     value: wrappedValue >= lower ? wrappedValue : wrappedValue + 1,
-    //     numWraps: wraps,
-    //   };
-    // };
+    /**************************************************
+     * Wraps a number between a min and max value.
+     *
+     * @param value - The value to wrap.
+     * @param lower - The lower bound of the range.
+     * @param upper - The upper bound of the range.
+     * @returns - The wrapped value.
+     */
+    // ************************************************
     var wrap = function (value, lower, upper) {
-        var lbound = lower; //5
-        var ubound = upper; //11
+        var lbound = lower;
+        var ubound = upper;
+        // if the bounds are inverted, swap them here
         if (upper < lower) {
-            //false
             lbound = upper;
             ubound = lower;
         }
-        var val = value; //12
-        var zeroOffset = 0 - lbound; //-5
-        lbound += zeroOffset; //0
-        ubound += zeroOffset; //6
-        val += zeroOffset; //7
-        var wraps = Math.trunc(val / ubound); //1
+        var val = value;
+        // the amount needed to move the range and value to zero
+        var zeroOffset = 0 - lbound;
+        // offset the values so that the lower bound is zero
+        lbound += zeroOffset;
+        ubound += zeroOffset;
+        val += zeroOffset;
+        // compute the number of times the value will wrap
+        var wraps = Math.trunc(val / ubound);
         if (wraps === 0 && val < lbound)
-            wraps = -1; //-1
+            wraps = -1;
+        // needed to handle the case where the num of wraps is 0 or 1 or -1
         var valOffset = 0;
         var wrapOffset = 0;
         if (wraps >= -1 && wraps <= 1)
             wrapOffset = 1;
+        // if the value is below the range
         if (val < lbound) {
-            valOffset = (val % ubound) + wrapOffset; //-4
-            val = ubound + valOffset; //2
+            valOffset = (val % ubound) + wrapOffset;
+            val = ubound + valOffset;
+            // if the value is above the range
         }
         else if (val > ubound) {
-            valOffset = (val % ubound) - wrapOffset; //1
-            val = lbound + valOffset; //2
+            valOffset = (val % ubound) - wrapOffset;
+            val = lbound + valOffset;
         }
-        // const offset: number = (ubound + 1) * wraps; // assume abs
-        // val += val > ubound ? -offset : offset; //6
-        // val = Math.ceil(Math.abs(ubound/(val%ubound))); //
-        // add back the zeroOffset
-        val -= zeroOffset; //7
+        // add the offset from zero back to the value
+        val -= zeroOffset;
         return {
             value: val,
             numWraps: wraps

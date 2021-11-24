@@ -7,11 +7,13 @@
   "module": "dist/module.js",
   "types": "dist/musictheory.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "parcel",
-    "dev": "parcel serve -p 1234",
-    "dev-watch": "parcel watch -p 1234",
-    "build": "parcel build src/index.ts "
+    "test": "run-s lint && jest --coverage --passWithNoTests",
+    "lint": "tslint -c tslint.json 'src/**/*.ts'",
+    "clean": "rimraf dist",
+    "dev": "run-s clean build && livereload dist",
+    "start": "run-p dev serve",
+    "serve": "http-server ./ -o ./demo -d false",
+    "build": "rollup -c"
   },
   "repository": {
     "type": "git",
@@ -33,16 +35,20 @@
   },
   "homepage": "https://github.com/Zachacious/MusicTheoryJS#readme",
   "dependencies": {
+    "npm-run-all": "^4.1.5",
     "uid": "^2.0.0"
   },
   "devDependencies": {
+    "@rollup/plugin-node-resolve": "^13.0.6",
     "@types/jest": "^27.0.3",
     "jest": "^27.3.1",
+    "livereload": "^0.9.3",
+    "http-server": "^14.0.0",
+    "rimraf": "^3.0.2",
     "rollup": "^2.60.0",
     "rollup-plugin-dts": "^4.0.1",
     "rollup-plugin-typescript2": "^0.31.0",
     "rollup-plugin-uglify": "^6.0.4",
-    "@rollup/plugin-node-resolve": "^13.0.6",
     "ts-jest": "^27.0.7",
     "tslint": "^6.1.3",
     "tslint-eslint-rules": "^5.4.0",
