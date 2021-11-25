@@ -7,13 +7,13 @@
   "module": "dist/module.js",
   "types": "dist/musictheory.d.ts",
   "scripts": {
-    "test": "run-s lint && jest --coverage --passWithNoTests",
+    "test": "jest",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "clean": "rimraf dist",
-    "dev": "run-s clean build && livereload dist",
+    "dev": " run-s build && livereload dist",
     "start": "run-p dev serve",
     "serve": "http-server ./ -o ./demo -d false",
-    "build": "rollup -c"
+    "build": "run-s clean rollup -c"
   },
   "repository": {
     "type": "git",
@@ -36,14 +36,15 @@
   "homepage": "https://github.com/Zachacious/MusicTheoryJS#readme",
   "dependencies": {
     "npm-run-all": "^4.1.5",
+    "ts-node": "^10.4.0",
     "uid": "^2.0.0"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^13.0.6",
     "@types/jest": "^27.0.3",
+    "http-server": "^14.0.0",
     "jest": "^27.3.1",
     "livereload": "^0.9.3",
-    "http-server": "^14.0.0",
     "rimraf": "^3.0.2",
     "rollup": "^2.60.0",
     "rollup-plugin-dts": "^4.0.1",
@@ -64,41 +65,5 @@
     "last 8 FirefoxAndroid versions",
     "last 10 iOS versions",
     "last 5 Opera versions"
-  ],
-  "jest": {
-    "transformIgnorePatterns": [
-      "node_modules/(?!shiva/)"
-    ],
-    "globals": {
-      "ts-jest": {
-        "tsConfigFile": "tsconfig.test.json"
-      },
-      "google": {}
-    },
-    "collectCoverageFrom": [
-      "src/**/*.ts",
-      "!src/**/*.schema.ts",
-      "!src/schema/*.ts"
-    ],
-    "testMatch": [
-      "<rootDir>/src/**/?(*.)test.ts",
-      "<rootDir>/tests/**/?(*.)test.ts"
-    ],
-    "coverageThreshold": {
-      "global": {
-        "branches": 0,
-        "functions": 0,
-        "lines": 0,
-        "statements": 0
-      }
-    },
-    "moduleFileExtensions": [
-      "ts",
-      "js"
-    ],
-    "transform": {
-      "\\.(ts)$": "<rootDir>/node_modules/ts-jest/preprocessor.js",
-      "^.+\\.js$": "babel-jest"
-    }
-  }
+  ]
 }
