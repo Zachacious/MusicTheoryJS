@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1637813386283" clover="3.2.0">
-  <project timestamp="1637813386283" name="All files">
-    <metrics statements="25" coveredstatements="25" conditionals="10" coveredconditionals="10" methods="1" coveredmethods="1" elements="36" coveredelements="36" complexity="0" loc="25" ncloc="25" packages="1" files="1" classes="1"/>
+<coverage generated="1637816907936" clover="3.2.0">
+  <project timestamp="1637816907936" name="All files">
+    <metrics statements="28" coveredstatements="28" conditionals="10" coveredconditionals="10" methods="2" coveredmethods="2" elements="40" coveredelements="40" complexity="0" loc="28" ncloc="28" packages="1" files="2" classes="2"/>
+    <file name="clamp.ts" path="C:\src\MusicTheoryJS\src\utils\clamp.ts">
+      <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+      <line num="1" count="1" type="stmt"/>
+      <line num="2" count="10" type="stmt"/>
+      <line num="4" count="1" type="stmt"/>
+    </file>
     <file name="wrap.ts" path="C:\src\MusicTheoryJS\src\utils\wrap.ts">
       <metrics statements="25" coveredstatements="25" conditionals="10" coveredconditionals="10" methods="1" coveredmethods="1"/>
       <line num="23" count="1" type="stmt"/>
