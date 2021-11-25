@@ -12,7 +12,7 @@
 
 // export default tuning;
 import { createTables } from "./Tables";
-class tuning {
+class Tuning {
   private _a4: number = 440;
   private _midiKeyTable: { [key: string]: number } = {};
   private _freqTable: { [key: string]: number } = {};
@@ -26,7 +26,8 @@ class tuning {
   /**
    * Creates the object and builds the lookup tables.
    */
-  constructor() {
+  constructor(a4Freq: number = 440) {
+    this._a4 = a4Freq;
     this.buildTables();
   }
 
@@ -50,4 +51,4 @@ class tuning {
   }
 }
 
-export default tuning;
+export default Tuning;
