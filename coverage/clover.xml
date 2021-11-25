@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1637808281407" clover="3.2.0">
-  <project timestamp="1637808281407" name="All files">
-    <metrics statements="25" coveredstatements="19" conditionals="10" coveredconditionals="6" methods="1" coveredmethods="1" elements="36" coveredelements="26" complexity="0" loc="25" ncloc="25" packages="1" files="1" classes="1"/>
+<coverage generated="1637813386283" clover="3.2.0">
+  <project timestamp="1637813386283" name="All files">
+    <metrics statements="25" coveredstatements="25" conditionals="10" coveredconditionals="10" methods="1" coveredmethods="1" elements="36" coveredelements="36" complexity="0" loc="25" ncloc="25" packages="1" files="1" classes="1"/>
     <file name="wrap.ts" path="C:\src\MusicTheoryJS\src\utils\wrap.ts">
-      <metrics statements="25" coveredstatements="19" conditionals="10" coveredconditionals="6" methods="1" coveredmethods="1"/>
+      <metrics statements="25" coveredstatements="25" conditionals="10" coveredconditionals="10" methods="1" coveredmethods="1"/>
       <line num="23" count="1" type="stmt"/>
-      <line num="24" count="1" type="stmt"/>
-      <line num="25" count="1" type="stmt"/>
-      <line num="28" count="1" type="cond" truecount="0" falsecount="1"/>
-      <line num="29" count="0" type="stmt"/>
-      <line num="30" count="0" type="stmt"/>
-      <line num="33" count="1" type="stmt"/>
-      <line num="36" count="1" type="stmt"/>
-      <line num="39" count="1" type="stmt"/>
-      <line num="40" count="1" type="stmt"/>
-      <line num="41" count="1" type="stmt"/>
-      <line num="44" count="1" type="stmt"/>
-      <line num="45" count="1" type="cond" truecount="2" falsecount="1"/>
-      <line num="48" count="1" type="stmt"/>
-      <line num="49" count="1" type="stmt"/>
-      <line num="50" count="1" type="cond" truecount="3" falsecount="0"/>
-      <line num="53" count="1" type="cond" truecount="1" falsecount="1"/>
-      <line num="54" count="0" type="stmt"/>
-      <line num="55" count="0" type="stmt"/>
-      <line num="58" count="1" type="cond" truecount="0" falsecount="1"/>
-      <line num="59" count="0" type="stmt"/>
-      <line num="60" count="0" type="stmt"/>
-      <line num="64" count="1" type="stmt"/>
-      <line num="66" count="1" type="stmt"/>
+      <line num="24" count="6" type="stmt"/>
+      <line num="25" count="6" type="stmt"/>
+      <line num="28" count="6" type="cond" truecount="1" falsecount="0"/>
+      <line num="29" count="1" type="stmt"/>
+      <line num="30" count="1" type="stmt"/>
+      <line num="33" count="6" type="stmt"/>
+      <line num="36" count="6" type="stmt"/>
+      <line num="39" count="6" type="stmt"/>
+      <line num="40" count="6" type="stmt"/>
+      <line num="41" count="6" type="stmt"/>
+      <line num="44" count="6" type="stmt"/>
+      <line num="45" count="6" type="cond" truecount="3" falsecount="0"/>
+      <line num="48" count="6" type="stmt"/>
+      <line num="49" count="6" type="stmt"/>
+      <line num="50" count="6" type="cond" truecount="3" falsecount="0"/>
+      <line num="53" count="6" type="cond" truecount="2" falsecount="0"/>
+      <line num="54" count="2" type="stmt"/>
+      <line num="55" count="2" type="stmt"/>
+      <line num="58" count="4" type="cond" truecount="1" falsecount="0"/>
+      <line num="59" count="3" type="stmt"/>
+      <line num="60" count="3" type="stmt"/>
+      <line num="64" count="6" type="stmt"/>
+      <line num="66" count="6" type="stmt"/>
       <line num="72" count="1" type="stmt"/>
     </file>
   </project>
