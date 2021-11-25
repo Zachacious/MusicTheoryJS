@@ -7,13 +7,13 @@ import getFrequency from "./Frequency";
 import CSharpable from "./composables/Sharpable";
 import CFlatable from "./composables/Flatable";
 
-interface INote {
-  id?(id?: string): string;
-  octave(octave?: number): number;
-  tone(tone?: Semitone): Semitone;
-}
+// interface NoteBase {
+//   id?(id?: string): string;
+//   octave(octave?: number): number;
+//   tone(tone?: Semitone): Semitone;
+// }
 
-type INoteInitializer = {
+type NoteInitializer = {
   tone?: Semitone;
   octave?: number;
 };
@@ -23,19 +23,21 @@ type INoteInitializer = {
 @CFlatable()
 @COctivable()
 @CTonable()
-class Note implements INote {
-  // must set defaults for interface props
+class Note {
+  // default - the decorators set and use these props
   id(id?: string): string {
     return "";
   }
+
   octave(octave?: number): number {
     return 0;
   }
+
   tone(tone?: Semitone): Semitone {
     return Semitone.C;
   }
 
-  constructor(values: INoteInitializer) {
+  constructor(values: NoteInitializer) {
     this.octave(values?.octave ?? 4);
     this.tone(values?.tone ?? 4);
   }

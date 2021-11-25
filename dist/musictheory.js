@@ -37,14 +37,8 @@
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     }
 
-    /**************************************************
-     * Wraps a number between a min and max value.
-     *
-     * @param value - The value to wrap.
-     * @param lower - The lower bound of the range.
-     * @param upper - The upper bound of the range.
-     * @returns - The wrapped value.
-     */
+    //**************************************************
+    //Wraps a number between a min and max value.
     // ************************************************
     var wrap = function (value, lower, upper) {
         var lbound = lower;
@@ -134,13 +128,17 @@
         };
     };
 
+    var clamp = function (pNum, pLower, pUpper) {
+        return Math.max(Math.min(pNum, Math.max(pLower, pUpper)), Math.min(pLower, pUpper));
+    };
+
     var COctivable = function () {
         return function (target) {
             target.prototype.octave = function (octave) {
                 if (target.prototype._octave === undefined)
                     target.prototype._octave = 4;
                 if (octave !== undefined) {
-                    target.prototype._octave = wrap(octave, 0, 12).value;
+                    target.prototype._octave = clamp(octave, 0, 9);
                 }
                 return target.prototype._octave;
             };

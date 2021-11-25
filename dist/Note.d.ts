@@ -1,18 +1,13 @@
 import Semitone from "./Tone";
-interface INote {
-    id?(id?: string): string;
-    octave(octave?: number): number;
-    tone(tone?: Semitone): Semitone;
-}
-declare type INoteInitializer = {
+declare type NoteInitializer = {
     tone?: Semitone;
     octave?: number;
 };
-declare class Note implements INote {
+declare class Note {
     id(id?: string): string;
     octave(octave?: number): number;
     tone(tone?: Semitone): Semitone;
-    constructor(values: INoteInitializer);
+    constructor(values: NoteInitializer);
     midiKey(): number;
     frequency(): number;
 }

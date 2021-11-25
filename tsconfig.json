@@ -9,6 +9,7 @@
       // "strict": true,
       "experimentalDecorators": true,
       "declaration": true,
+      "target": "ESNext"
     },
     "include": [
       "src/**/*"

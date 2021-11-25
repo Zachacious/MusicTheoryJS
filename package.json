@@ -13,7 +13,8 @@
     "dev": " run-s build && livereload dist",
     "start": "run-p dev serve",
     "serve": "http-server ./ -o ./demo -d false",
-    "build": "run-s clean rollup -c"
+    "build": "run-s clean production",
+    "production": "rollup -c"
   },
   "repository": {
     "type": "git",

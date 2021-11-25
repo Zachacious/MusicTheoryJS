@@ -22,20 +22,15 @@ declare enum Semitone {
     Ab = 8
 }
 
-interface INote {
-    id?(id?: string): string;
-    octave(octave?: number): number;
-    tone(tone?: Semitone): Semitone;
-}
-declare type INoteInitializer = {
+declare type NoteInitializer = {
     tone?: Semitone;
     octave?: number;
 };
-declare class Note implements INote {
+declare class Note {
     id(id?: string): string;
     octave(octave?: number): number;
     tone(tone?: Semitone): Semitone;
-    constructor(values: INoteInitializer);
+    constructor(values: NoteInitializer);
     midiKey(): number;
     frequency(): number;
 }
@@ -46,25 +41,10 @@ declare enum Modifier {
     FLAT = 2
 }
 
-/**************************************************
- * Return type for wrap.
- *
- * @typedef {Object} wrappedNumber
- * @property {number} value - The wrapped value.
- * @property {number} numWraps - The number of times the value wrapped.
- */
 declare type wrappedNumber = {
     value: number;
     numWraps: number;
 };
-/**************************************************
- * Wraps a number between a min and max value.
- *
- * @param value - The value to wrap.
- * @param lower - The lower bound of the range.
- * @param upper - The upper bound of the range.
- * @returns - The wrapped value.
- */
 declare const wrap: (value: number, lower: number, upper: number) => wrappedNumber;
 
 export { Modifier, Note, Semitone, wrap };

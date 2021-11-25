@@ -1,4 +1,4 @@
-import wrap from "../utils/wrap";
+import clamp from "../utils/clamp";
 
 const COctivable: Function = () => {
   return (target: any) => {
@@ -6,7 +6,7 @@ const COctivable: Function = () => {
       if (target.prototype._octave === undefined) target.prototype._octave = 4;
 
       if (octave !== undefined) {
-        target.prototype._octave = wrap(octave, 0, 12).value;
+        target.prototype._octave = clamp(octave, 0, 9);
       }
 
       return target.prototype._octave;
