@@ -1,5 +1,5 @@
 import Note from "../Note";
-import { OCTAVE_MAX, OCTAVE_MIN } from "../noteConstants";
+import { OCTAVE_MAX, OCTAVE_MIN, DEFAULT_OCTAVE, DEFAULT_SEMITONE } from "../noteConstants";
 
 describe("Note", () => {
    it("should have an UID", () => {
@@ -7,6 +7,12 @@ describe("Note", () => {
       expect(note.id).toBeDefined();
       const id = note.id();
       expect(typeof id).toBe("string");
+   });
+
+   it("should construct a note passing no args", () => {
+      const note = new Note();
+      expect(note.semitone).toBe(DEFAULT_SEMITONE);
+      expect(note.octave).toBe(DEFAULT_OCTAVE);
    });
 
    it("should construct a note with NoteInitializer", () => {
@@ -133,5 +139,34 @@ describe("Note", () => {
       const note5 = new Note("A#");
       note5.sharpen();
       expect(note5.toString()).toBe("B4");
+   });
+
+   it("should create a Note with static preset functions(A(), B()) that are correct(semitone, ovtave)", () => {
+      const note = Note.A();
+      expect(note.semitone).toBe(9);
+      expect(note.octave).toBe(DEFAULT_OCTAVE);
+
+      const note2 = Note.B();
+      expect(note2.octave).toBe(DEFAULT_OCTAVE);
+
+      const note3 = Note.C(7);
+      expect(note3.semitone).toBe(0);
+      expect(note3.octave).toBe(7);
+
+      const note4 = Note.D(7);
+      expect(note4.semitone).toBe(2);
+      expect(note4.octave).toBe(7);
+
+      const note5 = Note.E(7);
+      expect(note5.semitone).toBe(4);
+      expect(note5.octave).toBe(7);
+
+      const note6 = Note.F(7);
+      expect(note6.semitone).toBe(5);
+      expect(note6.octave).toBe(7);
+
+      const note7 = Note.G(7);
+      expect(note7.semitone).toBe(7);
+      expect(note7.octave).toBe(7);
    });
 });

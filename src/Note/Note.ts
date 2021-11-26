@@ -231,42 +231,42 @@ class Note {
       });
    }
 
-   static B(octave: number): Note {
+   static B(octave: number = 4): Note {
       return new Note({
          semitone: Semitone.B,
          octave,
       });
    }
 
-   static C(octave: number): Note {
+   static C(octave: number = 4): Note {
       return new Note({
          semitone: Semitone.C,
          octave,
       });
    }
 
-   static D(octave: number): Note {
+   static D(octave: number = 4): Note {
       return new Note({
          semitone: Semitone.D,
          octave,
       });
    }
 
-   static E(octave: number): Note {
+   static E(octave: number = 4): Note {
       return new Note({
          semitone: Semitone.E,
          octave,
       });
    }
 
-   static F(octave: number): Note {
+   static F(octave: number = 4): Note {
       return new Note({
          semitone: Semitone.F,
          octave,
       });
    }
 
-   static G(octave: number): Note {
+   static G(octave: number = 4): Note {
       return new Note({
          semitone: Semitone.G,
          octave,
