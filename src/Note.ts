@@ -1,5 +1,5 @@
 import CIdentifiable from "./composables/Identifiable";
-import Semitone from "./Tone";
+import Semitone from "./Semitone";
 import wrap from "./utils/wrap";
 import clamp from "./utils/clamp";
 
@@ -179,6 +179,27 @@ class Note {
 
    //**********************************************************
    /**
+    * Returns true if this note is equal to the given note
+    */
+   //**********************************************************
+   public equals(note: Note): boolean {
+      return this.semitone === note.semitone && this.octave === note.octave;
+   }
+
+   //**********************************************************
+   /**
+    * Returns a copy of this note
+    */
+   //**********************************************************
+   public copy(): Note {
+      return new Note({
+         semitone: this.semitone,
+         octave: this.octave,
+      });
+   }
+
+   //**********************************************************
+   /**
     * Static methods to create whole notes easily.
     * the default octave is 4
     */
@@ -234,3 +255,5 @@ class Note {
 }
 
 export default Note;
+export { TONES_MAX, TONES_MIN, OCTAVE_MAX, OCTAVE_MIN };
+export type { NoteInitializer };

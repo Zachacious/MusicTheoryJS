@@ -1,3 +1,6 @@
+/**
+ * Notes starting at C0 - zero index - 12 total
+ */
 declare enum Semitone {
     A = 9,
     As = 10,
@@ -21,4 +24,10 @@ declare enum Semitone {
     Gs = 8,
     Ab = 8
 }
+/**
+ * Returns the whole note name (e.g. C, D, E, F, G, A, B) for
+ * the given string
+ */
+declare const getWholeToneFromName: (name: string) => Semitone;
 export default Semitone;
+export { getWholeToneFromName };

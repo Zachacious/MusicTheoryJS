@@ -1,4 +1,4 @@
-import { createTables } from "./Tables";
+import { createTables } from "./instrumentTables";
 
 //**********************************************************
 /**
