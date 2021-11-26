@@ -10,9 +10,11 @@ Your HTML here
 // self executing function here
 (function() {
    console.log(window);
-   var note = new window.MusicTheory.Note({octave: 4, tone: window.MusicTheory.Semitone.C});
+   var note = new window.MusicTheory.Note({octave: 4, semitone: 3});
    var note2 = new window.MusicTheory.Note('F7');
    console.log(note2.toString());
+   note.semitone = 15;
+   console.log(note.semitone);
    // var parse = window.MusicTheory.noteParser;
    // console.log(parse('C##'));
    // const notes = [];

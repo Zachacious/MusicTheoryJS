@@ -52,6 +52,16 @@ class Note {
 
    //**********************************************************
    /**
+    * This is overridden by the Identifiable decorator
+    * is here so that typescript will recognize that it exist
+    */
+   //**********************************************************
+   public id(): string {
+      return "";
+   }
+
+   //**********************************************************
+   /**
     * semitone
     */
    //**********************************************************
@@ -145,7 +155,7 @@ class Note {
    //**********************************************************
    public flat(): Note {
       return new Note({
-         semitone: this.semitone - 1,
+         semitone: this.semitone,
          octave: this.octave,
       }).flatten();
    }

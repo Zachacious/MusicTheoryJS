@@ -3,23 +3,23 @@ import Semitone from "../Semitone";
 import wrap from "../utils/wrap";
 
 const UNKNOWN_MODIFIER_NOTE_STRINGS: Array<string> = [
-   "B#/C",
+   "C",
    "C#/Db",
    "D",
    "D#/Eb",
-   "E/Fb",
-   "E#/F",
+   "E",
+   "F",
    "F#/Gb",
    "G",
    "G#/Ab",
    "A",
    "A#/Bb",
-   "B/Cb",
+   "B",
 ];
 
-const SHARP_NOTE_STRINGS: Array<string> = ["B#", "C#", "D", "D#", "E", "E#", "F#", "G", "G#", "A", "A#", "B"];
+const SHARP_NOTE_STRINGS: Array<string> = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
-const FLAT_MODIFIER_NOTE_STRINGS: Array<string> = ["C", "Db", "D", "Eb", "Fb", "F", "Gb", "G", "Ab", "A", "Bb", "Cb"];
+const FLAT_MODIFIER_NOTE_STRINGS: Array<string> = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"];
 
 const createTable = (): { [key: string]: string } => {
    const table: { [key: string]: string } = {};
@@ -45,14 +45,15 @@ const createTable = (): { [key: string]: string } => {
 
 const getNoteLabel = (tone: number, modifier: string): string => {
    switch (modifier) {
-      case "-":
-         return UNKNOWN_MODIFIER_NOTE_STRINGS[tone];
       case "#":
          return SHARP_NOTE_STRINGS[tone];
       case "b":
          return FLAT_MODIFIER_NOTE_STRINGS[tone];
+      case "-":
       default:
-         return `${Semitone[tone]}`;
+         return UNKNOWN_MODIFIER_NOTE_STRINGS[tone];
+      // default:
+      //    return `${Semitone[tone]}`;
    }
 };
 
