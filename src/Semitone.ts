@@ -34,7 +34,7 @@ enum Semitone {
  */
 //**********************************************************
 const getWholeToneFromName = (name: string): Semitone => {
-   if (!name || name.length === 0 || name.length > 2) throw new Error("Invalid name");
+   if (!name || name.length === 0 || name.length > 1) throw new Error("Invalid name");
    const key = name[0].toUpperCase();
 
    return Semitone[key as keyof typeof Semitone];

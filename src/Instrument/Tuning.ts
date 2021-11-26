@@ -1,3 +1,4 @@
+import Identifiable from "../composables/Identifiable";
 import { createTables } from "./instrumentTables";
 
 //**********************************************************
@@ -8,6 +9,7 @@ import { createTables } from "./instrumentTables";
  * - based on the tuning
  */
 //**********************************************************
+@Identifiable()
 class Tuning {
    /**
     * Creates the object and builds the lookup tables.
@@ -15,6 +17,16 @@ class Tuning {
    constructor(a4Freq: number = 440) {
       this._a4 = a4Freq;
       this.buildTables();
+   }
+
+   //**********************************************************
+   /**
+    * This is overridden by the Identifiable decorator
+    * is here so that typescript will recognize that it exist
+    */
+   //**********************************************************
+   public id(id?: string): string {
+      return "";
    }
 
    //**********************************************************

@@ -1,4 +1,4 @@
-import CIdentifiable from "../composables/Identifiable";
+import Identifiable from "../composables/Identifiable";
 import Semitone from "../Semitone";
 import wrap from "../utils/wrap";
 import clamp from "../utils/clamp";
@@ -25,7 +25,7 @@ import noteStringLookup from "./stringTable";
  * on how many times the semitone has been wrapped.
  */
 //**********************************************************
-@CIdentifiable() // generates a unique id for each instance - retrieve with id()
+@Identifiable() // generates a unique id for each instance - retrieve with id()
 class Note {
    //**********************************************************
    /**
@@ -56,7 +56,7 @@ class Note {
     * is here so that typescript will recognize that it exist
     */
    //**********************************************************
-   public id(): string {
+   public id(id?: string): string {
       return "";
    }
 

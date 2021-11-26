@@ -1,6 +1,6 @@
 import Tuning from "./Tuning";
-import Note from "./Note/Note";
-import Identifiable from "./composables/Identifiable";
+import Note from "../Note/Note";
+import Identifiable from "../composables/Identifiable";
 
 //**********************************************************
 /**
@@ -20,6 +20,16 @@ class Instrument {
    //**********************************************************
    constructor(a4Freq: number = 440) {
       this.tuning = new Tuning(a4Freq);
+   }
+
+   //**********************************************************
+   /**
+    * This is overridden by the Identifiable decorator
+    * is here so that typescript will recognize that it exist
+    */
+   //**********************************************************
+   public id(id?: string): string {
+      return "";
    }
 
    //**********************************************************

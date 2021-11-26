@@ -7,7 +7,7 @@
   "module": "dist/module.js",
   "types": "dist/musictheory.d.ts",
   "scripts": {
-    "test": "jest",
+    "test": "jest --no-cache",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "clean": "rimraf dist",
     "dev": " run-s build && livereload dist",
@@ -16,6 +16,20 @@
     "build": "run-s clean production",
     "production": "rollup -c"
   },
+  "babel": {
+   "env": {
+     "test": {
+       "plugins": [
+         [
+           "@babel/plugin-proposal-decorators",
+           {
+             "legacy": true
+           }
+         ]
+       ]
+     }
+   }
+ },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Zachacious/MusicTheoryJS.git"
