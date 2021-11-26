@@ -1,28 +1,19 @@
-import CIdentifiable from "./composables/Identifiable";
-import Semitone from "./Semitone";
-import wrap from "./utils/wrap";
-import clamp from "./utils/clamp";
-
-//**********************************************************
-// Constants
-//**********************************************************
-const MODIFIED_SEMITONES = [1, 3, 4, 6, 8, 10];
-const TONES_MAX = 11;
-const TONES_MIN = 0;
-const OCTAVE_MAX = 9;
-const OCTAVE_MIN = 0;
-const DEFAULT_OCTAVE = 4;
-const DEFAULT_SEMITONE = 0;
-
-//**********************************************************
-/**
- * Describes the fields expected by the Note constrtuctor.
- */
-//**********************************************************
-type NoteInitializer = {
-   semitone?: Semitone;
-   octave?: number;
-};
+import CIdentifiable from "../composables/Identifiable";
+import Semitone from "../Semitone";
+import wrap from "../utils/wrap";
+import clamp from "../utils/clamp";
+import parseNote from "./noteParser";
+import NoteInitializer from "./NoteInitializer";
+import {
+   MODIFIED_SEMITONES,
+   TONES_MAX,
+   TONES_MIN,
+   OCTAVE_MAX,
+   OCTAVE_MIN,
+   DEFAULT_OCTAVE,
+   DEFAULT_SEMITONE,
+} from "./noteConstants";
+import noteStringLookup from "./stringTable";
 
 //**********************************************************
 /**
@@ -41,12 +32,22 @@ class Note {
     * Creates a new Note instance.
     */
    //**********************************************************
-   constructor(values: NoteInitializer) {
-      // important that octave is set first so that
-      // setting the semitone can change the octave
-      this.octave = values?.octave ?? DEFAULT_OCTAVE;
-      this.semitone = values?.semitone ?? DEFAULT_SEMITONE;
-      this._prevSemitone = this._tone;
+   constructor(values?: NoteInitializer | string) {
+      if (!values) {
+         this.octave = DEFAULT_OCTAVE;
+         this.semitone = DEFAULT_SEMITONE;
+      } else if (typeof values === "string") {
+         values = parseNote(values);
+         this.octave = values?.octave ?? DEFAULT_OCTAVE;
+         this.semitone = values?.semitone ?? DEFAULT_SEMITONE;
+         this._prevSemitone = this._tone;
+      } else {
+         // important that octave is set first so that
+         // setting the semitone can change the octave
+         this.octave = values?.octave ?? DEFAULT_OCTAVE;
+         this.semitone = values?.semitone ?? DEFAULT_SEMITONE;
+         this._prevSemitone = this._tone;
+      }
    }
 
    //**********************************************************
@@ -103,9 +104,9 @@ class Note {
    //**********************************************************
    public sharp(): Note {
       return new Note({
-         semitone: this.semitone + 1,
+         semitone: this.semitone,
          octave: this.octave,
-      });
+      }).sharpen();
    }
 
    //**********************************************************
@@ -130,7 +131,7 @@ class Note {
       if (!modified) return false;
 
       // if note is flat, it can't be sharp
-      if (this.semitone + 1 === this._prevSemitone) return false; //is flat
+      if (wrap(this.semitone + 1, TONES_MIN, TONES_MAX).value === this._prevSemitone) return false; //is flat
 
       // Doesn't neccecarily mean it's sharp, but it's a good guess at this point
       return true;
@@ -146,7 +147,7 @@ class Note {
       return new Note({
          semitone: this.semitone - 1,
          octave: this.octave,
-      });
+      }).flatten();
    }
 
    //**********************************************************
@@ -171,7 +172,7 @@ class Note {
       if (!modified) return false;
 
       // if note is sharp, it can't be flat
-      if (this.semitone - 1 === this._prevSemitone) return false; //is sharp
+      if (wrap(this.semitone - 1, TONES_MIN, TONES_MAX).value === this._prevSemitone) return false; //is sharp
 
       // Doesn't neccecarily mean it's flat, but it's a good guess at this point
       return true;
@@ -196,6 +197,15 @@ class Note {
          semitone: this.semitone,
          octave: this.octave,
       });
+   }
+
+   //**********************************************************
+   /**
+    * Returns a string version of this note
+    */
+   //**********************************************************
+   public toString(): string {
+      return noteStringLookup[`${this._tone}-${this._prevSemitone}`] + `${this._octave}`;
    }
 
    //**********************************************************

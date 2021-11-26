@@ -1,5 +1,5 @@
 import Tuning from "./Tuning";
-import Note from "./Note";
+import Note from "./Note/Note";
 import Identifiable from "./composables/Identifiable";
 
 //**********************************************************

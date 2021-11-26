@@ -1,5 +1,5 @@
 import Tuning from "./Tuning";
-import Note from "./Note";
+import Note from "./Note/Note";
 /**
  * Instrument class - used to represent an instrument
  * used to encapsulate the tuning and retrieving midi keys

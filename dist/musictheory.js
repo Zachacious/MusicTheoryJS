@@ -143,7 +143,6 @@
 
     const clamp = (pNum, pLower, pUpper) => Math.max(Math.min(pNum, Math.max(pLower, pUpper)), Math.min(pLower, pUpper));
 
-    var Note_1;
     //**********************************************************
     // Constants
     //**********************************************************
@@ -154,6 +153,183 @@
     const OCTAVE_MIN = 0;
     const DEFAULT_OCTAVE = 4;
     const DEFAULT_SEMITONE = 0;
+
+    var Modifier;
+    (function (Modifier) {
+        Modifier[Modifier["FLAT"] = -1] = "FLAT";
+        Modifier[Modifier["NATURAL"] = 0] = "NATURAL";
+        Modifier[Modifier["SHARP"] = 1] = "SHARP";
+    })(Modifier || (Modifier = {}));
+    const parseModifier = (modifier) => {
+        switch (modifier) {
+            case "b":
+            case "flat":
+                return Modifier.FLAT;
+            case "#":
+            case "s":
+            case "sharp":
+                return Modifier.SHARP;
+            default:
+                return Modifier.NATURAL;
+        }
+    };
+    var Modifier$1 = Modifier;
+
+    //**********************************************************
+    /**
+     * Regex for matching note name, modifier, and octave
+     */
+    //**********************************************************
+    const nameRegex = /([A-G])/g;
+    const modifierRegex = /(#|s|b)/g;
+    const octaveRegex = /([0-9]*)/g;
+    //**********************************************************
+    /**
+     * attempts to parse a note from a string
+     */
+    //**********************************************************
+    const parseNote = (note, supressWarning = false) => {
+        try {
+            const result = noteLookup[note];
+            if (result) {
+                return result;
+            }
+            if (!supressWarning)
+                console.warn(`Ineffecient note string formatting - ${note}. Get a performanc increase by using the format [A-G][#|s|b][0-9]`);
+        }
+        catch (err) {
+            if (!supressWarning)
+                console.warn(`Ineffecient note string formatting - ${note}. Get a performanc increase by using the format [A-G][#|s|b][0-9]`);
+        }
+        let noteIdenifier = "";
+        let noteModifier = 0;
+        let noteOctave = "";
+        const nameMatch = note.match(nameRegex)?.join("").split("");
+        const modifierMatch = note.match(modifierRegex)?.join("").split("");
+        const octaveMatch = note.match(octaveRegex)?.join("").split("");
+        // combine all modifiers
+        if (modifierMatch) {
+            if (modifierMatch.length > 1) {
+                // TS seams to confuse the types here so use any for now
+                noteModifier = modifierMatch.reduce((acc, curr) => {
+                    if (typeof acc === "string")
+                        acc = parseModifier(acc);
+                    const modifier = parseModifier(curr);
+                    return (acc + modifier);
+                });
+            }
+            else {
+                noteModifier = parseModifier(modifierMatch[0]);
+            }
+        }
+        if (octaveMatch) {
+            const [octave] = octaveMatch;
+            noteOctave = octave;
+        }
+        if (nameMatch) {
+            const [noteName] = nameMatch;
+            noteIdenifier = noteName;
+            let modifier = 0;
+            if (noteModifier)
+                modifier = noteModifier;
+            const wrappedTone = wrap(getWholeToneFromName(noteIdenifier) + modifier, TONES_MIN, TONES_MAX);
+            let semitone = wrappedTone.value;
+            let octave = 4;
+            if (noteOctave)
+                octave = clamp(parseInt(noteOctave), OCTAVE_MIN, OCTAVE_MAX);
+            return {
+                semitone: semitone,
+                octave: octave,
+            };
+        }
+        throw new Error(`Invalid note: ${note}`);
+    };
+    //**********************************************************
+    /**
+     * creates a lookup table for all notes formatted as [A-G][#|b|s][0-9]
+     */
+    //**********************************************************
+    const createTable$1 = () => {
+        const noteTable = {};
+        const noteLetters = ["A", "B", "C", "D", "E", "F", "G"];
+        const noteModifiers = ["b", "#", "s"];
+        for (const noteLabel of noteLetters) {
+            noteTable[noteLabel] = parseNote(noteLabel, true); // 'C' for example
+            for (let iModifierOuter = 0; iModifierOuter < noteModifiers.length; ++iModifierOuter) {
+                const key = `${noteLabel}${noteModifiers[iModifierOuter]}`;
+                noteTable[key] = parseNote(key, true); // 'C#' for example
+            }
+            for (let iOctave = OCTAVE_MIN; iOctave < OCTAVE_MAX; ++iOctave) {
+                const key = `${noteLabel}${iOctave}`;
+                noteTable[key] = parseNote(key, true); // 'C4' for example
+                for (let iModifier = 0; iModifier < noteModifiers.length; ++iModifier) {
+                    const key = `${noteLabel}${noteModifiers[iModifier]}${iOctave}`;
+                    noteTable[key] = parseNote(key, true); // 'C#4' for example
+                }
+            }
+        }
+        return noteTable;
+    };
+    //**********************************************************
+    /**
+     * creates the lookup table as soon as the module is loaded
+     */
+    //**********************************************************
+    const noteLookup = createTable$1();
+
+    const UNKNOWN_MODIFIER_NOTE_STRINGS = [
+        "B#/C",
+        "C#/Db",
+        "D",
+        "D#/Eb",
+        "E/Fb",
+        "E#/F",
+        "F#/Gb",
+        "G",
+        "G#/Ab",
+        "A",
+        "A#/Bb",
+        "B/Cb",
+    ];
+    const SHARP_NOTE_STRINGS = ["B#", "C#", "D", "D#", "E", "E#", "F#", "G", "G#", "A", "A#", "B"];
+    const FLAT_MODIFIER_NOTE_STRINGS = ["C", "Db", "D", "Eb", "Fb", "F", "Gb", "G", "Ab", "A", "Bb", "Cb"];
+    const createTable = () => {
+        const table = {};
+        for (let iTone = TONES_MIN; iTone <= TONES_MAX; ++iTone) {
+            for (let iPrev = TONES_MIN; iPrev <= TONES_MAX; ++iPrev) {
+                // for (let iOctave = OCTAVE_MIN; iOctave <= OCTAVE_MAX; iOctave++) {
+                let modifier = "";
+                if (MODIFIED_SEMITONES.includes(iTone)) {
+                    modifier = "-"; // has an unknown modifier
+                    // if is flat
+                    if (wrap(iTone + 1, TONES_MIN, TONES_MAX).value === iPrev)
+                        modifier = "b";
+                    // is sharp
+                    if (wrap(iTone - 1, TONES_MIN, TONES_MAX).value === iPrev)
+                        modifier = "#";
+                }
+                // get note name from table
+                table[`${iTone}-${iPrev}`] = getNoteLabel(iTone, modifier);
+            }
+            // }
+        }
+        return table;
+    };
+    const getNoteLabel = (tone, modifier) => {
+        switch (modifier) {
+            case "-":
+                return UNKNOWN_MODIFIER_NOTE_STRINGS[tone];
+            case "#":
+                return SHARP_NOTE_STRINGS[tone];
+            case "b":
+                return FLAT_MODIFIER_NOTE_STRINGS[tone];
+            default:
+                return `${Semitone$1[tone]}`;
+        }
+    };
+    const noteStringLookup = createTable();
+
+    var Note_1;
     //**********************************************************
     /**
      * A musical note.
@@ -171,11 +347,23 @@
          */
         //**********************************************************
         constructor(values) {
-            // important that octave is set first so that
-            // setting the semitone can change the octave
-            this.octave = values?.octave ?? DEFAULT_OCTAVE;
-            this.semitone = values?.semitone ?? DEFAULT_SEMITONE;
-            this._prevSemitone = this._tone;
+            if (!values) {
+                this.octave = DEFAULT_OCTAVE;
+                this.semitone = DEFAULT_SEMITONE;
+            }
+            else if (typeof values === "string") {
+                values = parseNote(values);
+                this.octave = values?.octave ?? DEFAULT_OCTAVE;
+                this.semitone = values?.semitone ?? DEFAULT_SEMITONE;
+                this._prevSemitone = this._tone;
+            }
+            else {
+                // important that octave is set first so that
+                // setting the semitone can change the octave
+                this.octave = values?.octave ?? DEFAULT_OCTAVE;
+                this.semitone = values?.semitone ?? DEFAULT_SEMITONE;
+                this._prevSemitone = this._tone;
+            }
         }
         //**********************************************************
         /**
@@ -250,7 +438,7 @@
             if (!modified)
                 return false;
             // if note is flat, it can't be sharp
-            if (this.semitone + 1 === this._prevSemitone)
+            if (wrap(this.semitone + 1, TONES_MIN, TONES_MAX).value === this._prevSemitone)
                 return false; //is flat
             // Doesn't neccecarily mean it's sharp, but it's a good guess at this point
             return true;
@@ -288,7 +476,7 @@
             if (!modified)
                 return false;
             // if note is sharp, it can't be flat
-            if (this.semitone - 1 === this._prevSemitone)
+            if (wrap(this.semitone - 1, TONES_MIN, TONES_MAX).value === this._prevSemitone)
                 return false; //is sharp
             // Doesn't neccecarily mean it's flat, but it's a good guess at this point
             return true;
@@ -311,6 +499,14 @@
                 semitone: this.semitone,
                 octave: this.octave,
             });
+        }
+        //**********************************************************
+        /**
+         * Returns a string version of this note
+         */
+        //**********************************************************
+        toString() {
+            return noteStringLookup[`${this._tone}-${this._prevSemitone}`] + `${this._octave}`;
         }
         //**********************************************************
         /**
@@ -366,134 +562,9 @@
     ], Note);
     var Note$1 = Note;
 
-    var Modifier;
-    (function (Modifier) {
-        Modifier[Modifier["FLAT"] = -1] = "FLAT";
-        Modifier[Modifier["NATURAL"] = 0] = "NATURAL";
-        Modifier[Modifier["SHARP"] = 1] = "SHARP";
-    })(Modifier || (Modifier = {}));
-    const parseModifier = (modifier) => {
-        switch (modifier) {
-            case "b":
-            case "flat":
-                return Modifier.FLAT;
-            case "#":
-            case "s":
-            case "sharp":
-                return Modifier.SHARP;
-            default:
-                return Modifier.NATURAL;
-        }
-    };
-    var Modifier$1 = Modifier;
-
-    //**********************************************************
-    /**
-     * Regex for matching note name, modifier, and octave
-     */
-    //**********************************************************
-    const nameRegex = /([A-G])/g;
-    const modifierRegex = /(#|s|b)/g;
-    const octaveRegex = /([0-9]*)/g;
-    //**********************************************************
-    /**
-     * attempts to parse a note from a string
-     */
-    //**********************************************************
-    const noteParser = (note, supressWarning = false) => {
-        try {
-            const result = noteLookup[note];
-            if (result) {
-                return result;
-            }
-            if (!supressWarning)
-                console.warn(`Ineffecient note string formatting - ${note}. Get a performanc increase by using the format [A-G][#|s|b][0-9]`);
-        }
-        catch (err) {
-            if (!supressWarning)
-                console.warn(`Ineffecient note string formatting - ${note}. Get a performanc increase by using the format [A-G][#|s|b][0-9]`);
-        }
-        let noteIdenifier = "";
-        let noteModifier = 0;
-        let noteOctave = "";
-        const nameMatch = note.match(nameRegex)?.join("").split("");
-        const modifierMatch = note.match(modifierRegex)?.join("").split("");
-        const octaveMatch = note.match(octaveRegex)?.join("").split("");
-        // combine all modifiers
-        if (modifierMatch) {
-            if (modifierMatch.length > 1) {
-                // TS seams to confuse the types here so use any for now
-                noteModifier = modifierMatch.reduce((acc, curr) => {
-                    if (typeof acc === "string")
-                        acc = parseModifier(acc);
-                    const modifier = parseModifier(curr);
-                    return (acc + modifier);
-                });
-            }
-            else {
-                noteModifier = parseModifier(modifierMatch[0]);
-            }
-        }
-        if (octaveMatch) {
-            const [octave] = octaveMatch;
-            noteOctave = octave;
-        }
-        if (nameMatch) {
-            const [noteName] = nameMatch;
-            noteIdenifier = noteName;
-            let modifier = 0;
-            if (noteModifier)
-                modifier = noteModifier;
-            const wrappedTone = wrap(getWholeToneFromName(noteIdenifier) + modifier, TONES_MIN, TONES_MAX);
-            let semitone = wrappedTone.value;
-            let octave = 4;
-            if (noteOctave)
-                octave = clamp(parseInt(noteOctave), OCTAVE_MIN, OCTAVE_MAX);
-            return {
-                semitone: semitone,
-                octave: octave,
-            };
-        }
-        throw new Error(`Invalid note: ${note}`);
-    };
-    //**********************************************************
-    /**
-     * creates a lookup table for all notes formatted as [A-G][#|b|s][0-9]
-     */
-    //**********************************************************
-    const createTable = () => {
-        const noteTable = {};
-        const noteLetters = ["A", "B", "C", "D", "E", "F", "G"];
-        const noteModifiers = ["b", "#", "s"];
-        for (const noteLabel of noteLetters) {
-            noteTable[noteLabel] = noteParser(noteLabel, true); // 'C' for example
-            for (let iModifierOuter = 0; iModifierOuter < noteModifiers.length; ++iModifierOuter) {
-                const key = `${noteLabel}${noteModifiers[iModifierOuter]}`;
-                noteTable[key] = noteParser(key, true); // 'C#' for example
-            }
-            for (let iOctave = OCTAVE_MIN; iOctave < OCTAVE_MAX; ++iOctave) {
-                const key = `${noteLabel}${iOctave}`;
-                noteTable[key] = noteParser(key, true); // 'C4' for example
-                for (let iModifier = 0; iModifier < noteModifiers.length; ++iModifier) {
-                    const key = `${noteLabel}${noteModifiers[iModifier]}${iOctave}`;
-                    noteTable[key] = noteParser(key, true); // 'C#4' for example
-                }
-            }
-        }
-        return noteTable;
-    };
-    //**********************************************************
-    /**
-     * creates the lookup table as soon as the module is loaded
-     */
-    //**********************************************************
-    const noteLookup = createTable();
-    console.log(noteLookup);
-
     exports.Modifier = Modifier$1;
     exports.Note = Note$1;
     exports.Semitone = Semitone$1;
-    exports.noteParser = noteParser;
     exports.wrap = wrap;
 
     Object.defineProperty(exports, '__esModule', { value: true });

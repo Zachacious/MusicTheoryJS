@@ -1,0 +1,61 @@
+import { MODIFIED_SEMITONES, TONES_MAX, TONES_MIN, OCTAVE_MAX, OCTAVE_MIN } from "./noteConstants";
+import Semitone from "../Semitone";
+import wrap from "../utils/wrap";
+
+const UNKNOWN_MODIFIER_NOTE_STRINGS: Array<string> = [
+   "B#/C",
+   "C#/Db",
+   "D",
+   "D#/Eb",
+   "E/Fb",
+   "E#/F",
+   "F#/Gb",
+   "G",
+   "G#/Ab",
+   "A",
+   "A#/Bb",
+   "B/Cb",
+];
+
+const SHARP_NOTE_STRINGS: Array<string> = ["B#", "C#", "D", "D#", "E", "E#", "F#", "G", "G#", "A", "A#", "B"];
+
+const FLAT_MODIFIER_NOTE_STRINGS: Array<string> = ["C", "Db", "D", "Eb", "Fb", "F", "Gb", "G", "Ab", "A", "Bb", "Cb"];
+
+const createTable = (): { [key: string]: string } => {
+   const table: { [key: string]: string } = {};
+   for (let iTone = TONES_MIN; iTone <= TONES_MAX; ++iTone) {
+      for (let iPrev = TONES_MIN; iPrev <= TONES_MAX; ++iPrev) {
+         // for (let iOctave = OCTAVE_MIN; iOctave <= OCTAVE_MAX; iOctave++) {
+         let modifier = "";
+         if (MODIFIED_SEMITONES.includes(iTone)) {
+            modifier = "-"; // has an unknown modifier
+            // if is flat
+            if (wrap(iTone + 1, TONES_MIN, TONES_MAX).value === iPrev) modifier = "b";
+            // is sharp
+            if (wrap(iTone - 1, TONES_MIN, TONES_MAX).value === iPrev) modifier = "#";
+         }
+
+         // get note name from table
+         table[`${iTone}-${iPrev}`] = getNoteLabel(iTone, modifier);
+      }
+      // }
+   }
+   return table;
+};
+
+const getNoteLabel = (tone: number, modifier: string): string => {
+   switch (modifier) {
+      case "-":
+         return UNKNOWN_MODIFIER_NOTE_STRINGS[tone];
+      case "#":
+         return SHARP_NOTE_STRINGS[tone];
+      case "b":
+         return FLAT_MODIFIER_NOTE_STRINGS[tone];
+      default:
+         return `${Semitone[tone]}`;
+   }
+};
+
+const noteStringLookup: { [key: string]: string } = createTable();
+
+export default noteStringLookup;

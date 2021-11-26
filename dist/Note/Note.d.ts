@@ -1,15 +1,6 @@
-import Semitone from "./Semitone";
-declare const TONES_MAX = 11;
-declare const TONES_MIN = 0;
-declare const OCTAVE_MAX = 9;
-declare const OCTAVE_MIN = 0;
-/**
- * Describes the fields expected by the Note constrtuctor.
- */
-declare type NoteInitializer = {
-    semitone?: Semitone;
-    octave?: number;
-};
+import Semitone from "../Semitone";
+import NoteInitializer from "./NoteInitializer";
+import { TONES_MAX, TONES_MIN, OCTAVE_MAX, OCTAVE_MIN } from "./noteConstants";
 /**
  * A musical note.
  * The primary fields are the semitone and octave.
@@ -22,7 +13,7 @@ declare class Note {
     /**
      * Creates a new Note instance.
      */
-    constructor(values: NoteInitializer);
+    constructor(values?: NoteInitializer | string);
     /**
      * semitone
      */
@@ -80,6 +71,10 @@ declare class Note {
      * Returns a copy of this note
      */
     copy(): Note;
+    /**
+     * Returns a string version of this note
+     */
+    toString(): string;
     /**
      * Static methods to create whole notes easily.
      * the default octave is 4

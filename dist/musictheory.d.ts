@@ -32,6 +32,7 @@ declare type NoteInitializer = {
     semitone?: Semitone;
     octave?: number;
 };
+
 /**
  * A musical note.
  * The primary fields are the semitone and octave.
@@ -44,7 +45,7 @@ declare class Note {
     /**
      * Creates a new Note instance.
      */
-    constructor(values: NoteInitializer);
+    constructor(values?: NoteInitializer | string);
     /**
      * semitone
      */
@@ -103,6 +104,10 @@ declare class Note {
      */
     copy(): Note;
     /**
+     * Returns a string version of this note
+     */
+    toString(): string;
+    /**
      * Static methods to create whole notes easily.
      * the default octave is 4
      */
@@ -127,9 +132,4 @@ declare type wrappedNumber = {
 };
 declare const wrap: (value: number, lower: number, upper: number) => wrappedNumber;
 
-/**
- * attempts to parse a note from a string
- */
-declare const noteParser: (note: string, supressWarning?: boolean) => NoteInitializer;
-
-export { Modifier, Note, Semitone, noteParser, wrap };
+export { Modifier, Note, Semitone, wrap };

@@ -1,8 +1,9 @@
-import { NoteInitializer, TONES_MAX, TONES_MIN, OCTAVE_MAX, OCTAVE_MIN } from "../Note";
+import NoteInitializer from "./NoteInitializer";
+import { TONES_MAX, TONES_MIN, OCTAVE_MAX, OCTAVE_MIN } from "./noteConstants";
 import { getWholeToneFromName } from "../Semitone";
 import Modifier, { parseModifier } from "../Modifier";
-import wrap from "./wrap";
-import clamp from "./clamp";
+import wrap from "../utils/wrap";
+import clamp from "../utils/clamp";
 
 //**********************************************************
 /**
@@ -18,7 +19,7 @@ const octaveRegex = /([0-9]*)/g;
  * attempts to parse a note from a string
  */
 //**********************************************************
-const noteParser = (note: string, supressWarning: boolean = false): NoteInitializer => {
+const parseNote = (note: string, supressWarning: boolean = false): NoteInitializer => {
    try {
       const result: NoteInitializer = noteLookup[note];
       if (result) {
@@ -97,17 +98,17 @@ const createTable = (): { [key: string]: NoteInitializer } => {
    const noteModifiers = ["b", "#", "s"];
 
    for (const noteLabel of noteLetters) {
-      noteTable[noteLabel] = noteParser(noteLabel, true); // 'C' for example
+      noteTable[noteLabel] = parseNote(noteLabel, true); // 'C' for example
       for (let iModifierOuter = 0; iModifierOuter < noteModifiers.length; ++iModifierOuter) {
          const key = `${noteLabel}${noteModifiers[iModifierOuter]}`;
-         noteTable[key] = noteParser(key, true); // 'C#' for example
+         noteTable[key] = parseNote(key, true); // 'C#' for example
       }
       for (let iOctave = OCTAVE_MIN; iOctave < OCTAVE_MAX; ++iOctave) {
          const key = `${noteLabel}${iOctave}`;
-         noteTable[key] = noteParser(key, true); // 'C4' for example
+         noteTable[key] = parseNote(key, true); // 'C4' for example
          for (let iModifier = 0; iModifier < noteModifiers.length; ++iModifier) {
             const key = `${noteLabel}${noteModifiers[iModifier]}${iOctave}`;
-            noteTable[key] = noteParser(key, true); // 'C#4' for example
+            noteTable[key] = parseNote(key, true); // 'C#4' for example
          }
       }
    }
@@ -121,6 +122,5 @@ const createTable = (): { [key: string]: NoteInitializer } => {
  */
 //**********************************************************
 const noteLookup: { [key: string]: NoteInitializer } = createTable();
-console.log(noteLookup);
 
-export default noteParser;
+export default parseNote;
