@@ -40,7 +40,7 @@
     	return BUFFER.substring(IDX, IDX++ + tmp);
     }
 
-    const CIdentifiable = () => {
+    const Identifiable = () => {
         return (target) => {
             target.prototype.id = (id) => {
                 if (target.prototype._id === undefined)
@@ -89,7 +89,7 @@
      */
     //**********************************************************
     const getWholeToneFromName = (name) => {
-        if (!name || name.length === 0 || name.length > 2)
+        if (!name || name.length === 0 || name.length > 1)
             throw new Error("Invalid name");
         const key = name[0].toUpperCase();
         return Semitone[key];
@@ -100,6 +100,8 @@
     //Wraps a number between a min and max value.
     // ************************************************
     const wrap = (value, lower, upper) => {
+        // copies
+        let val = value;
         let lbound = lower;
         let ubound = upper;
         // if the bounds are inverted, swap them here
@@ -107,7 +109,6 @@
             lbound = upper;
             ubound = lower;
         }
-        let val = value;
         // the amount needed to move the range and value to zero
         const zeroOffset = 0 - lbound;
         // offset the values so that the lower bound is zero
@@ -116,8 +117,12 @@
         val += zeroOffset;
         // compute the number of times the value will wrap
         let wraps = Math.trunc(val / ubound);
+        // case: -1 / ubound(>0) will equal 0 although it wraps once
         if (wraps === 0 && val < lbound)
             wraps = -1;
+        // case: ubound and value are the same val/ubound = 1 but actually doesnt wrap
+        if (wraps === 1 && val === ubound)
+            wraps = 0;
         // needed to handle the case where the num of wraps is 0 or 1 or -1
         let valOffset = 0;
         let wrapOffset = 0;
@@ -278,21 +283,21 @@
     const noteLookup = createTable$1();
 
     const UNKNOWN_MODIFIER_NOTE_STRINGS = [
-        "B#/C",
+        "C",
         "C#/Db",
         "D",
         "D#/Eb",
-        "E/Fb",
-        "E#/F",
+        "E",
+        "F",
         "F#/Gb",
         "G",
         "G#/Ab",
         "A",
         "A#/Bb",
-        "B/Cb",
+        "B",
     ];
-    const SHARP_NOTE_STRINGS = ["B#", "C#", "D", "D#", "E", "E#", "F#", "G", "G#", "A", "A#", "B"];
-    const FLAT_MODIFIER_NOTE_STRINGS = ["C", "Db", "D", "Eb", "Fb", "F", "Gb", "G", "Ab", "A", "Bb", "Cb"];
+    const SHARP_NOTE_STRINGS = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+    const FLAT_MODIFIER_NOTE_STRINGS = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"];
     const createTable = () => {
         const table = {};
         for (let iTone = TONES_MIN; iTone <= TONES_MAX; ++iTone) {
@@ -317,14 +322,15 @@
     };
     const getNoteLabel = (tone, modifier) => {
         switch (modifier) {
-            case "-":
-                return UNKNOWN_MODIFIER_NOTE_STRINGS[tone];
             case "#":
                 return SHARP_NOTE_STRINGS[tone];
             case "b":
                 return FLAT_MODIFIER_NOTE_STRINGS[tone];
+            case "-":
             default:
-                return `${Semitone$1[tone]}`;
+                return UNKNOWN_MODIFIER_NOTE_STRINGS[tone];
+            // default:
+            //    return `${Semitone[tone]}`;
         }
     };
     const noteStringLookup = createTable();
@@ -364,6 +370,15 @@
                 this.semitone = values?.semitone ?? DEFAULT_SEMITONE;
                 this._prevSemitone = this._tone;
             }
+        }
+        //**********************************************************
+        /**
+         * This is overridden by the Identifiable decorator
+         * is here so that typescript will recognize that it exist
+         */
+        //**********************************************************
+        id(id) {
+            return "";
         }
         //**********************************************************
         /**
@@ -413,9 +428,9 @@
         //**********************************************************
         sharp() {
             return new Note_1({
-                semitone: this.semitone + 1,
+                semitone: this.semitone,
                 octave: this.octave,
-            });
+            }).sharpen();
         }
         //**********************************************************
         /**
@@ -451,9 +466,9 @@
         //**********************************************************
         flat() {
             return new Note_1({
-                semitone: this.semitone - 1,
+                semitone: this.semitone,
                 octave: this.octave,
-            });
+            }).flatten();
         }
         //**********************************************************
         /**
@@ -520,37 +535,37 @@
                 octave,
             });
         }
-        static B(octave) {
+        static B(octave = 4) {
             return new Note_1({
                 semitone: Semitone$1.B,
                 octave,
             });
         }
-        static C(octave) {
+        static C(octave = 4) {
             return new Note_1({
                 semitone: Semitone$1.C,
                 octave,
             });
         }
-        static D(octave) {
+        static D(octave = 4) {
             return new Note_1({
                 semitone: Semitone$1.D,
                 octave,
             });
         }
-        static E(octave) {
+        static E(octave = 4) {
             return new Note_1({
                 semitone: Semitone$1.E,
                 octave,
             });
         }
-        static F(octave) {
+        static F(octave = 4) {
             return new Note_1({
                 semitone: Semitone$1.F,
                 octave,
             });
         }
-        static G(octave) {
+        static G(octave = 4) {
             return new Note_1({
                 semitone: Semitone$1.G,
                 octave,
@@ -558,7 +573,7 @@
         }
     };
     Note = Note_1 = __decorate([
-        CIdentifiable() // generates a unique id for each instance - retrieve with id()
+        Identifiable() // generates a unique id for each instance - retrieve with id()
     ], Note);
     var Note$1 = Note;
 

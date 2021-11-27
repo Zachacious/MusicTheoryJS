@@ -10,6 +10,11 @@ declare class Tuning {
      */
     constructor(a4Freq?: number);
     /**
+     * This is overridden by the Identifiable decorator
+     * is here so that typescript will recognize that it exist
+     */
+    id(id?: string): string;
+    /**
      * a4 Tuning
      */
     private _a4;

@@ -1,2 +1,2 @@
-declare const CIdentifiable: Function;
-export default CIdentifiable;
+declare const Identifiable: Function;
+export default Identifiable;

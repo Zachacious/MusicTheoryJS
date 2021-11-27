@@ -47,6 +47,11 @@ declare class Note {
      */
     constructor(values?: NoteInitializer | string);
     /**
+     * This is overridden by the Identifiable decorator
+     * is here so that typescript will recognize that it exist
+     */
+    id(id?: string): string;
+    /**
      * semitone
      */
     private _tone;
@@ -112,12 +117,12 @@ declare class Note {
      * the default octave is 4
      */
     static A(octave?: number): Note;
-    static B(octave: number): Note;
-    static C(octave: number): Note;
-    static D(octave: number): Note;
-    static E(octave: number): Note;
-    static F(octave: number): Note;
-    static G(octave: number): Note;
+    static B(octave?: number): Note;
+    static C(octave?: number): Note;
+    static D(octave?: number): Note;
+    static E(octave?: number): Note;
+    static F(octave?: number): Note;
+    static G(octave?: number): Note;
 }
 
 declare enum Modifier {
