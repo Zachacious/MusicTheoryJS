@@ -21,11 +21,11 @@ class Scale {
    constructor(values?: ScaleInitializer) {
       if (values) {
          this.template = values.template || DEFAULT_SCALE_TEMPLATE;
-         this.tonic = values.tonic || DEFAULT_SEMITONE;
+         this.key = values.key || DEFAULT_SEMITONE;
          this.octave = values.octave || DEFAULT_OCTAVE;
       } else {
          this.template = DEFAULT_SCALE_TEMPLATE;
-         this.tonic = DEFAULT_SEMITONE;
+         this.key = DEFAULT_SEMITONE;
          this.octave = DEFAULT_OCTAVE;
       }
 
@@ -49,7 +49,7 @@ class Scale {
    //**********************************************************
    public equals(scale: Scale): boolean {
       return (
-         this._tonic === scale._tonic &&
+         this._key === scale._key &&
          this.octave === scale.octave &&
          this._template === scale._template
       );
@@ -62,7 +62,7 @@ class Scale {
    //**********************************************************
    public copy(): Scale {
       const scale: Scale = new Scale({
-         tonic: this.tonic,
+         key: this.key,
          octave: this.octave,
          template: this.template,
       });
@@ -70,15 +70,15 @@ class Scale {
       return scale;
    }
 
-   private _tonic: Semitone = 0;
-   public get tonic(): Semitone {
-      return this._tonic;
+   private _key: Semitone = 0;
+   public get key(): Semitone {
+      return this._key;
    }
 
-   public set tonic(value: Semitone) {
+   public set key(value: Semitone) {
       const wrapped = wrap(value, TONES_MIN, TONES_MAX);
       this.octave = this.octave + wrapped.numWraps;
-      this._tonic = wrapped.value;
+      this._key = wrapped.value;
       this.generateNotes();
    }
 
@@ -100,6 +100,7 @@ class Scale {
 
    public set template(value: Array<number>) {
       this._template = value;
+      this._shiftedInterval = 0;
       this.generateNotes();
    }
 
@@ -112,7 +113,7 @@ class Scale {
       // use the template unshifted for simplicity
       const unshiftedTemplate = this.unshifted().template;
       const notes = [];
-      let accumulator = this.tonic;
+      let accumulator = this.key;
       for (const interval of unshiftedTemplate) {
          const note = new Note({
             semitone: (accumulator += interval),
@@ -153,7 +154,7 @@ class Scale {
    public relativeMajor(): Scale {
       const major = new Scale({
          template: ScaleTemplates.major,
-         tonic: this.degree(3).semitone,
+         key: this.degree(3).semitone,
          octave: this.octave,
       });
       return major;
@@ -162,7 +163,7 @@ class Scale {
    public relativeMinor(): Scale {
       const minor = new Scale({
          template: ScaleTemplates.minor,
-         tonic: this.degree(6).semitone,
+         key: this.degree(6).semitone,
          octave: this.octave,
       });
       return minor;
@@ -209,6 +210,48 @@ class Scale {
    public unshifted(): Scale {
       const scale = this.copy();
       scale.unshift();
+      return scale;
+   }
+
+   public ionian(): Scale {
+      const scale = this.copy();
+      scale.template = ScaleTemplates.ionian;
+      return scale;
+   }
+
+   public dorian(): Scale {
+      const scale = this.copy();
+      scale.template = ScaleTemplates.dorian;
+      return scale;
+   }
+
+   public phrygian(): Scale {
+      const scale = this.copy();
+      scale.template = ScaleTemplates.phrygian;
+      return scale;
+   }
+
+   public lydian(): Scale {
+      const scale = this.copy();
+      scale.template = ScaleTemplates.lydian;
+      return scale;
+   }
+
+   public mixolydian(): Scale {
+      const scale = this.copy();
+      scale.template = ScaleTemplates.mixolydian;
+      return scale;
+   }
+
+   public aeolian(): Scale {
+      const scale = this.copy();
+      scale.template = ScaleTemplates.aeolian;
+      return scale;
+   }
+
+   public locrian(): Scale {
+      const scale = this.copy();
+      scale.template = ScaleTemplates.locrian;
       return scale;
    }
 }
