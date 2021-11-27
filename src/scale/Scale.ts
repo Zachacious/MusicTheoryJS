@@ -14,6 +14,7 @@ import ScaleInitializer from "./ScaleInitializer";
 import Modes from "./modes";
 import Note from "../Note/Note";
 import Identifiable from "../composables/Identifiable";
+import ScaleTemplates from "./ScaleTemplates";
 
 @Identifiable()
 class Scale {
@@ -60,11 +61,13 @@ class Scale {
     */
    //**********************************************************
    public copy(): Scale {
-      return new Scale({
+      const scale: Scale = new Scale({
          tonic: this.tonic,
          octave: this.octave,
          template: this.template,
       });
+      if (this._shiftedInterval !== 0) scale.shift(this._shiftedInterval);
+      return scale;
    }
 
    private _tonic: Semitone = 0;
@@ -105,15 +108,32 @@ class Scale {
       return this._notes;
    }
 
-   private generateNotes(): void {
+   protected generateNotes(): void {
+      // use the template unshifted for simplicity
+      const unshiftedTemplate = this.unshifted().template;
       const notes = [];
       let accumulator = this.tonic;
-      for (const interval of this.template) {
+      for (const interval of unshiftedTemplate) {
          const note = new Note({
             semitone: (accumulator += interval),
             octave: this.octave,
          });
          notes.push(note);
+      }
+
+      // shift notes back to original position
+      if (this._shiftedInterval > 0) {
+         const temp: Note[] = notes.splice(
+            notes.length - (this._shiftedInterval + 1),
+            Infinity
+         );
+
+         notes.unshift(...temp);
+      }
+
+      if (this._shiftedInterval < 0) {
+         const temp: Note[] = notes.splice(0, this._shiftedInterval);
+         notes.push(...temp);
       }
 
       this._notes = notes;
@@ -132,22 +152,65 @@ class Scale {
 
    public relativeMajor(): Scale {
       const major = new Scale({
-         template: DEFAULT_SCALE_TEMPLATE,
+         template: ScaleTemplates.major,
          tonic: this.degree(3).semitone,
          octave: this.octave,
       });
       return major;
    }
 
-   // TODO:
-   // public relativeMinor(): Scale {
-   //    const minor = new Scale({
-   //       template: Modes.minor,
-   //       tonic: this.degree(3).semitone,
-   //       octave: this.octave,
-   //    });
-   //    return minor;
-   // }
+   public relativeMinor(): Scale {
+      const minor = new Scale({
+         template: ScaleTemplates.minor,
+         tonic: this.degree(6).semitone,
+         octave: this.octave,
+      });
+      return minor;
+   }
+
+   _shiftedInterval: number = 0;
+   public shift(degrees: number = 1): Scale {
+      if (degrees > 0) {
+         const temp: number[] = this._template.splice(
+            this._template.length - (degrees + 1),
+            Infinity
+         );
+
+         this._template.unshift(...temp);
+      }
+
+      if (degrees < 0) {
+         const temp: number[] = this._template.splice(0, degrees);
+         this._template.push(...temp);
+      }
+
+      this._shiftedInterval += degrees;
+      this.generateNotes();
+
+      return this;
+   }
+
+   public shifted(degrees: number = 1): Scale {
+      const scale = this.copy();
+      scale.shift(degrees);
+      return scale;
+   }
+
+   public unshift(): Scale {
+      if (this._shiftedInterval !== 0) {
+         this.shift(this._shiftedInterval * -1);
+         this._shiftedInterval = 0;
+         this.generateNotes();
+      }
+
+      return this;
+   }
+
+   public unshifted(): Scale {
+      const scale = this.copy();
+      scale.unshift();
+      return scale;
+   }
 }
 
 export default Scale;

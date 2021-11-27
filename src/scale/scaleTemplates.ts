@@ -1,4 +1,4 @@
-const scaleTemplates: { [key: string]: number[] } = {
+const ScaleTemplates: { [key: string]: number[] } = {
    wholeTone: [0, 2, 2, 2, 2, 2, 2],
 
    // major
@@ -108,11 +108,11 @@ const scaleTemplates: { [key: string]: number[] } = {
 };
 
 // duplicates with aliases
-scaleTemplates.halfDiminished = scaleTemplates.minor7b5;
-scaleTemplates.jewish = scaleTemplates.spanish8Tone;
-scaleTemplates.byzantine = scaleTemplates.doubleHarmonic;
-scaleTemplates.acoustic = scaleTemplates.lydianDominant;
-scaleTemplates.aeolian = scaleTemplates.minor;
-scaleTemplates.ionian = scaleTemplates.major;
+ScaleTemplates.halfDiminished = ScaleTemplates.minor7b5;
+ScaleTemplates.jewish = ScaleTemplates.spanish8Tone;
+ScaleTemplates.byzantine = ScaleTemplates.doubleHarmonic;
+ScaleTemplates.acoustic = ScaleTemplates.lydianDominant;
+ScaleTemplates.aeolian = ScaleTemplates.minor;
+ScaleTemplates.ionian = ScaleTemplates.major;
 
-export default scaleTemplates;
+export default ScaleTemplates;
