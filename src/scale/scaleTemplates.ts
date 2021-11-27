@@ -1,4 +1,4 @@
-const scaleTemplates = {
+const scaleTemplates: { [key: string]: number[] } = {
    wholeTone: [0, 2, 2, 2, 2, 2, 2],
 
    // major
@@ -6,10 +6,13 @@ const scaleTemplates = {
    major7s4s5: [0, 2, 2, 2, 2, 1, 2],
 
    // modes
+   // ionian: [], // set below - same as major
+   // aeolian: [], // set below - same as minor
    dorian: [0, 2, 1, 2, 2, 2, 1],
    phrygian: [0, 1, 2, 2, 2, 1, 2],
    lydian: [0, 2, 2, 2, 1, 2, 2],
    lydianDominant: [0, 2, 2, 2, 1, 2, 1],
+   // acoustic: [], // set below - same as lydianDominant
    mixolydian: [0, 2, 2, 1, 2, 2, 1],
    mixolydianFlat6: [0, 2, 2, 1, 2, 1, 2],
    locrian: [0, 1, 2, 2, 1, 2, 2],
@@ -19,11 +22,13 @@ const scaleTemplates = {
    minor: [0, 2, 1, 2, 2, 1, 2],
    minor7b9: [0, 1, 2, 2, 2, 2, 1],
    minor7b5: [0, 2, 1, 2, 1, 2, 2],
+   // halfDiminished: [], // set below - same as minor7b5
 
    // harmonic
    harmonicMajor: [0, 2, 2, 1, 2, 1, 3],
    harmonicMinor: [0, 2, 1, 2, 2, 1, 3],
    doubleHarmonic: [0, 1, 3, 1, 2, 1, 3],
+   // byzantine: [], // set below - same as doubleHarmonic
 
    // melodic
    melodicMinorAscending: [0, 2, 1, 2, 2, 2, 2],
@@ -57,6 +62,7 @@ const scaleTemplates = {
    // spanish
    spanish: [0, 1, 2, 1, 2, 2, 2],
    spanish8Tone: [0, 1, 2, 1, 1, 1, 2, 2],
+   // jewish: [], // set below - same as spanish8Tone
    spanishGypsy: [0, 1, 3, 1, 2, 1, 2],
 
    // aug dom
@@ -100,5 +106,13 @@ const scaleTemplates = {
    petrushka: [0, 1, 3, 2, 1, 3],
    ahavaraba: [0, 1, 3, 1, 2, 1, 2],
 };
+
+// duplicates with aliases
+scaleTemplates.halfDiminished = scaleTemplates.minor7b5;
+scaleTemplates.jewish = scaleTemplates.spanish8Tone;
+scaleTemplates.byzantine = scaleTemplates.doubleHarmonic;
+scaleTemplates.acoustic = scaleTemplates.lydianDominant;
+scaleTemplates.aeolian = scaleTemplates.minor;
+scaleTemplates.ionian = scaleTemplates.major;
 
 export default scaleTemplates;
