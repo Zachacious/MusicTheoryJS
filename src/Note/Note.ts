@@ -141,7 +141,11 @@ class Note {
       if (!modified) return false;
 
       // if note is flat, it can't be sharp
-      if (wrap(this.semitone + 1, TONES_MIN, TONES_MAX).value === this._prevSemitone) return false; //is flat
+      if (
+         wrap(this.semitone + 1, TONES_MIN, TONES_MAX).value ===
+         this._prevSemitone
+      )
+         return false; //is flat
 
       // Doesn't neccecarily mean it's sharp, but it's a good guess at this point
       return true;
@@ -182,7 +186,11 @@ class Note {
       if (!modified) return false;
 
       // if note is sharp, it can't be flat
-      if (wrap(this.semitone - 1, TONES_MIN, TONES_MAX).value === this._prevSemitone) return false; //is sharp
+      if (
+         wrap(this.semitone - 1, TONES_MIN, TONES_MAX).value ===
+         this._prevSemitone
+      )
+         return false; //is sharp
 
       // Doesn't neccecarily mean it's flat, but it's a good guess at this point
       return true;
@@ -215,7 +223,10 @@ class Note {
     */
    //**********************************************************
    public toString(): string {
-      return noteStringLookup[`${this._tone}-${this._prevSemitone}`] + `${this._octave}`;
+      return (
+         noteStringLookup[`${this._tone}-${this._prevSemitone}`] +
+         `${this._octave}`
+      );
    }
 
    //**********************************************************

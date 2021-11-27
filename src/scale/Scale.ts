@@ -1,7 +1,14 @@
 import Semitone from "../Semitone";
 import wrap from "../utils/wrap";
 import clamp from "../utils/clamp";
-import { TONES_MAX, TONES_MIN, OCTAVE_MAX, OCTAVE_MIN, DEFAULT_OCTAVE, DEFAULT_SEMITONE } from "../Note/noteConstants";
+import {
+   TONES_MAX,
+   TONES_MIN,
+   OCTAVE_MAX,
+   OCTAVE_MIN,
+   DEFAULT_OCTAVE,
+   DEFAULT_SEMITONE,
+} from "../Note/noteConstants";
 import { DEFAULT_SCALE_TEMPLATE } from "./scaleConstants";
 import ScaleInitializer from "./ScaleInitializer";
 import Modes from "./modes";
@@ -40,7 +47,11 @@ class Scale {
     */
    //**********************************************************
    public equals(scale: Scale): boolean {
-      return this._tonic === scale._tonic && this.octave === scale.octave && this._template === scale._template;
+      return (
+         this._tonic === scale._tonic &&
+         this.octave === scale.octave &&
+         this._template === scale._template
+      );
    }
 
    //**********************************************************
@@ -68,7 +79,8 @@ class Scale {
       this.generateNotes();
    }
 
-   private _octave: number = 4;
+   private _octave: number = DEFAULT_OCTAVE;
+
    public get octave(): number {
       return this._octave;
    }
@@ -108,7 +120,11 @@ class Scale {
    }
 
    public degree(degree: number): Note {
-      const wrapped = wrap(degree + 1 /* zero indexed */, 0, this.notes.length - 1);
+      const wrapped = wrap(
+         degree + 1 /* zero indexed */,
+         0,
+         this.notes.length - 1
+      );
       const note = this.notes[wrapped.value];
       note.octave = this.octave + wrapped.numWraps;
       return note;
