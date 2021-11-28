@@ -10,7 +10,7 @@
       // "strict": true,
       "experimentalDecorators": true,
       "declaration": true,
-      "target": "ESNext"
+      "target": "ESNext",
     },
     "include": [
       "src/**/*"
