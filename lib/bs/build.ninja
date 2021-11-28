@@ -1,0 +1,13 @@
+rescript = 1
+rule astj
+  command = "C:\src\MusicTheoryJS\node_modules\rescript\win32\bsc.exe"  -bs-v 9.1.4  -absname -bs-ast -o $out $i
+o src\index.ast : astj ..\..\src\index.res
+rule deps
+  command = "C:\src\MusicTheoryJS\node_modules\rescript\win32\bsb_helper.exe" -hash 335de725de22c69ec0ace68e4e4bb8ec $in
+  restat = 1
+o src\index.d : deps src\index.ast
+rule mij
+  command = "C:\src\MusicTheoryJS\node_modules\rescript\win32\bsc.exe" -I src   -bs-package-name your-project-name -bs-package-output es6:$in_d:.bs.js $i
+  dyndep = 1
+  restat = 1
+o src\index.cmj src\index.cmi ..\..\src\index.bs.js : mij src\index.ast

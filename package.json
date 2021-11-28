@@ -1,58 +1,36 @@
 {
   "name": "musictheoryjs",
-  "version": "0.3.1",
-  "description": "Music theory lib for JavaScript",
-  "main": "dist/musictheory.min.js",
-  "scripts": {
-    "deploy": "np --no-publish",
-    "build": "webpack -p --progress --config ./webpack.config.js --mode production",
-    "start": "webpack -p --progress --mode development && webpack-dev-server --config ./webpack.config.js --mode development",
-    "docs": "jsdoc -c jsdoc.json",
-    "test": "echo \"Error: no test specified\""
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "concurrently": "^6.4.0",
+    "esbuild": "^0.14.0",
+    "liveserver": "^0.1.20",
+    "rescript": "^9.1.4",
+    "rimraf": "^3.0.2"
   },
-  "keywords": [
-    "music",
-    "theory",
-    "note",
-    "scale",
-    "interval",
-    "chord",
-    "key",
-    "progression",
-    "mode",
-    "major",
-    "minor"
-  ],
-  "author": "Zach Moore",
-  "license": "ISC",
-  "homepage": "https://github.com/zachacious/musictheoryjs",
+  "scripts": {
+    "dev": "concurrently --names www,res,esb -c green.bold,red.bold,blue.bold --kill-others yarn:dev-server yarn:compile:watch yarn:bundle:watch",
+    "compile": "rescript",
+    "compile:watch": "NINJA_ANSI_FORCED=1 bsb -make-world -w",
+    "bundle": "node buildDev.js",
+    "bundle:watch": "yarn bundle --watch --color=true",
+    "dev-server": "PORT=5000 live-server www --host=localhost",
+    "bundle:production": "node buildProduction.js",
+    "build:production": "yarn compile && yarn bundle:production",
+    "clean": "bsb -clean-world && rimraf dist",
+    "start": "rescript build -w"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Zachacious/MusicTheoryJS.git"
+    "url": "git+https://github.com/Zachacious/MusicTheoryJS.git"
   },
-  "np": {
-    "yarn": false,
-    "contents": "dist"
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Zachacious/MusicTheoryJS/issues"
   },
-  "devDependencies": {
-    "@babel/core": "^7.8.3",
-    "@babel/plugin-proposal-class-properties": "^7.8.3",
-    "@babel/plugin-proposal-private-methods": "^7.8.3",
-    "@babel/preset-env": "^7.8.3",
-    "babel-eslint": "^10.0.3",
-    "babel-loader": "^8.0.6",
-    "better-docs": "^1.4.7",
-    "eslint": "^6.1.0",
-    "eslint-config-airbnb": "^18.0.1",
-    "eslint-loader": "^3.0.3",
-    "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-jsx-a11y": "^6.2.3",
-    "eslint-plugin-react": "^7.14.3",
-    "eslint-plugin-react-hooks": "^1.7.0",
-    "jsdoc-webpack-plugin": "^0.2.0",
-    "webpack": "^4.41.5",
-    "webpack-cli": "^3.3.10",
-    "webpack-dev-server": "^3.10.1"
-  },
-  "dependencies": {}
+  "homepage": "https://github.com/Zachacious/MusicTheoryJS#readme"
 }
