@@ -1,13 +1,13 @@
 import Semitone from "../Semitone";
 import ScaleInitializer from "./ScaleInitializer";
 import Note from "../Note/Note";
-declare class Scale {
+import Entity from "../Entity";
+declare class Scale implements Entity {
     constructor(values?: ScaleInitializer);
     /**
-     * This is overridden by the Identifiable decorator
-     * is here so that typescript will recognize that it exist
+     *  unique id for this scale
      */
-    id(id?: string): string;
+    id: string;
     /**
      * Returns true if this scale is equal to the given scale
      */

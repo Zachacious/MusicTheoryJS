@@ -33,8 +33,96 @@ declare type NoteInitializer = {
     octave?: number;
 };
 
-declare type CompositionObject = Record<string, unknown>;
-declare const Note: (initializer?: string | NoteInitializer | undefined) => CompositionObject;
+/**
+ * A musical note.
+ * The primary fields are the semitone and octave.
+ * The octave is clamped to the range [0, 9].
+ * Setting the semitone to a value outside of the range [0, 11] will
+ * wrap the semitone to the range [0, 11] and change the octave depending
+ * on how many times the semitone has been wrapped.
+ */
+declare class Note {
+    /**
+     * Creates a new Note instance.
+     */
+    constructor(values?: NoteInitializer | string);
+    /**
+     * unique id for this instance
+     */
+    id: string;
+    /**
+     * semitone
+     */
+    private _tone;
+    private _prevSemitone;
+    get semitone(): Semitone;
+    /**
+     * setting the semitone with a number outside the
+     * range of 0-11 will wrap the value around and
+     * change the octave accordingly
+     */
+    set semitone(semitone: Semitone);
+    /**
+     * octave
+     */
+    private _octave;
+    get octave(): number;
+    /**
+     * The octave is clamped to the range [0, 9].
+     */
+    set octave(octave: number);
+    /**
+     * Returns a new note that is a sharpened version of this note.
+     * This is chainable - A().sharp().flat()
+     */
+    sharp(): Note;
+    /**
+     * Sharpens the note in place.
+     * Returns itself for chaining - A().sharpen().sharp()
+     */
+    sharpen(): Note;
+    /**
+     *  attempts to determine if the note is sharp
+     */
+    isSharp(): boolean;
+    /**
+     * Returns a new note that is a flattened version of this note.
+     * This is chainable - A().flat().flat()
+     */
+    flat(): Note;
+    /**
+     * Flattens the note in place.
+     * Returns itself for chaining - A().flatten().flat()
+     */
+    flatten(): Note;
+    /**
+     *  attempts to determine if the note is flat
+     */
+    isFlat(): boolean;
+    /**
+     * Returns true if this note is equal to the given note
+     */
+    equals(note: Note): boolean;
+    /**
+     * Returns a copy of this note
+     */
+    copy(): Note;
+    /**
+     * Returns a string version of this note
+     */
+    toString(): string;
+    /**
+     * Static methods to create whole notes easily.
+     * the default octave is 4
+     */
+    static A(octave?: number): Note;
+    static B(octave?: number): Note;
+    static C(octave?: number): Note;
+    static D(octave?: number): Note;
+    static E(octave?: number): Note;
+    static F(octave?: number): Note;
+    static G(octave?: number): Note;
+}
 
 declare enum Modifier {
     FLAT = -1,
@@ -42,10 +130,128 @@ declare enum Modifier {
     SHARP = 1
 }
 
-declare type wrappedNumber = {
-    value: number;
-    numWraps: number;
-};
-declare const wrap: (value: number, lower: number, upper: number) => wrappedNumber;
+/**
+ * Tuning component used by Instrument class
+ * - containes the a4 tuning - default is 440Hz
+ * - builds lookup tables for midi key and frequency
+ * - based on the tuning
+ */
+declare class Tuning {
+    /**
+     * Creates the object and builds the lookup tables.
+     */
+    constructor(a4Freq?: number);
+    /**
+     * unique id for this instance
+     */
+    id: string;
+    /**
+     * a4 Tuning
+     */
+    private _a4;
+    get a4(): number;
+    /**
+     * setting the tuning will rebuild the lookup tables
+     */
+    set a4(value: number);
+    /**
+     * lookup table for midi key
+     */
+    private _midiKeyTable;
+    midiKeyLookup(octave: number, semitone: number): number;
+    /**
+     * lookup table for frequency
+     */
+    private _freqTable;
+    freqLookup(octave: number, semitone: number): number;
+    /**
+     * Builds the lookup tables for midi key and frequency
+     */
+    private buildTables;
+}
 
-export { Modifier, Note, Semitone, wrap };
+/**
+ * Instrument class - used to represent an instrument
+ * used to encapsulate the tuning and retrieving midi keys
+ * and frequencies for notes
+ */
+declare class Instrument {
+    tuning: Tuning;
+    /**
+     * creates a new instance of an instrument with the given tuning or 440hz
+     */
+    constructor(a4Freq?: number);
+    /**
+     * unique id for this instance
+     */
+    id: string;
+    /**
+     * returns the frequency of the given note
+     */
+    getFrequency(note: Note): number;
+    /**
+     * returns the midi key of the given note
+     */
+    getMidiKey(note: Note): number;
+}
+
+declare type ScaleInitializer = {
+    template?: Array<number>;
+    key?: Semitone;
+    octave?: number;
+};
+
+interface Entity {
+    id: string;
+    copy: () => Entity;
+    equals: (entity: Entity) => boolean;
+}
+
+declare class Scale implements Entity {
+    constructor(values?: ScaleInitializer);
+    /**
+     *  unique id for this scale
+     */
+    id: string;
+    /**
+     * Returns true if this scale is equal to the given scale
+     */
+    equals(scale: Scale): boolean;
+    /**
+     * Returns a copy of this Scale
+     */
+    copy(): Scale;
+    private _key;
+    get key(): Semitone;
+    set key(value: Semitone);
+    private _octave;
+    get octave(): number;
+    set octave(value: number);
+    private _template;
+    get template(): Array<number>;
+    set template(value: Array<number>);
+    private _notes;
+    get notes(): Array<Note>;
+    protected generateNotes(): void;
+    degree(degree: number): Note;
+    relativeMajor(): Scale;
+    relativeMinor(): Scale;
+    _shiftedInterval: number;
+    shift(degrees?: number): Scale;
+    shifted(degrees?: number): Scale;
+    unshift(): Scale;
+    unshifted(): Scale;
+    ionian(): Scale;
+    dorian(): Scale;
+    phrygian(): Scale;
+    lydian(): Scale;
+    mixolydian(): Scale;
+    aeolian(): Scale;
+    locrian(): Scale;
+}
+
+declare const ScaleTemplates: {
+    [key: string]: number[];
+};
+
+export { Instrument, Modifier, Note, Scale, ScaleTemplates, Semitone };

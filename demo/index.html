@@ -11,29 +11,15 @@ Your HTML here
 (function() {
    console.log(window);
    const mt = window.MusicTheory;
-   var note = mt.Note({semitone: 2, octave: 1});
-   console.log(note.semitone());
-   console.log(note.octave());
+   const note = new mt.Note('A4');
    console.log(note);
-    note.octave(7);
-   note.semitone(5);
-   console.log(note.semitone(20));
-   console.log(note.octave());
-   console.log(note);
-   // var note = new window.MusicTheory.Note({octave: 4, semitone: 3});
-   // var note2 = new window.MusicTheory.Note('F7');
-   // console.log(note2.toString());
-   // note.semitone = 15;
-   // console.log(note.semitone);
-   // var parse = window.MusicTheory.noteParser;
-   // console.log(parse('C##'));
-   // const notes = [];
-   // for (let i = 0; i < 1000; i++) {
-   //     notes.push(parse('C3##'));
-   // }
-   // console.log(notes);
-   // const wrap = window.MusicTheory.wrap;
-   // console.log(wrap(11,0,11));
+   const instrument = new mt.Instrument();
+   console.log(instrument);
+   console.log(instrument.getFrequency(note));
+   console.log(instrument.getMidiKey(note));
+   // console.log(mt.ScaleTemplates.major);
+   const scale = new mt.Scale({key:mt.Semitone.A4, template:mt.ScaleTemplates.major, octave:4});
+   console.log(scale);
 })();
 </script>
 </body>

@@ -1,5 +1,7 @@
-import Note from "./Note/Note.new";
+import Note from "./Note/Note";
 import Semitone from "./Semitone";
 import Modifier from "./Modifier";
-import wrap from "./utils/wrap";
-export { Note, Semitone, Modifier, wrap };
+import Instrument from "./Instrument/Instrument";
+import Scale from "./scale/Scale";
+import ScaleTemplates from "./scale/ScaleTemplates";
+export { Note, Semitone, Modifier, Instrument, Scale, ScaleTemplates };

@@ -13,11 +13,12 @@ import { DEFAULT_SCALE_TEMPLATE } from "./scaleConstants";
 import ScaleInitializer from "./ScaleInitializer";
 import Modes from "./modes";
 import Note from "../Note/Note";
-import Identifiable from "../composables/Identifiable";
 import ScaleTemplates from "./ScaleTemplates";
+import { uid } from "uid";
+// import Copyable from "../composables/Copyable";
+import Entity from "../Entity";
 
-@Identifiable()
-class Scale {
+class Scale implements Entity {
    constructor(values?: ScaleInitializer) {
       if (values) {
          this.template = values.template || DEFAULT_SCALE_TEMPLATE;
@@ -34,13 +35,10 @@ class Scale {
 
    //**********************************************************
    /**
-    * This is overridden by the Identifiable decorator
-    * is here so that typescript will recognize that it exist
+    *  unique id for this scale
     */
    //**********************************************************
-   public id(id?: string): string {
-      return "";
-   }
+   id: string = uid();
 
    //**********************************************************
    /**
@@ -50,7 +48,7 @@ class Scale {
    public equals(scale: Scale): boolean {
       return (
          this._key === scale._key &&
-         this.octave === scale.octave &&
+         this._octave === scale._octave &&
          this._template === scale._template
       );
    }
@@ -60,6 +58,7 @@ class Scale {
     * Returns a copy of this Scale
     */
    //**********************************************************
+   // public copy: () => Scale = Copyable<Scale>(this);
    public copy(): Scale {
       const scale: Scale = new Scale({
          key: this.key,
@@ -253,6 +252,17 @@ class Scale {
       const scale = this.copy();
       scale.template = ScaleTemplates.locrian;
       return scale;
+   }
+
+   public toString(): string {
+      let scaleName = "Unknown Scale";
+      const scaleIndex = Object.values(ScaleTemplates).findIndex(
+         (template) => template === this.template
+      );
+      if (scaleIndex !== -1) {
+         scaleName = Object.keys(ScaleTemplates)[scaleIndex];
+      }
+      return `${Semitone[this._key]} ${scaleName} ${this.octave}`;
    }
 }
 

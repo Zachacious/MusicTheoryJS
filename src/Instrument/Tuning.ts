@@ -1,5 +1,6 @@
-import Identifiable from "../composables/Identifiable";
+// import Identifiable from "../composables/Identifiable";
 import { createTables } from "./instrumentTables";
+import { uid } from "uid";
 
 //**********************************************************
 /**
@@ -9,7 +10,7 @@ import { createTables } from "./instrumentTables";
  * - based on the tuning
  */
 //**********************************************************
-@Identifiable()
+// @Identifiable()
 class Tuning {
    /**
     * Creates the object and builds the lookup tables.
@@ -21,13 +22,10 @@ class Tuning {
 
    //**********************************************************
    /**
-    * This is overridden by the Identifiable decorator
-    * is here so that typescript will recognize that it exist
+    * unique id for this instance
     */
    //**********************************************************
-   public id(id?: string): string {
-      return "";
-   }
+   id: string = uid();
 
    //**********************************************************
    /**
@@ -84,6 +82,15 @@ class Tuning {
       const tables = createTables(this._a4);
       this._midiKeyTable = tables.midiLookup;
       this._freqTable = tables.freqLookup;
+   }
+
+   //**********************************************************
+   /**
+    * returns the tuning as a string
+    */
+   //**********************************************************
+   public toString(): string {
+      return `Tuning(${this._a4})`;
    }
 }
 

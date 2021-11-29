@@ -15,10 +15,9 @@ declare class Note {
      */
     constructor(values?: NoteInitializer | string);
     /**
-     * This is overridden by the Identifiable decorator
-     * is here so that typescript will recognize that it exist
+     * unique id for this instance
      */
-    id(id?: string): string;
+    id: string;
     /**
      * semitone
      */

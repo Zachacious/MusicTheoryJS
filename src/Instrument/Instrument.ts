@@ -1,6 +1,7 @@
 import Tuning from "./Tuning";
 import Note from "../Note/Note";
-import Identifiable from "../composables/Identifiable";
+// import Identifiable from "../composables/Identifiable";
+import { uid } from "uid";
 
 //**********************************************************
 /**
@@ -9,7 +10,7 @@ import Identifiable from "../composables/Identifiable";
  * and frequencies for notes
  */
 //**********************************************************
-@Identifiable() // generates a unique id for each instance - use id() to get it
+// @Identifiable() // generates a unique id for each instance - use id() to get it
 class Instrument {
    tuning: Tuning;
 
@@ -24,13 +25,10 @@ class Instrument {
 
    //**********************************************************
    /**
-    * This is overridden by the Identifiable decorator
-    * is here so that typescript will recognize that it exist
+    * unique id for this instance
     */
    //**********************************************************
-   public id(id?: string): string {
-      return "";
-   }
+   id: string = uid();
 
    //**********************************************************
    /**
@@ -48,6 +46,15 @@ class Instrument {
    //**********************************************************
    getMidiKey(note: Note): number {
       return this.tuning.midiKeyLookup(note.octave, note.semitone);
+   }
+
+   //**********************************************************
+   /**
+    * returns the tuning as a string
+    */
+   //**********************************************************
+   public toString(): string {
+      return `Instrument Tuning(${this.tuning.a4})`;
    }
 }
 
