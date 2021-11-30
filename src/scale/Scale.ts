@@ -11,23 +11,41 @@ import {
 } from "../Note/noteConstants";
 import { DEFAULT_SCALE_TEMPLATE } from "./scaleConstants";
 import ScaleInitializer from "./ScaleInitializer";
-import Modes from "./modes";
+// import Modes from "./modes";
 import Note from "../Note/Note";
 import ScaleTemplates from "./ScaleTemplates";
 import { uid } from "uid";
 // import Copyable from "../composables/Copyable";
 import Entity from "../Entity";
+import parseScale from "./scaleParser";
 
+//**********************************************************
+/**
+ * A musical scale.
+ * The primary fields are the semitone and octave.
+ * The octave is clamped to the range [0, 9].
+ * Setting the semitone to a value outside of the range [0, 11] will
+ * wrap the semitone to the range [0, 11] and change the octave depending
+ * on how many times the semitone has been wrapped.
+ */
+//**********************************************************
 class Scale implements Entity {
    constructor(values?: ScaleInitializer) {
-      if (values) {
+      if (!values) {
+         this.template = DEFAULT_SCALE_TEMPLATE;
+         this.key = DEFAULT_SEMITONE;
+         this.octave = DEFAULT_OCTAVE;
+      } else if (typeof values === "string") {
+         values = parseScale(values);
          this.template = values.template || DEFAULT_SCALE_TEMPLATE;
          this.key = values.key || DEFAULT_SEMITONE;
          this.octave = values.octave || DEFAULT_OCTAVE;
       } else {
-         this.template = DEFAULT_SCALE_TEMPLATE;
-         this.key = DEFAULT_SEMITONE;
-         this.octave = DEFAULT_OCTAVE;
+         // important that octave is set first so that
+         // setting the semitone can change the octave
+         this.template = values.template || DEFAULT_SCALE_TEMPLATE;
+         this.key = values.key || DEFAULT_SEMITONE;
+         this.octave = values.octave || DEFAULT_OCTAVE;
       }
 
       this.generateNotes();
@@ -58,7 +76,6 @@ class Scale implements Entity {
     * Returns a copy of this Scale
     */
    //**********************************************************
-   // public copy: () => Scale = Copyable<Scale>(this);
    public copy(): Scale {
       const scale: Scale = new Scale({
          key: this.key,
@@ -69,6 +86,11 @@ class Scale implements Entity {
       return scale;
    }
 
+   //**********************************************************
+   /**
+    * key
+    */
+   //**********************************************************
    private _key: Semitone = 0;
    public get key(): Semitone {
       return this._key;
@@ -81,8 +103,12 @@ class Scale implements Entity {
       this.generateNotes();
    }
 
+   //**********************************************************
+   /**
+    * octave
+    */
+   //**********************************************************
    private _octave: number = DEFAULT_OCTAVE;
-
    public get octave(): number {
       return this._octave;
    }
@@ -92,6 +118,11 @@ class Scale implements Entity {
       this.generateNotes();
    }
 
+   //**********************************************************
+   /**
+    * template
+    */
+   //**********************************************************
    private _template: Array<number> = [];
    public get template(): Array<number> {
       return this._template;
@@ -103,11 +134,23 @@ class Scale implements Entity {
       this.generateNotes();
    }
 
+   //**********************************************************
+   /**
+    * notes
+    * notes are generated and cached as needed
+    */
+   //**********************************************************
    private _notes: Array<Note> = [];
    public get notes(): Array<Note> {
       return this._notes;
    }
 
+   //**********************************************************
+   /**
+    * generate notes(internal)
+    * generates the notes for this scale
+    */
+   //**********************************************************
    protected generateNotes(): void {
       // use the template unshifted for simplicity
       const unshiftedTemplate = this.unshifted().template;
@@ -139,6 +182,12 @@ class Scale implements Entity {
       this._notes = notes;
    }
 
+   //**********************************************************
+   /**
+    * degree
+    * returns a note that represents the given degree
+    */
+   //**********************************************************
    public degree(degree: number): Note {
       const wrapped = wrap(
          degree + 1 /* zero indexed */,
@@ -150,6 +199,12 @@ class Scale implements Entity {
       return note;
    }
 
+   //**********************************************************
+   /**
+    * relative major
+    * returns a new scale that is the relative major of this scale
+    */
+   //**********************************************************
    public relativeMajor(): Scale {
       const major = new Scale({
          template: ScaleTemplates.major,
@@ -159,6 +214,12 @@ class Scale implements Entity {
       return major;
    }
 
+   //**********************************************************
+   /**
+    * relative minor
+    * returns a new scale that is the relative minor of this scale
+    */
+   //**********************************************************
    public relativeMinor(): Scale {
       const minor = new Scale({
          template: ScaleTemplates.minor,
@@ -168,6 +229,12 @@ class Scale implements Entity {
       return minor;
    }
 
+   //**********************************************************
+   /**
+    * shift
+    * shifts the scale by the given number of degrees
+    */
+   //**********************************************************
    _shiftedInterval: number = 0;
    public shift(degrees: number = 1): Scale {
       if (degrees > 0) {
@@ -190,12 +257,24 @@ class Scale implements Entity {
       return this;
    }
 
+   //**********************************************************
+   /**
+    * shifted
+    * returns a copy of this scale shifted by the given number of degrees
+    */
+   //**********************************************************
    public shifted(degrees: number = 1): Scale {
       const scale = this.copy();
       scale.shift(degrees);
       return scale;
    }
 
+   //**********************************************************
+   /**
+    * unshift
+    * shifts the original root back to the root position
+    */
+   //**********************************************************
    public unshift(): Scale {
       if (this._shiftedInterval !== 0) {
          this.shift(this._shiftedInterval * -1);
@@ -206,12 +285,24 @@ class Scale implements Entity {
       return this;
    }
 
+   //**********************************************************
+   /**
+    * unshifted
+    * returns a copy of this scale with the tonic shifted back
+    * to the root position
+    */
+   //**********************************************************
    public unshifted(): Scale {
       const scale = this.copy();
       scale.unshift();
       return scale;
    }
 
+   //**********************************************************
+   /**
+    * Scale modes
+    */
+   //**********************************************************
    public ionian(): Scale {
       const scale = this.copy();
       scale.template = ScaleTemplates.ionian;
@@ -254,6 +345,11 @@ class Scale implements Entity {
       return scale;
    }
 
+   //**********************************************************
+   /**
+    * returns string version of the scale
+    */
+   //**********************************************************
    public toString(): string {
       let scaleName = "Unknown Scale";
       const scaleIndex = Object.values(ScaleTemplates).findIndex(

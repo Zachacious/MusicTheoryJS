@@ -19,7 +19,10 @@ const octaveRegex = /([0-9]*)/g;
  * attempts to parse a note from a string
  */
 //**********************************************************
-const parseNote = (note: string, supressWarning: boolean = false): NoteInitializer => {
+const parseNote = (
+   note: string,
+   supressWarning: boolean = false
+): NoteInitializer => {
    try {
       const result: NoteInitializer = noteLookup[note];
       if (result) {
@@ -71,11 +74,16 @@ const parseNote = (note: string, supressWarning: boolean = false): NoteInitializ
       let modifier: number = 0;
       if (noteModifier) modifier = noteModifier;
 
-      const wrappedTone = wrap(getWholeToneFromName(noteIdenifier) + modifier, TONES_MIN, TONES_MAX);
-      let semitone: number = wrappedTone.value;
+      const wrappedTone = wrap(
+         getWholeToneFromName(noteIdenifier) + modifier,
+         TONES_MIN,
+         TONES_MAX
+      );
+      const semitone: number = wrappedTone.value;
 
       let octave: number = 4;
-      if (noteOctave) octave = clamp(parseInt(noteOctave), OCTAVE_MIN, OCTAVE_MAX);
+      if (noteOctave)
+         octave = clamp(parseInt(noteOctave), OCTAVE_MIN, OCTAVE_MAX);
 
       return {
          semitone: semitone,
@@ -99,14 +107,22 @@ const createTable = (): { [key: string]: NoteInitializer } => {
 
    for (const noteLabel of noteLetters) {
       noteTable[noteLabel] = parseNote(noteLabel, true); // 'C' for example
-      for (let iModifierOuter = 0; iModifierOuter < noteModifiers.length; ++iModifierOuter) {
+      for (
+         let iModifierOuter = 0;
+         iModifierOuter < noteModifiers.length;
+         ++iModifierOuter
+      ) {
          const key = `${noteLabel}${noteModifiers[iModifierOuter]}`;
          noteTable[key] = parseNote(key, true); // 'C#' for example
       }
       for (let iOctave = OCTAVE_MIN; iOctave < OCTAVE_MAX; ++iOctave) {
          const key = `${noteLabel}${iOctave}`;
          noteTable[key] = parseNote(key, true); // 'C4' for example
-         for (let iModifier = 0; iModifier < noteModifiers.length; ++iModifier) {
+         for (
+            let iModifier = 0;
+            iModifier < noteModifiers.length;
+            ++iModifier
+         ) {
             const key = `${noteLabel}${noteModifiers[iModifier]}${iOctave}`;
             noteTable[key] = parseNote(key, true); // 'C#4' for example
          }
