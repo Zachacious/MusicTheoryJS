@@ -36,5 +36,9 @@ declare class Tuning {
      * Builds the lookup tables for midi key and frequency
      */
     private buildTables;
+    /**
+     * returns the tuning as a string
+     */
+    toString(): string;
 }
 export default Tuning;

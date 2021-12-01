@@ -168,6 +168,10 @@ declare class Tuning {
      * Builds the lookup tables for midi key and frequency
      */
     private buildTables;
+    /**
+     * returns the tuning as a string
+     */
+    toString(): string;
 }
 
 /**
@@ -193,6 +197,10 @@ declare class Instrument {
      * returns the midi key of the given note
      */
     getMidiKey(note: Note): number;
+    /**
+     * returns the tuning as a string
+     */
+    toString(): string;
 }
 
 declare type ScaleInitializer = {
@@ -205,8 +213,17 @@ interface Entity {
     id: string;
     copy: () => Entity;
     equals: (entity: Entity) => boolean;
+    toString: () => string;
 }
 
+/**
+ * A musical scale.
+ * The primary fields are the semitone and octave.
+ * The octave is clamped to the range [0, 9].
+ * Setting the semitone to a value outside of the range [0, 11] will
+ * wrap the semitone to the range [0, 11] and change the octave depending
+ * on how many times the semitone has been wrapped.
+ */
 declare class Scale implements Entity {
     constructor(values?: ScaleInitializer);
     /**
@@ -221,26 +238,75 @@ declare class Scale implements Entity {
      * Returns a copy of this Scale
      */
     copy(): Scale;
+    /**
+     * key
+     */
     private _key;
     get key(): Semitone;
     set key(value: Semitone);
+    /**
+     * octave
+     */
     private _octave;
     get octave(): number;
     set octave(value: number);
+    /**
+     * template
+     */
     private _template;
     get template(): Array<number>;
     set template(value: Array<number>);
+    /**
+     * notes
+     * notes are generated and cached as needed
+     */
     private _notes;
     get notes(): Array<Note>;
+    /**
+     * generate notes(internal)
+     * generates the notes for this scale
+     */
     protected generateNotes(): void;
+    /**
+     * degree
+     * returns a note that represents the given degree
+     */
     degree(degree: number): Note;
+    /**
+     * relative major
+     * returns a new scale that is the relative major of this scale
+     */
     relativeMajor(): Scale;
+    /**
+     * relative minor
+     * returns a new scale that is the relative minor of this scale
+     */
     relativeMinor(): Scale;
+    /**
+     * shift
+     * shifts the scale by the given number of degrees
+     */
     _shiftedInterval: number;
     shift(degrees?: number): Scale;
+    /**
+     * shifted
+     * returns a copy of this scale shifted by the given number of degrees
+     */
     shifted(degrees?: number): Scale;
+    /**
+     * unshift
+     * shifts the original root back to the root position
+     */
     unshift(): Scale;
+    /**
+     * unshifted
+     * returns a copy of this scale with the tonic shifted back
+     * to the root position
+     */
     unshifted(): Scale;
+    /**
+     * Scale modes
+     */
     ionian(): Scale;
     dorian(): Scale;
     phrygian(): Scale;
@@ -248,6 +314,10 @@ declare class Scale implements Entity {
     mixolydian(): Scale;
     aeolian(): Scale;
     locrian(): Scale;
+    /**
+     * returns string version of the scale
+     */
+    toString(): string;
 }
 
 declare const ScaleTemplates: {

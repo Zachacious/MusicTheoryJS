@@ -18,6 +18,7 @@ import { uid } from "uid";
 // import Copyable from "../composables/Copyable";
 import Entity from "../Entity";
 import parseScale from "./scaleParser";
+import shift from "../utils/shift";
 
 //**********************************************************
 /**
@@ -153,7 +154,8 @@ class Scale implements Entity {
    //**********************************************************
    protected generateNotes(): void {
       // use the template unshifted for simplicity
-      const unshiftedTemplate = this.unshifted().template;
+      const unshiftedTemplate = shift(this._template, -this._shiftedInterval);
+
       const notes = [];
       let accumulator = this.key;
       for (const interval of unshiftedTemplate) {
@@ -237,20 +239,7 @@ class Scale implements Entity {
    //**********************************************************
    _shiftedInterval: number = 0;
    public shift(degrees: number = 1): Scale {
-      if (degrees > 0) {
-         const temp: number[] = this._template.splice(
-            this._template.length - (degrees + 1),
-            Infinity
-         );
-
-         this._template.unshift(...temp);
-      }
-
-      if (degrees < 0) {
-         const temp: number[] = this._template.splice(0, degrees);
-         this._template.push(...temp);
-      }
-
+      this._template = shift(this._template, degrees);
       this._shiftedInterval += degrees;
       this.generateNotes();
 

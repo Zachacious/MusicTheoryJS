@@ -23,5 +23,9 @@ declare class Instrument {
      * returns the midi key of the given note
      */
     getMidiKey(note: Note): number;
+    /**
+     * returns the tuning as a string
+     */
+    toString(): string;
 }
 export default Instrument;
