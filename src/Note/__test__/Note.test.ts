@@ -1,11 +1,16 @@
 import Note from "../Note";
-import { OCTAVE_MAX, OCTAVE_MIN, DEFAULT_OCTAVE, DEFAULT_SEMITONE } from "../noteConstants";
+import {
+   OCTAVE_MAX,
+   OCTAVE_MIN,
+   DEFAULT_OCTAVE,
+   DEFAULT_SEMITONE,
+} from "../noteConstants";
 
 describe("Note", () => {
    it("should have an UID", () => {
       const note = new Note();
       expect(note.id).toBeDefined();
-      const id = note.id();
+      const id = note.id;
       expect(typeof id).toBe("string");
    });
 
@@ -54,7 +59,7 @@ describe("Note", () => {
       const sharp = note.sharpen();
       expect(sharp.octave).toBe(7);
       expect(sharp.semitone).toBe(9);
-      expect(note.id()).toEqual(sharp.id());
+      expect(note.id).toEqual(sharp.id);
    });
 
    it("should return a new Note one semitone lower when flat is called", () => {
@@ -69,7 +74,7 @@ describe("Note", () => {
       const flat = note.flatten();
       expect(flat.octave).toBe(7);
       expect(flat.semitone).toBe(0);
-      expect(note.id()).toEqual(flat.id());
+      expect(note.id).toEqual(flat.id);
    });
 
    it("should return true for isSharp() if the note is sharp, and false for isFlat()", () => {

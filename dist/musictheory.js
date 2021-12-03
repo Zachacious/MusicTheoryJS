@@ -837,7 +837,7 @@
    const nameRegex = /([A-G])/g;
    const modifierRegex = /(#|s|b)/g;
    const octaveRegex = /([0-9]*)/g;
-   const scaleNameRegex = /([A-Z|a-z]*)/g;
+   const scaleNameRegex = /(\([a-zA-Z]{2,}\))/g;
    //**********************************************************
    /**
     * attempts to parse a note from a string
@@ -884,7 +884,8 @@
            noteOctave = octave;
        }
        if (scaleNameMatch) {
-           const [sName] = scaleNameMatch;
+           const sName = scaleNameMatch.join("");
+           // console.log(sName);
            scaleName = sName;
        }
        if (nameMatch) {
@@ -898,8 +899,15 @@
            let octave = 4;
            if (noteOctave)
                octave = clamp(parseInt(noteOctave), OCTAVE_MIN, OCTAVE_MAX);
-           const templateIndex = Object.keys(ScaleTemplates).findIndex((template) => template.toLowerCase().includes(scaleName.toLowerCase()));
+           let templateIndex = 1; // default major scale
+           if (scaleName) {
+               templateIndex = Object.keys(ScaleTemplates).findIndex((template) => template
+                   .toLowerCase()
+                   .includes(scaleName.toLowerCase().replace(/\(|\)/g, "")));
+           }
+           // console.log(Object.keys(ScaleTemplates)[templateIndex]);
            if (templateIndex === -1) {
+               console.log("UNKNOWN TEMPLATE", scaleName);
                throw new Error(`Unable to find template for scale ${scaleName}`);
            }
            const template = ScaleTemplates[templateIndex];
@@ -923,16 +931,16 @@
        const templates = Object.keys(ScaleTemplates);
        for (const template of templates) {
            for (const noteLabel of noteLetters) {
-               scaleTable[noteLabel + template] = parseScale(noteLabel, true); // 'C' for example
+               scaleTable[`${noteLabel}(${template})`] = parseScale(noteLabel, true); // 'C' for example
                for (let iModifierOuter = 0; iModifierOuter < noteModifiers.length; ++iModifierOuter) {
-                   const key = `${noteLabel}${noteModifiers[iModifierOuter]}${template}`;
+                   const key = `${noteLabel}${noteModifiers[iModifierOuter]}(${template})`;
                    scaleTable[key] = parseScale(key, true); // 'C#' for example
                }
                for (let iOctave = OCTAVE_MIN; iOctave < OCTAVE_MAX; ++iOctave) {
-                   const key = `${noteLabel}${iOctave}${template}`;
+                   const key = `${noteLabel}${iOctave}(${template})`;
                    scaleTable[key] = parseScale(key, true); // 'C4' for example
                    for (let iModifier = 0; iModifier < noteModifiers.length; ++iModifier) {
-                       const key = `${noteLabel}${noteModifiers[iModifier]}${iOctave}${template}`;
+                       const key = `${noteLabel}${noteModifiers[iModifier]}${iOctave}(${template})`;
                        scaleTable[key] = parseScale(key, true); // 'C#4' for example
                    }
                }
@@ -946,15 +954,18 @@
     */
    //**********************************************************
    const scaleLookup = createTable();
+   console.log(scaleLookup);
 
    //**********************************************************
    /**
     * shifts an array by a given distance
     */
    //**********************************************************
-   const shift = (arr, dist) => {
+   const shift = (arr, dist = 1) => {
+       if (dist > arr.length || dist < 0 - arr.length)
+           throw new Error("shift: distance is greater than array length");
        if (dist > 0) {
-           const temp = arr.splice(arr.length - (dist + 1), Infinity);
+           const temp = arr.splice(arr.length - dist, Infinity);
            arr.unshift(...temp);
        }
        if (dist < 0) {
