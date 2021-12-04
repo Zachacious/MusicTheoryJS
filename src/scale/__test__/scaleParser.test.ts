@@ -13,34 +13,38 @@ import Semitone from "../../semitone";
 
 describe("scaleParser", () => {
    it("should parse a scale", () => {
-      const scale = scaleParser("Cmajor");
+      const scale = scaleParser("C(major)");
       expect(scale.key).toBe(Semitone.C);
       expect(scale.octave).toBe(DEFAULT_OCTAVE);
-      expect(scale.template).toBe(ScaleTemplates.MAJOR);
+      expect(scale.template).toBe(ScaleTemplates.major);
    });
 
    it("should parse a scale with a custom octave", () => {
-      const scale = scaleParser("C8minor");
+      const scale = scaleParser("C8(minor)");
       expect(scale.key).toBe(Semitone.C);
       expect(scale.octave).toBe(8);
-      expect(scale.template).toBe(ScaleTemplates.MINOR);
+      expect(scale.template).toBe(ScaleTemplates.minor);
    });
 
    it(`should parse a scale with a modifier`, () => {
-      const scale = scaleParser("Eb7major");
+      const scale = scaleParser("Eb7(major)");
       expect(scale.key).toBe(Semitone.Eb);
       expect(scale.octave).toBe(7);
-      expect(scale.template).toBe(ScaleTemplates.MAJOR);
+      expect(scale.template).toBe(ScaleTemplates.major);
    });
 
    it(`should parse a scale when components are out of order`, () => {
-      const scale = scaleParser("3yoAs");
+      const scale = scaleParser("3(yo)As");
       expect(scale.key).toBe(Semitone.As);
       expect(scale.octave).toBe(3);
-      expect(scale.template).toBe(ScaleTemplates.YO);
+      expect(scale.template).toBe(ScaleTemplates.yo);
    });
 
    it(`should throw error if unknown scale name`, () => {
-      expect(() => scaleParser("C7alpha")).toThrowError();
+      expect(() => scaleParser("C7(alpha)")).toThrowError();
+   });
+
+   it(`should throw an error if scale string is invalid`, () => {
+      expect(() => scaleParser("7minor")).toThrowError();
    });
 });

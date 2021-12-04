@@ -38,12 +38,12 @@ const parseScale = (
 
       if (!supressWarning)
          console.warn(
-            `Ineffecient note string formatting - ${scale}. Get a performanc increase by using the format [A-G][#|s|b][0-9]`
+            `Ineffecient scale string formatting - ${scale}. Get a performanc increase by using a valid format`
          );
    } catch (err) {
       if (!supressWarning)
          console.warn(
-            `Ineffecient note string formatting - ${scale}. Get a performanc increase by using the format [A-G][#|s|b][0-9]`
+            `Ineffecient scale string formatting - ${scale}. Get a performanc increase by using a valid format`
          );
    }
 
@@ -117,7 +117,8 @@ const parseScale = (
          throw new Error(`Unable to find template for scale ${scaleName}`);
       }
 
-      const template = ScaleTemplates[templateIndex];
+      const template =
+         ScaleTemplates[Object.keys(ScaleTemplates)[templateIndex]];
 
       return {
          key: semitone,
@@ -176,6 +177,5 @@ const createTable = (): { [key: string]: ScaleInitializer } => {
  */
 //**********************************************************
 const scaleLookup: { [key: string]: ScaleInitializer } = createTable();
-console.log(scaleLookup);
 
 export default parseScale;
