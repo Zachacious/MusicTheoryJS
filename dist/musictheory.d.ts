@@ -225,7 +225,7 @@ interface Entity {
  * on how many times the semitone has been wrapped.
  */
 declare class Scale implements Entity {
-    constructor(values?: ScaleInitializer);
+    constructor(values?: ScaleInitializer | string);
     /**
      *  unique id for this scale
      */
@@ -324,4 +324,9 @@ declare const ScaleTemplates: {
     [key: string]: number[];
 };
 
-export { Instrument, Modifier, Note, Scale, ScaleTemplates, Semitone };
+/**
+ * attempts to parse a note from a string
+ */
+declare const parseScale: (scale: string, supressWarning?: boolean) => ScaleInitializer;
+
+export { Instrument, Modifier, Note, Scale, ScaleTemplates, Semitone, parseScale };

@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for src/Note/Note.ts</title>
+    <title>Code coverage report for src/scale/Scale.ts</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../../prettify.css" />
     <link rel="stylesheet" href="../../base.css" />
@@ -19,34 +19,34 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../index.html">All files</a> / <a href="index.html">src/Note</a> Note.ts</h1>
+        <h1><a href="../../index.html">All files</a> / <a href="index.html">src/scale</a> Scale.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">96.77% </span>
+                <span class="strong">45.94% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>60/62</span>
+                <span class='fraction'>51/111</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">60% </span>
+                <span class="strong">46.15% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>15/25</span>
+                <span class='fraction'>12/26</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">84% </span>
+                <span class="strong">29.62% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>21/25</span>
+                <span class='fraction'>8/27</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">46.36% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>57/57</span>
+                <span class='fraction'>51/110</span>
             </div>
         
             
@@ -55,7 +55,7 @@
             Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
         </p>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -345,102 +345,304 @@
 <a name='L286'></a><a href='#L286'>286</a>
 <a name='L287'></a><a href='#L287'>287</a>
 <a name='L288'></a><a href='#L288'>288</a>
-<a name='L289'></a><a href='#L289'>289</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L289'></a><a href='#L289'>289</a>
+<a name='L290'></a><a href='#L290'>290</a>
+<a name='L291'></a><a href='#L291'>291</a>
+<a name='L292'></a><a href='#L292'>292</a>
+<a name='L293'></a><a href='#L293'>293</a>
+<a name='L294'></a><a href='#L294'>294</a>
+<a name='L295'></a><a href='#L295'>295</a>
+<a name='L296'></a><a href='#L296'>296</a>
+<a name='L297'></a><a href='#L297'>297</a>
+<a name='L298'></a><a href='#L298'>298</a>
+<a name='L299'></a><a href='#L299'>299</a>
+<a name='L300'></a><a href='#L300'>300</a>
+<a name='L301'></a><a href='#L301'>301</a>
+<a name='L302'></a><a href='#L302'>302</a>
+<a name='L303'></a><a href='#L303'>303</a>
+<a name='L304'></a><a href='#L304'>304</a>
+<a name='L305'></a><a href='#L305'>305</a>
+<a name='L306'></a><a href='#L306'>306</a>
+<a name='L307'></a><a href='#L307'>307</a>
+<a name='L308'></a><a href='#L308'>308</a>
+<a name='L309'></a><a href='#L309'>309</a>
+<a name='L310'></a><a href='#L310'>310</a>
+<a name='L311'></a><a href='#L311'>311</a>
+<a name='L312'></a><a href='#L312'>312</a>
+<a name='L313'></a><a href='#L313'>313</a>
+<a name='L314'></a><a href='#L314'>314</a>
+<a name='L315'></a><a href='#L315'>315</a>
+<a name='L316'></a><a href='#L316'>316</a>
+<a name='L317'></a><a href='#L317'>317</a>
+<a name='L318'></a><a href='#L318'>318</a>
+<a name='L319'></a><a href='#L319'>319</a>
+<a name='L320'></a><a href='#L320'>320</a>
+<a name='L321'></a><a href='#L321'>321</a>
+<a name='L322'></a><a href='#L322'>322</a>
+<a name='L323'></a><a href='#L323'>323</a>
+<a name='L324'></a><a href='#L324'>324</a>
+<a name='L325'></a><a href='#L325'>325</a>
+<a name='L326'></a><a href='#L326'>326</a>
+<a name='L327'></a><a href='#L327'>327</a>
+<a name='L328'></a><a href='#L328'>328</a>
+<a name='L329'></a><a href='#L329'>329</a>
+<a name='L330'></a><a href='#L330'>330</a>
+<a name='L331'></a><a href='#L331'>331</a>
+<a name='L332'></a><a href='#L332'>332</a>
+<a name='L333'></a><a href='#L333'>333</a>
+<a name='L334'></a><a href='#L334'>334</a>
+<a name='L335'></a><a href='#L335'>335</a>
+<a name='L336'></a><a href='#L336'>336</a>
+<a name='L337'></a><a href='#L337'>337</a>
+<a name='L338'></a><a href='#L338'>338</a>
+<a name='L339'></a><a href='#L339'>339</a>
+<a name='L340'></a><a href='#L340'>340</a>
+<a name='L341'></a><a href='#L341'>341</a>
+<a name='L342'></a><a href='#L342'>342</a>
+<a name='L343'></a><a href='#L343'>343</a>
+<a name='L344'></a><a href='#L344'>344</a>
+<a name='L345'></a><a href='#L345'>345</a>
+<a name='L346'></a><a href='#L346'>346</a>
+<a name='L347'></a><a href='#L347'>347</a>
+<a name='L348'></a><a href='#L348'>348</a>
+<a name='L349'></a><a href='#L349'>349</a>
+<a name='L350'></a><a href='#L350'>350</a>
+<a name='L351'></a><a href='#L351'>351</a>
+<a name='L352'></a><a href='#L352'>352</a>
+<a name='L353'></a><a href='#L353'>353</a>
+<a name='L354'></a><a href='#L354'>354</a>
+<a name='L355'></a><a href='#L355'>355</a>
+<a name='L356'></a><a href='#L356'>356</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">182x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">180x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">23x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">152x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">20x</span>
 <span class="cline-any cline-yes">20x</span>
 <span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">145x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">145x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">20x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">160x</span>
-<span class="cline-any cline-yes">160x</span>
-<span class="cline-any cline-yes">160x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">182x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">182x</span>
-<span class="cline-any cline-yes">182x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">63x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">195x</span>
-<span class="cline-any cline-yes">195x</span>
-<span class="cline-any cline-yes">195x</span>
-<span class="cline-any cline-yes">195x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">182x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">28x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -448,20 +650,26 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">184x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -471,10 +679,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -482,43 +693,59 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -527,133 +754,44 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// import Identifiable from "../composables/Identifiable";
-import Semitone from "../Semitone";
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import Semitone from "../Semitone";
 import wrap from "../utils/wrap";
 import clamp from "../utils/clamp";
-import parseNote from "./noteParser";
-import NoteInitializer from "./NoteInitializer";
 import {
-   MODIFIED_SEMITONES,
    TONES_MAX,
    TONES_MIN,
    OCTAVE_MAX,
    OCTAVE_MIN,
    DEFAULT_OCTAVE,
    DEFAULT_SEMITONE,
-} from "./noteConstants";
-import noteStringLookup from "./stringTable";
+} from "../Note/noteConstants";
+import { DEFAULT_SCALE_TEMPLATE } from "./scaleConstants";
+import ScaleInitializer from "./ScaleInitializer";
+// import Modes from "./modes";
+import Note from "../Note/Note";
+import ScaleTemplates from "./ScaleTemplates";
 import { uid } from "uid";
+// import Copyable from "../composables/Copyable";
+import Entity from "../Entity";
+import parseScale from "./scaleParser";
+import shift from "../utils/shift";
 &nbsp;
 //**********************************************************
 /**
- * A musical note.
+ * A musical scale.
  * The primary fields are the semitone and octave.
  * The octave is clamped to the range [0, 9].
  * Setting the semitone to a value outside of the range [0, 11] will
@@ -661,62 +799,78 @@ import { uid } from "uid";
  * on how many times the semitone has been wrapped.
  */
 //**********************************************************
-// @Identifiable() // generates a unique id for each instance - retrieve with id()
-class Note {
-   //**********************************************************
-   /**
-    * Creates a new Note instance.
-    */
-   //**********************************************************
-   constructor(values?: NoteInitializer | string) {
+class Scale implements Entity {
+   constructor(values?: ScaleInitializer | string) {
       if (!values) {
+         this.template = DEFAULT_SCALE_TEMPLATE;
+         this.key = DEFAULT_SEMITONE;
          this.octave = DEFAULT_OCTAVE;
-         this.semitone = DEFAULT_SEMITONE;
       } else if (typeof values === "string") {
-         values = parseNote(values);
-         this.octave = values?.octave ?? <span class="branch-1 cbranch-no" title="branch not covered" >DEFAULT_OCTAVE;</span>
-         this.semitone = values?.semitone ?? <span class="branch-1 cbranch-no" title="branch not covered" >DEFAULT_SEMITONE;</span>
-         this._prevSemitone = this._tone;
+         values = parseScale(values);
+         this.template = values.template || <span class="branch-1 cbranch-no" title="branch not covered" >DEFAULT_SCALE_TEMPLATE;</span>
+         this.key = values.key || DEFAULT_SEMITONE;
+         this.octave = values.octave || <span class="branch-1 cbranch-no" title="branch not covered" >DEFAULT_OCTAVE;</span>
       } else {
          // important that octave is set first so that
          // setting the semitone can change the octave
-         this.octave = values?.octave ?? <span class="branch-1 cbranch-no" title="branch not covered" >DEFAULT_OCTAVE;</span>
-         this.semitone = values?.semitone ?? DEFAULT_SEMITONE;
-         this._prevSemitone = this._tone;
+         this.template = values.template || <span class="branch-1 cbranch-no" title="branch not covered" >DEFAULT_SCALE_TEMPLATE;</span>
+         this.key = values.key || DEFAULT_SEMITONE;
+         this.octave = values.octave || <span class="branch-1 cbranch-no" title="branch not covered" >DEFAULT_OCTAVE;</span>
       }
+&nbsp;
+      this.generateNotes();
    }
 &nbsp;
    //**********************************************************
    /**
-    * unique id for this instance
+    *  unique id for this scale
     */
    //**********************************************************
    id: string = uid();
 &nbsp;
    //**********************************************************
    /**
-    * semitone
+    * Returns true if this scale is equal to the given scale
     */
    //**********************************************************
-   private _tone: Semitone = DEFAULT_SEMITONE;
-   private _prevSemitone: Semitone = DEFAULT_SEMITONE;
-&nbsp;
-   get semitone(): Semitone {
-      return this._tone;
+   public <span class="fstat-no" title="function not covered" >equals(</span>scale: Scale): boolean {
+<span class="cstat-no" title="statement not covered" >      return (</span>
+         this._key === scale._key &amp;&amp;
+         this._octave === scale._octave &amp;&amp;
+         this._template === scale._template
+      );
    }
 &nbsp;
    //**********************************************************
    /**
-    * setting the semitone with a number outside the
-    * range of 0-11 will wrap the value around and
-    * change the octave accordingly
+    * Returns a copy of this Scale
     */
    //**********************************************************
-   set semitone(semitone: Semitone) {
-      const wrapped = wrap(semitone, TONES_MIN, TONES_MAX);
-      this._prevSemitone = this._tone;
-      this._tone = wrapped.value;
-      this._octave = this._octave + wrapped.numWraps;
+   public <span class="fstat-no" title="function not covered" >copy(</span>): Scale {
+      const scale: Scale = <span class="cstat-no" title="statement not covered" >new Scale({</span>
+         key: this.key,
+         octave: this.octave,
+         template: this.template,
+      });
+<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (this._shiftedInterval !== 0) <span class="cstat-no" title="statement not covered" >scale.shift(this._shiftedInterval);</span></span>
+<span class="cstat-no" title="statement not covered" >      return scale;</span>
+   }
+&nbsp;
+   //**********************************************************
+   /**
+    * key
+    */
+   //**********************************************************
+   private _key: Semitone = 0;
+   public get key(): Semitone {
+      return this._key;
+   }
+&nbsp;
+   public set key(value: Semitone) {
+      const wrapped = wrap(value, TONES_MIN, TONES_MAX);
+      this.octave = this.octave + wrapped.numWraps;
+      this._key = wrapped.value;
+      this.generateNotes();
    }
 &nbsp;
    //**********************************************************
@@ -725,202 +879,249 @@ class Note {
     */
    //**********************************************************
    private _octave: number = DEFAULT_OCTAVE;
-&nbsp;
-   get octave(): number {
+   public get octave(): number {
       return this._octave;
    }
 &nbsp;
-   //**********************************************************
-   /**
-    * The octave is clamped to the range [0, 9].
-    */
-   //**********************************************************
-   set octave(octave: number) {
-      this._octave = clamp(octave, OCTAVE_MIN, OCTAVE_MAX);
+   public set octave(value: number) {
+      this._octave = clamp(value, OCTAVE_MIN, OCTAVE_MAX);
+      this.generateNotes();
    }
 &nbsp;
    //**********************************************************
    /**
-    * Returns a new note that is a sharpened version of this note.
-    * This is chainable - A().sharp().flat()
+    * template
     */
    //**********************************************************
-   public sharp(): Note {
-      return new Note({
-         semitone: this.semitone,
-         octave: this.octave,
-      }).sharpen();
+   private _template: Array&lt;number&gt; = [];
+   public get template(): Array&lt;number&gt; {
+      return this._template;
+   }
+&nbsp;
+   public set template(value: Array&lt;number&gt;) {
+      this._template = value;
+      this._shiftedInterval = 0;
+      this.generateNotes();
    }
 &nbsp;
    //**********************************************************
    /**
-    * Sharpens the note in place.
-    * Returns itself for chaining - A().sharpen().sharp()
+    * notes
+    * notes are generated and cached as needed
     */
    //**********************************************************
-   public sharpen(): Note {
-      this.semitone = this.semitone + 1;
-      return this;
+   private _notes: Array&lt;Note&gt; = [];
+<span class="fstat-no" title="function not covered" >   public get n</span>otes(): Array&lt;Note&gt; {
+<span class="cstat-no" title="statement not covered" >      return this._notes;</span>
    }
 &nbsp;
    //**********************************************************
    /**
-    *  attempts to determine if the note is sharp
+    * generate notes(internal)
+    * generates the notes for this scale
     */
    //**********************************************************
-   public isSharp(): boolean {
-      // if note is whole, it can't be sharp
-      const modified = MODIFIED_SEMITONES.includes(this.semitone);
-      <span class="missing-if-branch" title="if path not taken" >I</span>if (!modified) <span class="cstat-no" title="statement not covered" >return false;</span>
+   protected generateNotes(): void {
+      // use the template unshifted for simplicity
+      const unshiftedTemplate = shift(this._template, -this._shiftedInterval);
 &nbsp;
-      // if note is flat, it can't be sharp
-      if (
-         wrap(this.semitone + 1, TONES_MIN, TONES_MAX).value ===
-         this._prevSemitone
-      )
-         return false; //is flat
+      const notes = [];
+      let accumulator = this.key;
+      for (const interval of unshiftedTemplate) {
+         const note = new Note({
+            semitone: (accumulator += interval),
+            octave: this.octave,
+         });
+         notes.push(note);
+      }
 &nbsp;
-      // Doesn't neccecarily mean it's sharp, but it's a good guess at this point
-      return true;
+      // shift notes back to original position
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (this._shiftedInterval &gt; 0) {
+         const temp: Note[] = <span class="cstat-no" title="statement not covered" >notes.splice(</span>
+            notes.length - (this._shiftedInterval + 1),
+            Infinity
+         );
+&nbsp;
+<span class="cstat-no" title="statement not covered" >         notes.unshift(...temp);</span>
+      }
+&nbsp;
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (this._shiftedInterval &lt; 0) {
+         const temp: Note[] = <span class="cstat-no" title="statement not covered" >notes.splice(0, this._shiftedInterval);</span>
+<span class="cstat-no" title="statement not covered" >         notes.push(...temp);</span>
+      }
+&nbsp;
+      this._notes = notes;
    }
 &nbsp;
    //**********************************************************
    /**
-    * Returns a new note that is a flattened version of this note.
-    * This is chainable - A().flat().flat()
+    * degree
+    * returns a note that represents the given degree
     */
    //**********************************************************
-   public flat(): Note {
-      return new Note({
-         semitone: this.semitone,
-         octave: this.octave,
-      }).flatten();
-   }
-&nbsp;
-   //**********************************************************
-   /**
-    * Flattens the note in place.
-    * Returns itself for chaining - A().flatten().flat()
-    */
-   //**********************************************************
-   public flatten(): Note {
-      this.semitone = this.semitone - 1;
-      return this;
-   }
-&nbsp;
-   //**********************************************************
-   /**
-    *  attempts to determine if the note is flat
-    */
-   //**********************************************************
-   public isFlat(): boolean {
-      // if note is whole, it can't be sharp
-      const modified = MODIFIED_SEMITONES.includes(this.semitone);
-      <span class="missing-if-branch" title="if path not taken" >I</span>if (!modified) <span class="cstat-no" title="statement not covered" >return false;</span>
-&nbsp;
-      // if note is sharp, it can't be flat
-      if (
-         wrap(this.semitone - 1, TONES_MIN, TONES_MAX).value ===
-         this._prevSemitone
-      )
-         return false; //is sharp
-&nbsp;
-      // Doesn't neccecarily mean it's flat, but it's a good guess at this point
-      return true;
-   }
-&nbsp;
-   //**********************************************************
-   /**
-    * Returns true if this note is equal to the given note
-    */
-   //**********************************************************
-   public equals(note: Note): boolean {
-      return this.semitone === note.semitone &amp;&amp; this.octave === note.octave;
-   }
-&nbsp;
-   //**********************************************************
-   /**
-    * Returns a copy of this note
-    */
-   //**********************************************************
-   public copy(): Note {
-      return new Note({
-         semitone: this.semitone,
-         octave: this.octave,
-      });
-   }
-&nbsp;
-   //**********************************************************
-   /**
-    * Returns a string version of this note
-    */
-   //**********************************************************
-   public toString(): string {
-      return (
-         noteStringLookup[`${this._tone}-${this._prevSemitone}`] +
-         `${this._octave}`
+   public <span class="fstat-no" title="function not covered" >degree(</span>degree: number): Note {
+      const wrapped = <span class="cstat-no" title="statement not covered" >wrap(</span>
+         degree + 1 /* zero indexed */,
+         0,
+         this.notes.length - 1
       );
+      const note = <span class="cstat-no" title="statement not covered" >this.notes[wrapped.value];</span>
+<span class="cstat-no" title="statement not covered" >      note.octave = this.octave + wrapped.numWraps;</span>
+<span class="cstat-no" title="statement not covered" >      return note;</span>
    }
 &nbsp;
    //**********************************************************
    /**
-    * Static methods to create whole notes easily.
-    * the default octave is 4
+    * relative major
+    * returns a new scale that is the relative major of this scale
     */
    //**********************************************************
-   static A(octave: number = 4): Note {
-      return new Note({
-         semitone: Semitone.A,
-         octave,
+   public <span class="fstat-no" title="function not covered" >relativeMajor(</span>): Scale {
+      const major = <span class="cstat-no" title="statement not covered" >new Scale({</span>
+         template: ScaleTemplates.major,
+         key: this.degree(3).semitone,
+         octave: this.octave,
       });
+<span class="cstat-no" title="statement not covered" >      return major;</span>
    }
 &nbsp;
-   static B(octave: number = 4): Note {
-      return new Note({
-         semitone: Semitone.B,
-         octave,
+   //**********************************************************
+   /**
+    * relative minor
+    * returns a new scale that is the relative minor of this scale
+    */
+   //**********************************************************
+   public <span class="fstat-no" title="function not covered" >relativeMinor(</span>): Scale {
+      const minor = <span class="cstat-no" title="statement not covered" >new Scale({</span>
+         template: ScaleTemplates.minor,
+         key: this.degree(6).semitone,
+         octave: this.octave,
       });
+<span class="cstat-no" title="statement not covered" >      return minor;</span>
    }
 &nbsp;
-   static C(octave: number = <span class="branch-0 cbranch-no" title="branch not covered" >4)</span>: Note {
-      return new Note({
-         semitone: Semitone.C,
-         octave,
-      });
+   //**********************************************************
+   /**
+    * shift
+    * shifts the scale by the given number of degrees
+    */
+   //**********************************************************
+   _shiftedInterval: number = 0;
+   public <span class="fstat-no" title="function not covered" >shift(</span>degrees: number = <span class="branch-0 cbranch-no" title="branch not covered" >1)</span>: Scale {
+<span class="cstat-no" title="statement not covered" >      this._template = shift(this._template, degrees);</span>
+<span class="cstat-no" title="statement not covered" >      this._shiftedInterval += degrees;</span>
+<span class="cstat-no" title="statement not covered" >      this.generateNotes();</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >      return this;</span>
    }
 &nbsp;
-   static D(octave: number = <span class="branch-0 cbranch-no" title="branch not covered" >4)</span>: Note {
-      return new Note({
-         semitone: Semitone.D,
-         octave,
-      });
+   //**********************************************************
+   /**
+    * shifted
+    * returns a copy of this scale shifted by the given number of degrees
+    */
+   //**********************************************************
+   public <span class="fstat-no" title="function not covered" >shifted(</span>degrees: number = <span class="branch-0 cbranch-no" title="branch not covered" >1)</span>: Scale {
+      const scale = <span class="cstat-no" title="statement not covered" >this.copy();</span>
+<span class="cstat-no" title="statement not covered" >      scale.shift(degrees);</span>
+<span class="cstat-no" title="statement not covered" >      return scale;</span>
    }
 &nbsp;
-   static E(octave: number = <span class="branch-0 cbranch-no" title="branch not covered" >4)</span>: Note {
-      return new Note({
-         semitone: Semitone.E,
-         octave,
-      });
+   //**********************************************************
+   /**
+    * unshift
+    * shifts the original root back to the root position
+    */
+   //**********************************************************
+   public <span class="fstat-no" title="function not covered" >unshift(</span>): Scale {
+<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (this._shiftedInterval !== 0) {</span>
+<span class="cstat-no" title="statement not covered" >         this.shift(this._shiftedInterval * -1);</span>
+<span class="cstat-no" title="statement not covered" >         this._shiftedInterval = 0;</span>
+<span class="cstat-no" title="statement not covered" >         this.generateNotes();</span>
+      }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >      return this;</span>
    }
 &nbsp;
-   static F(octave: number = <span class="branch-0 cbranch-no" title="branch not covered" >4)</span>: Note {
-      return new Note({
-         semitone: Semitone.F,
-         octave,
-      });
+   //**********************************************************
+   /**
+    * unshifted
+    * returns a copy of this scale with the tonic shifted back
+    * to the root position
+    */
+   //**********************************************************
+   public <span class="fstat-no" title="function not covered" >unshifted(</span>): Scale {
+      const scale = <span class="cstat-no" title="statement not covered" >this.copy();</span>
+<span class="cstat-no" title="statement not covered" >      scale.unshift();</span>
+<span class="cstat-no" title="statement not covered" >      return scale;</span>
    }
 &nbsp;
-   static G(octave: number = <span class="branch-0 cbranch-no" title="branch not covered" >4)</span>: Note {
-      return new Note({
-         semitone: Semitone.G,
-         octave,
-      });
+   //**********************************************************
+   /**
+    * Scale modes
+    */
+   //**********************************************************
+   public <span class="fstat-no" title="function not covered" >ionian(</span>): Scale {
+      const scale = <span class="cstat-no" title="statement not covered" >this.copy();</span>
+<span class="cstat-no" title="statement not covered" >      scale.template = ScaleTemplates.ionian;</span>
+<span class="cstat-no" title="statement not covered" >      return scale;</span>
+   }
+&nbsp;
+   public <span class="fstat-no" title="function not covered" >dorian(</span>): Scale {
+      const scale = <span class="cstat-no" title="statement not covered" >this.copy();</span>
+<span class="cstat-no" title="statement not covered" >      scale.template = ScaleTemplates.dorian;</span>
+<span class="cstat-no" title="statement not covered" >      return scale;</span>
+   }
+&nbsp;
+   public <span class="fstat-no" title="function not covered" >phrygian(</span>): Scale {
+      const scale = <span class="cstat-no" title="statement not covered" >this.copy();</span>
+<span class="cstat-no" title="statement not covered" >      scale.template = ScaleTemplates.phrygian;</span>
+<span class="cstat-no" title="statement not covered" >      return scale;</span>
+   }
+&nbsp;
+   public <span class="fstat-no" title="function not covered" >lydian(</span>): Scale {
+      const scale = <span class="cstat-no" title="statement not covered" >this.copy();</span>
+<span class="cstat-no" title="statement not covered" >      scale.template = ScaleTemplates.lydian;</span>
+<span class="cstat-no" title="statement not covered" >      return scale;</span>
+   }
+&nbsp;
+   public <span class="fstat-no" title="function not covered" >mixolydian(</span>): Scale {
+      const scale = <span class="cstat-no" title="statement not covered" >this.copy();</span>
+<span class="cstat-no" title="statement not covered" >      scale.template = ScaleTemplates.mixolydian;</span>
+<span class="cstat-no" title="statement not covered" >      return scale;</span>
+   }
+&nbsp;
+   public <span class="fstat-no" title="function not covered" >aeolian(</span>): Scale {
+      const scale = <span class="cstat-no" title="statement not covered" >this.copy();</span>
+<span class="cstat-no" title="statement not covered" >      scale.template = ScaleTemplates.aeolian;</span>
+<span class="cstat-no" title="statement not covered" >      return scale;</span>
+   }
+&nbsp;
+   public <span class="fstat-no" title="function not covered" >locrian(</span>): Scale {
+      const scale = <span class="cstat-no" title="statement not covered" >this.copy();</span>
+<span class="cstat-no" title="statement not covered" >      scale.template = ScaleTemplates.locrian;</span>
+<span class="cstat-no" title="statement not covered" >      return scale;</span>
+   }
+&nbsp;
+   //**********************************************************
+   /**
+    * returns string version of the scale
+    */
+   //**********************************************************
+   public <span class="fstat-no" title="function not covered" >toString(</span>): string {
+      let scaleName = <span class="cstat-no" title="statement not covered" >"Unknown Scale";</span>
+      const scaleIndex = <span class="cstat-no" title="statement not covered" >Object.values(ScaleTemplates).findIndex(</span>
+<span class="fstat-no" title="function not covered" >         (t</span>emplate) =&gt; <span class="cstat-no" title="statement not covered" >template === this.template</span>
+      );
+<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (scaleIndex !== -1) {</span>
+<span class="cstat-no" title="statement not covered" >         scaleName = Object.keys(ScaleTemplates)[scaleIndex];</span>
+      }
+<span class="cstat-no" title="statement not covered" >      return `${Semitone[this._key]} ${scaleName} ${this.octave}`;</span>
    }
 }
 &nbsp;
-export default Note;
-export { <span class="fstat-no" title="function not covered" >TONES_MAX,</span> <span class="fstat-no" title="function not covered" >TONES_MIN,</span> <span class="fstat-no" title="function not covered" >OCTAVE_MAX,</span> <span class="fstat-no" title="function not covered" >OCTAVE_MIN </span>};
-export type { NoteInitializer };
+export default Scale;
+export type { ScaleInitializer };
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->

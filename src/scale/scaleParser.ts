@@ -16,9 +16,9 @@ import ScaleTemplates from "./ScaleTemplates";
  * Regex for matching note name, modifier, and octave
  */
 //**********************************************************
-const nameRegex = /([A-G])/g;
-const modifierRegex = /(#|s|b)/g;
-const octaveRegex = /([0-9]*)/g;
+const nameRegex = /([A-G])(?![^\(]*\))/g;
+const modifierRegex = /(#|s|b)(?![^\(]*\))/g;
+const octaveRegex = /([0-9]+)(?![^\(]*\))/g;
 const scaleNameRegex = /(\([a-zA-Z]{2,}\))/g;
 
 //**********************************************************
@@ -60,12 +60,10 @@ const parseScale = (
    // combine all modifiers
    if (modifierMatch) {
       if (modifierMatch.length > 1) {
-         // TS seams to confuse the types here so use any for now
-         noteModifier = modifierMatch.reduce((acc: any, curr: any): any => {
-            if (typeof acc === "string") acc = parseModifier(acc);
-            const modifier: Modifier = parseModifier(curr);
-            return (acc + modifier) as number;
-         }) as unknown as number;
+         // combine all modifiers into an offeset value to be added to the semitone
+         noteModifier = modifierMatch
+            .map((item: string): number => parseModifier(item) as number)
+            .reduce((a: number, b: number): number => a + b);
       } else {
          noteModifier = parseModifier(modifierMatch[0]);
       }
@@ -95,11 +93,12 @@ const parseScale = (
          TONES_MIN,
          TONES_MAX
       );
+
       const semitone: number = wrappedTone.value;
 
       let octave: number = 4;
       if (noteOctave)
-         octave = clamp(parseInt(noteOctave), OCTAVE_MIN, OCTAVE_MAX);
+         octave = clamp(parseInt(noteOctave, 10), OCTAVE_MIN, OCTAVE_MAX);
 
       let templateIndex: number = 1; // default major scale
 
@@ -144,24 +143,22 @@ const createTable = (): { [key: string]: ScaleInitializer } => {
 
    for (const template of templates) {
       for (const noteLabel of noteLetters) {
+         //ex A(minor)
          scaleTable[`${noteLabel}(${template})`] = parseScale(noteLabel, true); // 'C' for example
-         for (
-            let iModifierOuter = 0;
-            iModifierOuter < noteModifiers.length;
-            ++iModifierOuter
-         ) {
-            const key = `${noteLabel}${noteModifiers[iModifierOuter]}(${template})`;
+
+         for (const mod of noteModifiers) {
+            const key = `${noteLabel}${mod}(${template})`;
+            // ex A#(minor)
             scaleTable[key] = parseScale(key, true); // 'C#' for example
          }
          for (let iOctave = OCTAVE_MIN; iOctave < OCTAVE_MAX; ++iOctave) {
             const key = `${noteLabel}${iOctave}(${template})`;
+            // ex A4(minor)
             scaleTable[key] = parseScale(key, true); // 'C4' for example
-            for (
-               let iModifier = 0;
-               iModifier < noteModifiers.length;
-               ++iModifier
-            ) {
-               const key = `${noteLabel}${noteModifiers[iModifier]}${iOctave}(${template})`;
+
+            for (const mod of noteModifiers) {
+               const key = `${noteLabel}${mod}${iOctave}(${template})`;
+               // ex A#4(minor)
                scaleTable[key] = parseScale(key, true); // 'C#4' for example
             }
          }
@@ -177,5 +174,6 @@ const createTable = (): { [key: string]: ScaleInitializer } => {
  */
 //**********************************************************
 const scaleLookup: { [key: string]: ScaleInitializer } = createTable();
+// console.log(scaleLookup);
 
 export default parseScale;

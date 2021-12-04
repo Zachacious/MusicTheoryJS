@@ -11,7 +11,7 @@ import Entity from "../Entity";
  * on how many times the semitone has been wrapped.
  */
 declare class Scale implements Entity {
-    constructor(values?: ScaleInitializer);
+    constructor(values?: ScaleInitializer | string);
     /**
      *  unique id for this scale
      */

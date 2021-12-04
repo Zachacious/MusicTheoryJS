@@ -138,7 +138,7 @@
    //**********************************************************
    const nameRegex$1 = /([A-G])/g;
    const modifierRegex$1 = /(#|s|b)/g;
-   const octaveRegex$1 = /([0-9]*)/g;
+   const octaveRegex$1 = /([0-9]+)/g;
    //**********************************************************
    /**
     * attempts to parse a note from a string
@@ -166,13 +166,10 @@
        // combine all modifiers
        if (modifierMatch) {
            if (modifierMatch.length > 1) {
-               // TS seams to confuse the types here so use any for now
-               noteModifier = modifierMatch.reduce((acc, curr) => {
-                   if (typeof acc === "string")
-                       acc = parseModifier(acc);
-                   const modifier = parseModifier(curr);
-                   return (acc + modifier);
-               });
+               // combine all modifiers into an offeset value to be added to the semitone
+               noteModifier = modifierMatch
+                   .map((item) => parseModifier(item))
+                   .reduce((a, b) => a + b);
            }
            else {
                noteModifier = parseModifier(modifierMatch[0]);
@@ -192,7 +189,7 @@
            const semitone = wrappedTone.value;
            let octave = 4;
            if (noteOctave)
-               octave = clamp(parseInt(noteOctave), OCTAVE_MIN, OCTAVE_MAX);
+               octave = clamp(parseInt(noteOctave, 10), OCTAVE_MIN, OCTAVE_MAX);
            return {
                semitone: semitone,
                octave: octave,
@@ -834,9 +831,9 @@
     * Regex for matching note name, modifier, and octave
     */
    //**********************************************************
-   const nameRegex = /([A-G])/g;
-   const modifierRegex = /(#|s|b)/g;
-   const octaveRegex = /([0-9]*)/g;
+   const nameRegex = /([A-G])(?![^\(]*\))/g;
+   const modifierRegex = /(#|s|b)(?![^\(]*\))/g;
+   const octaveRegex = /([0-9]+)(?![^\(]*\))/g;
    const scaleNameRegex = /(\([a-zA-Z]{2,}\))/g;
    //**********************************************************
    /**
@@ -850,11 +847,11 @@
                return result;
            }
            if (!supressWarning)
-               console.warn(`Ineffecient note string formatting - ${scale}. Get a performanc increase by using the format [A-G][#|s|b][0-9]`);
+               console.warn(`Ineffecient scale string formatting - ${scale}. Get a performanc increase by using a valid format`);
        }
        catch (err) {
            if (!supressWarning)
-               console.warn(`Ineffecient note string formatting - ${scale}. Get a performanc increase by using the format [A-G][#|s|b][0-9]`);
+               console.warn(`Ineffecient scale string formatting - ${scale}. Get a performanc increase by using a valid format`);
        }
        let noteIdenifier = "";
        let noteModifier = 0;
@@ -867,13 +864,10 @@
        // combine all modifiers
        if (modifierMatch) {
            if (modifierMatch.length > 1) {
-               // TS seams to confuse the types here so use any for now
-               noteModifier = modifierMatch.reduce((acc, curr) => {
-                   if (typeof acc === "string")
-                       acc = parseModifier(acc);
-                   const modifier = parseModifier(curr);
-                   return (acc + modifier);
-               });
+               // combine all modifiers into an offeset value to be added to the semitone
+               noteModifier = modifierMatch
+                   .map((item) => parseModifier(item))
+                   .reduce((a, b) => a + b);
            }
            else {
                noteModifier = parseModifier(modifierMatch[0]);
@@ -898,7 +892,7 @@
            const semitone = wrappedTone.value;
            let octave = 4;
            if (noteOctave)
-               octave = clamp(parseInt(noteOctave), OCTAVE_MIN, OCTAVE_MAX);
+               octave = clamp(parseInt(noteOctave, 10), OCTAVE_MIN, OCTAVE_MAX);
            let templateIndex = 1; // default major scale
            if (scaleName) {
                templateIndex = Object.keys(ScaleTemplates).findIndex((template) => template
@@ -910,7 +904,12 @@
                console.log("UNKNOWN TEMPLATE", scaleName);
                throw new Error(`Unable to find template for scale ${scaleName}`);
            }
-           const template = ScaleTemplates[templateIndex];
+           const template = ScaleTemplates[Object.keys(ScaleTemplates)[templateIndex]];
+           console.log(scale, {
+               notemod: noteModifier,
+               moder: modifier,
+               tone: getWholeToneFromName(noteIdenifier),
+           });
            return {
                key: semitone,
                octave: octave,
@@ -931,16 +930,20 @@
        const templates = Object.keys(ScaleTemplates);
        for (const template of templates) {
            for (const noteLabel of noteLetters) {
+               //ex A(minor)
                scaleTable[`${noteLabel}(${template})`] = parseScale(noteLabel, true); // 'C' for example
-               for (let iModifierOuter = 0; iModifierOuter < noteModifiers.length; ++iModifierOuter) {
-                   const key = `${noteLabel}${noteModifiers[iModifierOuter]}(${template})`;
+               for (const mod of noteModifiers) {
+                   const key = `${noteLabel}${mod}(${template})`;
+                   // ex A#(minor)
                    scaleTable[key] = parseScale(key, true); // 'C#' for example
                }
                for (let iOctave = OCTAVE_MIN; iOctave < OCTAVE_MAX; ++iOctave) {
                    const key = `${noteLabel}${iOctave}(${template})`;
+                   // ex A4(minor)
                    scaleTable[key] = parseScale(key, true); // 'C4' for example
-                   for (let iModifier = 0; iModifier < noteModifiers.length; ++iModifier) {
-                       const key = `${noteLabel}${noteModifiers[iModifier]}${iOctave}(${template})`;
+                   for (const mod of noteModifiers) {
+                       const key = `${noteLabel}${mod}${iOctave}(${template})`;
+                       // ex A#4(minor)
                        scaleTable[key] = parseScale(key, true); // 'C#4' for example
                    }
                }
@@ -954,7 +957,6 @@
     */
    //**********************************************************
    const scaleLookup = createTable();
-   console.log(scaleLookup);
 
    //**********************************************************
    /**
@@ -1270,6 +1272,7 @@
    exports.Scale = Scale;
    exports.ScaleTemplates = ScaleTemplates;
    exports.Semitone = Semitone$1;
+   exports.parseScale = parseScale;
 
    Object.defineProperty(exports, '__esModule', { value: true });
 

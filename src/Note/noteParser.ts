@@ -12,7 +12,7 @@ import clamp from "../utils/clamp";
 //**********************************************************
 const nameRegex = /([A-G])/g;
 const modifierRegex = /(#|s|b)/g;
-const octaveRegex = /([0-9]*)/g;
+const octaveRegex = /([0-9]+)/g;
 
 //**********************************************************
 /**
@@ -51,12 +51,10 @@ const parseNote = (
    // combine all modifiers
    if (modifierMatch) {
       if (modifierMatch.length > 1) {
-         // TS seams to confuse the types here so use any for now
-         noteModifier = modifierMatch.reduce((acc: any, curr: any): any => {
-            if (typeof acc === "string") acc = parseModifier(acc);
-            const modifier: Modifier = parseModifier(curr);
-            return (acc + modifier) as number;
-         }) as unknown as number;
+         // combine all modifiers into an offeset value to be added to the semitone
+         noteModifier = modifierMatch
+            .map((item: string): number => parseModifier(item) as number)
+            .reduce((a: number, b: number): number => a + b);
       } else {
          noteModifier = parseModifier(modifierMatch[0]);
       }
@@ -83,7 +81,7 @@ const parseNote = (
 
       let octave: number = 4;
       if (noteOctave)
-         octave = clamp(parseInt(noteOctave), OCTAVE_MIN, OCTAVE_MAX);
+         octave = clamp(parseInt(noteOctave, 10), OCTAVE_MIN, OCTAVE_MAX);
 
       return {
          semitone: semitone,

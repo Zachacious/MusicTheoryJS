@@ -31,7 +31,7 @@ import shift from "../utils/shift";
  */
 //**********************************************************
 class Scale implements Entity {
-   constructor(values?: ScaleInitializer) {
+   constructor(values?: ScaleInitializer | string) {
       if (!values) {
          this.template = DEFAULT_SCALE_TEMPLATE;
          this.key = DEFAULT_SEMITONE;
