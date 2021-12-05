@@ -21,6 +21,7 @@ import parseScale from "./scaleParser";
 import shift from "../utils/shift";
 import clone from "../utils/clone";
 import isEqual from "../utils/isEqual";
+import scaleNameLookup from "./scaleNameLookup";
 
 //**********************************************************
 /**
@@ -83,7 +84,7 @@ class Scale implements Entity {
       const scale: Scale = new Scale({
          key: this.key,
          octave: this.octave,
-         template: this.template,
+         template: clone(this.template),
       });
       if (this._shiftedInterval !== 0) scale.shift(this._shiftedInterval);
       return scale;
@@ -128,11 +129,11 @@ class Scale implements Entity {
    //**********************************************************
    private _template: Array<number> = [];
    public get template(): Array<number> {
-      return this._template;
+      return clone(this._template);
    }
 
    public set template(value: Array<number>) {
-      this._template = value;
+      this._template = clone(value);
       this._shiftedInterval = 0;
       this.generateNotes();
    }
@@ -246,7 +247,12 @@ class Scale implements Entity {
     */
    //**********************************************************
    private _shiftedInterval: number = 0;
+   private _originalTemplate: Array<number> = [];
    public shift(degrees: number = 1): Scale {
+      if (this._shiftedInterval === 0) {
+         this._originalTemplate = clone(this._template);
+      }
+
       this._template = shift(this._template, degrees);
       this._shiftedInterval += degrees;
       this.generateNotes();
@@ -274,8 +280,12 @@ class Scale implements Entity {
    //**********************************************************
    public unshift(): Scale {
       if (this._shiftedInterval !== 0) {
-         this.shift(this._shiftedInterval * -1);
+         if (this._originalTemplate.length > 0) {
+            this._template = this._originalTemplate;
+         }
+         // this.shift(this._shiftedInterval * -1);
          this._shiftedInterval = 0;
+         this._originalTemplate = [];
          this.generateNotes();
       }
 
@@ -291,6 +301,8 @@ class Scale implements Entity {
    //**********************************************************
    public unshifted(): Scale {
       const scale = this.copy();
+      if (this._originalTemplate.length)
+         scale.template = this._originalTemplate;
       scale.unshift();
       return scale;
    }
@@ -348,14 +360,9 @@ class Scale implements Entity {
     */
    //**********************************************************
    public toString(): string {
-      let scaleName = "Unknown Scale";
-      const scaleIndex = Object.values(ScaleTemplates).findIndex(
-         (template) => template === this.template
-      );
-      if (scaleIndex !== -1) {
-         scaleName = Object.keys(ScaleTemplates)[scaleIndex];
-      }
-      return `${Semitone[this._key]} ${scaleName} ${this.octave}`;
+      const scaleNames = scaleNameLookup(this._template);
+      // if unknown then print note names : TODO
+      return `${Semitone[this._key]}${this._octave}(${scaleNames})`;
    }
 }
 

@@ -21,11 +21,10 @@ Your HTML here
    const scale = new mt.Scale({key:mt.Semitone.A4, template:mt.ScaleTemplates.major, octave:4});
    console.log(scale);
 
-   const scale2 = new mt.Scale('B#(jewish)');
+   const scale2 = new mt.Scale('B#7(jewish)');
    console.log(scale2);
 
-   const parse = mt.parseScale;
-   console.log(parse('A7(mystic)'));
+   console.log(scale2.toString());
 })();
 </script>
 </body>

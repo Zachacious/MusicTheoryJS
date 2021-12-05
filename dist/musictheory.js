@@ -202,7 +202,7 @@
     * creates a lookup table for all notes formatted as [A-G][#|b|s][0-9]
     */
    //**********************************************************
-   const createTable$2 = () => {
+   const createTable$3 = () => {
        const noteTable = {};
        const noteLetters = ["A", "B", "C", "D", "E", "F", "G"];
        const noteModifiers = ["b", "#", "s"];
@@ -228,7 +228,7 @@
     * creates the lookup table as soon as the module is loaded
     */
    //**********************************************************
-   const noteLookup = createTable$2();
+   const noteLookup = createTable$3();
 
    const UNKNOWN_MODIFIER_NOTE_STRINGS = [
        "C",
@@ -246,7 +246,7 @@
    ];
    const SHARP_NOTE_STRINGS = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
    const FLAT_MODIFIER_NOTE_STRINGS = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"];
-   const createTable$1 = () => {
+   const createTable$2 = () => {
        const table = {};
        for (let iTone = TONES_MIN; iTone <= TONES_MAX; ++iTone) {
            for (let iPrev = TONES_MIN; iPrev <= TONES_MAX; ++iPrev) {
@@ -281,7 +281,7 @@
            //    return `${Semitone[tone]}`;
        }
    };
-   const noteStringLookup = createTable$1();
+   const noteStringLookup = createTable$2();
 
    var IDX=256, HEX=[], SIZE=256, BUFFER;
    while (IDX--) HEX[IDX] = (IDX + 256).toString(16).substring(1);
@@ -727,6 +727,7 @@
    }
 
    const DEFAULT_SCALE_TEMPLATE = [0, 2, 2, 1, 2, 2, 2]; // major
+   Object.freeze(DEFAULT_SCALE_TEMPLATE);
 
    const ScaleTemplates = {
        wholeTone: [0, 2, 2, 2, 2, 2, 2],
@@ -825,6 +826,7 @@
    ScaleTemplates.acoustic = ScaleTemplates.lydianDominant;
    ScaleTemplates.aeolian = ScaleTemplates.minor;
    ScaleTemplates.ionian = ScaleTemplates.major;
+   Object.keys(ScaleTemplates).forEach((element) => Object.freeze(ScaleTemplates[element]));
 
    //**********************************************************
    /**
@@ -905,11 +907,6 @@
                throw new Error(`Unable to find template for scale ${scaleName}`);
            }
            const template = ScaleTemplates[Object.keys(ScaleTemplates)[templateIndex]];
-           console.log(scale, {
-               notemod: noteModifier,
-               moder: modifier,
-               tone: getWholeToneFromName(noteIdenifier),
-           });
            return {
                key: semitone,
                octave: octave,
@@ -923,7 +920,7 @@
     * creates a lookup table for all notes formatted as [A-G][#|b|s][0-9]
     */
    //**********************************************************
-   const createTable = () => {
+   const createTable$1 = () => {
        const scaleTable = {};
        const noteLetters = ["A", "B", "C", "D", "E", "F", "G"];
        const noteModifiers = ["b", "#", "s"];
@@ -956,7 +953,7 @@
     * creates the lookup table as soon as the module is loaded
     */
    //**********************************************************
-   const scaleLookup = createTable();
+   const scaleLookup = createTable$1();
 
    //**********************************************************
    /**
@@ -979,6 +976,56 @@
 
    //**********************************************************
    /**
+    *  Simple util to lazy clone an object
+    */
+   //**********************************************************
+   const clone = (obj) => {
+       return JSON.parse(JSON.stringify(obj));
+   };
+
+   //**********************************************************
+   /**
+    * simple util to lazy check equality of objects and arrays
+    */
+   //**********************************************************
+   const isEqual = (a, b) => {
+       const stringA = JSON.stringify(a);
+       const stringB = JSON.stringify(b);
+       return stringA === stringB;
+   };
+
+   const scaleNameLookup = (template, supressWarning = false) => {
+       try {
+           const result = nameTable[JSON.stringify(template)];
+           if (result)
+               return result;
+       }
+       catch (e) {
+           if (!supressWarning)
+               console.warn(e);
+       }
+       const keys = Object.keys(ScaleTemplates);
+       const values = Object.values(ScaleTemplates);
+       const scaleNames = [];
+       for (let i = 0; i < keys.length; ++i) {
+           if (isEqual(values[i], template)) {
+               scaleNames.push(keys[i].charAt(0).toUpperCase() + keys[i].slice(1));
+           }
+       }
+       const scaleNamesString = scaleNames.join(" AKA ");
+       return scaleNamesString;
+   };
+   const createTable = () => {
+       const table = {};
+       for (const template of Object.values(ScaleTemplates)) {
+           table[JSON.stringify(template)] = scaleNameLookup(template, true);
+       }
+       return table;
+   };
+   const nameTable = createTable();
+
+   //**********************************************************
+   /**
     * A musical scale.
     * The primary fields are the semitone and octave.
     * The octave is clamped to the range [0, 9].
@@ -996,14 +1043,14 @@
            }
            else if (typeof values === "string") {
                values = parseScale(values);
-               this.template = values.template || DEFAULT_SCALE_TEMPLATE;
+               this.template = clone(values.template) || DEFAULT_SCALE_TEMPLATE;
                this.key = values.key || DEFAULT_SEMITONE;
                this.octave = values.octave || DEFAULT_OCTAVE;
            }
            else {
                // important that octave is set first so that
                // setting the semitone can change the octave
-               this.template = values.template || DEFAULT_SCALE_TEMPLATE;
+               this.template = clone(values.template) || DEFAULT_SCALE_TEMPLATE;
                this.key = values.key || DEFAULT_SEMITONE;
                this.octave = values.octave || DEFAULT_OCTAVE;
            }
@@ -1023,7 +1070,7 @@
        equals(scale) {
            return (this._key === scale._key &&
                this._octave === scale._octave &&
-               this._template === scale._template);
+               isEqual(this._template, scale._template));
        }
        //**********************************************************
        /**
@@ -1034,7 +1081,7 @@
            const scale = new Scale({
                key: this.key,
                octave: this.octave,
-               template: this.template,
+               template: clone(this.template),
            });
            if (this._shiftedInterval !== 0)
                scale.shift(this._shiftedInterval);
@@ -1075,10 +1122,10 @@
        //**********************************************************
        _template = [];
        get template() {
-           return this._template;
+           return clone(this._template);
        }
        set template(value) {
-           this._template = value;
+           this._template = clone(value);
            this._shiftedInterval = 0;
            this.generateNotes();
        }
@@ -1100,16 +1147,17 @@
        //**********************************************************
        generateNotes() {
            // use the template unshifted for simplicity
-           const unshiftedTemplate = shift(this._template, -this._shiftedInterval);
+           const unshiftedTemplate = shift(JSON.parse(JSON.stringify(this._template)), -this._shiftedInterval);
            const notes = [];
            let accumulator = this.key;
            for (const interval of unshiftedTemplate) {
                const note = new Note({
-                   semitone: (accumulator += interval),
+                   semitone: interval === 0 ? (accumulator = 0) : (accumulator += interval),
                    octave: this.octave,
                });
                notes.push(note);
            }
+           // this._notes = shift(notes, this._shiftedInterval + 1);
            // shift notes back to original position
            if (this._shiftedInterval > 0) {
                const temp = notes.splice(notes.length - (this._shiftedInterval + 1), Infinity);
@@ -1128,8 +1176,8 @@
         */
        //**********************************************************
        degree(degree) {
-           const wrapped = wrap(degree + 1 /* zero indexed */, 0, this.notes.length - 1);
-           const note = this.notes[wrapped.value];
+           const wrapped = wrap(degree - 1 /*zero index */, 0, this.notes.length - 1);
+           const note = this.notes[wrapped.value].copy();
            note.octave = this.octave + wrapped.numWraps;
            return note;
        }
@@ -1168,7 +1216,11 @@
         */
        //**********************************************************
        _shiftedInterval = 0;
+       _originalTemplate = [];
        shift(degrees = 1) {
+           if (this._shiftedInterval === 0) {
+               this._originalTemplate = clone(this._template);
+           }
            this._template = shift(this._template, degrees);
            this._shiftedInterval += degrees;
            this.generateNotes();
@@ -1193,8 +1245,12 @@
        //**********************************************************
        unshift() {
            if (this._shiftedInterval !== 0) {
-               this.shift(this._shiftedInterval * -1);
+               if (this._originalTemplate.length > 0) {
+                   this._template = this._originalTemplate;
+               }
+               // this.shift(this._shiftedInterval * -1);
                this._shiftedInterval = 0;
+               this._originalTemplate = [];
                this.generateNotes();
            }
            return this;
@@ -1208,6 +1264,8 @@
        //**********************************************************
        unshifted() {
            const scale = this.copy();
+           if (this._originalTemplate.length)
+               scale.template = this._originalTemplate;
            scale.unshift();
            return scale;
        }
@@ -1257,12 +1315,9 @@
         */
        //**********************************************************
        toString() {
-           let scaleName = "Unknown Scale";
-           const scaleIndex = Object.values(ScaleTemplates).findIndex((template) => template === this.template);
-           if (scaleIndex !== -1) {
-               scaleName = Object.keys(ScaleTemplates)[scaleIndex];
-           }
-           return `${Semitone$1[this._key]} ${scaleName} ${this.octave}`;
+           const scaleNames = scaleNameLookup(this._template);
+           // if unknown then print note names : TODO
+           return `${Semitone$1[this._key]}${this._octave}(${scaleNames})`;
        }
    }
 

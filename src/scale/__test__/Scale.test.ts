@@ -265,12 +265,7 @@ describe("Scale", () => {
             octave: 4,
             template: ScaleTemplates.major,
          });
-         // acts as if using a global for notes
-         // the scale is already shifted by 6
-         console.log(ScaleTemplates.major);
-         console.log(scale2.notes);
          scale2.shift(-6);
-         console.log(scale2.notes);
          const notes = scale2.notes;
          expect(notes.length).toEqual(7);
          expect(notes[0].semitone).toEqual(Semitone.D);
@@ -287,6 +282,274 @@ describe("Scale", () => {
          expect(notes[5].octave).toEqual(4);
          expect(notes[6].semitone).toEqual(Semitone.C);
          expect(notes[6].octave).toEqual(4);
+      });
+   });
+
+   describe("shifted", () => {
+      it(`should return a copy the scale with the template shifted by
+      the given amount`, () => {
+         const scale = new Scale({
+            key: Semitone.C,
+            octave: 4,
+            template: ScaleTemplates.major,
+         });
+         const shifted = scale.shifted(6);
+         expect(shifted.id).not.toEqual(scale.id);
+         expect(shifted.key).toEqual(Semitone.C);
+         expect(shifted.octave).toEqual(4);
+         const notes = shifted.notes;
+         expect(notes.length).toEqual(7);
+         expect(notes[0].semitone).toEqual(Semitone.D);
+         expect(notes[0].octave).toEqual(4);
+         expect(notes[1].semitone).toEqual(Semitone.E);
+         expect(notes[1].octave).toEqual(4);
+         expect(notes[2].semitone).toEqual(Semitone.F);
+         expect(notes[2].octave).toEqual(4);
+         expect(notes[3].semitone).toEqual(Semitone.G);
+         expect(notes[3].octave).toEqual(4);
+         expect(notes[4].semitone).toEqual(Semitone.A);
+         expect(notes[4].octave).toEqual(4);
+         expect(notes[5].semitone).toEqual(Semitone.B);
+         expect(notes[5].octave).toEqual(4);
+         expect(notes[6].semitone).toEqual(Semitone.C);
+         expect(notes[6].octave).toEqual(4);
+      });
+   });
+
+   describe("unshift", () => {
+      it(`should take a shifted scale and restore it to the original`, () => {
+         const scale = new Scale({
+            key: Semitone.C,
+            octave: 4,
+            template: ScaleTemplates.major,
+         });
+         scale.shift(6);
+         const unshifted = scale.unshift();
+         expect(unshifted.key).toEqual(Semitone.C);
+         expect(unshifted.octave).toEqual(4);
+         const notes = unshifted.notes;
+         expect(notes.length).toEqual(7);
+         expect(notes[0].semitone).toEqual(Semitone.C);
+         expect(notes[0].octave).toEqual(4);
+         expect(notes[1].semitone).toEqual(Semitone.D);
+         expect(notes[1].octave).toEqual(4);
+         expect(notes[2].semitone).toEqual(Semitone.E);
+         expect(notes[2].octave).toEqual(4);
+         expect(notes[3].semitone).toEqual(Semitone.F);
+         expect(notes[3].octave).toEqual(4);
+         expect(notes[4].semitone).toEqual(Semitone.G);
+         expect(notes[4].octave).toEqual(4);
+         expect(notes[5].semitone).toEqual(Semitone.A);
+         expect(notes[5].octave).toEqual(4);
+         expect(notes[6].semitone).toEqual(Semitone.B);
+         expect(notes[6].octave).toEqual(4);
+      });
+   });
+
+   describe("unshifted", () => {
+      it(`should return a copy of the scale unshifted`, () => {
+         const scale = new Scale({
+            key: Semitone.C,
+            octave: 4,
+            template: ScaleTemplates.major,
+         });
+         scale.shift(6);
+         const unshifted = scale.unshifted();
+         console.log(unshifted.notes);
+         expect(unshifted.key).toEqual(Semitone.C);
+         expect(unshifted.octave).toEqual(4);
+         const notes = unshifted.notes;
+         expect(notes.length).toEqual(7);
+         expect(notes[0].semitone).toEqual(Semitone.C);
+         expect(notes[0].octave).toEqual(4);
+         expect(notes[1].semitone).toEqual(Semitone.D);
+         expect(notes[1].octave).toEqual(4);
+         expect(notes[2].semitone).toEqual(Semitone.E);
+         expect(notes[2].octave).toEqual(4);
+         expect(notes[3].semitone).toEqual(Semitone.F);
+         expect(notes[3].octave).toEqual(4);
+         expect(notes[4].semitone).toEqual(Semitone.G);
+         expect(notes[4].octave).toEqual(4);
+         expect(notes[5].semitone).toEqual(Semitone.A);
+         expect(notes[5].octave).toEqual(4);
+         expect(notes[6].semitone).toEqual(Semitone.B);
+         expect(notes[6].octave).toEqual(4);
+      });
+   });
+
+   describe("modes", () => {
+      it(`should create copies of the scale
+      for each mode`, () => {
+         const scale = new Scale({
+            key: Semitone.C,
+            octave: 4,
+            template: ScaleTemplates.major,
+         });
+
+         const ionian = scale.ionian();
+         expect(ionian.id).not.toEqual(scale.id);
+         expect(ionian.key).toEqual(Semitone.C);
+         expect(ionian.octave).toEqual(4);
+         const notes = ionian.notes;
+         expect(notes.length).toEqual(7);
+         expect(notes[0].semitone).toEqual(Semitone.C);
+         expect(notes[0].octave).toEqual(4);
+         expect(notes[1].semitone).toEqual(Semitone.D);
+         expect(notes[1].octave).toEqual(4);
+         expect(notes[2].semitone).toEqual(Semitone.E);
+         expect(notes[2].octave).toEqual(4);
+         expect(notes[3].semitone).toEqual(Semitone.F);
+         expect(notes[3].octave).toEqual(4);
+         expect(notes[4].semitone).toEqual(Semitone.G);
+         expect(notes[4].octave).toEqual(4);
+         expect(notes[5].semitone).toEqual(Semitone.A);
+         expect(notes[5].octave).toEqual(4);
+         expect(notes[6].semitone).toEqual(Semitone.B);
+         expect(notes[6].octave).toEqual(4);
+
+         const dorian = scale.dorian();
+         expect(dorian.id).not.toEqual(scale.id);
+         expect(dorian.key).toEqual(Semitone.C);
+         expect(dorian.octave).toEqual(4);
+         const notes2 = dorian.notes;
+         expect(notes2.length).toEqual(7);
+         expect(notes2[0].semitone).toEqual(Semitone.C);
+         expect(notes2[0].octave).toEqual(4);
+         expect(notes2[1].semitone).toEqual(Semitone.D);
+         expect(notes2[1].octave).toEqual(4);
+         expect(notes2[2].semitone).toEqual(Semitone.Eb);
+         expect(notes2[2].octave).toEqual(4);
+         expect(notes2[3].semitone).toEqual(Semitone.F);
+         expect(notes2[3].octave).toEqual(4);
+         expect(notes2[4].semitone).toEqual(Semitone.G);
+         expect(notes2[4].octave).toEqual(4);
+         expect(notes2[5].semitone).toEqual(Semitone.A);
+         expect(notes2[5].octave).toEqual(4);
+         expect(notes2[6].semitone).toEqual(Semitone.Bb);
+         expect(notes2[6].octave).toEqual(4);
+
+         const phrygian = scale.phrygian();
+         expect(phrygian.id).not.toEqual(scale.id);
+         expect(phrygian.key).toEqual(Semitone.C);
+         expect(phrygian.octave).toEqual(4);
+         const notes3 = phrygian.notes;
+         expect(notes3.length).toEqual(7);
+         expect(notes3[0].semitone).toEqual(Semitone.C);
+         expect(notes3[0].octave).toEqual(4);
+         expect(notes3[1].semitone).toEqual(Semitone.Db);
+         expect(notes3[1].octave).toEqual(4);
+         expect(notes3[2].semitone).toEqual(Semitone.Eb);
+         expect(notes3[2].octave).toEqual(4);
+         expect(notes3[3].semitone).toEqual(Semitone.F);
+         expect(notes3[3].octave).toEqual(4);
+         expect(notes3[4].semitone).toEqual(Semitone.G);
+         expect(notes3[4].octave).toEqual(4);
+         expect(notes3[5].semitone).toEqual(Semitone.Ab);
+         expect(notes3[5].octave).toEqual(4);
+         expect(notes3[6].semitone).toEqual(Semitone.Bb);
+         expect(notes3[6].octave).toEqual(4);
+
+         const lydian = scale.lydian();
+         expect(lydian.id).not.toEqual(scale.id);
+         expect(lydian.key).toEqual(Semitone.C);
+         expect(lydian.octave).toEqual(4);
+         const notes4 = lydian.notes;
+         expect(notes4.length).toEqual(7);
+         expect(notes4[0].semitone).toEqual(Semitone.C);
+         expect(notes4[0].octave).toEqual(4);
+         expect(notes4[1].semitone).toEqual(Semitone.D);
+         expect(notes4[1].octave).toEqual(4);
+         expect(notes4[2].semitone).toEqual(Semitone.E);
+         expect(notes4[2].octave).toEqual(4);
+         expect(notes4[3].semitone).toEqual(Semitone.Fs);
+         expect(notes4[3].octave).toEqual(4);
+         expect(notes4[4].semitone).toEqual(Semitone.G);
+         expect(notes4[4].octave).toEqual(4);
+         expect(notes4[5].semitone).toEqual(Semitone.A);
+         expect(notes4[5].octave).toEqual(4);
+         expect(notes4[6].semitone).toEqual(Semitone.B);
+         expect(notes4[6].octave).toEqual(4);
+
+         const mixolydian = scale.mixolydian();
+         expect(mixolydian.id).not.toEqual(scale.id);
+         expect(mixolydian.key).toEqual(Semitone.C);
+         expect(mixolydian.octave).toEqual(4);
+         const notes5 = mixolydian.notes;
+         expect(notes5.length).toEqual(7);
+         expect(notes5[0].semitone).toEqual(Semitone.C);
+         expect(notes5[0].octave).toEqual(4);
+         expect(notes5[1].semitone).toEqual(Semitone.D);
+         expect(notes5[1].octave).toEqual(4);
+         expect(notes5[2].semitone).toEqual(Semitone.E);
+         expect(notes5[2].octave).toEqual(4);
+         expect(notes5[3].semitone).toEqual(Semitone.F);
+         expect(notes5[3].octave).toEqual(4);
+         expect(notes5[4].semitone).toEqual(Semitone.G);
+         expect(notes5[4].octave).toEqual(4);
+         expect(notes5[5].semitone).toEqual(Semitone.A);
+         expect(notes5[5].octave).toEqual(4);
+         expect(notes5[6].semitone).toEqual(Semitone.Bb);
+         expect(notes5[6].octave).toEqual(4);
+
+         const aeolian = scale.aeolian();
+         expect(aeolian.id).not.toEqual(scale.id);
+         expect(aeolian.key).toEqual(Semitone.C);
+         expect(aeolian.octave).toEqual(4);
+         const notes6 = aeolian.notes;
+         expect(notes6.length).toEqual(7);
+         expect(notes6[0].semitone).toEqual(Semitone.C);
+         expect(notes6[0].octave).toEqual(4);
+         expect(notes6[1].semitone).toEqual(Semitone.D);
+         expect(notes6[1].octave).toEqual(4);
+         expect(notes6[2].semitone).toEqual(Semitone.Eb);
+         expect(notes6[2].octave).toEqual(4);
+         expect(notes6[3].semitone).toEqual(Semitone.F);
+         expect(notes6[3].octave).toEqual(4);
+         expect(notes6[4].semitone).toEqual(Semitone.G);
+         expect(notes6[4].octave).toEqual(4);
+         expect(notes6[5].semitone).toEqual(Semitone.Ab);
+         expect(notes6[5].octave).toEqual(4);
+         expect(notes6[6].semitone).toEqual(Semitone.Bb);
+         expect(notes6[6].octave).toEqual(4);
+
+         const locrian = scale.locrian();
+         expect(locrian.id).not.toEqual(scale.id);
+         expect(locrian.key).toEqual(Semitone.C);
+         expect(locrian.octave).toEqual(4);
+         const notes7 = locrian.notes;
+         expect(notes7.length).toEqual(7);
+         expect(notes7[0].semitone).toEqual(Semitone.C);
+         expect(notes7[0].octave).toEqual(4);
+         expect(notes7[1].semitone).toEqual(Semitone.Db);
+         expect(notes7[1].octave).toEqual(4);
+         expect(notes7[2].semitone).toEqual(Semitone.Eb);
+         expect(notes7[2].octave).toEqual(4);
+         expect(notes7[3].semitone).toEqual(Semitone.F);
+         expect(notes7[3].octave).toEqual(4);
+         expect(notes7[4].semitone).toEqual(Semitone.Gb);
+         expect(notes7[4].octave).toEqual(4);
+         expect(notes7[5].semitone).toEqual(Semitone.Ab);
+         expect(notes7[5].octave).toEqual(4);
+         expect(notes7[6].semitone).toEqual(Semitone.Bb);
+         expect(notes7[6].octave).toEqual(4);
+      });
+   });
+
+   describe("toString", () => {
+      it(`should return the correct string for the scale`, () => {
+         const scale = new Scale({
+            key: Semitone.C,
+            octave: 4,
+            template: ScaleTemplates.major,
+         });
+         expect(scale.toString()).toEqual("C4(Major AKA Ionian)");
+
+         const scale2 = new Scale({
+            key: Semitone.Eb,
+            octave: 8,
+            template: ScaleTemplates.enigmaticMajor,
+         });
+         expect(scale2.toString()).toEqual("Eb8(EnigmaticMajor)");
       });
    });
 });

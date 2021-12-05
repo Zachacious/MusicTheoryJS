@@ -72,7 +72,8 @@ declare class Scale implements Entity {
      * shift
      * shifts the scale by the given number of degrees
      */
-    _shiftedInterval: number;
+    private _shiftedInterval;
+    private _originalTemplate;
     shift(degrees?: number): Scale;
     /**
      * shifted
