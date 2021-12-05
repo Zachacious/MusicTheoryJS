@@ -115,4 +115,8 @@ ScaleTemplates.acoustic = ScaleTemplates.lydianDominant;
 ScaleTemplates.aeolian = ScaleTemplates.minor;
 ScaleTemplates.ionian = ScaleTemplates.major;
 
+Object.keys(ScaleTemplates).forEach((element) =>
+   Object.freeze(ScaleTemplates[element])
+);
+
 export default ScaleTemplates;

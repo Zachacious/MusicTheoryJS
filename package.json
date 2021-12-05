@@ -7,7 +7,7 @@
   "module": "dist/module.js",
   "types": "dist/musictheory.d.ts",
   "scripts": {
-    "test": "jest --no-cache",
+    "test": "jest",
     "lint": "eslint -c .eslintrc.js *.ts",
     "clean": "rimraf dist",
     "dev": " run-s build && livereload dist",

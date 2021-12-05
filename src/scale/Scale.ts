@@ -19,6 +19,8 @@ import { uid } from "uid";
 import Entity from "../Entity";
 import parseScale from "./scaleParser";
 import shift from "../utils/shift";
+import clone from "../utils/clone";
+import isEqual from "../utils/isEqual";
 
 //**********************************************************
 /**
@@ -38,13 +40,13 @@ class Scale implements Entity {
          this.octave = DEFAULT_OCTAVE;
       } else if (typeof values === "string") {
          values = parseScale(values);
-         this.template = values.template || DEFAULT_SCALE_TEMPLATE;
+         this.template = clone(values.template) || DEFAULT_SCALE_TEMPLATE;
          this.key = values.key || DEFAULT_SEMITONE;
          this.octave = values.octave || DEFAULT_OCTAVE;
       } else {
          // important that octave is set first so that
          // setting the semitone can change the octave
-         this.template = values.template || DEFAULT_SCALE_TEMPLATE;
+         this.template = clone(values.template) || DEFAULT_SCALE_TEMPLATE;
          this.key = values.key || DEFAULT_SEMITONE;
          this.octave = values.octave || DEFAULT_OCTAVE;
       }
@@ -68,7 +70,7 @@ class Scale implements Entity {
       return (
          this._key === scale._key &&
          this._octave === scale._octave &&
-         this._template === scale._template
+         isEqual(this._template, scale._template)
       );
    }
 
@@ -154,17 +156,23 @@ class Scale implements Entity {
    //**********************************************************
    protected generateNotes(): void {
       // use the template unshifted for simplicity
-      const unshiftedTemplate = shift(this._template, -this._shiftedInterval);
+      const unshiftedTemplate = shift(
+         JSON.parse(JSON.stringify(this._template)) as Array<number>,
+         -this._shiftedInterval
+      );
 
-      const notes = [];
-      let accumulator = this.key;
+      const notes: Note[] = [];
+      let accumulator: number = this.key;
       for (const interval of unshiftedTemplate) {
          const note = new Note({
-            semitone: (accumulator += interval),
+            semitone:
+               interval === 0 ? (accumulator = 0) : (accumulator += interval),
             octave: this.octave,
          });
          notes.push(note);
       }
+
+      // this._notes = shift(notes, this._shiftedInterval + 1);
 
       // shift notes back to original position
       if (this._shiftedInterval > 0) {
@@ -192,11 +200,11 @@ class Scale implements Entity {
    //**********************************************************
    public degree(degree: number): Note {
       const wrapped = wrap(
-         degree + 1 /* zero indexed */,
+         degree - 1 /*zero index */,
          0,
          this.notes.length - 1
       );
-      const note = this.notes[wrapped.value];
+      const note = this.notes[wrapped.value].copy();
       note.octave = this.octave + wrapped.numWraps;
       return note;
    }
@@ -237,7 +245,7 @@ class Scale implements Entity {
     * shifts the scale by the given number of degrees
     */
    //**********************************************************
-   _shiftedInterval: number = 0;
+   private _shiftedInterval: number = 0;
    public shift(degrees: number = 1): Scale {
       this._template = shift(this._template, degrees);
       this._shiftedInterval += degrees;
