@@ -27,6 +27,21 @@ enum Semitone {
    Ab = 8,
 }
 
+const SemitoneNames: { [key: string]: number } = {
+   A: 9,
+   "As/Bb": 10,
+   "B/Cb": 11,
+   "Bs/C": 0,
+   "Cs/Db": 1,
+   D: 2,
+   "Ds/Eb": 3,
+   "E/Fb": 4,
+   "Es/F": 5,
+   "Fs/Gb": 6,
+   G: 7,
+   "Gs/Ab": 8,
+};
+
 //**********************************************************
 /**
  * Returns the whole note name (e.g. C, D, E, F, G, A, B) for
@@ -41,5 +56,22 @@ const getWholeToneFromName = (name: string): Semitone => {
    return Semitone[key as keyof typeof Semitone];
 };
 
+const getNameForSemitone = (
+   semitone: Semitone,
+   preferredWholeNote?: string
+): string => {
+   const values: number[] = Object.values(SemitoneNames);
+   const nameIndex = values.findIndex((v) => v === semitone);
+   const wholeName = Object.keys(SemitoneNames)[nameIndex];
+   const nameParts = wholeName.split("/");
+   if (nameParts.length === 1) return nameParts[0];
+   if (!preferredWholeNote) return wholeName;
+   for (const part of nameParts) {
+      if (part.includes(preferredWholeNote)) return part;
+   }
+
+   return wholeName;
+};
+
 export default Semitone;
-export { getWholeToneFromName };
+export { getWholeToneFromName, getNameForSemitone };
