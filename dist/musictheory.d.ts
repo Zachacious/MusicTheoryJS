@@ -268,6 +268,10 @@ declare class Scale implements Entity {
      */
     protected generateNotes(): void;
     /**
+     * returns the names of the notes in the scale
+     */
+    getNoteNames(preferSharpKey?: boolean): string[];
+    /**
      * degree
      * returns a note that represents the given degree
      */

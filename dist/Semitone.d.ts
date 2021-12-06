@@ -29,5 +29,11 @@ declare enum Semitone {
  * the given string
  */
 declare const getWholeToneFromName: (name: string) => Semitone;
+/**
+ * Returns a string version of the given semitone
+ * if prefered whole note is set, it will return the note that
+ * best matches that (for ex: Fs/Gb will return F# if prefered)
+ */
+declare const getNameForSemitone: (semitone: Semitone, preferredWholeNote?: string | undefined) => string;
 export default Semitone;
-export { getWholeToneFromName };
+export { getWholeToneFromName, getNameForSemitone };

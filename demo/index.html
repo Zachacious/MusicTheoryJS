@@ -21,10 +21,14 @@ Your HTML here
    const scale = new mt.Scale({key:mt.Semitone.A4, template:mt.ScaleTemplates.major, octave:4});
    console.log(scale);
 
-   const scale2 = new mt.Scale('B#7(jewish)');
+   const scale2 = new mt.Scale('D2(dorian)');
    console.log(scale2);
 
    console.log(scale2.toString());
+   console.log((scale2.getNoteNames()));
+
+   // issue with scale names coming out wrong when not useing octave
+   // issue with notes coming out wrong and only ever starting with C
 })();
 </script>
 </body>

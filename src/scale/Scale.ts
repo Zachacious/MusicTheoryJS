@@ -1,4 +1,4 @@
-import Semitone from "../Semitone";
+import Semitone, { getNameForSemitone } from "../Semitone";
 import wrap from "../utils/wrap";
 import clamp from "../utils/clamp";
 import {
@@ -191,6 +191,69 @@ class Scale implements Entity {
       }
 
       this._notes = notes;
+   }
+
+   //**********************************************************
+   /**
+    * returns the names of the notes in the scale
+    */
+   //**********************************************************
+   public getNoteNames(preferSharpKey = true): string[] {
+      const wholeNotes = [
+         "A",
+         "B",
+         "C",
+         "D",
+         "E",
+         "F",
+         "G",
+         "A",
+         "B",
+         "C",
+         "D",
+         "E",
+         "F",
+         "G",
+      ];
+      let notes = [...this.notes];
+      notes = shift(notes, -this._shiftedInterval); //unshift back to key = 0 index
+
+      const notesParts: string[][] = notes.map((note) =>
+         note.toString().split("/")
+      );
+
+      const noteNames: Array<string> = [];
+      for (const noteParts of notesParts) {
+         if (noteNames.length === 0) {
+            noteNames.push(
+               preferSharpKey ? noteParts[0] : noteParts[noteParts.length - 1]
+            );
+            continue;
+         }
+
+         if (noteParts.length === 1) {
+            noteNames.push(noteParts[0]);
+            continue;
+         }
+
+         const lastWholeNote = noteNames[noteNames.length - 1][0];
+         const lastIndex = wholeNotes.indexOf(lastWholeNote);
+         const nextNote = wholeNotes[lastIndex + 1];
+
+         if (noteParts[0].includes(nextNote)) {
+            noteNames.push(noteParts[0]);
+            continue;
+         }
+
+         noteNames.push(noteParts[noteParts.length - 1]);
+      }
+
+      const shiftedNoteNames: string[] = shift(
+         noteNames,
+         this._shiftedInterval
+      );
+
+      return shiftedNoteNames;
    }
 
    //**********************************************************

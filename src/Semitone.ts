@@ -56,6 +56,13 @@ const getWholeToneFromName = (name: string): Semitone => {
    return Semitone[key as keyof typeof Semitone];
 };
 
+//**********************************************************
+/**
+ * Returns a string version of the given semitone
+ * if prefered whole note is set, it will return the note that
+ * best matches that (for ex: Fs/Gb will return F# if prefered)
+ */
+//**********************************************************
 const getNameForSemitone = (
    semitone: Semitone,
    preferredWholeNote?: string
@@ -67,7 +74,7 @@ const getNameForSemitone = (
    if (nameParts.length === 1) return nameParts[0];
    if (!preferredWholeNote) return wholeName;
    for (const part of nameParts) {
-      if (part.includes(preferredWholeNote)) return part;
+      if (part.includes(preferredWholeNote[0])) return part;
    }
 
    return wholeName;
