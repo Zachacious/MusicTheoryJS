@@ -961,6 +961,7 @@
     */
    //**********************************************************
    const shift = (arr, dist = 1) => {
+       arr = [...arr]; // copy
        if (dist > arr.length || dist < 0 - arr.length)
            throw new Error("shift: distance is greater than array length");
        if (dist > 0) {
@@ -1147,12 +1148,16 @@
        //**********************************************************
        generateNotes() {
            // use the template unshifted for simplicity
-           const unshiftedTemplate = shift(JSON.parse(JSON.stringify(this._template)), -this._shiftedInterval);
+           const unshiftedTemplate = shift(this._template, -this._shiftedInterval);
            const notes = [];
            let accumulator = this.key;
            for (const interval of unshiftedTemplate) {
+               const tone = wrap(interval === 0
+                   ? (accumulator = this.key)
+                   : (accumulator += interval), TONES_MIN, TONES_MAX).value;
+               console.log(tone, interval);
                const note = new Note({
-                   semitone: interval === 0 ? (accumulator = 0) : (accumulator += interval),
+                   semitone: tone,
                    octave: this.octave,
                });
                notes.push(note);
@@ -1375,6 +1380,7 @@
    exports.ScaleTemplates = ScaleTemplates;
    exports.Semitone = Semitone$1;
    exports.parseScale = parseScale;
+   exports.wrap = wrap;
 
    Object.defineProperty(exports, '__esModule', { value: true });
 

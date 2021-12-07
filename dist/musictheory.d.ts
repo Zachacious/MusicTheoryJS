@@ -130,6 +130,12 @@ declare enum Modifier {
     SHARP = 1
 }
 
+declare type wrappedNumber = {
+    value: number;
+    numWraps: number;
+};
+declare const wrap: (value: number, lower: number, upper: number) => wrappedNumber;
+
 /**
  * Tuning component used by Instrument class
  * - containes the a4 tuning - default is 440Hz
@@ -334,4 +340,4 @@ declare const ScaleTemplates: {
  */
 declare const parseScale: (scale: string, supressWarning?: boolean) => ScaleInitializer;
 
-export { Instrument, Modifier, Note, Scale, ScaleTemplates, Semitone, parseScale };
+export { Instrument, Modifier, Note, Scale, ScaleTemplates, Semitone, parseScale, wrap };

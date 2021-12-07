@@ -164,6 +164,28 @@ describe("Scale", () => {
          expect(notes[5].octave).toEqual(7);
          expect(notes[6].semitone).toEqual(Semitone.Bb);
          expect(notes[6].octave).toEqual(7);
+
+         const scale2 = new Scale({
+            key: Semitone.E,
+            octave: 3,
+            template: ScaleTemplates.minor,
+         });
+         const notes2 = scale2.notes;
+         expect(notes2.length).toEqual(7);
+         expect(notes2[0].semitone).toEqual(Semitone.E);
+         expect(notes2[0].octave).toEqual(3);
+         expect(notes2[1].semitone).toEqual(Semitone.Fs);
+         expect(notes2[1].octave).toEqual(3);
+         expect(notes2[2].semitone).toEqual(Semitone.G);
+         expect(notes2[2].octave).toEqual(3);
+         expect(notes2[3].semitone).toEqual(Semitone.A);
+         expect(notes2[3].octave).toEqual(3);
+         expect(notes2[4].semitone).toEqual(Semitone.B);
+         expect(notes2[4].octave).toEqual(3);
+         expect(notes2[5].semitone).toEqual(Semitone.C);
+         expect(notes2[5].octave).toEqual(4);
+         expect(notes2[6].semitone).toEqual(Semitone.D);
+         expect(notes2[6].octave).toEqual(4);
       });
    });
 

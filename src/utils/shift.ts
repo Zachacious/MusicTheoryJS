@@ -4,6 +4,7 @@
  */
 //**********************************************************
 const shift = <T>(arr: T[], dist: number = 1): T[] => {
+   arr = [...arr]; // copy
    if (dist > arr.length || dist < 0 - arr.length)
       throw new Error("shift: distance is greater than array length");
    if (dist > 0) {

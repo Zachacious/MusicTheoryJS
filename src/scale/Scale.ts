@@ -158,16 +158,20 @@ class Scale implements Entity {
    protected generateNotes(): void {
       // use the template unshifted for simplicity
       const unshiftedTemplate = shift(
-         JSON.parse(JSON.stringify(this._template)) as Array<number>,
+         this._template as number[],
          -this._shiftedInterval
       );
 
       const notes: Note[] = [];
       let accumulator: number = this.key;
       for (const interval of unshiftedTemplate) {
+         const tone =
+            interval === 0
+               ? (accumulator = this.key)
+               : (accumulator += interval);
+
          const note = new Note({
-            semitone:
-               interval === 0 ? (accumulator = 0) : (accumulator += interval),
+            semitone: tone,
             octave: this.octave,
          });
          notes.push(note);

@@ -16,7 +16,24 @@ describe("scaleParser", () => {
       const scale = scaleParser("C(major)");
       expect(scale.key).toBe(Semitone.C);
       expect(scale.octave).toBe(DEFAULT_OCTAVE);
-      expect(scale.template).toBe(ScaleTemplates.major);
+      expect(scale?.template?.[0]).toBe(ScaleTemplates.major[0]);
+      expect(scale?.template?.[1]).toBe(ScaleTemplates.major[1]);
+      expect(scale?.template?.[2]).toBe(ScaleTemplates.major[2]);
+      expect(scale?.template?.[3]).toBe(ScaleTemplates.major[3]);
+      expect(scale?.template?.[4]).toBe(ScaleTemplates.major[4]);
+      expect(scale?.template?.[5]).toBe(ScaleTemplates.major[5]);
+      expect(scale?.template?.[6]).toBe(ScaleTemplates.major[6]);
+
+      const scale2 = scaleParser("D2(dorian)");
+      expect(scale2.key).toBe(Semitone.D);
+      expect(scale2.octave).toBe(2);
+      expect(scale2?.template?.[0]).toBe(ScaleTemplates.dorian[0]);
+      expect(scale2?.template?.[1]).toBe(ScaleTemplates.dorian[1]);
+      expect(scale2?.template?.[2]).toBe(ScaleTemplates.dorian[2]);
+      expect(scale2?.template?.[3]).toBe(ScaleTemplates.dorian[3]);
+      expect(scale2?.template?.[4]).toBe(ScaleTemplates.dorian[4]);
+      expect(scale2?.template?.[5]).toBe(ScaleTemplates.dorian[5]);
+      expect(scale2?.template?.[6]).toBe(ScaleTemplates.dorian[6]);
    });
 
    it("should parse a scale with a custom octave", () => {
