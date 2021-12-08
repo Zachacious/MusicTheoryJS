@@ -316,6 +316,11 @@ declare class Scale implements Entity {
      */
     unshifted(): Scale;
     /**
+     * returns the amount that the scale has shifted
+     * (0 if not shifted)
+     */
+    shiftedInterval(): number;
+    /**
      * Scale modes
      */
     ionian(): Scale;

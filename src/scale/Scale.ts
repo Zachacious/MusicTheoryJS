@@ -22,6 +22,7 @@ import shift from "../utils/shift";
 import clone from "../utils/clone";
 import isEqual from "../utils/isEqual";
 import scaleNameLookup from "./scaleNameLookup";
+import scaleNoteNameLookup from "./scaleNoteNameLookup";
 
 //**********************************************************
 /**
@@ -162,6 +163,9 @@ class Scale implements Entity {
          -this._shiftedInterval
       );
 
+      // if allowing this to change the octave is undesirable
+      // then may need to pre wrap the tone and use
+      // the final value
       const notes: Note[] = [];
       let accumulator: number = this.key;
       for (const interval of unshiftedTemplate) {
@@ -203,61 +207,72 @@ class Scale implements Entity {
     */
    //**********************************************************
    public getNoteNames(preferSharpKey = true): string[] {
-      const wholeNotes = [
-         "A",
-         "B",
-         "C",
-         "D",
-         "E",
-         "F",
-         "G",
-         "A",
-         "B",
-         "C",
-         "D",
-         "E",
-         "F",
-         "G",
-      ];
-      let notes = [...this.notes];
-      notes = shift(notes, -this._shiftedInterval); //unshift back to key = 0 index
+      const names: string[] = scaleNoteNameLookup(this, preferSharpKey);
+      return names;
+      // const wholeNotes = [
+      //    "A",
+      //    "B",
+      //    "C",
+      //    "D",
+      //    "E",
+      //    "F",
+      //    "G",
+      //    "A",
+      //    "B",
+      //    "C",
+      //    "D",
+      //    "E",
+      //    "F",
+      //    "G",
+      // ];
+      // const removables = ["B#", "Bs", "Cb", "E#", "Es", "Fb"];
+      // let notes = [...this.notes];
+      // notes = shift(notes, -this._shiftedInterval); //unshift back to key = 0 index
 
-      const notesParts: string[][] = notes.map((note) =>
-         note.toString().split("/")
-      );
+      // const notesParts: string[][] = notes.map((note) =>
+      //    note.toString().split("/")
+      // );
 
-      const noteNames: Array<string> = [];
-      for (const noteParts of notesParts) {
-         if (noteNames.length === 0) {
-            noteNames.push(
-               preferSharpKey ? noteParts[0] : noteParts[noteParts.length - 1]
-            );
-            continue;
-         }
+      // const noteNames: Array<string> = [];
+      // for (const noteParts of notesParts) {
+      //    //remove Cb B# etc
+      //    for (const part of noteParts) {
+      //       if (removables.includes(part)) {
+      //          const index = noteNames.indexOf(part);
+      //          noteNames.splice(index, 1);
+      //       }
+      //    }
 
-         if (noteParts.length === 1) {
-            noteNames.push(noteParts[0]);
-            continue;
-         }
+      //    if (noteNames.length === 0) {
+      //       noteNames.push(
+      //          preferSharpKey ? noteParts[0] : noteParts[noteParts.length - 1]
+      //       );
+      //       continue;
+      //    }
 
-         const lastWholeNote = noteNames[noteNames.length - 1][0];
-         const lastIndex = wholeNotes.indexOf(lastWholeNote);
-         const nextNote = wholeNotes[lastIndex + 1];
+      //    if (noteParts.length === 1) {
+      //       noteNames.push(noteParts[0]);
+      //       continue;
+      //    }
 
-         if (noteParts[0].includes(nextNote)) {
-            noteNames.push(noteParts[0]);
-            continue;
-         }
+      //    const lastWholeNote = noteNames[noteNames.length - 1][0];
+      //    const lastIndex = wholeNotes.indexOf(lastWholeNote);
+      //    const nextNote = wholeNotes[lastIndex + 1];
 
-         noteNames.push(noteParts[noteParts.length - 1]);
-      }
+      //    if (noteParts[0].includes(nextNote)) {
+      //       noteNames.push(noteParts[0]);
+      //       continue;
+      //    }
 
-      const shiftedNoteNames: string[] = shift(
-         noteNames,
-         this._shiftedInterval
-      );
+      //    noteNames.push(noteParts[noteParts.length - 1]);
+      // }
 
-      return shiftedNoteNames;
+      // const shiftedNoteNames: string[] = shift(
+      //    noteNames,
+      //    this._shiftedInterval
+      // );
+
+      // return shiftedNoteNames;
    }
 
    //**********************************************************
@@ -376,6 +391,16 @@ class Scale implements Entity {
 
    //**********************************************************
    /**
+    * returns the amount that the scale has shifted
+    * (0 if not shifted)
+    */
+   //**********************************************************
+   public shiftedInterval(): number {
+      return this._shiftedInterval;
+   }
+
+   //**********************************************************
+   /**
     * Scale modes
     */
    //**********************************************************
@@ -427,8 +452,8 @@ class Scale implements Entity {
     */
    //**********************************************************
    public toString(): string {
-      const scaleNames = scaleNameLookup(this._template);
-      // if unknown then print note names : TODO
+      let scaleNames: string = scaleNameLookup(this._template);
+      if (!scaleNames) scaleNames = this.getNoteNames().join(", ");
       return `${Semitone[this._key]}${this._octave}(${scaleNames})`;
    }
 }

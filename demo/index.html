@@ -11,8 +11,8 @@ Your HTML here
 (function() {
    console.log(window);
    const mt = window.MusicTheory;
-   const note = new mt.Note('A4');
-   console.log(note);
+   const note = new mt.Note('Eb4');
+   console.log(note.toString());
    const instrument = new mt.Instrument();
    console.log(instrument);
    console.log(instrument.getFrequency(note));
@@ -21,7 +21,7 @@ Your HTML here
    const scale = new mt.Scale({key:mt.Semitone.A4, template:mt.ScaleTemplates.major, octave:4});
    console.log(scale);
 
-   const scale2 = new mt.Scale('E2(dorian)');
+   const scale2 = new mt.Scale('A2(dorian)');
    console.log(scale2);
 
    console.log(scale2.toString());
@@ -29,9 +29,6 @@ Your HTML here
    console.log(scale2.notes);
    // console.log()
 
-
-   // issue with scale names coming out wrong when not useing octave
-   // issue with notes coming out wrong and only ever starting with C
 })();
 </script>
 </body>

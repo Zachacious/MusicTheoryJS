@@ -202,7 +202,7 @@
     * creates a lookup table for all notes formatted as [A-G][#|b|s][0-9]
     */
    //**********************************************************
-   const createTable$3 = () => {
+   const createTable$4 = () => {
        const noteTable = {};
        const noteLetters = ["A", "B", "C", "D", "E", "F", "G"];
        const noteModifiers = ["b", "#", "s"];
@@ -228,7 +228,7 @@
     * creates the lookup table as soon as the module is loaded
     */
    //**********************************************************
-   const noteLookup = createTable$3();
+   const noteLookup = createTable$4();
 
    const UNKNOWN_MODIFIER_NOTE_STRINGS = [
        "C",
@@ -246,7 +246,7 @@
    ];
    const SHARP_NOTE_STRINGS = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
    const FLAT_MODIFIER_NOTE_STRINGS = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"];
-   const createTable$2 = () => {
+   const createTable$3 = () => {
        const table = {};
        for (let iTone = TONES_MIN; iTone <= TONES_MAX; ++iTone) {
            for (let iPrev = TONES_MIN; iPrev <= TONES_MAX; ++iPrev) {
@@ -281,7 +281,7 @@
            //    return `${Semitone[tone]}`;
        }
    };
-   const noteStringLookup = createTable$2();
+   const noteStringLookup = createTable$3();
 
    var IDX=256, HEX=[], SIZE=256, BUFFER;
    while (IDX--) HEX[IDX] = (IDX + 256).toString(16).substring(1);
@@ -920,7 +920,7 @@
     * creates a lookup table for all notes formatted as [A-G][#|b|s][0-9]
     */
    //**********************************************************
-   const createTable$1 = () => {
+   const createTable$2 = () => {
        const scaleTable = {};
        const noteLetters = ["A", "B", "C", "D", "E", "F", "G"];
        const noteModifiers = ["b", "#", "s"];
@@ -953,7 +953,7 @@
     * creates the lookup table as soon as the module is loaded
     */
    //**********************************************************
-   const scaleLookup = createTable$1();
+   const scaleLookup = createTable$2();
 
    //**********************************************************
    /**
@@ -1016,14 +1016,156 @@
        const scaleNamesString = scaleNames.join(" AKA ");
        return scaleNamesString;
    };
-   const createTable = () => {
+   const createTable$1 = () => {
        const table = {};
        for (const template of Object.values(ScaleTemplates)) {
            table[JSON.stringify(template)] = scaleNameLookup(template, true);
        }
        return table;
    };
-   const nameTable = createTable();
+   const nameTable = createTable$1();
+
+   const wholeNotes = [
+       "A",
+       "B",
+       "C",
+       "D",
+       "E",
+       "F",
+       "G",
+       "A",
+       "B",
+       "C",
+       "D",
+       "E",
+       "F",
+       "G",
+   ];
+   const removables = ["B#", "Bs", "Cb", "E#", "Es", "Fb"];
+   //**********************************************************
+   /**
+    * attempts to lookup the note name for a scale efficiently
+    */
+   //**********************************************************
+   const scaleNoteNameLookup = (scale, preferSharpKey = true) => {
+       try {
+           const key = `${scale.key}-${scale.octave}-${JSON.stringify(scale.template)}`;
+           const notes = notesLookup[key];
+           if (notes) {
+               return notes;
+           }
+       }
+       catch (e) {
+           console.log(e);
+       }
+       let notes = [...scale.notes];
+       notes = shift(notes, -scale.shiftedInterval()); //unshift back to key = 0 index
+       const notesParts = notes.map((note) => note.toString().split("/"));
+       const noteNames = [];
+       for (const noteParts of notesParts) {
+           //remove Cb B# etc
+           for (const part of noteParts) {
+               if (removables.includes(part)) {
+                   const index = noteNames.indexOf(part);
+                   noteNames.splice(index, 1);
+               }
+           }
+           if (noteNames.length === 0) {
+               noteNames.push(preferSharpKey ? noteParts[0] : noteParts[noteParts.length - 1]);
+               continue;
+           }
+           if (noteParts.length === 1) {
+               noteNames.push(noteParts[0]);
+               continue;
+           }
+           const lastWholeNote = noteNames[noteNames.length - 1][0];
+           const lastIndex = wholeNotes.indexOf(lastWholeNote);
+           const nextNote = wholeNotes[lastIndex + 1];
+           if (noteParts[0].includes(nextNote)) {
+               noteNames.push(noteParts[0]);
+               continue;
+           }
+           noteNames.push(noteParts[noteParts.length - 1]);
+       }
+       const shiftedNoteNames = shift(noteNames, scale.shiftedInterval());
+       return shiftedNoteNames;
+   };
+   //**********************************************************
+   /**
+    * creates a lookup table for all notes formatted as [A-G][#|b|s][0-9]
+    */
+   //**********************************************************
+   const createTable = () => {
+       const scaleTable = {};
+       for (let itone = TONES_MIN; itone < TONES_MIN + OCTAVE_MAX; itone++) {
+           for (let ioctave = OCTAVE_MIN; ioctave <= OCTAVE_MAX; ioctave++) {
+               for (const template of Object.values(ScaleTemplates)) {
+                   const scale = new Scale({
+                       key: itone,
+                       template: template,
+                       octave: ioctave,
+                   });
+                   scaleTable[`${itone}-${ioctave}-${JSON.stringify(template)}`] =
+                       scaleNoteNameLookup(scale);
+               }
+           }
+       }
+       return scaleTable;
+   };
+   // const createTable = (): { [key: string]: string[] } => {
+   //    const scaleTable: { [key: string]: string[] } = {};
+   //    const noteLetters = ["A", "B", "C", "D", "E", "F", "G"];
+   //    const noteTones = [9, 11, 0, 2, 4, 5, 7];
+   //    const noteModifiers = ["b", "#", "s"];
+   //    const noteModValues = [-1, 1, 1];
+   //    const templates = Object.keys(ScaleTemplates);
+   //    for (const template of templates) {
+   //       for (const [index, noteLabel] of noteLetters.entries()) {
+   //          //ex A(minor)
+   //          const scale1 = new Scale({
+   //             key: noteTones[index],
+   //             template: ScaleTemplates[template],
+   //          });
+   //          scaleTable[`${noteLabel}(${template})`] = scaleNoteNameLookup(scale1); // 'C' for example
+   //          for (const [modIndex, mod] of noteModifiers.entries()) {
+   //             const scale2 = new Scale({
+   //                key: noteTones[index] + noteModValues[modIndex],
+   //                template: ScaleTemplates[template],
+   //             });
+   //             const key = `${noteLabel}${mod}(${template})`;
+   //             // ex A#(minor)
+   //             scaleTable[key] = scaleNoteNameLookup(scale2); // 'C#' for example
+   //          }
+   //          for (let iOctave = OCTAVE_MIN; iOctave < OCTAVE_MAX; ++iOctave) {
+   //             const scale3 = new Scale({
+   //                key: noteTones[index],
+   //                template: ScaleTemplates[template],
+   //                octave: iOctave,
+   //             });
+   //             const key = `${noteLabel}${iOctave}(${template})`;
+   //             // ex A4(minor)
+   //             scaleTable[key] = scaleNoteNameLookup(scale3); // 'C4' for example
+   //             for (const [modIndex, mod] of noteModifiers.entries()) {
+   //                const scale4 = new Scale({
+   //                   key: noteTones[index] + noteModValues[modIndex],
+   //                   template: ScaleTemplates[template],
+   //                   octave: iOctave,
+   //                });
+   //                const key = `${noteLabel}${mod}${iOctave}(${template})`;
+   //                // ex A#4(minor)
+   //                scaleTable[key] = scaleNoteNameLookup(scale4); // 'C#4' for example
+   //             }
+   //          }
+   //       }
+   //    }
+   //    return scaleTable;
+   // };
+   //**********************************************************
+   /**
+    * creates the lookup table as soon as the module is loaded
+    */
+   //**********************************************************
+   const notesLookup = createTable();
 
    //**********************************************************
    /**
@@ -1149,13 +1291,15 @@
        generateNotes() {
            // use the template unshifted for simplicity
            const unshiftedTemplate = shift(this._template, -this._shiftedInterval);
+           // if allowing this to change the octave is undesirable
+           // then may need to pre wrap the tone and use
+           // the final value
            const notes = [];
            let accumulator = this.key;
            for (const interval of unshiftedTemplate) {
-               const tone = wrap(interval === 0
+               const tone = interval === 0
                    ? (accumulator = this.key)
-                   : (accumulator += interval), TONES_MIN, TONES_MAX).value;
-               console.log(tone, interval);
+                   : (accumulator += interval);
                const note = new Note({
                    semitone: tone,
                    octave: this.octave,
@@ -1180,46 +1324,63 @@
         */
        //**********************************************************
        getNoteNames(preferSharpKey = true) {
-           const wholeNotes = [
-               "A",
-               "B",
-               "C",
-               "D",
-               "E",
-               "F",
-               "G",
-               "A",
-               "B",
-               "C",
-               "D",
-               "E",
-               "F",
-               "G",
-           ];
-           let notes = [...this.notes];
-           notes = shift(notes, -this._shiftedInterval); //unshift back to key = 0 index
-           const notesParts = notes.map((note) => note.toString().split("/"));
-           const noteNames = [];
-           for (const noteParts of notesParts) {
-               if (noteNames.length === 0) {
-                   noteNames.push(preferSharpKey ? noteParts[0] : noteParts[noteParts.length - 1]);
-                   continue;
-               }
-               if (noteParts.length === 1) {
-                   noteNames.push(noteParts[0]);
-                   continue;
-               }
-               const lastWholeNote = noteNames[noteNames.length - 1][0];
-               const lastIndex = wholeNotes.indexOf(lastWholeNote);
-               const nextNote = wholeNotes[lastIndex + 1];
-               if (noteParts[0].includes(nextNote)) {
-                   noteNames.push(noteParts[0]);
-                   continue;
-               }
-               noteNames.push(noteParts[noteParts.length - 1]);
-           }
-           const shiftedNoteNames = shift(noteNames, this._shiftedInterval);
-           return shiftedNoteNames;
+           const names = scaleNoteNameLookup(this, preferSharpKey);
+           return names;
+           // const wholeNotes = [
+           //    "A",
+           //    "B",
+           //    "C",
+           //    "D",
+           //    "E",
+           //    "F",
+           //    "G",
+           //    "A",
+           //    "B",
+           //    "C",
+           //    "D",
+           //    "E",
+           //    "F",
+           //    "G",
+           // ];
+           // const removables = ["B#", "Bs", "Cb", "E#", "Es", "Fb"];
+           // let notes = [...this.notes];
+           // notes = shift(notes, -this._shiftedInterval); //unshift back to key = 0 index
+           // const notesParts: string[][] = notes.map((note) =>
+           //    note.toString().split("/")
+           // );
+           // const noteNames: Array<string> = [];
+           // for (const noteParts of notesParts) {
+           //    //remove Cb B# etc
+           //    for (const part of noteParts) {
+           //       if (removables.includes(part)) {
+           //          const index = noteNames.indexOf(part);
+           //          noteNames.splice(index, 1);
+           //       }
+           //    }
+           //    if (noteNames.length === 0) {
+           //       noteNames.push(
+           //          preferSharpKey ? noteParts[0] : noteParts[noteParts.length - 1]
+           //       );
+           //       continue;
+           //    }
+           //    if (noteParts.length === 1) {
+           //       noteNames.push(noteParts[0]);
+           //       continue;
+           //    }
+           //    const lastWholeNote = noteNames[noteNames.length - 1][0];
+           //    const lastIndex = wholeNotes.indexOf(lastWholeNote);
+           //    const nextNote = wholeNotes[lastIndex + 1];
+           //    if (noteParts[0].includes(nextNote)) {
+           //       noteNames.push(noteParts[0]);
+           //       continue;
+           //    }
+           //    noteNames.push(noteParts[noteParts.length - 1]);
+           // }
+           // const shiftedNoteNames: string[] = shift(
+           //    noteNames,
+           //    this._shiftedInterval
+           // );
+           // return shiftedNoteNames;
        }
        //**********************************************************
        /**
@@ -1323,6 +1484,15 @@
        }
        //**********************************************************
        /**
+        * returns the amount that the scale has shifted
+        * (0 if not shifted)
+        */
+       //**********************************************************
+       shiftedInterval() {
+           return this._shiftedInterval;
+       }
+       //**********************************************************
+       /**
         * Scale modes
         */
        //**********************************************************
@@ -1367,8 +1537,9 @@
         */
        //**********************************************************
        toString() {
-           const scaleNames = scaleNameLookup(this._template);
-           // if unknown then print note names : TODO
+           let scaleNames = scaleNameLookup(this._template);
+           if (!scaleNames)
+               scaleNames = this.getNoteNames().join(", ");
            return `${Semitone$1[this._key]}${this._octave}(${scaleNames})`;
        }
    }
