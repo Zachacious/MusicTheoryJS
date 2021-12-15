@@ -6,19 +6,20 @@ import {
    OCTAVE_MIN,
 } from "../Note/noteConstants";
 import { getWholeToneFromName } from "../Semitone";
-import Modifier, { parseModifier } from "../Modifier";
+import { parseModifier } from "../Modifier";
 import wrap from "../utils/wrap";
 import clamp from "../utils/clamp";
 import ScaleTemplates from "./ScaleTemplates";
+import { registerInitializer } from "../Initializer/Initializer";
 
 //**********************************************************
 /**
  * Regex for matching note name, modifier, and octave
  */
 //**********************************************************
-const nameRegex = /([A-G])(?![^\(]*\))/g;
-const modifierRegex = /(#|s|b)(?![^\(]*\))/g;
-const octaveRegex = /([0-9]+)(?![^\(]*\))/g;
+const nameRegex = /([A-G])(?![^(]*\))/g;
+const modifierRegex = /(#|s|b)(?![^(]*\))/g;
+const octaveRegex = /([0-9]+)(?![^(]*\))/g;
 const scaleNameRegex = /(\([a-zA-Z]{2,}\))/g;
 
 //**********************************************************
@@ -173,7 +174,11 @@ const createTable = (): { [key: string]: ScaleInitializer } => {
  * creates the lookup table as soon as the module is loaded
  */
 //**********************************************************
-const scaleLookup: { [key: string]: ScaleInitializer } = createTable();
-// console.log(scaleLookup);
+let scaleLookup: { [key: string]: ScaleInitializer } = {};
+
+registerInitializer(() => {
+   scaleLookup = createTable();
+   console.log("Scale Lookup Table Created");
+});
 
 export default parseScale;

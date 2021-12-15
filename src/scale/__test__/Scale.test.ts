@@ -575,5 +575,3 @@ describe("Scale", () => {
       });
    });
 });
-
-// eliminate b# cb e# and fb from names

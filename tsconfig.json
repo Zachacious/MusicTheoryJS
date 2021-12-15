@@ -11,6 +11,8 @@
       "experimentalDecorators": true,
       "declaration": true,
       "target": "ESNext",
+      "module": "esnext",
+      "moduleResolution": "node",
     },
     "include": [
       "src/**/*"

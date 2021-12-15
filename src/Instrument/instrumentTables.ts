@@ -12,7 +12,8 @@ const NUM_SEMITONES = 12;
  * Calculates the midi key for a given octave and semitone.
  */
 //**********************************************************
-const calcMidiKey = (octave: number, semitone: number): number => MIDIKEY_START + octave * NUM_SEMITONES + semitone;
+const calcMidiKey = (octave: number, semitone: number): number =>
+   MIDIKEY_START + octave * NUM_SEMITONES + semitone;
 
 //**********************************************************
 /**
@@ -20,7 +21,8 @@ const calcMidiKey = (octave: number, semitone: number): number => MIDIKEY_START 
  * a tuning for a4.
  */
 //**********************************************************
-const calcFrequency = (midiKey: number, a4Tuning: number): number => 2 ** ((midiKey - 69) / 12) * a4Tuning;
+const calcFrequency = (midiKey: number, a4Tuning: number): number =>
+   2 ** ((midiKey - 69) / 12) * a4Tuning;
 
 //**********************************************************
 /**
@@ -37,7 +39,7 @@ type Tables = {
  * Creates and return lookup tables for midikey and frequency.
  */
 //**********************************************************
-const createTables: Function = (a4Tuning: number = 440): Tables => {
+const createTables = (a4Tuning: number = 440): Tables => {
    //**********************************************************
    /**
     * Maps octave and semitone to note frequency(hertz).

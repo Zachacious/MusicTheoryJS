@@ -221,6 +221,7 @@ class Note {
     */
    //**********************************************************
    public toString(): string {
+      console.log(this._tone, this._prevSemitone);
       return (
          noteStringLookup[`${this._tone}-${this._prevSemitone}`] +
          `${this._octave}`

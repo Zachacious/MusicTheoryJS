@@ -1,4 +1,4 @@
-import Semitone, { getNameForSemitone } from "../Semitone";
+import Semitone from "../Semitone";
 import wrap from "../utils/wrap";
 import clamp from "../utils/clamp";
 import {
@@ -15,6 +15,7 @@ import ScaleInitializer from "./ScaleInitializer";
 import Note from "../Note/Note";
 import ScaleTemplates from "./ScaleTemplates";
 import { uid } from "uid";
+// import * as uid from 'uid';
 // import Copyable from "../composables/Copyable";
 import Entity from "../Entity";
 import parseScale from "./scaleParser";
@@ -22,7 +23,8 @@ import shift from "../utils/shift";
 import clone from "../utils/clone";
 import isEqual from "../utils/isEqual";
 import scaleNameLookup from "./scaleNameLookup";
-import scaleNoteNameLookup from "./scaleNoteNameLookup";
+import { registerInitializer } from "../Initializer/Initializer";
+// import scaleNoteNameLookup from "./scaleNoteNameLookup";
 
 //**********************************************************
 /**
@@ -207,72 +209,8 @@ class Scale implements Entity {
     */
    //**********************************************************
    public getNoteNames(preferSharpKey = true): string[] {
-      const names: string[] = scaleNoteNameLookup(this, preferSharpKey);
+      const names: string[] = Scale.scaleNoteNameLookup(this, preferSharpKey);
       return names;
-      // const wholeNotes = [
-      //    "A",
-      //    "B",
-      //    "C",
-      //    "D",
-      //    "E",
-      //    "F",
-      //    "G",
-      //    "A",
-      //    "B",
-      //    "C",
-      //    "D",
-      //    "E",
-      //    "F",
-      //    "G",
-      // ];
-      // const removables = ["B#", "Bs", "Cb", "E#", "Es", "Fb"];
-      // let notes = [...this.notes];
-      // notes = shift(notes, -this._shiftedInterval); //unshift back to key = 0 index
-
-      // const notesParts: string[][] = notes.map((note) =>
-      //    note.toString().split("/")
-      // );
-
-      // const noteNames: Array<string> = [];
-      // for (const noteParts of notesParts) {
-      //    //remove Cb B# etc
-      //    for (const part of noteParts) {
-      //       if (removables.includes(part)) {
-      //          const index = noteNames.indexOf(part);
-      //          noteNames.splice(index, 1);
-      //       }
-      //    }
-
-      //    if (noteNames.length === 0) {
-      //       noteNames.push(
-      //          preferSharpKey ? noteParts[0] : noteParts[noteParts.length - 1]
-      //       );
-      //       continue;
-      //    }
-
-      //    if (noteParts.length === 1) {
-      //       noteNames.push(noteParts[0]);
-      //       continue;
-      //    }
-
-      //    const lastWholeNote = noteNames[noteNames.length - 1][0];
-      //    const lastIndex = wholeNotes.indexOf(lastWholeNote);
-      //    const nextNote = wholeNotes[lastIndex + 1];
-
-      //    if (noteParts[0].includes(nextNote)) {
-      //       noteNames.push(noteParts[0]);
-      //       continue;
-      //    }
-
-      //    noteNames.push(noteParts[noteParts.length - 1]);
-      // }
-
-      // const shiftedNoteNames: string[] = shift(
-      //    noteNames,
-      //    this._shiftedInterval
-      // );
-
-      // return shiftedNoteNames;
    }
 
    //**********************************************************
@@ -456,7 +394,142 @@ class Scale implements Entity {
       if (!scaleNames) scaleNames = this.getNoteNames().join(", ");
       return `${Semitone[this._key]}${this._octave}(${scaleNames})`;
    }
+
+   //**********************************************************
+   /**
+    * attempts to lookup the note name for a scale efficiently
+    */
+   //**********************************************************
+   private static scaleNoteNameLookup(
+      scale: Scale,
+      preferSharpKey: boolean = true
+   ) {
+      try {
+         const key = `${scale.key}-${scale.octave}-${JSON.stringify(
+            scale.template
+         )}`;
+         const notes = this._notesLookup[key];
+         if (notes) {
+            return notes;
+         }
+      } catch (e) {
+         // do nothing
+      }
+
+      let notes = [...scale.notes];
+      notes = shift(notes, -scale.shiftedInterval()); //unshift back to key = 0 index
+
+      const notesParts: string[][] = notes.map((note) =>
+         note.toString().split("/")
+      );
+
+      const removables = ["B#", "Bs", "Cb", "E#", "Es", "Fb"];
+
+      const noteNames: Array<string> = [];
+      for (const noteParts of notesParts) {
+         //remove Cb B# etc
+         for (const part of noteParts) {
+            if (removables.includes(part)) {
+               const index = noteNames.indexOf(part);
+               noteNames.splice(index, 1);
+            }
+         }
+
+         if (noteNames.length === 0) {
+            noteNames.push(
+               preferSharpKey ? noteParts[0] : noteParts[noteParts.length - 1]
+            );
+            continue;
+         }
+
+         if (noteParts.length === 1) {
+            noteNames.push(noteParts[0]);
+            continue;
+         }
+
+         const wholeNotes = [
+            "A",
+            "B",
+            "C",
+            "D",
+            "E",
+            "F",
+            "G",
+            "A",
+            "B",
+            "C",
+            "D",
+            "E",
+            "F",
+            "G",
+         ];
+
+         const lastWholeNote = noteNames[noteNames.length - 1][0];
+         const lastIndex = wholeNotes.indexOf(lastWholeNote);
+         const nextNote = wholeNotes[lastIndex + 1];
+
+         if (noteParts[0].includes(nextNote)) {
+            noteNames.push(noteParts[0]);
+            continue;
+         }
+
+         noteNames.push(noteParts[noteParts.length - 1]);
+      }
+
+      const shiftedNoteNames: string[] = shift(
+         noteNames,
+         scale.shiftedInterval()
+      );
+
+      return shiftedNoteNames;
+   }
+   //**********************************************************
+   /**
+    * creates a lookup table for all notes formatted as [A-G][#|b|s][0-9]
+    */
+   //**********************************************************
+   private static createNotesLookupTable(): { [key: string]: string[] } {
+      const scaleTable: { [key: string]: string[] } = {};
+
+      for (let itone = TONES_MIN; itone < TONES_MIN + OCTAVE_MAX; itone++) {
+         for (let ioctave = OCTAVE_MIN; ioctave <= OCTAVE_MAX; ioctave++) {
+            for (const template of Object.values(ScaleTemplates)) {
+               const scale = new Scale({
+                  key: itone,
+                  template: template,
+                  octave: ioctave,
+               });
+               scaleTable[`${itone}-${ioctave}-${JSON.stringify(template)}`] =
+                  Scale.scaleNoteNameLookup(scale);
+            }
+         }
+      }
+
+      return scaleTable;
+   }
+
+   //**********************************************************
+   /**
+    * creates the lookup table as soon as the module is loaded
+    */
+   //**********************************************************
+   private static _notesLookup: { [key: string]: string[] } = {};
+   // this.createNotesLookupTable();
+
+   //**********************************************************
+   /**
+    * used to initialize the lookup table
+    */
+   //**********************************************************
+   public static async init() {
+      Scale._notesLookup = Scale.createNotesLookupTable();
+      console.log("initializing scale lookup table");
+   }
 }
+
+registerInitializer(Scale.init);
 
 export default Scale;
 export type { ScaleInitializer };
+
+// look at order of initialized - not working correctly

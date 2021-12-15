@@ -1,3 +1,4 @@
+import { registerInitializer } from "../Initializer/Initializer";
 import isEqual from "../utils/isEqual";
 import ScaleTemplates from "./ScaleTemplates";
 
@@ -34,6 +35,11 @@ const createTable = (): { [key: string]: string } => {
    return table;
 };
 
-const nameTable = createTable();
+let nameTable: { [key: string]: string } = {};
+
+registerInitializer(() => {
+   console.log("Initializing Scale Name Lookup");
+   nameTable = createTable();
+});
 
 export default scaleNameLookup;

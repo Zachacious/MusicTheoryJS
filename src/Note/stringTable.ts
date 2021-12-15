@@ -1,6 +1,13 @@
-import { MODIFIED_SEMITONES, TONES_MAX, TONES_MIN, OCTAVE_MAX, OCTAVE_MIN } from "./noteConstants";
+import {
+   MODIFIED_SEMITONES,
+   TONES_MAX,
+   TONES_MIN,
+   OCTAVE_MAX,
+   OCTAVE_MIN,
+} from "./noteConstants";
 import Semitone from "../Semitone";
 import wrap from "../utils/wrap";
+import { registerInitializer } from "../Initializer/Initializer";
 
 const UNKNOWN_MODIFIER_NOTE_STRINGS: Array<string> = [
    "C",
@@ -17,9 +24,35 @@ const UNKNOWN_MODIFIER_NOTE_STRINGS: Array<string> = [
    "B",
 ];
 
-const SHARP_NOTE_STRINGS: Array<string> = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+const SHARP_NOTE_STRINGS: Array<string> = [
+   "C",
+   "C#",
+   "D",
+   "D#",
+   "E",
+   "F",
+   "F#",
+   "G",
+   "G#",
+   "A",
+   "A#",
+   "B",
+];
 
-const FLAT_MODIFIER_NOTE_STRINGS: Array<string> = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"];
+const FLAT_MODIFIER_NOTE_STRINGS: Array<string> = [
+   "C",
+   "Db",
+   "D",
+   "Eb",
+   "E",
+   "F",
+   "Gb",
+   "G",
+   "Ab",
+   "A",
+   "Bb",
+   "B",
+];
 
 const createTable = (): { [key: string]: string } => {
    const table: { [key: string]: string } = {};
@@ -30,9 +63,11 @@ const createTable = (): { [key: string]: string } => {
          if (MODIFIED_SEMITONES.includes(iTone)) {
             modifier = "-"; // has an unknown modifier
             // if is flat
-            if (wrap(iTone + 1, TONES_MIN, TONES_MAX).value === iPrev) modifier = "b";
+            if (wrap(iTone + 1, TONES_MIN, TONES_MAX).value === iPrev)
+               modifier = "b";
             // is sharp
-            if (wrap(iTone - 1, TONES_MIN, TONES_MAX).value === iPrev) modifier = "#";
+            if (wrap(iTone - 1, TONES_MIN, TONES_MAX).value === iPrev)
+               modifier = "#";
          }
 
          // get note name from table
@@ -57,6 +92,10 @@ const getNoteLabel = (tone: number, modifier: string): string => {
    }
 };
 
-const noteStringLookup: { [key: string]: string } = createTable();
+let noteStringLookup: { [key: string]: string } = {};
+
+registerInitializer(() => {
+   noteStringLookup = createTable();
+});
 
 export default noteStringLookup;

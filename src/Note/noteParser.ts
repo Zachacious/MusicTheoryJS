@@ -4,6 +4,7 @@ import { getWholeToneFromName } from "../Semitone";
 import Modifier, { parseModifier } from "../Modifier";
 import wrap from "../utils/wrap";
 import clamp from "../utils/clamp";
+import { registerInitializer } from "../Initializer/Initializer";
 
 //**********************************************************
 /**
@@ -135,6 +136,11 @@ const createTable = (): { [key: string]: NoteInitializer } => {
  * creates the lookup table as soon as the module is loaded
  */
 //**********************************************************
-const noteLookup: { [key: string]: NoteInitializer } = createTable();
+let noteLookup: { [key: string]: NoteInitializer } = {};
+
+registerInitializer(() => {
+   noteLookup = createTable();
+   console.log("Creating note lookup table");
+});
 
 export default parseNote;

@@ -114,6 +114,22 @@ declare class Scale implements Entity {
      * returns string version of the scale
      */
     toString(): string;
+    /**
+     * attempts to lookup the note name for a scale efficiently
+     */
+    private static scaleNoteNameLookup;
+    /**
+     * creates a lookup table for all notes formatted as [A-G][#|b|s][0-9]
+     */
+    private static createNotesLookupTable;
+    /**
+     * creates the lookup table as soon as the module is loaded
+     */
+    private static _notesLookup;
+    /**
+     * used to initialize the lookup table
+     */
+    static init(): Promise<void>;
 }
 export default Scale;
 export type { ScaleInitializer };
