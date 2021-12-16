@@ -7,7 +7,7 @@ const scaleNameLookup = (
    supressWarning: boolean = false
 ) => {
    try {
-      const result = nameTable[JSON.stringify(template)];
+      const result = nameTable(JSON.stringify(template));
       if (result) return result;
    } catch (e) {
       if (!supressWarning) console.warn(e);
@@ -35,11 +35,18 @@ const createTable = (): { [key: string]: string } => {
    return table;
 };
 
-let nameTable: { [key: string]: string } = {};
+let _nameTable: { [key: string]: string } = {};
+
+const nameTable = (key: string) => {
+   if (!_nameTable[key]) {
+      _nameTable = createTable();
+   }
+
+   return _nameTable[key];
+};
 
 registerInitializer(() => {
-   console.log("Initializing Scale Name Lookup");
-   nameTable = createTable();
+   _nameTable = createTable();
 });
 
 export default scaleNameLookup;

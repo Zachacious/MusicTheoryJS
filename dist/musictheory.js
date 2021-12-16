@@ -140,7 +140,6 @@
    const init = (initCB) => {
        for (const initializer of initializers) {
            initializer();
-           console.log("Initializer ran");
        }
        // initializers.forEach(async (initializer) => await initializer());
        if (initCB)
@@ -162,7 +161,7 @@
    //**********************************************************
    const parseNote = (note, supressWarning = false) => {
        try {
-           const result = noteLookup[note];
+           const result = noteLookup(note);
            if (result) {
                return result;
            }
@@ -244,10 +243,15 @@
     * creates the lookup table as soon as the module is loaded
     */
    //**********************************************************
-   let noteLookup = {};
+   let _noteLookup = {};
+   const noteLookup = (key) => {
+       if (!_noteLookup) {
+           _noteLookup = createTable$3();
+       }
+       return _noteLookup[key];
+   };
    registerInitializer(() => {
-       noteLookup = createTable$3();
-       console.log("Creating note lookup table");
+       _noteLookup = createTable$3();
    });
 
    const UNKNOWN_MODIFIER_NOTE_STRINGS = [
@@ -327,11 +331,16 @@
            //    return `${Semitone[tone]}`;
        }
    };
-   let noteStringLookup = {};
+   let _noteStringLookup = {};
+   const noteStringLookup = (key) => {
+       if (!_noteStringLookup) {
+           _noteStringLookup = createTable$2();
+       }
+       return _noteStringLookup[key];
+   };
    registerInitializer(() => {
-       noteStringLookup = createTable$2();
+       _noteStringLookup = createTable$2();
    });
-   var noteStringLookup$1 = noteStringLookup;
 
    var IDX=256, HEX=[], SIZE=256, BUFFER;
    while (IDX--) HEX[IDX] = (IDX + 256).toString(16).substring(1);
@@ -533,8 +542,8 @@
         */
        //**********************************************************
        toString() {
-           console.log(this._tone, this._prevSemitone);
-           return (noteStringLookup$1[`${this._tone}-${this._prevSemitone}`] +
+           // console.log(noteStringLookup);
+           return (noteStringLookup(`${this._tone}-${this._prevSemitone}`) +
                `${this._octave}`);
        }
        //**********************************************************
@@ -895,7 +904,7 @@
    //**********************************************************
    const parseScale = (scale, supressWarning = false) => {
        try {
-           const result = scaleLookup[scale];
+           const result = scaleLookup(scale);
            if (result) {
                return result;
            }
@@ -1004,10 +1013,15 @@
     * creates the lookup table as soon as the module is loaded
     */
    //**********************************************************
-   let scaleLookup = {};
+   let _scaleLookup = {};
+   const scaleLookup = (key) => {
+       if (!_scaleLookup) {
+           _scaleLookup = createTable$1();
+       }
+       return _scaleLookup[key];
+   };
    registerInitializer(() => {
-       scaleLookup = createTable$1();
-       console.log("Scale Lookup Table Created");
+       _scaleLookup = createTable$1();
    });
 
    //**********************************************************
@@ -1052,7 +1066,7 @@
 
    const scaleNameLookup = (template, supressWarning = false) => {
        try {
-           const result = nameTable[JSON.stringify(template)];
+           const result = nameTable(JSON.stringify(template));
            if (result)
                return result;
        }
@@ -1078,10 +1092,15 @@
        }
        return table;
    };
-   let nameTable = {};
+   let _nameTable = {};
+   const nameTable = (key) => {
+       if (!_nameTable[key]) {
+           _nameTable = createTable();
+       }
+       return _nameTable[key];
+   };
    registerInitializer(() => {
-       console.log("Initializing Scale Name Lookup");
-       nameTable = createTable();
+       _nameTable = createTable();
    });
 
    // import scaleNoteNameLookup from "./scaleNoteNameLookup";

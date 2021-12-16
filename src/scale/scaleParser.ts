@@ -32,7 +32,7 @@ const parseScale = (
    supressWarning: boolean = false
 ): ScaleInitializer => {
    try {
-      const result: ScaleInitializer = scaleLookup[scale];
+      const result: ScaleInitializer = scaleLookup(scale);
       if (result) {
          return result;
       }
@@ -174,11 +174,18 @@ const createTable = (): { [key: string]: ScaleInitializer } => {
  * creates the lookup table as soon as the module is loaded
  */
 //**********************************************************
-let scaleLookup: { [key: string]: ScaleInitializer } = {};
+let _scaleLookup: { [key: string]: ScaleInitializer } = {};
+
+const scaleLookup = (key: string): ScaleInitializer => {
+   if (!_scaleLookup) {
+      _scaleLookup = createTable();
+   }
+
+   return _scaleLookup[key];
+};
 
 registerInitializer(() => {
-   scaleLookup = createTable();
-   console.log("Scale Lookup Table Created");
+   _scaleLookup = createTable();
 });
 
 export default parseScale;

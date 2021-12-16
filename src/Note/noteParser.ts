@@ -1,7 +1,7 @@
 import NoteInitializer from "./NoteInitializer";
 import { TONES_MAX, TONES_MIN, OCTAVE_MAX, OCTAVE_MIN } from "./noteConstants";
 import { getWholeToneFromName } from "../Semitone";
-import Modifier, { parseModifier } from "../Modifier";
+import { parseModifier } from "../Modifier";
 import wrap from "../utils/wrap";
 import clamp from "../utils/clamp";
 import { registerInitializer } from "../Initializer/Initializer";
@@ -25,7 +25,7 @@ const parseNote = (
    supressWarning: boolean = false
 ): NoteInitializer => {
    try {
-      const result: NoteInitializer = noteLookup[note];
+      const result: NoteInitializer = noteLookup(note);
       if (result) {
          return result;
       }
@@ -136,11 +136,17 @@ const createTable = (): { [key: string]: NoteInitializer } => {
  * creates the lookup table as soon as the module is loaded
  */
 //**********************************************************
-let noteLookup: { [key: string]: NoteInitializer } = {};
+let _noteLookup: { [key: string]: NoteInitializer } = {};
+
+const noteLookup = (key: string) => {
+   if (!_noteLookup) {
+      _noteLookup = createTable();
+   }
+   return _noteLookup[key];
+};
 
 registerInitializer(() => {
-   noteLookup = createTable();
-   console.log("Creating note lookup table");
+   _noteLookup = createTable();
 });
 
 export default parseNote;

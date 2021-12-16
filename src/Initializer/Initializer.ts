@@ -8,10 +8,17 @@ const registerInitializer = (initializer: { (): void }) => {
 const init = (initCB: () => (void | Promise<void>) | undefined) => {
    for (const initializer of initializers) {
       initializer();
-      console.log("Initializer ran");
    }
    // initializers.forEach(async (initializer) => await initializer());
    if (initCB) initCB();
 };
 
-export { registerInitializer, init };
+const initAsync = async (initCB: () => (void | Promise<void>) | undefined) => {
+   for (const initializer of initializers) {
+      initializer();
+   }
+   // initializers.forEach(async (initializer) => await initializer());
+   if (initCB) initCB();
+};
+
+export { registerInitializer, init, initAsync };

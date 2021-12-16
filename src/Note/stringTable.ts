@@ -92,10 +92,18 @@ const getNoteLabel = (tone: number, modifier: string): string => {
    }
 };
 
-let noteStringLookup: { [key: string]: string } = {};
+let _noteStringLookup: { [key: string]: string } = {};
+
+const noteStringLookup = (key: string) => {
+   if (!_noteStringLookup) {
+      _noteStringLookup = createTable();
+   }
+
+   return _noteStringLookup[key];
+};
 
 registerInitializer(() => {
-   noteStringLookup = createTable();
+   _noteStringLookup = createTable();
 });
 
 export default noteStringLookup;

@@ -1,4 +1,2 @@
-declare let noteStringLookup: {
-    [key: string]: string;
-};
+declare const noteStringLookup: (key: string) => string;
 export default noteStringLookup;

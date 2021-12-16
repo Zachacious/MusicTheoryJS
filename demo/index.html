@@ -11,7 +11,8 @@ Your HTML here
 (function() {
    console.log(window);
    const mt = window.MusicTheory;
-   mt.init();
+   mt.init(()=>{
+   });
    const note = new mt.Note('Eb4');
    console.log(note.toString());
    const instrument = new mt.Instrument();

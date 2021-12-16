@@ -523,7 +523,6 @@ class Scale implements Entity {
    //**********************************************************
    public static async init() {
       Scale._notesLookup = Scale.createNotesLookupTable();
-      console.log("initializing scale lookup table");
    }
 }
 
