@@ -1,6 +1,7 @@
 import Semitone from "../Semitone";
 import NoteInitializer from "./NoteInitializer";
 import { TONES_MAX, TONES_MIN, OCTAVE_MAX, OCTAVE_MIN } from "./noteConstants";
+import Entity from "../Entity";
 /**
  * A musical note.
  * The primary fields are the semitone and octave.
@@ -9,7 +10,7 @@ import { TONES_MAX, TONES_MIN, OCTAVE_MAX, OCTAVE_MIN } from "./noteConstants";
  * wrap the semitone to the range [0, 11] and change the octave depending
  * on how many times the semitone has been wrapped.
  */
-declare class Note {
+declare class Note implements Entity {
     /**
      * Creates a new Note instance.
      */

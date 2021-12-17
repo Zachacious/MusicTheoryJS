@@ -145,6 +145,14 @@
        if (initCB)
            initCB();
    };
+   const initAsync = async (initCB) => {
+       for (const initializer of initializers) {
+           initializer();
+       }
+       // initializers.forEach(async (initializer) => await initializer());
+       if (initCB)
+           initCB();
+   };
 
    //**********************************************************
    /**
@@ -678,6 +686,12 @@
         */
        //**********************************************************
        id = uid();
+       copy() {
+           return new Tuning(this._a4);
+       }
+       equals(other) {
+           return this._a4 === other._a4;
+       }
        //**********************************************************
        /**
         * a4 Tuning
@@ -760,6 +774,12 @@
         */
        //**********************************************************
        id = uid();
+       copy() {
+           return new Instrument(this.tuning.a4);
+       }
+       equals(other) {
+           return this.tuning.equals(other.tuning);
+       }
        //**********************************************************
        /**
         * returns the frequency of the given note
@@ -1525,7 +1545,6 @@
        //**********************************************************
        static async init() {
            Scale._notesLookup = Scale.createNotesLookupTable();
-           console.log("initializing scale lookup table");
        }
    }
    registerInitializer(Scale.init);
@@ -1538,6 +1557,7 @@
    exports.ScaleTemplates = ScaleTemplates;
    exports.Semitone = Semitone$1;
    exports.init = init;
+   exports.initAsync = initAsync;
 
    Object.defineProperty(exports, '__esModule', { value: true });
 

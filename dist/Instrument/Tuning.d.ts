@@ -1,10 +1,11 @@
+import Entity from "../Entity";
 /**
  * Tuning component used by Instrument class
  * - containes the a4 tuning - default is 440Hz
  * - builds lookup tables for midi key and frequency
  * - based on the tuning
  */
-declare class Tuning {
+declare class Tuning implements Entity {
     /**
      * Creates the object and builds the lookup tables.
      */
@@ -13,6 +14,8 @@ declare class Tuning {
      * unique id for this instance
      */
     id: string;
+    copy(): Tuning;
+    equals(other: Tuning): boolean;
     /**
      * a4 Tuning
      */

@@ -2,6 +2,7 @@ import Tuning from "./Tuning";
 import Note from "../Note/Note";
 // import Identifiable from "../composables/Identifiable";
 import { uid } from "uid";
+import Entity from "../Entity";
 
 //**********************************************************
 /**
@@ -11,7 +12,7 @@ import { uid } from "uid";
  */
 //**********************************************************
 // @Identifiable() // generates a unique id for each instance - use id() to get it
-class Instrument {
+class Instrument implements Entity {
    tuning: Tuning;
 
    //**********************************************************
@@ -30,12 +31,20 @@ class Instrument {
    //**********************************************************
    id: string = uid();
 
+   public copy(): Instrument {
+      return new Instrument(this.tuning.a4);
+   }
+
+   public equals(other: Instrument): boolean {
+      return this.tuning.equals(other.tuning);
+   }
+
    //**********************************************************
    /**
     * returns the frequency of the given note
     */
    //**********************************************************
-   getFrequency(note: Note): number {
+   public getFrequency(note: Note): number {
       return this.tuning.freqLookup(note.octave, note.semitone);
    }
 
@@ -44,7 +53,7 @@ class Instrument {
     * returns the midi key of the given note
     */
    //**********************************************************
-   getMidiKey(note: Note): number {
+   public getMidiKey(note: Note): number {
       return this.tuning.midiKeyLookup(note.octave, note.semitone);
    }
 

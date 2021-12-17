@@ -15,6 +15,7 @@ import {
 } from "./noteConstants";
 import noteStringLookup from "./stringTable";
 import { uid } from "uid";
+import Entity from "../Entity";
 
 //**********************************************************
 /**
@@ -27,7 +28,7 @@ import { uid } from "uid";
  */
 //**********************************************************
 // @Identifiable() // generates a unique id for each instance - retrieve with id()
-class Note {
+class Note implements Entity {
    //**********************************************************
    /**
     * Creates a new Note instance.

@@ -1,6 +1,7 @@
 // import Identifiable from "../composables/Identifiable";
 import { createTables } from "./instrumentTables";
 import { uid } from "uid";
+import Entity from "../Entity";
 
 //**********************************************************
 /**
@@ -11,7 +12,7 @@ import { uid } from "uid";
  */
 //**********************************************************
 // @Identifiable()
-class Tuning {
+class Tuning implements Entity {
    /**
     * Creates the object and builds the lookup tables.
     */
@@ -26,6 +27,14 @@ class Tuning {
     */
    //**********************************************************
    id: string = uid();
+
+   public copy(): Tuning {
+      return new Tuning(this._a4);
+   }
+
+   public equals(other: Tuning): boolean {
+      return this._a4 === other._a4;
+   }
 
    //**********************************************************
    /**

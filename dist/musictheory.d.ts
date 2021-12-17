@@ -33,6 +33,13 @@ declare type NoteInitializer = {
     octave?: number;
 };
 
+interface Entity {
+    id: string;
+    copy: () => Entity;
+    equals: (entity: Entity) => boolean;
+    toString: () => string;
+}
+
 /**
  * A musical note.
  * The primary fields are the semitone and octave.
@@ -41,7 +48,7 @@ declare type NoteInitializer = {
  * wrap the semitone to the range [0, 11] and change the octave depending
  * on how many times the semitone has been wrapped.
  */
-declare class Note {
+declare class Note implements Entity {
     /**
      * Creates a new Note instance.
      */
@@ -136,7 +143,7 @@ declare enum Modifier {
  * - builds lookup tables for midi key and frequency
  * - based on the tuning
  */
-declare class Tuning {
+declare class Tuning implements Entity {
     /**
      * Creates the object and builds the lookup tables.
      */
@@ -145,6 +152,8 @@ declare class Tuning {
      * unique id for this instance
      */
     id: string;
+    copy(): Tuning;
+    equals(other: Tuning): boolean;
     /**
      * a4 Tuning
      */
@@ -179,7 +188,7 @@ declare class Tuning {
  * used to encapsulate the tuning and retrieving midi keys
  * and frequencies for notes
  */
-declare class Instrument {
+declare class Instrument implements Entity {
     tuning: Tuning;
     /**
      * creates a new instance of an instrument with the given tuning or 440hz
@@ -189,6 +198,8 @@ declare class Instrument {
      * unique id for this instance
      */
     id: string;
+    copy(): Instrument;
+    equals(other: Instrument): boolean;
     /**
      * returns the frequency of the given note
      */
@@ -208,13 +219,6 @@ declare type ScaleInitializer = {
     key?: Semitone;
     octave?: number;
 };
-
-interface Entity {
-    id: string;
-    copy: () => Entity;
-    equals: (entity: Entity) => boolean;
-    toString: () => string;
-}
 
 /**
  * A musical scale.
@@ -351,5 +355,6 @@ declare const ScaleTemplates: {
 };
 
 declare const init: (initCB: () => (void | Promise<void>) | undefined) => void;
+declare const initAsync: (initCB: () => (void | Promise<void>) | undefined) => Promise<void>;
 
-export { Instrument, Modifier, Note, Scale, ScaleTemplates, Semitone, init };
+export { Instrument, Modifier, Note, Scale, ScaleTemplates, Semitone, init, initAsync };
