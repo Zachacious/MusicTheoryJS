@@ -354,7 +354,38 @@ declare const ScaleTemplates: {
     [key: string]: number[];
 };
 
+declare type ChordInitializer = {
+    root?: Semitone;
+    octave?: number;
+};
+
+declare class Chord implements Entity {
+    constructor(values?: ChordInitializer);
+    /**
+     * unique id for this instance
+     */
+    id: string;
+    _root: Semitone;
+    get root(): Semitone;
+    set root(value: Semitone);
+    _octave: number;
+    get octave(): number;
+    set octave(value: number);
+    private _template;
+    get template(): Array<number>;
+    set template(value: Array<number>);
+    /**
+     * notes
+     * notes are generated and cached as needed
+     */
+    private _notes;
+    get notes(): Array<Note>;
+    generateNotes(): void;
+    copy(): Chord;
+    equals(other: Chord): boolean;
+}
+
 declare const init: (initCB: () => (void | Promise<void>) | undefined) => void;
 declare const initAsync: (initCB: () => (void | Promise<void>) | undefined) => Promise<void>;
 
-export { Instrument, Modifier, Note, Scale, ScaleTemplates, Semitone, init, initAsync };
+export { Chord, Instrument, Modifier, Note, Scale, ScaleTemplates, Semitone, init, initAsync };

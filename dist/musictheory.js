@@ -1550,6 +1550,77 @@
    registerInitializer(Scale.init);
    // look at order of initialized - not working correctly
 
+   class Chord {
+       constructor(values) {
+           if (!values) {
+               this.root = DEFAULT_SEMITONE;
+               this.octave = DEFAULT_OCTAVE;
+           }
+       }
+       //**********************************************************
+       /**
+        * unique id for this instance
+        */
+       //**********************************************************
+       id = uid();
+       _root = DEFAULT_SEMITONE;
+       get root() {
+           return this._root;
+       }
+       set root(value) {
+           // this._root = value;
+           const wrapped = wrap(value, TONES_MIN, TONES_MAX);
+           this._root = wrapped.value;
+           this._octave = this._octave + wrapped.numWraps;
+       }
+       _octave = DEFAULT_OCTAVE;
+       get octave() {
+           return this._octave;
+       }
+       set octave(value) {
+           this._octave = clamp(value, OCTAVE_MIN, OCTAVE_MAX);
+       }
+       _template = [];
+       get template() {
+           return [...this._template];
+       }
+       set template(value) {
+           this._template = [...value];
+           // this.generateNotes();
+       }
+       //**********************************************************
+       /**
+        * notes
+        * notes are generated and cached as needed
+        */
+       //**********************************************************
+       _notes = [];
+       get notes() {
+           return this._notes;
+       }
+       generateNotes() {
+           this._notes = [];
+           let accumulator = this._root;
+           for (const interval of this._template) {
+               const tone = interval === 0
+                   ? (accumulator = this._root)
+                   : (accumulator += interval);
+               const note = new Note({
+                   semitone: tone,
+                   octave: this.octave,
+               });
+               this._notes.push(note);
+           }
+       }
+       copy() {
+           return new Chord({ root: this.root, octave: this.octave });
+       }
+       equals(other) {
+           return this.root === other.root && this.octave === other.octave;
+       }
+   }
+
+   exports.Chord = Chord;
    exports.Instrument = Instrument;
    exports.Modifier = Modifier$1;
    exports.Note = Note;
