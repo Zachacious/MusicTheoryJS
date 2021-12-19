@@ -12,6 +12,7 @@ import { getNameForSemitone, getWholeToneFromName } from "../Semitone";
 import ChordInterval from "./ChordInterval";
 import Scale from "../Scale/Scale";
 import { debounce } from "ts-debounce";
+import isEqual from "../utils/isEqual";
 
 class Chord implements Entity {
    constructor(values?: ChordInitializer) {
@@ -139,11 +140,19 @@ class Chord implements Entity {
    }
 
    public copy(): Chord {
-      return new Chord({ root: this.root, octave: this.octave });
+      return new Chord({
+         root: this.root,
+         octave: this.octave,
+         template: [...this._template],
+      });
    }
 
    public equals(other: Chord): boolean {
-      return this.root === other.root && this.octave === other.octave;
+      return (
+         this.root === other.root &&
+         this.octave === other.octave &&
+         isEqual(this._template, other.template)
+      );
    }
 }
 
