@@ -28,7 +28,12 @@ declare class Chord implements Entity {
      */
     private _notes;
     get notes(): Array<Note>;
-    generateNotes(): Note[];
+    private _generateNotes;
+    protected generateNotes: {
+        (this: unknown, ...args: [] & any[]): Promise<Note[]>;
+        cancel: (reason?: any) => void;
+    };
+    getNoteNames(): string[];
     copy(): Chord;
     equals(other: Chord): boolean;
 }

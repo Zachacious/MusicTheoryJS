@@ -2257,6 +2257,8 @@
    const DEFAULT_CHORD_TEMPLATE = [1, 3, 5];
    const DEFAULT_SCALE = new Scale();
 
+   function r(r,e,n){var i,t,o;void 0===e&&(e=50),void 0===n&&(n={});var a=null!=(i=n.isImmediate)&&i,u=null!=(t=n.callback)&&t,c=n.maxWait,v=Date.now(),l=[];function f(){if(void 0!==c){var r=Date.now()-v;if(r+e>=c)return c-r}return e}var d=function(){var e=[].slice.call(arguments),n=this;return new Promise(function(i,t){var c=a&&void 0===o;if(void 0!==o&&clearTimeout(o),o=setTimeout(function(){if(o=void 0,v=Date.now(),!a){var i=r.apply(n,e);u&&u(i),l.forEach(function(r){return (0, r.resolve)(i)}),l=[];}},f()),c){var d=r.apply(n,e);return u&&u(d),i(d)}l.push({resolve:i,reject:t});})};return d.cancel=function(r){void 0!==o&&clearTimeout(o),l.forEach(function(e){return (0, e.reject)(r)}),l=[];},d}
+
    class Chord {
        constructor(values) {
            if (!values) {
@@ -2323,7 +2325,8 @@
        get notes() {
            return this._notes;
        }
-       generateNotes() {
+       _generateNotes() {
+           console.log("generating notes");
            this._notes = [];
            for (const interval of this._template) {
                let tone = 0;
@@ -2343,30 +2346,26 @@
            }
            return this._notes;
        }
-       // public generateNotes() {
-       //    this._notes = [];
-       //    const wholeNotes = ["C", "D", "E", "F", "G", "A", "B"];
-       //    const rootWholeName: string = getNameForSemitone(this._root);
-       //    console.log(rootWholeName);
-       //    const rootIndex: number = wholeNotes.indexOf(rootWholeName?.[0]);
-       //    console.log(rootIndex);
-       //    for (const interval of this._template) {
-       //       let tone: Semitone = 0;
-       //       let mod: Modifier = 0;
-       //       if (Array.isArray(interval)) {
-       //          tone = interval?.[0] ?? 0;
-       //          mod = interval?.[1] ?? 0;
-       //       } else {
-       //          tone = interval;
-       //       }
-       //       const wrapped = wrap(rootIndex + tone - 1, 0, 7);
-       //       const note = new Note({
-       //          semitone: getWholeToneFromName(wholeNotes[wrapped.value]) + mod,
-       //          octave: this._octave + wrapped.numWraps,
-       //       });
-       //       this._notes.push(note);
-       //    }
-       // }
+       generateNotes = r(this._generateNotes, 10, {
+           isImmediate: true,
+       });
+       getNoteNames() {
+           const notes = [];
+           const scaleNoteNames = this._baseScale.getNoteNames();
+           for (const interval of this._template) {
+               let tone = 0;
+               if (Array.isArray(interval)) {
+                   tone = interval[0];
+               }
+               else {
+                   tone = interval;
+               }
+               const offset = tone;
+               const note = scaleNoteNames[offset - 1];
+               notes.push(note);
+           }
+           return notes;
+       }
        copy() {
            return new Chord({ root: this.root, octave: this.octave });
        }

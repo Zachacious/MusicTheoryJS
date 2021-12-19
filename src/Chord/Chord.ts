@@ -11,6 +11,7 @@ import { DEFAULT_CHORD_TEMPLATE, DEFAULT_SCALE } from "./ChordConstants";
 import { getNameForSemitone, getWholeToneFromName } from "../Semitone";
 import ChordInterval from "./ChordInterval";
 import Scale from "../Scale/Scale";
+import { debounce } from "ts-debounce";
 
 class Chord implements Entity {
    constructor(values?: ChordInitializer) {
@@ -92,7 +93,8 @@ class Chord implements Entity {
       return this._notes;
    }
 
-   public generateNotes(): Note[] {
+   private _generateNotes(): Note[] {
+      console.log("generating notes");
       this._notes = [];
       for (const interval of this._template) {
          let tone = 0;
@@ -111,6 +113,29 @@ class Chord implements Entity {
       }
 
       return this._notes;
+   }
+
+   protected generateNotes = debounce(this._generateNotes, 10, {
+      isImmediate: true,
+   });
+
+   public getNoteNames(): string[] {
+      const notes = [];
+      const scaleNoteNames = this._baseScale.getNoteNames();
+      for (const interval of this._template) {
+         let tone = 0;
+         if (Array.isArray(interval)) {
+            tone = interval[0];
+         } else {
+            tone = interval;
+         }
+         const offset = tone;
+         const note = scaleNoteNames[offset - 1];
+
+         notes.push(note);
+      }
+
+      return notes;
    }
 
    public copy(): Chord {
