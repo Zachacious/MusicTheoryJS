@@ -18,13 +18,13 @@ class Chord implements Entity {
          this._template = DEFAULT_CHORD_TEMPLATE;
          this.octave = DEFAULT_OCTAVE;
          this.root = DEFAULT_SEMITONE;
-         this._baseScale = DEFAULT_SCALE;
       } else {
          this._template = values.template ?? DEFAULT_CHORD_TEMPLATE;
          this.octave = values.octave ?? DEFAULT_OCTAVE;
          this.root = values.root ?? DEFAULT_SEMITONE;
-         this._baseScale = values.baseScale ?? DEFAULT_SCALE;
       }
+
+      this._baseScale = new Scale({ key: this._root });
 
       this.generateNotes();
    }
@@ -92,29 +92,25 @@ class Chord implements Entity {
       return this._notes;
    }
 
-   public generateNotes() {
+   public generateNotes(): Note[] {
       this._notes = [];
-      const wholeNotes = ["C", "D", "E", "F", "G", "A", "B"];
-      const rootWholeName: string = getNameForSemitone(this._root);
-      console.log(rootWholeName);
-      const rootIndex: number = wholeNotes.indexOf(rootWholeName?.[0]);
-      console.log(rootIndex);
       for (const interval of this._template) {
-         let tone: Semitone = 0;
-         let mod: Modifier = 0;
+         let tone = 0;
+         let mod = 0;
          if (Array.isArray(interval)) {
-            tone = interval?.[0] ?? 0;
-            mod = interval?.[1] ?? 0;
+            tone = interval[0];
+            mod = interval[1];
          } else {
             tone = interval;
          }
-         const wrapped = wrap(rootIndex + tone - 1, 0, 7);
-         const note = new Note({
-            semitone: getWholeToneFromName(wholeNotes[wrapped.value]) + mod,
-            octave: this._octave + wrapped.numWraps,
-         });
+         const offset = tone;
+         const note = this._baseScale.degree(offset);
+         const noteTone = note.semitone;
+         note.semitone = noteTone + mod;
          this._notes.push(note);
       }
+
+      return this._notes;
    }
 
    public copy(): Chord {

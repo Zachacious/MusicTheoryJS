@@ -214,6 +214,154 @@ declare class Instrument implements Entity {
     toString(): string;
 }
 
+declare type ScaleInitializer$1 = {
+    template?: Array<number>;
+    key?: Semitone;
+    octave?: number;
+};
+
+/**
+ * A musical scale.
+ * The primary fields are the semitone and octave.
+ * The octave is clamped to the range [0, 9].
+ * Setting the semitone to a value outside of the range [0, 11] will
+ * wrap the semitone to the range [0, 11] and change the octave depending
+ * on how many times the semitone has been wrapped.
+ */
+declare class Scale$1 implements Entity {
+    constructor(values?: ScaleInitializer$1 | string);
+    /**
+     *  unique id for this scale
+     */
+    id: string;
+    /**
+     * Returns true if this scale is equal to the given scale
+     */
+    equals(scale: Scale$1): boolean;
+    /**
+     * Returns a copy of this Scale
+     */
+    copy(): Scale$1;
+    /**
+     * key
+     */
+    private _key;
+    get key(): Semitone;
+    set key(value: Semitone);
+    /**
+     * octave
+     */
+    private _octave;
+    get octave(): number;
+    set octave(value: number);
+    /**
+     * template
+     */
+    private _template;
+    get template(): Array<number>;
+    set template(value: Array<number>);
+    /**
+     * notes
+     * notes are generated and cached as needed
+     */
+    private _notes;
+    get notes(): Array<Note>;
+    /**
+     * generate notes(internal)
+     * generates the notes for this scale
+     */
+    protected generateNotes(): void;
+    /**
+     * returns the names of the notes in the scale
+     */
+    getNoteNames(preferSharpKey?: boolean): string[];
+    /**
+     * degree
+     * returns a note that represents the given degree
+     */
+    degree(degree: number): Note;
+    /**
+     * relative major
+     * returns a new scale that is the relative major of this scale
+     */
+    relativeMajor(): Scale$1;
+    /**
+     * relative minor
+     * returns a new scale that is the relative minor of this scale
+     */
+    relativeMinor(): Scale$1;
+    /**
+     * shift
+     * shifts the scale by the given number of degrees
+     */
+    private _shiftedInterval;
+    private _originalTemplate;
+    shift(degrees?: number): Scale$1;
+    /**
+     * shifted
+     * returns a copy of this scale shifted by the given number of degrees
+     */
+    shifted(degrees?: number): Scale$1;
+    /**
+     * unshift
+     * shifts the original root back to the root position
+     */
+    unshift(): Scale$1;
+    /**
+     * unshifted
+     * returns a copy of this scale with the tonic shifted back
+     * to the root position
+     */
+    unshifted(): Scale$1;
+    /**
+     * returns the amount that the scale has shifted
+     * (0 if not shifted)
+     */
+    shiftedInterval(): number;
+    /**
+     * Scale modes
+     */
+    ionian(): Scale$1;
+    dorian(): Scale$1;
+    phrygian(): Scale$1;
+    lydian(): Scale$1;
+    mixolydian(): Scale$1;
+    aeolian(): Scale$1;
+    locrian(): Scale$1;
+    /**
+     * returns string version of the scale
+     */
+    toString(): string;
+    /**
+     * attempts to lookup the note name for a scale efficiently
+     */
+    private static scaleNoteNameLookup;
+    /**
+     * creates a lookup table for all notes formatted as [A-G][#|b|s][0-9]
+     */
+    private static createNotesLookupTable;
+    /**
+     * creates the lookup table as soon as the module is loaded
+     */
+    private static _notesLookup;
+    /**
+     * used to initialize the lookup table
+     */
+    static init(): Promise<void>;
+}
+
+declare const ScaleTemplates: {
+    [key: string]: number[];
+};
+
+declare type ChordInterval = number | number[];
+
+declare type ChordInitializer = {
+    root?: Semitone;
+    octave?: number;
+    template?: ChordInterval[];
+};
+
 declare type ScaleInitializer = {
     template?: Array<number>;
     key?: Semitone;
@@ -350,18 +498,6 @@ declare class Scale implements Entity {
     static init(): Promise<void>;
 }
 
-declare const ScaleTemplates: {
-    [key: string]: number[];
-};
-
-declare type ChordInterval = number | number[];
-
-declare type ChordInitializer = {
-    root?: Semitone;
-    octave?: number;
-    template?: ChordInterval[];
-};
-
 declare class Chord implements Entity {
     constructor(values?: ChordInitializer);
     /**
@@ -371,6 +507,9 @@ declare class Chord implements Entity {
     _root: Semitone;
     get root(): Semitone;
     set root(value: Semitone);
+    _baseScale: Scale;
+    get baseScale(): Scale;
+    set baseScale(value: Scale);
     _octave: number;
     get octave(): number;
     set octave(value: number);
@@ -383,12 +522,16 @@ declare class Chord implements Entity {
      */
     private _notes;
     get notes(): Array<Note>;
-    generateNotes(): void;
+    generateNotes(): Note[];
     copy(): Chord;
     equals(other: Chord): boolean;
 }
 
+declare const ChordTemplates: {
+    [key: string]: ChordInterval[];
+};
+
 declare const init: (initCB: () => (void | Promise<void>) | undefined) => void;
 declare const initAsync: (initCB: () => (void | Promise<void>) | undefined) => Promise<void>;
 
-export { Chord, Instrument, Modifier, Note, Scale, ScaleTemplates, Semitone, init, initAsync };
+export { Chord, ChordTemplates, Instrument, Modifier, Note, Scale$1 as Scale, ScaleTemplates, Semitone, init, initAsync };

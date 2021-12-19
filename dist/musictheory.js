@@ -33,20 +33,6 @@
        Semitone[Semitone["Gs"] = 8] = "Gs";
        Semitone[Semitone["Ab"] = 8] = "Ab";
    })(Semitone || (Semitone = {}));
-   const SemitoneNames = {
-       A: 9,
-       "As/Bb": 10,
-       "B/Cb": 11,
-       "Bs/C": 0,
-       "Cs/Db": 1,
-       D: 2,
-       "Ds/Eb": 3,
-       "E/Fb": 4,
-       "Es/F": 5,
-       "Fs/Gb": 6,
-       G: 7,
-       "Gs/Ab": 8,
-   };
    //**********************************************************
    /**
     * Returns the whole note name (e.g. C, D, E, F, G, A, B) for
@@ -58,28 +44,6 @@
            throw new Error("Invalid name");
        const key = name[0].toUpperCase();
        return Semitone[key];
-   };
-   //**********************************************************
-   /**
-    * Returns a string version of the given semitone
-    * if prefered whole note is set, it will return the note that
-    * best matches that (for ex: Fs/Gb will return F# if prefered)
-    */
-   //**********************************************************
-   const getNameForSemitone = (semitone, preferredWholeNote) => {
-       const values = Object.values(SemitoneNames);
-       const nameIndex = values.findIndex((v) => v === semitone);
-       const wholeName = Object.keys(SemitoneNames)[nameIndex];
-       const nameParts = wholeName.split("/");
-       if (nameParts.length === 1)
-           return nameParts[0];
-       if (!preferredWholeNote)
-           return wholeName;
-       for (const part of nameParts) {
-           if (part.includes(preferredWholeNote[0]))
-               return part;
-       }
-       return wholeName;
    };
    var Semitone$1 = Semitone;
 
@@ -195,9 +159,9 @@
     * Regex for matching note name, modifier, and octave
     */
    //**********************************************************
-   const nameRegex$1 = /([A-G])/g;
-   const modifierRegex$1 = /(#|s|b)/g;
-   const octaveRegex$1 = /([0-9]+)/g;
+   const nameRegex$2 = /([A-G])/g;
+   const modifierRegex$2 = /(#|s|b)/g;
+   const octaveRegex$2 = /([0-9]+)/g;
    //**********************************************************
    /**
     * attempts to parse a note from a string
@@ -219,9 +183,9 @@
        let noteIdenifier = "";
        let noteModifier = 0;
        let noteOctave = "";
-       const nameMatch = note.match(nameRegex$1)?.join("").split("");
-       const modifierMatch = note.match(modifierRegex$1)?.join("").split("");
-       const octaveMatch = note.match(octaveRegex$1)?.join("").split("");
+       const nameMatch = note.match(nameRegex$2)?.join("").split("");
+       const modifierMatch = note.match(modifierRegex$2)?.join("").split("");
+       const octaveMatch = note.match(octaveRegex$2)?.join("").split("");
        // combine all modifiers
        if (modifierMatch) {
            if (modifierMatch.length > 1) {
@@ -261,7 +225,7 @@
     * creates a lookup table for all notes formatted as [A-G][#|b|s][0-9]
     */
    //**********************************************************
-   const createTable$3 = () => {
+   const createTable$5 = () => {
        const noteTable = {};
        const noteLetters = ["A", "B", "C", "D", "E", "F", "G"];
        const noteModifiers = ["b", "#", "s"];
@@ -290,12 +254,12 @@
    let _noteLookup = {};
    const noteLookup = (key) => {
        if (!_noteLookup) {
-           _noteLookup = createTable$3();
+           _noteLookup = createTable$5();
        }
        return _noteLookup[key];
    };
    registerInitializer(() => {
-       _noteLookup = createTable$3();
+       _noteLookup = createTable$5();
    });
 
    const UNKNOWN_MODIFIER_NOTE_STRINGS = [
@@ -340,7 +304,7 @@
        "Bb",
        "B",
    ];
-   const createTable$2 = () => {
+   const createTable$4 = () => {
        const table = {};
        for (let iTone = TONES_MIN; iTone <= TONES_MAX; ++iTone) {
            for (let iPrev = TONES_MIN; iPrev <= TONES_MAX; ++iPrev) {
@@ -378,12 +342,12 @@
    let _noteStringLookup = {};
    const noteStringLookup = (key) => {
        if (!_noteStringLookup) {
-           _noteStringLookup = createTable$2();
+           _noteStringLookup = createTable$4();
        }
        return _noteStringLookup[key];
    };
    registerInitializer(() => {
-       _noteStringLookup = createTable$2();
+       _noteStringLookup = createTable$4();
    });
 
    var IDX=256, HEX=[], SIZE=256, BUFFER;
@@ -842,6 +806,750 @@
        }
    }
 
+   const DEFAULT_SCALE_TEMPLATE$1 = [0, 2, 2, 1, 2, 2, 2]; // major
+   Object.freeze(DEFAULT_SCALE_TEMPLATE$1);
+
+   const ScaleTemplates$1 = {
+       wholeTone: [0, 2, 2, 2, 2, 2, 2],
+       // major
+       major: [0, 2, 2, 1, 2, 2, 2],
+       major7s4s5: [0, 2, 2, 2, 2, 1, 2],
+       // modes
+       // ionian: [], // set below - same as major
+       // aeolian: [], // set below - same as minor
+       dorian: [0, 2, 1, 2, 2, 2, 1],
+       phrygian: [0, 1, 2, 2, 2, 1, 2],
+       lydian: [0, 2, 2, 2, 1, 2, 2],
+       lydianDominant: [0, 2, 2, 2, 1, 2, 1],
+       // acoustic: [], // set below - same as lydianDominant
+       mixolydian: [0, 2, 2, 1, 2, 2, 1],
+       mixolydianFlat6: [0, 2, 2, 1, 2, 1, 2],
+       locrian: [0, 1, 2, 2, 1, 2, 2],
+       superLocrian: [0, 1, 2, 1, 2, 2, 2],
+       // minor
+       minor: [0, 2, 1, 2, 2, 1, 2],
+       minor7b9: [0, 1, 2, 2, 2, 2, 1],
+       minor7b5: [0, 2, 1, 2, 1, 2, 2],
+       // halfDiminished: [], // set below - same as minor7b5
+       // harmonic
+       harmonicMajor: [0, 2, 2, 1, 2, 1, 3],
+       harmonicMinor: [0, 2, 1, 2, 2, 1, 3],
+       doubleHarmonic: [0, 1, 3, 1, 2, 1, 3],
+       // byzantine: [], // set below - same as doubleHarmonic
+       // melodic
+       melodicMinorAscending: [0, 2, 1, 2, 2, 2, 2],
+       melodicMinorDescending: [0, 2, 2, 1, 2, 2, 1],
+       // pentatonic
+       majorPentatonic: [0, 2, 2, 3, 2],
+       majorPentatonicBlues: [0, 2, 1, 1, 3, 2],
+       minorPentatonic: [0, 3, 2, 2, 3],
+       minorPentatonicBlues: [0, 3, 2, 1, 1, 3],
+       b5Pentatonic: [0, 3, 2, 1, 4, 2],
+       minor6Pentatonic: [0, 3, 2, 2, 2, 3],
+       // enigmatic
+       enigmaticMajor: [0, 1, 3, 2, 2, 2, 1],
+       enigmaticMinor: [0, 1, 2, 3, 1, 3, 1],
+       // 8Tone
+       dim8Tone: [0, 2, 1, 2, 1, 2, 1, 2],
+       dom8Tone: [0, 1, 2, 1, 2, 1, 2, 1],
+       // neapolitan
+       neapolitanMajor: [0, 1, 2, 2, 2, 2, 2],
+       neapolitanMinor: [0, 1, 2, 2, 2, 1, 3],
+       // hungarian
+       hungarianMajor: [0, 3, 1, 2, 1, 2, 1],
+       hungarianMinor: [0, 2, 1, 3, 1, 1, 3],
+       hungarianGypsy: [0, 1, 3, 1, 2, 1, 3],
+       // spanish
+       spanish: [0, 1, 2, 1, 2, 2, 2],
+       spanish8Tone: [0, 1, 2, 1, 1, 1, 2, 2],
+       // jewish: [], // set below - same as spanish8Tone
+       spanishGypsy: [0, 1, 3, 1, 2, 1, 2],
+       // aug dom
+       augmented: [0, 3, 1, 3, 1, 3, 1],
+       dominantSuspended: [0, 2, 3, 2, 2, 1, 2],
+       // bebop
+       bebopMajor: [0, 2, 2, 1, 2, 1, 1, 2],
+       bebopDominant: [0, 2, 2, 1, 2, 2, 1, 1],
+       mystic: [0, 2, 2, 2, 3, 2],
+       overtone: [0, 2, 2, 2, 1, 1, 2],
+       leadingTone: [0, 2, 2, 2, 2, 2, 1],
+       // japanese
+       hirojoshi: [0, 2, 1, 4, 1],
+       japaneseA: [0, 1, 4, 1, 3],
+       japaneseB: [0, 2, 3, 1, 3],
+       // cultures
+       oriental: [0, 1, 3, 1, 1, 3, 1],
+       persian: [0, 1, 4, 1, 2, 3],
+       arabian: [0, 2, 2, 1, 1, 2, 2],
+       balinese: [0, 1, 2, 4, 1],
+       kumoi: [0, 2, 1, 4, 2, 2],
+       pelog: [0, 1, 2, 3, 1, 1],
+       algerian: [0, 2, 1, 2, 1, 1, 1, 3],
+       chinese: [0, 4, 2, 1, 4],
+       mongolian: [0, 2, 2, 3, 2],
+       egyptian: [0, 2, 3, 2, 3],
+       romainian: [0, 2, 1, 3, 1, 2, 1],
+       hindu: [0, 2, 2, 1, 2, 1, 2],
+       insen: [0, 1, 4, 2, 3],
+       iwato: [0, 1, 4, 1, 4],
+       scottish: [0, 2, 3, 2, 2],
+       yo: [0, 3, 2, 2, 3],
+       istrian: [0, 1, 2, 2, 2, 1, 2],
+       ukranianDorian: [0, 2, 1, 3, 1, 2, 1],
+       petrushka: [0, 1, 3, 2, 1, 3],
+       ahavaraba: [0, 1, 3, 1, 2, 1, 2],
+   };
+   // duplicates with aliases
+   ScaleTemplates$1.halfDiminished = ScaleTemplates$1.minor7b5;
+   ScaleTemplates$1.jewish = ScaleTemplates$1.spanish8Tone;
+   ScaleTemplates$1.byzantine = ScaleTemplates$1.doubleHarmonic;
+   ScaleTemplates$1.acoustic = ScaleTemplates$1.lydianDominant;
+   ScaleTemplates$1.aeolian = ScaleTemplates$1.minor;
+   ScaleTemplates$1.ionian = ScaleTemplates$1.major;
+   Object.keys(ScaleTemplates$1).forEach((element) => Object.freeze(ScaleTemplates$1[element]));
+
+   //**********************************************************
+   /**
+    * Regex for matching note name, modifier, and octave
+    */
+   //**********************************************************
+   const nameRegex$1 = /([A-G])(?![^(]*\))/g;
+   const modifierRegex$1 = /(#|s|b)(?![^(]*\))/g;
+   const octaveRegex$1 = /([0-9]+)(?![^(]*\))/g;
+   const scaleNameRegex$1 = /(\([a-zA-Z]{2,}\))/g;
+   //**********************************************************
+   /**
+    * attempts to parse a note from a string
+    */
+   //**********************************************************
+   const parseScale$1 = (scale, supressWarning = false) => {
+       try {
+           const result = scaleLookup$1(scale);
+           if (result) {
+               return result;
+           }
+           if (!supressWarning)
+               console.warn(`Ineffecient scale string formatting - ${scale}. Get a performanc increase by using a valid format`);
+       }
+       catch (err) {
+           if (!supressWarning)
+               console.warn(`Ineffecient scale string formatting - ${scale}. Get a performanc increase by using a valid format`);
+       }
+       let noteIdenifier = "";
+       let noteModifier = 0;
+       let noteOctave = "";
+       let scaleName = "";
+       const nameMatch = scale.match(nameRegex$1)?.join("").split("");
+       const modifierMatch = scale.match(modifierRegex$1)?.join("").split("");
+       const octaveMatch = scale.match(octaveRegex$1)?.join("").split("");
+       const scaleNameMatch = scale.match(scaleNameRegex$1)?.join("").split("");
+       // combine all modifiers
+       if (modifierMatch) {
+           if (modifierMatch.length > 1) {
+               // combine all modifiers into an offeset value to be added to the semitone
+               noteModifier = modifierMatch
+                   .map((item) => parseModifier(item))
+                   .reduce((a, b) => a + b);
+           }
+           else {
+               noteModifier = parseModifier(modifierMatch[0]);
+           }
+       }
+       if (octaveMatch) {
+           const [octave] = octaveMatch;
+           noteOctave = octave;
+       }
+       if (scaleNameMatch) {
+           const sName = scaleNameMatch.join("");
+           // console.log(sName);
+           scaleName = sName;
+       }
+       if (nameMatch) {
+           const [noteName] = nameMatch;
+           noteIdenifier = noteName;
+           let modifier = 0;
+           if (noteModifier)
+               modifier = noteModifier;
+           const wrappedTone = wrap(getWholeToneFromName(noteIdenifier) + modifier, TONES_MIN, TONES_MAX);
+           const semitone = wrappedTone.value;
+           let octave = 4;
+           if (noteOctave)
+               octave = clamp(parseInt(noteOctave, 10), OCTAVE_MIN, OCTAVE_MAX);
+           let templateIndex = 1; // default major scale
+           if (scaleName) {
+               templateIndex = Object.keys(ScaleTemplates$1).findIndex((template) => template
+                   .toLowerCase()
+                   .includes(scaleName.toLowerCase().replace(/\(|\)/g, "")));
+           }
+           // console.log(Object.keys(ScaleTemplates)[templateIndex]);
+           if (templateIndex === -1) {
+               console.log("UNKNOWN TEMPLATE", scaleName);
+               throw new Error(`Unable to find template for scale ${scaleName}`);
+           }
+           const template = ScaleTemplates$1[Object.keys(ScaleTemplates$1)[templateIndex]];
+           return {
+               key: semitone,
+               octave: octave,
+               template: template,
+           };
+       }
+       throw new Error(`Invalid Scale: ${scale}`);
+   };
+   //**********************************************************
+   /**
+    * creates a lookup table for all notes formatted as [A-G][#|b|s][0-9]
+    */
+   //**********************************************************
+   const createTable$3 = () => {
+       const scaleTable = {};
+       const noteLetters = ["A", "B", "C", "D", "E", "F", "G"];
+       const noteModifiers = ["b", "#", "s"];
+       const templates = Object.keys(ScaleTemplates$1);
+       for (const template of templates) {
+           for (const noteLabel of noteLetters) {
+               //ex A(minor)
+               scaleTable[`${noteLabel}(${template})`] = parseScale$1(noteLabel, true); // 'C' for example
+               for (const mod of noteModifiers) {
+                   const key = `${noteLabel}${mod}(${template})`;
+                   // ex A#(minor)
+                   scaleTable[key] = parseScale$1(key, true); // 'C#' for example
+               }
+               for (let iOctave = OCTAVE_MIN; iOctave < OCTAVE_MAX; ++iOctave) {
+                   const key = `${noteLabel}${iOctave}(${template})`;
+                   // ex A4(minor)
+                   scaleTable[key] = parseScale$1(key, true); // 'C4' for example
+                   for (const mod of noteModifiers) {
+                       const key = `${noteLabel}${mod}${iOctave}(${template})`;
+                       // ex A#4(minor)
+                       scaleTable[key] = parseScale$1(key, true); // 'C#4' for example
+                   }
+               }
+           }
+       }
+       return scaleTable;
+   };
+   //**********************************************************
+   /**
+    * creates the lookup table as soon as the module is loaded
+    */
+   //**********************************************************
+   let _scaleLookup$1 = {};
+   const scaleLookup$1 = (key) => {
+       if (!_scaleLookup$1) {
+           _scaleLookup$1 = createTable$3();
+       }
+       return _scaleLookup$1[key];
+   };
+   registerInitializer(() => {
+       _scaleLookup$1 = createTable$3();
+   });
+
+   //**********************************************************
+   /**
+    * shifts an array by a given distance
+    */
+   //**********************************************************
+   const shift = (arr, dist = 1) => {
+       arr = [...arr]; // copy
+       if (dist > arr.length || dist < 0 - arr.length)
+           throw new Error("shift: distance is greater than array length");
+       if (dist > 0) {
+           const temp = arr.splice(arr.length - dist, Infinity);
+           arr.unshift(...temp);
+       }
+       if (dist < 0) {
+           const temp = arr.splice(0, dist);
+           arr.push(...temp);
+       }
+       return arr;
+   };
+
+   //**********************************************************
+   /**
+    *  Simple util to lazy clone an object
+    */
+   //**********************************************************
+   const clone = (obj) => {
+       return JSON.parse(JSON.stringify(obj));
+   };
+
+   //**********************************************************
+   /**
+    * simple util to lazy check equality of objects and arrays
+    */
+   //**********************************************************
+   const isEqual = (a, b) => {
+       const stringA = JSON.stringify(a);
+       const stringB = JSON.stringify(b);
+       return stringA === stringB;
+   };
+
+   const scaleNameLookup$1 = (template, supressWarning = false) => {
+       try {
+           const result = nameTable$1(JSON.stringify(template));
+           if (result)
+               return result;
+       }
+       catch (e) {
+           if (!supressWarning)
+               console.warn(e);
+       }
+       const keys = Object.keys(ScaleTemplates$1);
+       const values = Object.values(ScaleTemplates$1);
+       const scaleNames = [];
+       for (let i = 0; i < keys.length; ++i) {
+           if (isEqual(values[i], template)) {
+               scaleNames.push(keys[i].charAt(0).toUpperCase() + keys[i].slice(1));
+           }
+       }
+       const scaleNamesString = scaleNames.join(" AKA ");
+       return scaleNamesString;
+   };
+   const createTable$2 = () => {
+       const table = {};
+       for (const template of Object.values(ScaleTemplates$1)) {
+           table[JSON.stringify(template)] = scaleNameLookup$1(template, true);
+       }
+       return table;
+   };
+   let _nameTable$1 = {};
+   const nameTable$1 = (key) => {
+       if (!_nameTable$1[key]) {
+           _nameTable$1 = createTable$2();
+       }
+       return _nameTable$1[key];
+   };
+   registerInitializer(() => {
+       _nameTable$1 = createTable$2();
+   });
+
+   // import scaleNoteNameLookup from "./scaleNoteNameLookup";
+   //**********************************************************
+   /**
+    * A musical scale.
+    * The primary fields are the semitone and octave.
+    * The octave is clamped to the range [0, 9].
+    * Setting the semitone to a value outside of the range [0, 11] will
+    * wrap the semitone to the range [0, 11] and change the octave depending
+    * on how many times the semitone has been wrapped.
+    */
+   //**********************************************************
+   class Scale$1 {
+       constructor(values) {
+           if (!values) {
+               this.template = DEFAULT_SCALE_TEMPLATE$1;
+               this.key = DEFAULT_SEMITONE;
+               this.octave = DEFAULT_OCTAVE;
+           }
+           else if (typeof values === "string") {
+               values = parseScale$1(values);
+               this.template = [...(values?.template ?? DEFAULT_SCALE_TEMPLATE$1)];
+               this.key = values.key || DEFAULT_SEMITONE;
+               this.octave = values.octave || DEFAULT_OCTAVE;
+           }
+           else {
+               // important that octave is set first so that
+               // setting the semitone can change the octave
+               this.template = [...(values?.template ?? DEFAULT_SCALE_TEMPLATE$1)];
+               this.key = values.key || DEFAULT_SEMITONE;
+               this.octave = values.octave || DEFAULT_OCTAVE;
+           }
+           this.generateNotes();
+       }
+       //**********************************************************
+       /**
+        *  unique id for this scale
+        */
+       //**********************************************************
+       id = uid();
+       //**********************************************************
+       /**
+        * Returns true if this scale is equal to the given scale
+        */
+       //**********************************************************
+       equals(scale) {
+           return (this._key === scale._key &&
+               this._octave === scale._octave &&
+               isEqual(this._template, scale._template));
+       }
+       //**********************************************************
+       /**
+        * Returns a copy of this Scale
+        */
+       //**********************************************************
+       copy() {
+           const scale = new Scale$1({
+               key: this.key,
+               octave: this.octave,
+               template: clone(this.template),
+           });
+           if (this._shiftedInterval !== 0)
+               scale.shift(this._shiftedInterval);
+           return scale;
+       }
+       //**********************************************************
+       /**
+        * key
+        */
+       //**********************************************************
+       _key = 0;
+       get key() {
+           return this._key;
+       }
+       set key(value) {
+           const wrapped = wrap(value, TONES_MIN, TONES_MAX);
+           this.octave = this.octave + wrapped.numWraps;
+           this._key = wrapped.value;
+           this.generateNotes();
+       }
+       //**********************************************************
+       /**
+        * octave
+        */
+       //**********************************************************
+       _octave = DEFAULT_OCTAVE;
+       get octave() {
+           return this._octave;
+       }
+       set octave(value) {
+           this._octave = clamp(value, OCTAVE_MIN, OCTAVE_MAX);
+           this.generateNotes();
+       }
+       //**********************************************************
+       /**
+        * template
+        */
+       //**********************************************************
+       _template = [];
+       get template() {
+           return clone(this._template);
+       }
+       set template(value) {
+           this._template = clone(value);
+           this._shiftedInterval = 0;
+           this.generateNotes();
+       }
+       //**********************************************************
+       /**
+        * notes
+        * notes are generated and cached as needed
+        */
+       //**********************************************************
+       _notes = [];
+       get notes() {
+           return this._notes;
+       }
+       //**********************************************************
+       /**
+        * generate notes(internal)
+        * generates the notes for this scale
+        */
+       //**********************************************************
+       generateNotes() {
+           // use the template unshifted for simplicity
+           const unshiftedTemplate = shift(this._template, -this._shiftedInterval);
+           // if allowing this to change the octave is undesirable
+           // then may need to pre wrap the tone and use
+           // the final value
+           const notes = [];
+           let accumulator = this.key;
+           for (const interval of unshiftedTemplate) {
+               const tone = interval === 0
+                   ? (accumulator = this.key)
+                   : (accumulator += interval);
+               const note = new Note({
+                   semitone: tone,
+                   octave: this.octave,
+               });
+               notes.push(note);
+           }
+           // this._notes = shift(notes, this._shiftedInterval + 1);
+           // shift notes back to original position
+           if (this._shiftedInterval > 0) {
+               const temp = notes.splice(notes.length - (this._shiftedInterval + 1), Infinity);
+               notes.unshift(...temp);
+           }
+           if (this._shiftedInterval < 0) {
+               const temp = notes.splice(0, this._shiftedInterval);
+               notes.push(...temp);
+           }
+           this._notes = notes;
+       }
+       //**********************************************************
+       /**
+        * returns the names of the notes in the scale
+        */
+       //**********************************************************
+       getNoteNames(preferSharpKey = true) {
+           const names = Scale$1.scaleNoteNameLookup(this, preferSharpKey);
+           return names;
+       }
+       //**********************************************************
+       /**
+        * degree
+        * returns a note that represents the given degree
+        */
+       //**********************************************************
+       degree(degree) {
+           const wrapped = wrap(degree - 1 /*zero index */, 0, this.notes.length - 1);
+           const note = this.notes[wrapped.value].copy();
+           note.octave = this.octave + wrapped.numWraps;
+           return note;
+       }
+       //**********************************************************
+       /**
+        * relative major
+        * returns a new scale that is the relative major of this scale
+        */
+       //**********************************************************
+       relativeMajor() {
+           const major = new Scale$1({
+               template: ScaleTemplates$1.major,
+               key: this.degree(3).semitone,
+               octave: this.octave,
+           });
+           return major;
+       }
+       //**********************************************************
+       /**
+        * relative minor
+        * returns a new scale that is the relative minor of this scale
+        */
+       //**********************************************************
+       relativeMinor() {
+           const minor = new Scale$1({
+               template: ScaleTemplates$1.minor,
+               key: this.degree(6).semitone,
+               octave: this.octave,
+           });
+           return minor;
+       }
+       //**********************************************************
+       /**
+        * shift
+        * shifts the scale by the given number of degrees
+        */
+       //**********************************************************
+       _shiftedInterval = 0;
+       _originalTemplate = [];
+       shift(degrees = 1) {
+           if (this._shiftedInterval === 0) {
+               this._originalTemplate = clone(this._template);
+           }
+           this._template = shift(this._template, degrees);
+           this._shiftedInterval += degrees;
+           this.generateNotes();
+           return this;
+       }
+       //**********************************************************
+       /**
+        * shifted
+        * returns a copy of this scale shifted by the given number of degrees
+        */
+       //**********************************************************
+       shifted(degrees = 1) {
+           const scale = this.copy();
+           scale.shift(degrees);
+           return scale;
+       }
+       //**********************************************************
+       /**
+        * unshift
+        * shifts the original root back to the root position
+        */
+       //**********************************************************
+       unshift() {
+           if (this._shiftedInterval !== 0) {
+               if (this._originalTemplate.length > 0) {
+                   this._template = this._originalTemplate;
+               }
+               // this.shift(this._shiftedInterval * -1);
+               this._shiftedInterval = 0;
+               this._originalTemplate = [];
+               this.generateNotes();
+           }
+           return this;
+       }
+       //**********************************************************
+       /**
+        * unshifted
+        * returns a copy of this scale with the tonic shifted back
+        * to the root position
+        */
+       //**********************************************************
+       unshifted() {
+           const scale = this.copy();
+           if (this._originalTemplate.length)
+               scale.template = this._originalTemplate;
+           scale.unshift();
+           return scale;
+       }
+       //**********************************************************
+       /**
+        * returns the amount that the scale has shifted
+        * (0 if not shifted)
+        */
+       //**********************************************************
+       shiftedInterval() {
+           return this._shiftedInterval;
+       }
+       //**********************************************************
+       /**
+        * Scale modes
+        */
+       //**********************************************************
+       ionian() {
+           const scale = this.copy();
+           scale.template = ScaleTemplates$1.ionian;
+           return scale;
+       }
+       dorian() {
+           const scale = this.copy();
+           scale.template = ScaleTemplates$1.dorian;
+           return scale;
+       }
+       phrygian() {
+           const scale = this.copy();
+           scale.template = ScaleTemplates$1.phrygian;
+           return scale;
+       }
+       lydian() {
+           const scale = this.copy();
+           scale.template = ScaleTemplates$1.lydian;
+           return scale;
+       }
+       mixolydian() {
+           const scale = this.copy();
+           scale.template = ScaleTemplates$1.mixolydian;
+           return scale;
+       }
+       aeolian() {
+           const scale = this.copy();
+           scale.template = ScaleTemplates$1.aeolian;
+           return scale;
+       }
+       locrian() {
+           const scale = this.copy();
+           scale.template = ScaleTemplates$1.locrian;
+           return scale;
+       }
+       //**********************************************************
+       /**
+        * returns string version of the scale
+        */
+       //**********************************************************
+       toString() {
+           let scaleNames = scaleNameLookup$1(this._template);
+           if (!scaleNames)
+               scaleNames = this.getNoteNames().join(", ");
+           return `${Semitone$1[this._key]}${this._octave}(${scaleNames})`;
+       }
+       //**********************************************************
+       /**
+        * attempts to lookup the note name for a scale efficiently
+        */
+       //**********************************************************
+       static scaleNoteNameLookup(scale, preferSharpKey = true) {
+           try {
+               const key = `${scale.key}-${scale.octave}-${JSON.stringify(scale.template)}`;
+               const notes = this._notesLookup[key];
+               if (notes) {
+                   return notes;
+               }
+           }
+           catch (e) {
+               // do nothing
+           }
+           let notes = [...scale.notes];
+           notes = shift(notes, -scale.shiftedInterval()); //unshift back to key = 0 index
+           const notesParts = notes.map((note) => note.toString().split("/"));
+           const removables = ["B#", "Bs", "Cb", "E#", "Es", "Fb"];
+           const noteNames = [];
+           for (const noteParts of notesParts) {
+               //remove Cb B# etc
+               for (const part of noteParts) {
+                   if (removables.includes(part)) {
+                       const index = noteNames.indexOf(part);
+                       noteNames.splice(index, 1);
+                   }
+               }
+               if (noteNames.length === 0) {
+                   noteNames.push(preferSharpKey ? noteParts[0] : noteParts[noteParts.length - 1]);
+                   continue;
+               }
+               if (noteParts.length === 1) {
+                   noteNames.push(noteParts[0]);
+                   continue;
+               }
+               const wholeNotes = [
+                   "A",
+                   "B",
+                   "C",
+                   "D",
+                   "E",
+                   "F",
+                   "G",
+                   "A",
+                   "B",
+                   "C",
+                   "D",
+                   "E",
+                   "F",
+                   "G",
+               ];
+               const lastWholeNote = noteNames[noteNames.length - 1][0];
+               const lastIndex = wholeNotes.indexOf(lastWholeNote);
+               const nextNote = wholeNotes[lastIndex + 1];
+               if (noteParts[0].includes(nextNote)) {
+                   noteNames.push(noteParts[0]);
+                   continue;
+               }
+               noteNames.push(noteParts[noteParts.length - 1]);
+           }
+           const shiftedNoteNames = shift(noteNames, scale.shiftedInterval());
+           return shiftedNoteNames;
+       }
+       //**********************************************************
+       /**
+        * creates a lookup table for all notes formatted as [A-G][#|b|s][0-9]
+        */
+       //**********************************************************
+       static createNotesLookupTable() {
+           const scaleTable = {};
+           for (let itone = TONES_MIN; itone < TONES_MIN + OCTAVE_MAX; itone++) {
+               for (let ioctave = OCTAVE_MIN; ioctave <= OCTAVE_MAX; ioctave++) {
+                   for (const template of Object.values(ScaleTemplates$1)) {
+                       const scale = new Scale$1({
+                           key: itone,
+                           template: template,
+                           octave: ioctave,
+                       });
+                       scaleTable[`${itone}-${ioctave}-${JSON.stringify(template)}`] =
+                           Scale$1.scaleNoteNameLookup(scale);
+                   }
+               }
+           }
+           return scaleTable;
+       }
+       //**********************************************************
+       /**
+        * creates the lookup table as soon as the module is loaded
+        */
+       //**********************************************************
+       static _notesLookup = {};
+       // this.createNotesLookupTable();
+       //**********************************************************
+       /**
+        * used to initialize the lookup table
+        */
+       //**********************************************************
+       static async init() {
+           Scale$1._notesLookup = Scale$1.createNotesLookupTable();
+       }
+   }
+   registerInitializer(Scale$1.init);
+   // look at order of initialized - not working correctly
+
    const DEFAULT_SCALE_TEMPLATE = [0, 2, 2, 1, 2, 2, 2]; // major
    Object.freeze(DEFAULT_SCALE_TEMPLATE);
 
@@ -1080,46 +1788,6 @@
        _scaleLookup = createTable$1();
    });
 
-   //**********************************************************
-   /**
-    * shifts an array by a given distance
-    */
-   //**********************************************************
-   const shift = (arr, dist = 1) => {
-       arr = [...arr]; // copy
-       if (dist > arr.length || dist < 0 - arr.length)
-           throw new Error("shift: distance is greater than array length");
-       if (dist > 0) {
-           const temp = arr.splice(arr.length - dist, Infinity);
-           arr.unshift(...temp);
-       }
-       if (dist < 0) {
-           const temp = arr.splice(0, dist);
-           arr.push(...temp);
-       }
-       return arr;
-   };
-
-   //**********************************************************
-   /**
-    *  Simple util to lazy clone an object
-    */
-   //**********************************************************
-   const clone = (obj) => {
-       return JSON.parse(JSON.stringify(obj));
-   };
-
-   //**********************************************************
-   /**
-    * simple util to lazy check equality of objects and arrays
-    */
-   //**********************************************************
-   const isEqual = (a, b) => {
-       const stringA = JSON.stringify(a);
-       const stringB = JSON.stringify(b);
-       return stringA === stringB;
-   };
-
    const scaleNameLookup = (template, supressWarning = false) => {
        try {
            const result = nameTable(JSON.stringify(template));
@@ -1179,14 +1847,14 @@
            }
            else if (typeof values === "string") {
                values = parseScale(values);
-               this.template = clone(values.template) || DEFAULT_SCALE_TEMPLATE;
+               this.template = [...(values?.template ?? DEFAULT_SCALE_TEMPLATE)];
                this.key = values.key || DEFAULT_SEMITONE;
                this.octave = values.octave || DEFAULT_OCTAVE;
            }
            else {
                // important that octave is set first so that
                // setting the semitone can change the octave
-               this.template = clone(values.template) || DEFAULT_SCALE_TEMPLATE;
+               this.template = [...(values?.template ?? DEFAULT_SCALE_TEMPLATE)];
                this.key = values.key || DEFAULT_SEMITONE;
                this.octave = values.octave || DEFAULT_OCTAVE;
            }
@@ -1587,6 +2255,7 @@
    // look at order of initialized - not working correctly
 
    const DEFAULT_CHORD_TEMPLATE = [1, 3, 5];
+   const DEFAULT_SCALE = new Scale();
 
    class Chord {
        constructor(values) {
@@ -1600,6 +2269,7 @@
                this.octave = values.octave ?? DEFAULT_OCTAVE;
                this.root = values.root ?? DEFAULT_SEMITONE;
            }
+           this._baseScale = new Scale({ key: this._root });
            this.generateNotes();
        }
        //**********************************************************
@@ -1617,6 +2287,14 @@
            const wrapped = wrap(value, TONES_MIN, TONES_MAX);
            this._root = wrapped.value;
            this._octave = this._octave + wrapped.numWraps;
+           this.generateNotes();
+       }
+       _baseScale = DEFAULT_SCALE;
+       get baseScale() {
+           return this._baseScale;
+       }
+       set baseScale(value) {
+           this._baseScale = value;
            this.generateNotes();
        }
        _octave = DEFAULT_OCTAVE;
@@ -1647,29 +2325,48 @@
        }
        generateNotes() {
            this._notes = [];
-           const wholeNotes = ["C", "D", "E", "F", "G", "A", "B"];
-           const rootWholeName = getNameForSemitone(this._root);
-           console.log(rootWholeName);
-           const rootIndex = wholeNotes.indexOf(rootWholeName?.[0]);
-           console.log(rootIndex);
            for (const interval of this._template) {
                let tone = 0;
                let mod = 0;
                if (Array.isArray(interval)) {
-                   tone = interval?.[0] ?? 0;
-                   mod = interval?.[1] ?? 0;
+                   tone = interval[0];
+                   mod = interval[1];
                }
                else {
                    tone = interval;
                }
-               const wrapped = wrap(rootIndex + tone - 1, 0, 7);
-               const note = new Note({
-                   semitone: getWholeToneFromName(wholeNotes[wrapped.value]) + mod,
-                   octave: this._octave + wrapped.numWraps,
-               });
+               const offset = tone;
+               const note = this._baseScale.degree(offset);
+               const noteTone = note.semitone;
+               note.semitone = noteTone + mod;
                this._notes.push(note);
            }
+           return this._notes;
        }
+       // public generateNotes() {
+       //    this._notes = [];
+       //    const wholeNotes = ["C", "D", "E", "F", "G", "A", "B"];
+       //    const rootWholeName: string = getNameForSemitone(this._root);
+       //    console.log(rootWholeName);
+       //    const rootIndex: number = wholeNotes.indexOf(rootWholeName?.[0]);
+       //    console.log(rootIndex);
+       //    for (const interval of this._template) {
+       //       let tone: Semitone = 0;
+       //       let mod: Modifier = 0;
+       //       if (Array.isArray(interval)) {
+       //          tone = interval?.[0] ?? 0;
+       //          mod = interval?.[1] ?? 0;
+       //       } else {
+       //          tone = interval;
+       //       }
+       //       const wrapped = wrap(rootIndex + tone - 1, 0, 7);
+       //       const note = new Note({
+       //          semitone: getWholeToneFromName(wholeNotes[wrapped.value]) + mod,
+       //          octave: this._octave + wrapped.numWraps,
+       //       });
+       //       this._notes.push(note);
+       //    }
+       // }
        copy() {
            return new Chord({ root: this.root, octave: this.octave });
        }
@@ -1678,12 +2375,20 @@
        }
    }
 
+   const flat = -1;
+   const ChordTemplates = {
+       major: [1, 3, 5],
+       minor: [1, [3, flat], 5],
+   };
+   Object.keys(ChordTemplates).forEach((element) => Object.freeze(ChordTemplates[element]));
+
    exports.Chord = Chord;
+   exports.ChordTemplates = ChordTemplates;
    exports.Instrument = Instrument;
    exports.Modifier = Modifier$1;
    exports.Note = Note;
-   exports.Scale = Scale;
-   exports.ScaleTemplates = ScaleTemplates;
+   exports.Scale = Scale$1;
+   exports.ScaleTemplates = ScaleTemplates$1;
    exports.Semitone = Semitone$1;
    exports.init = init;
    exports.initAsync = initAsync;

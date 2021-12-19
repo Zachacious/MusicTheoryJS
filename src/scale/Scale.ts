@@ -44,13 +44,13 @@ class Scale implements Entity {
          this.octave = DEFAULT_OCTAVE;
       } else if (typeof values === "string") {
          values = parseScale(values);
-         this.template = clone(values.template) || DEFAULT_SCALE_TEMPLATE;
+         this.template = [...(values?.template ?? DEFAULT_SCALE_TEMPLATE)];
          this.key = values.key || DEFAULT_SEMITONE;
          this.octave = values.octave || DEFAULT_OCTAVE;
       } else {
          // important that octave is set first so that
          // setting the semitone can change the octave
-         this.template = clone(values.template) || DEFAULT_SCALE_TEMPLATE;
+         this.template = [...(values?.template ?? DEFAULT_SCALE_TEMPLATE)];
          this.key = values.key || DEFAULT_SEMITONE;
          this.octave = values.octave || DEFAULT_OCTAVE;
       }

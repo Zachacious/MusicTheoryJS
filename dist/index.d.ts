@@ -5,5 +5,6 @@ import Instrument from "./Instrument/Instrument";
 import Scale from "./scale/Scale";
 import ScaleTemplates from "./scale/ScaleTemplates";
 import Chord from "./Chord/Chord";
+import ChordTemplates from "./Chord/chordTemplates";
 import { init, initAsync } from "./Initializer/Initializer";
-export { Note, Semitone, Modifier, Instrument, Scale, ScaleTemplates, init, initAsync, Chord, };
+export { Note, Semitone, Modifier, Instrument, Scale, ScaleTemplates, init, initAsync, Chord, ChordTemplates, };

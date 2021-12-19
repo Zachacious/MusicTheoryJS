@@ -1,5 +1,5 @@
 import ChordInterval from "./ChordInterval";
 declare const ChordTemplates: {
-    [key: string]: ChordInterval;
+    [key: string]: ChordInterval[];
 };
 export default ChordTemplates;

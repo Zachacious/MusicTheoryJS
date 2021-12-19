@@ -1,2 +1,4 @@
+import Scale from "../Scale/Scale";
 declare const DEFAULT_CHORD_TEMPLATE: number[];
-export { DEFAULT_CHORD_TEMPLATE };
+declare const DEFAULT_SCALE: Scale;
+export { DEFAULT_CHORD_TEMPLATE, DEFAULT_SCALE };
