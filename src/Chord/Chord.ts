@@ -1,6 +1,6 @@
 import Entity from "../Entity";
 import { uid } from "uid";
-import { Semitone } from "..";
+import { Modifier, Semitone } from "..";
 import { DEFAULT_SEMITONE, TONES_MAX, TONES_MIN } from "../Note/noteConstants";
 import { DEFAULT_OCTAVE, OCTAVE_MAX, OCTAVE_MIN } from "../Note/noteConstants";
 import wrap from "../utils/wrap";
@@ -8,6 +8,8 @@ import clamp from "../utils/clamp";
 import ChordInitializer from "./ChordInitializer";
 import Note from "../Note/Note";
 import { DEFAULT_CHORD_TEMPLATE } from "./ChordConstants";
+import { getNameForSemitone, getWholeToneFromName } from "../Semitone";
+import ChordInterval from "./ChordInterval";
 
 class Chord implements Entity {
    constructor(values?: ChordInitializer) {
@@ -56,12 +58,12 @@ class Chord implements Entity {
       this.generateNotes();
    }
 
-   private _template: Array<number> = [];
-   public get template(): Array<number> {
+   private _template: ChordInterval[] = [];
+   public get template(): ChordInterval[] {
       return [...this._template];
    }
 
-   public set template(value: Array<number>) {
+   public set template(value: ChordInterval[]) {
       this._template = [...value];
       this.generateNotes();
    }
@@ -79,19 +81,25 @@ class Chord implements Entity {
 
    public generateNotes() {
       this._notes = [];
-      // let accumulator = this._root;
-      // for (const interval of this._template) {
-      //    const tone =
-      //       interval === 0
-      //          ? (accumulator = this._root)
-      //          : (accumulator += interval);
-
-      //    const note = new Note({
-      //       semitone: tone,
-      //       octave: this.octave,
-      //    });
-      //    this._notes.push(note);
-      // }
+      const wholeNotes = ["C", "D", "E", "F", "G", "A", "B"];
+      const rootWholeName: string = getNameForSemitone(this._root);
+      const rootIndex: number = wholeNotes.indexOf(rootWholeName?.[0]);
+      for (const interval of this._template) {
+         let tone: Semitone = 0;
+         let mod: Modifier = 0;
+         if (Array.isArray(interval)) {
+            tone = interval?.[0] ?? 0;
+            mod = interval?.[1] ?? 0;
+         } else {
+            tone = interval;
+         }
+         const wrapped = wrap(rootIndex + tone, 0, 7);
+         const note = new Note({
+            semitone: getWholeToneFromName(wholeNotes[wrapped.value]) + mod,
+            octave: this._octave + wrapped.numWraps,
+         });
+         this._notes.push(note);
+      }
    }
 
    public copy(): Chord {

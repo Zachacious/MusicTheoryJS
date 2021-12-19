@@ -1,3 +1,3 @@
-const DEFAULT_CHORD_TEMPLATE = [0, 2, 2];
+const DEFAULT_CHORD_TEMPLATE = [1, 3, 5];
 
 export { DEFAULT_CHORD_TEMPLATE };
