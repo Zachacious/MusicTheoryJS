@@ -50,7 +50,9 @@
   },
   "homepage": "https://github.com/Zachacious/MusicTheoryJS#readme",
   "dependencies": {
+    "dpdm": "^3.8.0",
     "eslint-config-prettier": "^8.3.0",
+    "global": "^4.4.0",
     "ts-debounce": "^4.0.0",
     "uid": "^2.0.0"
   },

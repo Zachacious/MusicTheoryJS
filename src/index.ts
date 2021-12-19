@@ -6,6 +6,7 @@ import Scale from "./scale/Scale";
 import ScaleTemplates from "./scale/ScaleTemplates";
 import Chord from "./Chord/Chord";
 import ChordTemplates from "./Chord/chordTemplates";
+// import parseChord from "./Chord/chordNameParser";
 
 import { init, initAsync } from "./Initializer/Initializer";
 
@@ -20,4 +21,5 @@ export {
    initAsync,
    Chord,
    ChordTemplates,
+   // parseChord,
 };

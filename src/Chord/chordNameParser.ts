@@ -34,7 +34,7 @@ const parseChord = (chord: string): ChordInitializer => {
    const nameMatch = chord.match(nameRegex)?.join("").split("");
    const modifierMatch = chord.match(modifierRegex)?.join("").split("");
    const octaveMatch = chord.match(octaveRegex)?.join("").split("");
-   const chordNameMatch = chord.match(chordNameRegex)?.join("").split("");
+   const chordNameMatch = chord.match(chordNameRegex)?.join("");
    const additionsMatch = chord.match(additionsRegex)?.join("").split("");
 
    // combine all modifiers
@@ -55,8 +55,8 @@ const parseChord = (chord: string): ChordInitializer => {
    }
 
    if (chordNameMatch) {
-      const [name] = chordNameMatch;
-      chordName = name;
+      // const [name] = chordNameMatch;
+      chordName = chordNameMatch;
    }
 
    if (additionsMatch) {

@@ -1,4 +1,3 @@
-import { Scale } from "..";
 import Semitone from "../Semitone";
 import ChordInterval from "./ChordInterval";
 
