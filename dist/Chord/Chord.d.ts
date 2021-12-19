@@ -2,6 +2,7 @@ import Entity from "../Entity";
 import { Semitone } from "..";
 import ChordInitializer from "./ChordInitializer";
 import Note from "../Note/Note";
+import ChordInterval from "./ChordInterval";
 declare class Chord implements Entity {
     constructor(values?: ChordInitializer);
     /**
@@ -15,8 +16,8 @@ declare class Chord implements Entity {
     get octave(): number;
     set octave(value: number);
     private _template;
-    get template(): Array<number>;
-    set template(value: Array<number>);
+    get template(): ChordInterval[];
+    set template(value: ChordInterval[]);
     /**
      * notes
      * notes are generated and cached as needed

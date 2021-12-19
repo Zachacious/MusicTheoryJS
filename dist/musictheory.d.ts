@@ -354,9 +354,12 @@ declare const ScaleTemplates: {
     [key: string]: number[];
 };
 
+declare type ChordInterval = number | number[];
+
 declare type ChordInitializer = {
     root?: Semitone;
     octave?: number;
+    template?: ChordInterval[];
 };
 
 declare class Chord implements Entity {
@@ -372,8 +375,8 @@ declare class Chord implements Entity {
     get octave(): number;
     set octave(value: number);
     private _template;
-    get template(): Array<number>;
-    set template(value: Array<number>);
+    get template(): ChordInterval[];
+    set template(value: ChordInterval[]);
     /**
      * notes
      * notes are generated and cached as needed

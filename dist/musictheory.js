@@ -33,6 +33,20 @@
        Semitone[Semitone["Gs"] = 8] = "Gs";
        Semitone[Semitone["Ab"] = 8] = "Ab";
    })(Semitone || (Semitone = {}));
+   const SemitoneNames = {
+       A: 9,
+       "As/Bb": 10,
+       "B/Cb": 11,
+       "Bs/C": 0,
+       "Cs/Db": 1,
+       D: 2,
+       "Ds/Eb": 3,
+       "E/Fb": 4,
+       "Es/F": 5,
+       "Fs/Gb": 6,
+       G: 7,
+       "Gs/Ab": 8,
+   };
    //**********************************************************
    /**
     * Returns the whole note name (e.g. C, D, E, F, G, A, B) for
@@ -44,6 +58,28 @@
            throw new Error("Invalid name");
        const key = name[0].toUpperCase();
        return Semitone[key];
+   };
+   //**********************************************************
+   /**
+    * Returns a string version of the given semitone
+    * if prefered whole note is set, it will return the note that
+    * best matches that (for ex: Fs/Gb will return F# if prefered)
+    */
+   //**********************************************************
+   const getNameForSemitone = (semitone, preferredWholeNote) => {
+       const values = Object.values(SemitoneNames);
+       const nameIndex = values.findIndex((v) => v === semitone);
+       const wholeName = Object.keys(SemitoneNames)[nameIndex];
+       const nameParts = wholeName.split("/");
+       if (nameParts.length === 1)
+           return nameParts[0];
+       if (!preferredWholeNote)
+           return wholeName;
+       for (const part of nameParts) {
+           if (part.includes(preferredWholeNote[0]))
+               return part;
+       }
+       return wholeName;
    };
    var Semitone$1 = Semitone;
 
@@ -1550,12 +1586,21 @@
    registerInitializer(Scale.init);
    // look at order of initialized - not working correctly
 
+   const DEFAULT_CHORD_TEMPLATE = [1, 3, 5];
+
    class Chord {
        constructor(values) {
            if (!values) {
-               this.root = DEFAULT_SEMITONE;
+               this._template = DEFAULT_CHORD_TEMPLATE;
                this.octave = DEFAULT_OCTAVE;
+               this.root = DEFAULT_SEMITONE;
            }
+           else {
+               this._template = values.template ?? DEFAULT_CHORD_TEMPLATE;
+               this.octave = values.octave ?? DEFAULT_OCTAVE;
+               this.root = values.root ?? DEFAULT_SEMITONE;
+           }
+           this.generateNotes();
        }
        //**********************************************************
        /**
@@ -1572,6 +1617,7 @@
            const wrapped = wrap(value, TONES_MIN, TONES_MAX);
            this._root = wrapped.value;
            this._octave = this._octave + wrapped.numWraps;
+           this.generateNotes();
        }
        _octave = DEFAULT_OCTAVE;
        get octave() {
@@ -1579,6 +1625,7 @@
        }
        set octave(value) {
            this._octave = clamp(value, OCTAVE_MIN, OCTAVE_MAX);
+           this.generateNotes();
        }
        _template = [];
        get template() {
@@ -1586,7 +1633,7 @@
        }
        set template(value) {
            this._template = [...value];
-           // this.generateNotes();
+           this.generateNotes();
        }
        //**********************************************************
        /**
@@ -1600,14 +1647,25 @@
        }
        generateNotes() {
            this._notes = [];
-           let accumulator = this._root;
+           const wholeNotes = ["C", "D", "E", "F", "G", "A", "B"];
+           const rootWholeName = getNameForSemitone(this._root);
+           console.log(rootWholeName);
+           const rootIndex = wholeNotes.indexOf(rootWholeName?.[0]);
+           console.log(rootIndex);
            for (const interval of this._template) {
-               const tone = interval === 0
-                   ? (accumulator = this._root)
-                   : (accumulator += interval);
+               let tone = 0;
+               let mod = 0;
+               if (Array.isArray(interval)) {
+                   tone = interval?.[0] ?? 0;
+                   mod = interval?.[1] ?? 0;
+               }
+               else {
+                   tone = interval;
+               }
+               const wrapped = wrap(rootIndex + tone - 1, 0, 7);
                const note = new Note({
-                   semitone: tone,
-                   octave: this.octave,
+                   semitone: getWholeToneFromName(wholeNotes[wrapped.value]) + mod,
+                   octave: this._octave + wrapped.numWraps,
                });
                this._notes.push(note);
            }
