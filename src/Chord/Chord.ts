@@ -13,6 +13,8 @@ import ChordInterval from "./ChordInterval";
 import Scale from "../Scale/Scale";
 import { debounce } from "ts-debounce";
 import isEqual from "../utils/isEqual";
+import parseChord from "./chordNameParser";
+const pc = parseChord;
 
 class Chord implements Entity {
    constructor(values?: ChordInitializer) {

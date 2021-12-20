@@ -116,4 +116,106 @@ const parseChord = (chord: string): ChordInitializer => {
    throw new Error("Invalid chord name");
 };
 
+const createTable = (): { [key: string]: ChordInitializer } => {
+   const table: { [key: string]: ChordInitializer } = {};
+
+   const noteLetters = ["A", "B", "C", "D", "E", "F", "G"];
+   const noteModifiers = ["b", "#", "s"];
+   const qualities = ["maj", "min", "dim", "aug", "sus"];
+   const additions = [
+      "",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "9",
+      "11",
+      "13",
+      "b2",
+      "b3",
+      "b4",
+      "b5",
+      "b6",
+      "b7",
+      "b9",
+      "b11",
+      "b13",
+      "s2",
+      "s3",
+      "s4",
+      "s5",
+      "s6",
+      "s7",
+      "s9",
+      "s11",
+      "s13",
+      "#2",
+      "#3",
+      "#4",
+      "#5",
+      "#6",
+      "#7",
+      "#9",
+      "#11",
+      "#13",
+      "7s11",
+      "7#11",
+      "7b9",
+      "7#9",
+      "7b5",
+      "7#5",
+      "7b9b5",
+      "7#9#5",
+      "7b13",
+      "7#13",
+      "9#5",
+      "9b5",
+      "9#11",
+      "9b11",
+      "9#13",
+      "9b13",
+      "11#5",
+      "11b5",
+      "11#9",
+      "11b9",
+      "11#13",
+      "11b13",
+   ];
+
+   for (const quality of qualities) {
+      for (const addition of additions) {
+         for (const noteLetter of noteLetters) {
+            const key = `(${noteLetter})${quality}${addition}`;
+            table[key] = parseChord(key);
+            for (const noteModifier of noteModifiers) {
+               const key = `(${noteLetter}${noteModifier})${quality}${addition}`;
+               table[key] = parseChord(key);
+               for (let i = OCTAVE_MIN; i <= OCTAVE_MAX; i++) {
+                  const key = `(${noteLetter}${noteModifier}${i})${quality}${addition}`;
+                  table[key] = parseChord(key);
+               }
+            }
+         }
+      }
+   }
+
+   return table;
+};
+
+let _chordLookup: { [key: string]: ChordInitializer } = {};
+
+const chordLookup = (): { [key: string]: ChordInitializer } => {
+   if (_chordLookup.length === 0) {
+      _chordLookup = createTable();
+   }
+
+   return _chordLookup;
+};
+
+registerInitializer(() => {
+   _chordLookup = createTable();
+});
+
 export default parseChord;

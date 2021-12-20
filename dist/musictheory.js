@@ -159,9 +159,9 @@
     * Regex for matching note name, modifier, and octave
     */
    //**********************************************************
-   const nameRegex$2 = /([A-G])/g;
-   const modifierRegex$2 = /(#|s|b)/g;
-   const octaveRegex$2 = /([0-9]+)/g;
+   const nameRegex$3 = /([A-G])/g;
+   const modifierRegex$3 = /(#|s|b)/g;
+   const octaveRegex$3 = /([0-9]+)/g;
    //**********************************************************
    /**
     * attempts to parse a note from a string
@@ -183,9 +183,9 @@
        let noteIdenifier = "";
        let noteModifier = 0;
        let noteOctave = "";
-       const nameMatch = note.match(nameRegex$2)?.join("").split("");
-       const modifierMatch = note.match(modifierRegex$2)?.join("").split("");
-       const octaveMatch = note.match(octaveRegex$2)?.join("").split("");
+       const nameMatch = note.match(nameRegex$3)?.join("").split("");
+       const modifierMatch = note.match(modifierRegex$3)?.join("").split("");
+       const octaveMatch = note.match(octaveRegex$3)?.join("").split("");
        // combine all modifiers
        if (modifierMatch) {
            if (modifierMatch.length > 1) {
@@ -225,7 +225,7 @@
     * creates a lookup table for all notes formatted as [A-G][#|b|s][0-9]
     */
    //**********************************************************
-   const createTable$5 = () => {
+   const createTable$6 = () => {
        const noteTable = {};
        const noteLetters = ["A", "B", "C", "D", "E", "F", "G"];
        const noteModifiers = ["b", "#", "s"];
@@ -254,12 +254,12 @@
    let _noteLookup = {};
    const noteLookup = (key) => {
        if (!_noteLookup) {
-           _noteLookup = createTable$5();
+           _noteLookup = createTable$6();
        }
        return _noteLookup[key];
    };
    registerInitializer(() => {
-       _noteLookup = createTable$5();
+       _noteLookup = createTable$6();
    });
 
    const UNKNOWN_MODIFIER_NOTE_STRINGS = [
@@ -304,7 +304,7 @@
        "Bb",
        "B",
    ];
-   const createTable$4 = () => {
+   const createTable$5 = () => {
        const table = {};
        for (let iTone = TONES_MIN; iTone <= TONES_MAX; ++iTone) {
            for (let iPrev = TONES_MIN; iPrev <= TONES_MAX; ++iPrev) {
@@ -342,12 +342,12 @@
    let _noteStringLookup = {};
    const noteStringLookup = (key) => {
        if (!_noteStringLookup) {
-           _noteStringLookup = createTable$4();
+           _noteStringLookup = createTable$5();
        }
        return _noteStringLookup[key];
    };
    registerInitializer(() => {
-       _noteStringLookup = createTable$4();
+       _noteStringLookup = createTable$5();
    });
 
    var IDX=256, HEX=[], SIZE=256, BUFFER;
@@ -913,9 +913,9 @@
     * Regex for matching note name, modifier, and octave
     */
    //**********************************************************
-   const nameRegex$1 = /([A-G])(?![^(]*\))/g;
-   const modifierRegex$1 = /(#|s|b)(?![^(]*\))/g;
-   const octaveRegex$1 = /([0-9]+)(?![^(]*\))/g;
+   const nameRegex$2 = /([A-G])(?![^(]*\))/g;
+   const modifierRegex$2 = /(#|s|b)(?![^(]*\))/g;
+   const octaveRegex$2 = /([0-9]+)(?![^(]*\))/g;
    const scaleNameRegex$1 = /(\([a-zA-Z]{2,}\))/g;
    //**********************************************************
    /**
@@ -939,9 +939,9 @@
        let noteModifier = 0;
        let noteOctave = "";
        let scaleName = "";
-       const nameMatch = scale.match(nameRegex$1)?.join("").split("");
-       const modifierMatch = scale.match(modifierRegex$1)?.join("").split("");
-       const octaveMatch = scale.match(octaveRegex$1)?.join("").split("");
+       const nameMatch = scale.match(nameRegex$2)?.join("").split("");
+       const modifierMatch = scale.match(modifierRegex$2)?.join("").split("");
+       const octaveMatch = scale.match(octaveRegex$2)?.join("").split("");
        const scaleNameMatch = scale.match(scaleNameRegex$1)?.join("").split("");
        // combine all modifiers
        if (modifierMatch) {
@@ -1000,7 +1000,7 @@
     * creates a lookup table for all notes formatted as [A-G][#|b|s][0-9]
     */
    //**********************************************************
-   const createTable$3 = () => {
+   const createTable$4 = () => {
        const scaleTable = {};
        const noteLetters = ["A", "B", "C", "D", "E", "F", "G"];
        const noteModifiers = ["b", "#", "s"];
@@ -1036,12 +1036,12 @@
    let _scaleLookup$1 = {};
    const scaleLookup$1 = (key) => {
        if (!_scaleLookup$1) {
-           _scaleLookup$1 = createTable$3();
+           _scaleLookup$1 = createTable$4();
        }
        return _scaleLookup$1[key];
    };
    registerInitializer(() => {
-       _scaleLookup$1 = createTable$3();
+       _scaleLookup$1 = createTable$4();
    });
 
    //**********************************************************
@@ -1105,7 +1105,7 @@
        const scaleNamesString = scaleNames.join(" AKA ");
        return scaleNamesString;
    };
-   const createTable$2 = () => {
+   const createTable$3 = () => {
        const table = {};
        for (const template of Object.values(ScaleTemplates$1)) {
            table[JSON.stringify(template)] = scaleNameLookup$1(template, true);
@@ -1115,12 +1115,12 @@
    let _nameTable$1 = {};
    const nameTable$1 = (key) => {
        if (!_nameTable$1[key]) {
-           _nameTable$1 = createTable$2();
+           _nameTable$1 = createTable$3();
        }
        return _nameTable$1[key];
    };
    registerInitializer(() => {
-       _nameTable$1 = createTable$2();
+       _nameTable$1 = createTable$3();
    });
 
    // import scaleNoteNameLookup from "./scaleNoteNameLookup";
@@ -1657,9 +1657,9 @@
     * Regex for matching note name, modifier, and octave
     */
    //**********************************************************
-   const nameRegex = /([A-G])(?![^(]*\))/g;
-   const modifierRegex = /(#|s|b)(?![^(]*\))/g;
-   const octaveRegex = /([0-9]+)(?![^(]*\))/g;
+   const nameRegex$1 = /([A-G])(?![^(]*\))/g;
+   const modifierRegex$1 = /(#|s|b)(?![^(]*\))/g;
+   const octaveRegex$1 = /([0-9]+)(?![^(]*\))/g;
    const scaleNameRegex = /(\([a-zA-Z]{2,}\))/g;
    //**********************************************************
    /**
@@ -1683,9 +1683,9 @@
        let noteModifier = 0;
        let noteOctave = "";
        let scaleName = "";
-       const nameMatch = scale.match(nameRegex)?.join("").split("");
-       const modifierMatch = scale.match(modifierRegex)?.join("").split("");
-       const octaveMatch = scale.match(octaveRegex)?.join("").split("");
+       const nameMatch = scale.match(nameRegex$1)?.join("").split("");
+       const modifierMatch = scale.match(modifierRegex$1)?.join("").split("");
+       const octaveMatch = scale.match(octaveRegex$1)?.join("").split("");
        const scaleNameMatch = scale.match(scaleNameRegex)?.join("").split("");
        // combine all modifiers
        if (modifierMatch) {
@@ -1744,7 +1744,7 @@
     * creates a lookup table for all notes formatted as [A-G][#|b|s][0-9]
     */
    //**********************************************************
-   const createTable$1 = () => {
+   const createTable$2 = () => {
        const scaleTable = {};
        const noteLetters = ["A", "B", "C", "D", "E", "F", "G"];
        const noteModifiers = ["b", "#", "s"];
@@ -1780,12 +1780,12 @@
    let _scaleLookup = {};
    const scaleLookup = (key) => {
        if (!_scaleLookup) {
-           _scaleLookup = createTable$1();
+           _scaleLookup = createTable$2();
        }
        return _scaleLookup[key];
    };
    registerInitializer(() => {
-       _scaleLookup = createTable$1();
+       _scaleLookup = createTable$2();
    });
 
    const scaleNameLookup = (template, supressWarning = false) => {
@@ -1809,7 +1809,7 @@
        const scaleNamesString = scaleNames.join(" AKA ");
        return scaleNamesString;
    };
-   const createTable = () => {
+   const createTable$1 = () => {
        const table = {};
        for (const template of Object.values(ScaleTemplates)) {
            table[JSON.stringify(template)] = scaleNameLookup(template, true);
@@ -1819,12 +1819,12 @@
    let _nameTable = {};
    const nameTable = (key) => {
        if (!_nameTable[key]) {
-           _nameTable = createTable();
+           _nameTable = createTable$1();
        }
        return _nameTable[key];
    };
    registerInitializer(() => {
-       _nameTable = createTable();
+       _nameTable = createTable$1();
    });
 
    // import scaleNoteNameLookup from "./scaleNoteNameLookup";
@@ -2258,6 +2258,180 @@
    const DEFAULT_SCALE = new Scale();
 
    function r(r,e,n){var i,t,o;void 0===e&&(e=50),void 0===n&&(n={});var a=null!=(i=n.isImmediate)&&i,u=null!=(t=n.callback)&&t,c=n.maxWait,v=Date.now(),l=[];function f(){if(void 0!==c){var r=Date.now()-v;if(r+e>=c)return c-r}return e}var d=function(){var e=[].slice.call(arguments),n=this;return new Promise(function(i,t){var c=a&&void 0===o;if(void 0!==o&&clearTimeout(o),o=setTimeout(function(){if(o=void 0,v=Date.now(),!a){var i=r.apply(n,e);u&&u(i),l.forEach(function(r){return (0, r.resolve)(i)}),l=[];}},f()),c){var d=r.apply(n,e);return u&&u(d),i(d)}l.push({resolve:i,reject:t});})};return d.cancel=function(r){void 0!==o&&clearTimeout(o),l.forEach(function(e){return (0, e.reject)(r)}),l=[];},d}
+
+   //**********************************************************
+   /**
+    * Regex for matching note name, modifier, and octave
+    */
+   //**********************************************************
+   const nameRegex = /([A-G])(?=[^(]*\))/g;
+   const modifierRegex = /(#|s|b)(?=[^(]*\))/g;
+   const octaveRegex = /([0-9]+)(?=[^(]*\))/g;
+   const chordNameRegex = /(min|maj|dim|aug)(?![^(]*\))/g;
+   const additionsRegex = /([#|s|b]?[0-9]+)(?![^(]*\))/g;
+   const parseChord = (chord) => {
+       let noteIdenifier = "";
+       let noteModifier = 0;
+       let noteOctave = "";
+       let chordName = "maj";
+       let additions = [];
+       const nameMatch = chord.match(nameRegex)?.join("").split("");
+       const modifierMatch = chord.match(modifierRegex)?.join("").split("");
+       const octaveMatch = chord.match(octaveRegex)?.join("").split("");
+       const chordNameMatch = chord.match(chordNameRegex)?.join("");
+       const additionsMatch = chord.match(additionsRegex)?.join("").split("");
+       // combine all modifiers
+       if (modifierMatch) {
+           if (modifierMatch.length > 1) {
+               // combine all modifiers into an offeset value to be added to the semitone
+               noteModifier = modifierMatch
+                   .map((item) => parseModifier(item))
+                   .reduce((a, b) => a + b);
+           }
+           else {
+               noteModifier = parseModifier(modifierMatch[0]);
+           }
+       }
+       if (octaveMatch) {
+           const [octave] = octaveMatch;
+           noteOctave = octave;
+       }
+       if (chordNameMatch) {
+           // const [name] = chordNameMatch;
+           chordName = chordNameMatch;
+       }
+       if (additionsMatch) {
+           additions = additionsMatch;
+       }
+       const intervals = [];
+       if (nameMatch) {
+           const [noteName] = nameMatch;
+           noteIdenifier = noteName;
+           let modifier = 0;
+           if (noteModifier)
+               modifier = noteModifier;
+           const wrappedTone = wrap(getWholeToneFromName(noteIdenifier) + modifier, TONES_MIN, TONES_MAX);
+           const semitone = wrappedTone.value;
+           let octave = 4;
+           if (noteOctave)
+               octave = clamp(parseInt(noteOctave, 10), OCTAVE_MIN, OCTAVE_MAX);
+           intervals.push(...ChordTemplates[chordName]);
+           for (const addition of additions) {
+               let mod = 0;
+               if (addition[0] === "#" || addition[0] === "s") {
+                   mod = 1;
+                   additions.shift();
+               }
+               else if (addition[0] === "b") {
+                   mod = -1;
+                   additions.shift();
+               }
+               const additionNum = parseInt(addition, 10);
+               if (intervals.includes(additionNum)) {
+                   const index = intervals.indexOf(additionNum);
+                   intervals[index] = [additionNum, mod];
+               }
+               else {
+                   intervals.push([additionNum, mod]);
+               }
+           }
+           return {
+               root: semitone,
+               octave: octave,
+               template: intervals,
+           };
+       }
+       throw new Error("Invalid chord name");
+   };
+   const createTable = () => {
+       const table = {};
+       const noteLetters = ["A", "B", "C", "D", "E", "F", "G"];
+       const noteModifiers = ["b", "#", "s"];
+       const qualities = ["maj", "min", "dim", "aug", "sus"];
+       const additions = [
+           "",
+           "2",
+           "3",
+           "4",
+           "5",
+           "6",
+           "7",
+           "9",
+           "11",
+           "13",
+           "b2",
+           "b3",
+           "b4",
+           "b5",
+           "b6",
+           "b7",
+           "b9",
+           "b11",
+           "b13",
+           "s2",
+           "s3",
+           "s4",
+           "s5",
+           "s6",
+           "s7",
+           "s9",
+           "s11",
+           "s13",
+           "#2",
+           "#3",
+           "#4",
+           "#5",
+           "#6",
+           "#7",
+           "#9",
+           "#11",
+           "#13",
+           "7s11",
+           "7#11",
+           "7b9",
+           "7#9",
+           "7b5",
+           "7#5",
+           "7b9b5",
+           "7#9#5",
+           "7b13",
+           "7#13",
+           "9#5",
+           "9b5",
+           "9#11",
+           "9b11",
+           "9#13",
+           "9b13",
+           "11#5",
+           "11b5",
+           "11#9",
+           "11b9",
+           "11#13",
+           "11b13",
+       ];
+       for (const quality of qualities) {
+           for (const addition of additions) {
+               for (const noteLetter of noteLetters) {
+                   const key = `(${noteLetter})${quality}${addition}`;
+                   table[key] = parseChord(key);
+                   for (const noteModifier of noteModifiers) {
+                       const key = `(${noteLetter}${noteModifier})${quality}${addition}`;
+                       table[key] = parseChord(key);
+                       for (let i = OCTAVE_MIN; i <= OCTAVE_MAX; i++) {
+                           const key = `(${noteLetter}${noteModifier}${i})${quality}${addition}`;
+                           table[key] = parseChord(key);
+                       }
+                   }
+               }
+           }
+       }
+       return table;
+   };
+   let _chordLookup = {};
+   registerInitializer(() => {
+       _chordLookup = createTable();
+       console.log(_chordLookup);
+   });
 
    class Chord {
        constructor(values) {
