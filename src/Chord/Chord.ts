@@ -76,6 +76,7 @@ class Chord implements Entity {
 
    set octave(value: number) {
       this._octave = clamp(value, OCTAVE_MIN, OCTAVE_MAX);
+      this._baseScale.octave = this._octave;
       this.generateNotes();
    }
 
@@ -159,6 +160,151 @@ class Chord implements Entity {
          this.octave === other.octave &&
          isEqual(this._template, other.template)
       );
+   }
+
+   public augment(): Chord {
+      let index = -1;
+      for (let i = 0; i < this._template.length; ++i) {
+         if (this._template[i] === 5) {
+            index = i;
+            break;
+         }
+         const interval: ChordInterval = this._template[i];
+         if (Array.isArray(interval)) {
+            if ((interval[0] ?? 0) === 5) {
+               index = i;
+               break;
+            }
+         }
+      }
+
+      if (index === -1) {
+         this._template.push([5, 1]);
+      } else {
+         this._template[index] = [5, 1];
+      }
+
+      this.generateNotes();
+
+      return this;
+   }
+
+   public augmented(): Chord {
+      return this.copy().augment();
+   }
+
+   public isAugmented(): boolean {
+      for (const interval of this._template) {
+         if (Array.isArray(interval)) {
+            if ((interval[0] ?? 0) === 5 && (interval[1] ?? 0) === 1) {
+               return true;
+            }
+         }
+      }
+
+      return false;
+   }
+
+   public diminish(): Chord {
+      let index = -1;
+      for (let i = 0; i < this._template.length; ++i) {
+         if (this._template[i] === 5) {
+            index = i;
+            break;
+         }
+         const interval: ChordInterval = this._template[i];
+         if (Array.isArray(interval)) {
+            if ((interval[0] ?? 0) === 5) {
+               index = i;
+               break;
+            }
+         }
+      }
+
+      if (index === -1) {
+         this._template.push([5, -1]);
+      } else {
+         this._template[index] = [5, -1];
+      }
+
+      this.generateNotes();
+
+      return this;
+   }
+
+   public diminished(): Chord {
+      return this.copy().diminish();
+   }
+
+   public isDiminished(): boolean {
+      for (const interval of this._template) {
+         if (Array.isArray(interval)) {
+            if ((interval[0] ?? 0) === 5 && (interval[1] ?? 0) === -1) {
+               return true;
+            }
+         }
+      }
+
+      return false;
+   }
+
+   public halfDiminish(): Chord {
+      let index = -1;
+      for (let i = 0; i < this._template.length; ++i) {
+         if (this._template[i] === 7) {
+            index = i;
+            break;
+         }
+         const interval: ChordInterval = this._template[i];
+         if (Array.isArray(interval)) {
+            if ((interval[0] ?? 0) === 7) {
+               index = i;
+               break;
+            }
+         }
+      }
+
+      if (index === -1) {
+         this._template.push([7, -1]);
+      } else {
+         this._template[index] = [7, -1];
+      }
+
+      this.generateNotes();
+
+      return this;
+   }
+
+   public halfDiminished(): Chord {
+      return this.copy().halfDiminish();
+   }
+
+   public isHalfDiminished(): boolean {
+      for (const interval of this._template) {
+         if (Array.isArray(interval)) {
+            if ((interval[0] ?? 0) === 7 && (interval[1] ?? 0) === -1) {
+               return true;
+            }
+         }
+      }
+
+      return false;
+   }
+
+   public invert(): Chord {
+      const newTemplate: ChordInterval[] = [];
+      for (const interval of this._template) {
+         if (Array.isArray(interval)) {
+            newTemplate.push([interval[0], -interval[1]]);
+         } else {
+            newTemplate.push(-interval);
+         }
+      }
+
+      this._template = newTemplate;
+      this.generateNotes();
+
+      return this;
    }
 }
 

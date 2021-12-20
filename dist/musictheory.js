@@ -2270,6 +2270,15 @@
    const chordNameRegex = /(min|maj|dim|aug)(?![^(]*\))/g;
    const additionsRegex = /([#|s|b]?[0-9]+)(?![^(]*\))/g;
    const parseChord = (chord) => {
+       try {
+           const result = chordLookup(chord);
+           if (result) {
+               return result;
+           }
+       }
+       catch {
+           // do nothing
+       }
        let noteIdenifier = "";
        let noteModifier = 0;
        let noteOctave = "";
@@ -2428,9 +2437,14 @@
        return table;
    };
    let _chordLookup = {};
+   const chordLookup = (key) => {
+       if (_chordLookup.length === 0) {
+           _chordLookup = createTable();
+       }
+       return _chordLookup[key];
+   };
    registerInitializer(() => {
        _chordLookup = createTable();
-       console.log(_chordLookup);
    });
 
    class Chord {
@@ -2439,6 +2453,12 @@
                this._template = DEFAULT_CHORD_TEMPLATE;
                this.octave = DEFAULT_OCTAVE;
                this.root = DEFAULT_SEMITONE;
+           }
+           else if (typeof values === "string") {
+               const parsed = parseChord(values);
+               this._template = [...(parsed?.template ?? DEFAULT_CHORD_TEMPLATE)];
+               this.octave = parsed?.octave ?? DEFAULT_OCTAVE;
+               this.root = parsed?.root ?? DEFAULT_SEMITONE;
            }
            else {
                this._template = values.template ?? DEFAULT_CHORD_TEMPLATE;
@@ -2479,6 +2499,7 @@
        }
        set octave(value) {
            this._octave = clamp(value, OCTAVE_MIN, OCTAVE_MAX);
+           this._baseScale.octave = this._octave;
            this.generateNotes();
        }
        _template = [];
