@@ -14,7 +14,6 @@ import Scale from "../Scale/Scale";
 import { debounce } from "ts-debounce";
 import isEqual from "../utils/isEqual";
 import parseChord from "./chordNameParser";
-const pc = parseChord;
 
 class Chord implements Entity {
    constructor(values?: ChordInitializer) {
@@ -22,6 +21,11 @@ class Chord implements Entity {
          this._template = DEFAULT_CHORD_TEMPLATE;
          this.octave = DEFAULT_OCTAVE;
          this.root = DEFAULT_SEMITONE;
+      } else if (typeof values === "string") {
+         const parsed = parseChord(values);
+         this._template = [...(parsed?.template ?? DEFAULT_CHORD_TEMPLATE)];
+         this.octave = parsed?.octave ?? DEFAULT_OCTAVE;
+         this.root = parsed?.root ?? DEFAULT_SEMITONE;
       } else {
          this._template = values.template ?? DEFAULT_CHORD_TEMPLATE;
          this.octave = values.octave ?? DEFAULT_OCTAVE;

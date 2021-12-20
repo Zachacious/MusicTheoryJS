@@ -25,6 +25,15 @@ const chordNameRegex = /(min|maj|dim|aug)(?![^(]*\))/g;
 const additionsRegex = /([#|s|b]?[0-9]+)(?![^(]*\))/g;
 
 const parseChord = (chord: string): ChordInitializer => {
+   try {
+      const result: ChordInitializer = chordLookup(chord);
+      if (result) {
+         return result;
+      }
+   } catch {
+      // do nothing
+   }
+
    let noteIdenifier: string = "";
    let noteModifier: number = 0;
    let noteOctave: string = "";
@@ -206,12 +215,12 @@ const createTable = (): { [key: string]: ChordInitializer } => {
 
 let _chordLookup: { [key: string]: ChordInitializer } = {};
 
-const chordLookup = (): { [key: string]: ChordInitializer } => {
+const chordLookup = (key: string): ChordInitializer => {
    if (_chordLookup.length === 0) {
       _chordLookup = createTable();
    }
 
-   return _chordLookup;
+   return _chordLookup[key];
 };
 
 registerInitializer(() => {
