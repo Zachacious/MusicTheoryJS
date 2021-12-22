@@ -227,6 +227,7 @@ class Scale implements Entity {
       );
       const note = this.notes[wrapped.value].copy();
       note.octave = this.octave + wrapped.numWraps;
+      console.log(note);
       return note;
    }
 
@@ -418,17 +419,22 @@ class Scale implements Entity {
 
       let notes = [...scale.notes];
       notes = shift(notes, -scale.shiftedInterval()); //unshift back to key = 0 index
-
       const notesParts: string[][] = notes.map((note) =>
          note.toString().split("/")
       );
 
+      const octaves = notes.map((note) => note.octave);
+
       const removables = ["B#", "Bs", "Cb", "E#", "Es", "Fb"];
 
       const noteNames: Array<string> = [];
-      for (const noteParts of notesParts) {
+
+      for (const [i, noteParts] of notesParts.entries()) {
          //remove Cb B# etc
          for (const part of noteParts) {
+            // remove any numbers from the note name(octave)
+            // part.replace(/\d/g, "");
+
             if (removables.includes(part)) {
                const index = noteNames.indexOf(part);
                noteNames.splice(index, 1);
@@ -469,11 +475,15 @@ class Scale implements Entity {
          const nextNote = wholeNotes[lastIndex + 1];
 
          if (noteParts[0].includes(nextNote)) {
-            noteNames.push(noteParts[0]);
+            const hasOctave = noteParts[0].match(/\d/g);
+            noteNames.push(noteParts[0] + (hasOctave ? "" : octaves[i]));
             continue;
          }
 
-         noteNames.push(noteParts[noteParts.length - 1]);
+         const hasOctave = noteParts[noteParts.length - 1].match(/\d/g);
+         noteNames.push(
+            noteParts[noteParts.length - 1] + (hasOctave ? "" : octaves[i])
+         );
       }
 
       const shiftedNoteNames: string[] = shift(

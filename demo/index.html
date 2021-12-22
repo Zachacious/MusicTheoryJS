@@ -16,8 +16,15 @@ Your HTML here
    console.log(chord.notes);
    console.log(chord.getNoteNames());
    // console.log(mt.parseChord("(D#3)min9"));
-   const chord2 = new mt.Chord('(E6)maj7');
+   const chord2 = new mt.Chord('(E6)maj');
+   console.log(chord2.octave)
+   // console.log(chord2.invert());
+   console.log(chord2.invert());
    console.log(chord2.getNoteNames());
+   setTimeout(()=>{
+      console.log(chord2.notes);
+   },1000);
+
    });
 
 

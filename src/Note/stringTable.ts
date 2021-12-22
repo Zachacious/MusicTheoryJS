@@ -87,8 +87,6 @@ const getNoteLabel = (tone: number, modifier: string): string => {
       case "-":
       default:
          return UNKNOWN_MODIFIER_NOTE_STRINGS[tone];
-      // default:
-      //    return `${Semitone[tone]}`;
    }
 };
 

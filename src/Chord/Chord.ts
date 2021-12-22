@@ -14,6 +14,7 @@ import Scale from "../Scale/Scale";
 import { debounce } from "ts-debounce";
 import isEqual from "../utils/isEqual";
 import parseChord from "./chordNameParser";
+import shift from "../utils/shift";
 
 class Chord implements Entity {
    constructor(values?: ChordInitializer) {
@@ -32,7 +33,7 @@ class Chord implements Entity {
          this.root = values.root ?? DEFAULT_SEMITONE;
       }
 
-      this._baseScale = new Scale({ key: this._root });
+      this._baseScale = new Scale({ key: this._root, octave: this._octave });
 
       this.generateNotes();
    }
@@ -65,6 +66,7 @@ class Chord implements Entity {
 
    set baseScale(value: Scale) {
       this._baseScale = value;
+      this._baseScale.octave = this._octave;
       this.generateNotes();
    }
 
@@ -129,7 +131,8 @@ class Chord implements Entity {
 
    public getNoteNames(): string[] {
       const notes = [];
-      const scaleNoteNames = this._baseScale.getNoteNames();
+      const scaleNoteNames = [...this._baseScale.getNoteNames()];
+
       for (const interval of this._template) {
          let tone = 0;
          if (Array.isArray(interval)) {
@@ -138,7 +141,8 @@ class Chord implements Entity {
             tone = interval;
          }
          const offset = tone;
-         const note = scaleNoteNames[offset - 1];
+         const wrapped = wrap(offset, 1, scaleNoteNames.length);
+         const note = scaleNoteNames[wrapped.value - 1];
 
          notes.push(note);
       }
@@ -292,17 +296,23 @@ class Chord implements Entity {
    }
 
    public invert(): Chord {
-      const newTemplate: ChordInterval[] = [];
-      for (const interval of this._template) {
-         if (Array.isArray(interval)) {
-            newTemplate.push([interval[0], -interval[1]]);
-         } else {
-            newTemplate.push(-interval);
-         }
+      console.log(this._template[0]);
+      if (Array.isArray(this._template[0])) {
+         this._template[0][0] += this._baseScale.template.length;
+      } else {
+         this._template[0] += this._baseScale.template.length;
       }
+      console.log(this._template[0]);
+
+      const newTemplate: ChordInterval[] = shift(
+         this._template,
+         this._template.length - 1
+      );
 
       this._template = newTemplate;
-      this.generateNotes();
+      console.log("about to generate");
+      this._generateNotes();
+      console.log("done generating");
 
       return this;
    }

@@ -335,8 +335,6 @@
            case "-":
            default:
                return UNKNOWN_MODIFIER_NOTE_STRINGS[tone];
-           // default:
-           //    return `${Semitone[tone]}`;
        }
    };
    let _noteStringLookup = {};
@@ -1294,6 +1292,7 @@
            const wrapped = wrap(degree - 1 /*zero index */, 0, this.notes.length - 1);
            const note = this.notes[wrapped.value].copy();
            note.octave = this.octave + wrapped.numWraps;
+           console.log(note);
            return note;
        }
        //**********************************************************
@@ -1463,11 +1462,14 @@
            let notes = [...scale.notes];
            notes = shift(notes, -scale.shiftedInterval()); //unshift back to key = 0 index
            const notesParts = notes.map((note) => note.toString().split("/"));
+           const octaves = notes.map((note) => note.octave);
            const removables = ["B#", "Bs", "Cb", "E#", "Es", "Fb"];
            const noteNames = [];
-           for (const noteParts of notesParts) {
+           for (const [i, noteParts] of notesParts.entries()) {
                //remove Cb B# etc
                for (const part of noteParts) {
+                   // remove any numbers from the note name(octave)
+                   // part.replace(/\d/g, "");
                    if (removables.includes(part)) {
                        const index = noteNames.indexOf(part);
                        noteNames.splice(index, 1);
@@ -1501,10 +1503,12 @@
                const lastIndex = wholeNotes.indexOf(lastWholeNote);
                const nextNote = wholeNotes[lastIndex + 1];
                if (noteParts[0].includes(nextNote)) {
-                   noteNames.push(noteParts[0]);
+                   const hasOctave = noteParts[0].match(/\d/g);
+                   noteNames.push(noteParts[0] + (hasOctave ? "" : octaves[i]));
                    continue;
                }
-               noteNames.push(noteParts[noteParts.length - 1]);
+               const hasOctave = noteParts[noteParts.length - 1].match(/\d/g);
+               noteNames.push(noteParts[noteParts.length - 1] + (hasOctave ? "" : octaves[i]));
            }
            const shiftedNoteNames = shift(noteNames, scale.shiftedInterval());
            return shiftedNoteNames;
@@ -1998,6 +2002,7 @@
            const wrapped = wrap(degree - 1 /*zero index */, 0, this.notes.length - 1);
            const note = this.notes[wrapped.value].copy();
            note.octave = this.octave + wrapped.numWraps;
+           console.log(note);
            return note;
        }
        //**********************************************************
@@ -2167,11 +2172,14 @@
            let notes = [...scale.notes];
            notes = shift(notes, -scale.shiftedInterval()); //unshift back to key = 0 index
            const notesParts = notes.map((note) => note.toString().split("/"));
+           const octaves = notes.map((note) => note.octave);
            const removables = ["B#", "Bs", "Cb", "E#", "Es", "Fb"];
            const noteNames = [];
-           for (const noteParts of notesParts) {
+           for (const [i, noteParts] of notesParts.entries()) {
                //remove Cb B# etc
                for (const part of noteParts) {
+                   // remove any numbers from the note name(octave)
+                   // part.replace(/\d/g, "");
                    if (removables.includes(part)) {
                        const index = noteNames.indexOf(part);
                        noteNames.splice(index, 1);
@@ -2205,10 +2213,12 @@
                const lastIndex = wholeNotes.indexOf(lastWholeNote);
                const nextNote = wholeNotes[lastIndex + 1];
                if (noteParts[0].includes(nextNote)) {
-                   noteNames.push(noteParts[0]);
+                   const hasOctave = noteParts[0].match(/\d/g);
+                   noteNames.push(noteParts[0] + (hasOctave ? "" : octaves[i]));
                    continue;
                }
-               noteNames.push(noteParts[noteParts.length - 1]);
+               const hasOctave = noteParts[noteParts.length - 1].match(/\d/g);
+               noteNames.push(noteParts[noteParts.length - 1] + (hasOctave ? "" : octaves[i]));
            }
            const shiftedNoteNames = shift(noteNames, scale.shiftedInterval());
            return shiftedNoteNames;
@@ -2465,7 +2475,7 @@
                this.octave = values.octave ?? DEFAULT_OCTAVE;
                this.root = values.root ?? DEFAULT_SEMITONE;
            }
-           this._baseScale = new Scale({ key: this._root });
+           this._baseScale = new Scale({ key: this._root, octave: this._octave });
            this.generateNotes();
        }
        //**********************************************************
@@ -2491,6 +2501,7 @@
        }
        set baseScale(value) {
            this._baseScale = value;
+           this._baseScale.octave = this._octave;
            this.generateNotes();
        }
        _octave = DEFAULT_OCTAVE;
@@ -2546,7 +2557,7 @@
        });
        getNoteNames() {
            const notes = [];
-           const scaleNoteNames = this._baseScale.getNoteNames();
+           const scaleNoteNames = [...this._baseScale.getNoteNames()];
            for (const interval of this._template) {
                let tone = 0;
                if (Array.isArray(interval)) {
@@ -2556,7 +2567,8 @@
                    tone = interval;
                }
                const offset = tone;
-               const note = scaleNoteNames[offset - 1];
+               const wrapped = wrap(offset, 1, scaleNoteNames.length);
+               const note = scaleNoteNames[wrapped.value - 1];
                notes.push(note);
            }
            return notes;
@@ -2572,6 +2584,133 @@
            return (this.root === other.root &&
                this.octave === other.octave &&
                isEqual(this._template, other.template));
+       }
+       augment() {
+           let index = -1;
+           for (let i = 0; i < this._template.length; ++i) {
+               if (this._template[i] === 5) {
+                   index = i;
+                   break;
+               }
+               const interval = this._template[i];
+               if (Array.isArray(interval)) {
+                   if ((interval[0] ?? 0) === 5) {
+                       index = i;
+                       break;
+                   }
+               }
+           }
+           if (index === -1) {
+               this._template.push([5, 1]);
+           }
+           else {
+               this._template[index] = [5, 1];
+           }
+           this.generateNotes();
+           return this;
+       }
+       augmented() {
+           return this.copy().augment();
+       }
+       isAugmented() {
+           for (const interval of this._template) {
+               if (Array.isArray(interval)) {
+                   if ((interval[0] ?? 0) === 5 && (interval[1] ?? 0) === 1) {
+                       return true;
+                   }
+               }
+           }
+           return false;
+       }
+       diminish() {
+           let index = -1;
+           for (let i = 0; i < this._template.length; ++i) {
+               if (this._template[i] === 5) {
+                   index = i;
+                   break;
+               }
+               const interval = this._template[i];
+               if (Array.isArray(interval)) {
+                   if ((interval[0] ?? 0) === 5) {
+                       index = i;
+                       break;
+                   }
+               }
+           }
+           if (index === -1) {
+               this._template.push([5, -1]);
+           }
+           else {
+               this._template[index] = [5, -1];
+           }
+           this.generateNotes();
+           return this;
+       }
+       diminished() {
+           return this.copy().diminish();
+       }
+       isDiminished() {
+           for (const interval of this._template) {
+               if (Array.isArray(interval)) {
+                   if ((interval[0] ?? 0) === 5 && (interval[1] ?? 0) === -1) {
+                       return true;
+                   }
+               }
+           }
+           return false;
+       }
+       halfDiminish() {
+           let index = -1;
+           for (let i = 0; i < this._template.length; ++i) {
+               if (this._template[i] === 7) {
+                   index = i;
+                   break;
+               }
+               const interval = this._template[i];
+               if (Array.isArray(interval)) {
+                   if ((interval[0] ?? 0) === 7) {
+                       index = i;
+                       break;
+                   }
+               }
+           }
+           if (index === -1) {
+               this._template.push([7, -1]);
+           }
+           else {
+               this._template[index] = [7, -1];
+           }
+           this.generateNotes();
+           return this;
+       }
+       halfDiminished() {
+           return this.copy().halfDiminish();
+       }
+       isHalfDiminished() {
+           for (const interval of this._template) {
+               if (Array.isArray(interval)) {
+                   if ((interval[0] ?? 0) === 7 && (interval[1] ?? 0) === -1) {
+                       return true;
+                   }
+               }
+           }
+           return false;
+       }
+       invert() {
+           console.log(this._template[0]);
+           if (Array.isArray(this._template[0])) {
+               this._template[0][0] += this._baseScale.template.length;
+           }
+           else {
+               this._template[0] += this._baseScale.template.length;
+           }
+           console.log(this._template[0]);
+           const newTemplate = shift(this._template, this._template.length - 1);
+           this._template = newTemplate;
+           console.log("about to generate");
+           this._generateNotes();
+           console.log("done generating");
+           return this;
        }
    }
 

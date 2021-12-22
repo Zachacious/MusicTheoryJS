@@ -36,5 +36,15 @@ declare class Chord implements Entity {
     getNoteNames(): string[];
     copy(): Chord;
     equals(other: Chord): boolean;
+    augment(): Chord;
+    augmented(): Chord;
+    isAugmented(): boolean;
+    diminish(): Chord;
+    diminished(): Chord;
+    isDiminished(): boolean;
+    halfDiminish(): Chord;
+    halfDiminished(): Chord;
+    isHalfDiminished(): boolean;
+    invert(): Chord;
 }
 export default Chord;
