@@ -11,7 +11,6 @@ import { DEFAULT_CHORD_TEMPLATE, DEFAULT_SCALE } from "./ChordConstants";
 // import { getNameForSemitone, getWholeToneFromName } from "../Semitone";
 import ChordInterval from "./ChordInterval";
 import Scale from "../Scale/Scale";
-import { debounce } from "ts-debounce";
 import isEqual from "../utils/isEqual";
 import parseChord from "./chordNameParser";
 import shift from "../utils/shift";
@@ -35,7 +34,7 @@ class Chord implements Entity {
 
       this._baseScale = new Scale({ key: this._root, octave: this._octave });
 
-      this.generateNotes();
+      this._notesDirty = true;
    }
 
    //**********************************************************
@@ -56,7 +55,7 @@ class Chord implements Entity {
       const wrapped = wrap(value, TONES_MIN, TONES_MAX);
       this._root = wrapped.value;
       this._octave = this._octave + wrapped.numWraps;
-      this.generateNotes();
+      this._notesDirty = true;
    }
 
    _baseScale: Scale = DEFAULT_SCALE;
@@ -67,7 +66,7 @@ class Chord implements Entity {
    set baseScale(value: Scale) {
       this._baseScale = value;
       this._baseScale.octave = this._octave;
-      this.generateNotes();
+      this._notesDirty = true;
    }
 
    _octave: number = DEFAULT_OCTAVE;
@@ -79,7 +78,7 @@ class Chord implements Entity {
    set octave(value: number) {
       this._octave = clamp(value, OCTAVE_MIN, OCTAVE_MAX);
       this._baseScale.octave = this._octave;
-      this.generateNotes();
+      this._notesDirty = true;
    }
 
    private _template: ChordInterval[] = [];
@@ -89,7 +88,7 @@ class Chord implements Entity {
 
    public set template(value: ChordInterval[]) {
       this._template = [...value];
-      this.generateNotes();
+      this._notesDirty = true;
    }
 
    //**********************************************************
@@ -99,12 +98,16 @@ class Chord implements Entity {
     */
    //**********************************************************
    private _notes: Array<Note> = [];
+   private _notesDirty: boolean = true;
    public get notes(): Array<Note> {
+      if (this._notesDirty) {
+         this.generateNotes();
+         this._notesDirty = false;
+      }
       return this._notes;
    }
 
    private generateNotes(): Note[] {
-      console.log("generating notes");
       this._notes = [];
       for (const interval of this._template) {
          let tone = 0;
@@ -125,36 +128,12 @@ class Chord implements Entity {
       return this._notes;
    }
 
-   // protected generateNotes = debounce(this._generateNotes, 10, {
-   //    isImmediate: true,
-   // });
-
    public getNoteNames(): string[] {
       const noteNames: string[] = [];
-      for (const note of this._notes) {
+      for (const note of this.notes) {
          noteNames.push(note.toString());
       }
       return noteNames;
-      // const notes = [];
-      // const scaleNoteNames = [...this._baseScale.getNoteNames()];
-      // // const mod = 0;
-
-      // for (const interval of this._template) {
-      //    let tone = 0;
-      //    if (Array.isArray(interval)) {
-      //       tone = interval[0];
-      //       // mod = interval[1];
-      //    } else {
-      //       tone = interval;
-      //    }
-      //    const offset = tone;
-      //    const wrapped = wrap(offset, 1, scaleNoteNames.length);
-      //    const note = scaleNoteNames[wrapped.value - 1];
-      //    // must change this to accomidate the mod
-      //    notes.push(note);
-      // }
-
-      // return notes;
    }
 
    public copy(): Chord {
@@ -195,7 +174,7 @@ class Chord implements Entity {
          this._template[index] = [5, 1];
       }
 
-      this.generateNotes();
+      this._notesDirty = true;
 
       return this;
    }
@@ -238,7 +217,7 @@ class Chord implements Entity {
          this._template[index] = [5, -1];
       }
 
-      this.generateNotes();
+      this._notesDirty = true;
 
       return this;
    }
@@ -281,7 +260,7 @@ class Chord implements Entity {
          this._template[index] = [7, -1];
       }
 
-      this.generateNotes();
+      this._notesDirty = true;
 
       return this;
    }
@@ -317,7 +296,7 @@ class Chord implements Entity {
       );
 
       this._template = newTemplate;
-      this.generateNotes();
+      this._notesDirty = true;
 
       return this;
    }

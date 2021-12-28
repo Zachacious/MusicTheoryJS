@@ -27,6 +27,7 @@ declare class Chord implements Entity {
      * notes are generated and cached as needed
      */
     private _notes;
+    private _notesDirty;
     get notes(): Array<Note>;
     private generateNotes;
     getNoteNames(): string[];

@@ -2474,7 +2474,7 @@
                this.root = values.root ?? DEFAULT_SEMITONE;
            }
            this._baseScale = new Scale({ key: this._root, octave: this._octave });
-           this.generateNotes();
+           this._notesDirty = true;
        }
        //**********************************************************
        /**
@@ -2491,7 +2491,7 @@
            const wrapped = wrap(value, TONES_MIN, TONES_MAX);
            this._root = wrapped.value;
            this._octave = this._octave + wrapped.numWraps;
-           this.generateNotes();
+           this._notesDirty = true;
        }
        _baseScale = DEFAULT_SCALE;
        get baseScale() {
@@ -2500,7 +2500,7 @@
        set baseScale(value) {
            this._baseScale = value;
            this._baseScale.octave = this._octave;
-           this.generateNotes();
+           this._notesDirty = true;
        }
        _octave = DEFAULT_OCTAVE;
        get octave() {
@@ -2509,7 +2509,7 @@
        set octave(value) {
            this._octave = clamp(value, OCTAVE_MIN, OCTAVE_MAX);
            this._baseScale.octave = this._octave;
-           this.generateNotes();
+           this._notesDirty = true;
        }
        _template = [];
        get template() {
@@ -2517,7 +2517,7 @@
        }
        set template(value) {
            this._template = [...value];
-           this.generateNotes();
+           this._notesDirty = true;
        }
        //**********************************************************
        /**
@@ -2526,11 +2526,15 @@
         */
        //**********************************************************
        _notes = [];
+       _notesDirty = true;
        get notes() {
+           if (this._notesDirty) {
+               this.generateNotes();
+               this._notesDirty = false;
+           }
            return this._notes;
        }
        generateNotes() {
-           console.log("generating notes");
            this._notes = [];
            for (const interval of this._template) {
                let tone = 0;
@@ -2550,33 +2554,12 @@
            }
            return this._notes;
        }
-       // protected generateNotes = debounce(this._generateNotes, 10, {
-       //    isImmediate: true,
-       // });
        getNoteNames() {
            const noteNames = [];
-           for (const note of this._notes) {
+           for (const note of this.notes) {
                noteNames.push(note.toString());
            }
            return noteNames;
-           // const notes = [];
-           // const scaleNoteNames = [...this._baseScale.getNoteNames()];
-           // // const mod = 0;
-           // for (const interval of this._template) {
-           //    let tone = 0;
-           //    if (Array.isArray(interval)) {
-           //       tone = interval[0];
-           //       // mod = interval[1];
-           //    } else {
-           //       tone = interval;
-           //    }
-           //    const offset = tone;
-           //    const wrapped = wrap(offset, 1, scaleNoteNames.length);
-           //    const note = scaleNoteNames[wrapped.value - 1];
-           //    // must change this to accomidate the mod
-           //    notes.push(note);
-           // }
-           // return notes;
        }
        copy() {
            return new Chord({
@@ -2611,7 +2594,7 @@
            else {
                this._template[index] = [5, 1];
            }
-           this.generateNotes();
+           this._notesDirty = true;
            return this;
        }
        augmented() {
@@ -2648,8 +2631,7 @@
            else {
                this._template[index] = [5, -1];
            }
-           console.log("about to gen notes");
-           this.generateNotes();
+           this._notesDirty = true;
            return this;
        }
        diminished() {
@@ -2686,7 +2668,7 @@
            else {
                this._template[index] = [7, -1];
            }
-           this.generateNotes();
+           this._notesDirty = true;
            return this;
        }
        halfDiminished() {
@@ -2713,9 +2695,7 @@
            console.log(this._template[0]);
            const newTemplate = shift(this._template, this._template.length - 1);
            this._template = newTemplate;
-           console.log("about to generate");
-           this.generateNotes();
-           console.log("done generating");
+           this._notesDirty = true;
            return this;
        }
    }
