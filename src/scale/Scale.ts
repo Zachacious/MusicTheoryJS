@@ -55,7 +55,7 @@ class Scale implements Entity {
          this.octave = values.octave || DEFAULT_OCTAVE;
       }
 
-      this.generateNotes();
+      this._notesDirty = true;
    }
 
    //**********************************************************
@@ -107,7 +107,7 @@ class Scale implements Entity {
       const wrapped = wrap(value, TONES_MIN, TONES_MAX);
       this.octave = this.octave + wrapped.numWraps;
       this._key = wrapped.value;
-      this.generateNotes();
+      this._notesDirty = true;
    }
 
    //**********************************************************
@@ -122,7 +122,7 @@ class Scale implements Entity {
 
    public set octave(value: number) {
       this._octave = clamp(value, OCTAVE_MIN, OCTAVE_MAX);
-      this.generateNotes();
+      this._notesDirty = true;
    }
 
    //**********************************************************
@@ -138,7 +138,7 @@ class Scale implements Entity {
    public set template(value: Array<number>) {
       this._template = clone(value);
       this._shiftedInterval = 0;
-      this.generateNotes();
+      this._notesDirty = true;
    }
 
    //**********************************************************
@@ -148,7 +148,12 @@ class Scale implements Entity {
     */
    //**********************************************************
    private _notes: Array<Note> = [];
+   private _notesDirty: boolean = true;
    public get notes(): Array<Note> {
+      if (this._notesDirty) {
+         this.generateNotes();
+         this._notesDirty = false;
+      }
       return this._notes;
    }
 
@@ -227,7 +232,6 @@ class Scale implements Entity {
       );
       const note = this.notes[wrapped.value].copy();
       note.octave = this.octave + wrapped.numWraps;
-      console.log(note);
       return note;
    }
 
@@ -276,7 +280,7 @@ class Scale implements Entity {
 
       this._template = shift(this._template, degrees);
       this._shiftedInterval += degrees;
-      this.generateNotes();
+      this._notesDirty = true;
 
       return this;
    }
@@ -307,7 +311,7 @@ class Scale implements Entity {
          // this.shift(this._shiftedInterval * -1);
          this._shiftedInterval = 0;
          this._originalTemplate = [];
-         this.generateNotes();
+         this._notesDirty = true;
       }
 
       return this;
