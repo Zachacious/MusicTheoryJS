@@ -103,7 +103,7 @@ class Chord implements Entity {
       return this._notes;
    }
 
-   private _generateNotes(): Note[] {
+   private generateNotes(): Note[] {
       console.log("generating notes");
       this._notes = [];
       for (const interval of this._template) {
@@ -125,29 +125,36 @@ class Chord implements Entity {
       return this._notes;
    }
 
-   protected generateNotes = debounce(this._generateNotes, 10, {
-      isImmediate: true,
-   });
+   // protected generateNotes = debounce(this._generateNotes, 10, {
+   //    isImmediate: true,
+   // });
 
    public getNoteNames(): string[] {
-      const notes = [];
-      const scaleNoteNames = [...this._baseScale.getNoteNames()];
-
-      for (const interval of this._template) {
-         let tone = 0;
-         if (Array.isArray(interval)) {
-            tone = interval[0];
-         } else {
-            tone = interval;
-         }
-         const offset = tone;
-         const wrapped = wrap(offset, 1, scaleNoteNames.length);
-         const note = scaleNoteNames[wrapped.value - 1];
-
-         notes.push(note);
+      const noteNames: string[] = [];
+      for (const note of this._notes) {
+         noteNames.push(note.toString());
       }
+      return noteNames;
+      // const notes = [];
+      // const scaleNoteNames = [...this._baseScale.getNoteNames()];
+      // // const mod = 0;
 
-      return notes;
+      // for (const interval of this._template) {
+      //    let tone = 0;
+      //    if (Array.isArray(interval)) {
+      //       tone = interval[0];
+      //       // mod = interval[1];
+      //    } else {
+      //       tone = interval;
+      //    }
+      //    const offset = tone;
+      //    const wrapped = wrap(offset, 1, scaleNoteNames.length);
+      //    const note = scaleNoteNames[wrapped.value - 1];
+      //    // must change this to accomidate the mod
+      //    notes.push(note);
+      // }
+
+      // return notes;
    }
 
    public copy(): Chord {
@@ -310,9 +317,7 @@ class Chord implements Entity {
       );
 
       this._template = newTemplate;
-      console.log("about to generate");
-      this._generateNotes();
-      console.log("done generating");
+      this.generateNotes();
 
       return this;
    }

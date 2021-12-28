@@ -2267,8 +2267,6 @@
    const DEFAULT_CHORD_TEMPLATE = [1, 3, 5];
    const DEFAULT_SCALE = new Scale();
 
-   function r(r,e,n){var i,t,o;void 0===e&&(e=50),void 0===n&&(n={});var a=null!=(i=n.isImmediate)&&i,u=null!=(t=n.callback)&&t,c=n.maxWait,v=Date.now(),l=[];function f(){if(void 0!==c){var r=Date.now()-v;if(r+e>=c)return c-r}return e}var d=function(){var e=[].slice.call(arguments),n=this;return new Promise(function(i,t){var c=a&&void 0===o;if(void 0!==o&&clearTimeout(o),o=setTimeout(function(){if(o=void 0,v=Date.now(),!a){var i=r.apply(n,e);u&&u(i),l.forEach(function(r){return (0, r.resolve)(i)}),l=[];}},f()),c){var d=r.apply(n,e);return u&&u(d),i(d)}l.push({resolve:i,reject:t});})};return d.cancel=function(r){void 0!==o&&clearTimeout(o),l.forEach(function(e){return (0, e.reject)(r)}),l=[];},d}
-
    //**********************************************************
    /**
     * Regex for matching note name, modifier, and octave
@@ -2531,7 +2529,7 @@
        get notes() {
            return this._notes;
        }
-       _generateNotes() {
+       generateNotes() {
            console.log("generating notes");
            this._notes = [];
            for (const interval of this._template) {
@@ -2552,26 +2550,33 @@
            }
            return this._notes;
        }
-       generateNotes = r(this._generateNotes, 10, {
-           isImmediate: true,
-       });
+       // protected generateNotes = debounce(this._generateNotes, 10, {
+       //    isImmediate: true,
+       // });
        getNoteNames() {
-           const notes = [];
-           const scaleNoteNames = [...this._baseScale.getNoteNames()];
-           for (const interval of this._template) {
-               let tone = 0;
-               if (Array.isArray(interval)) {
-                   tone = interval[0];
-               }
-               else {
-                   tone = interval;
-               }
-               const offset = tone;
-               const wrapped = wrap(offset, 1, scaleNoteNames.length);
-               const note = scaleNoteNames[wrapped.value - 1];
-               notes.push(note);
+           const noteNames = [];
+           for (const note of this._notes) {
+               noteNames.push(note.toString());
            }
-           return notes;
+           return noteNames;
+           // const notes = [];
+           // const scaleNoteNames = [...this._baseScale.getNoteNames()];
+           // // const mod = 0;
+           // for (const interval of this._template) {
+           //    let tone = 0;
+           //    if (Array.isArray(interval)) {
+           //       tone = interval[0];
+           //       // mod = interval[1];
+           //    } else {
+           //       tone = interval;
+           //    }
+           //    const offset = tone;
+           //    const wrapped = wrap(offset, 1, scaleNoteNames.length);
+           //    const note = scaleNoteNames[wrapped.value - 1];
+           //    // must change this to accomidate the mod
+           //    notes.push(note);
+           // }
+           // return notes;
        }
        copy() {
            return new Chord({
@@ -2643,6 +2648,7 @@
            else {
                this._template[index] = [5, -1];
            }
+           console.log("about to gen notes");
            this.generateNotes();
            return this;
        }
@@ -2708,7 +2714,7 @@
            const newTemplate = shift(this._template, this._template.length - 1);
            this._template = newTemplate;
            console.log("about to generate");
-           this._generateNotes();
+           this.generateNotes();
            console.log("done generating");
            return this;
        }
