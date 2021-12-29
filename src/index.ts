@@ -8,7 +8,7 @@ import Chord from "./Chord/Chord";
 import ChordTemplates from "./Chord/chordTemplates";
 // import parseChord from "./Chord/chordNameParser";
 
-import { init, initAsync } from "./Initializer/Initializer";
+// import { init, initAsync } from "./Initializer/Initializer";
 
 export {
    Note,
@@ -17,8 +17,8 @@ export {
    Instrument,
    Scale,
    ScaleTemplates,
-   init,
-   initAsync,
+   // init,
+   // initAsync,
    Chord,
    ChordTemplates,
    // parseChord,
