@@ -1,6 +1,7 @@
 import { registerInitializer } from "../Initializer/Initializer";
 import isEqual from "../utils/isEqual";
 import ScaleTemplates from "./ScaleTemplates";
+import table from "./noteStringLookup.json";
 
 const scaleNameLookup = (
    template: number[],
@@ -45,8 +46,34 @@ const nameTable = (key: string) => {
    return _nameTable[key];
 };
 
-registerInitializer(() => {
+// registerInitializer(() => {
+//    _nameTable = createTable();
+// });
+
+if (table && Object.keys(table).length > 0) {
+   _nameTable = table;
+} else {
    _nameTable = createTable();
-});
+}
+
+// save the lookup table to file
+
+import("fs")
+   .then((fs) => {
+      if (process?.env?.GENTABLES ?? false) {
+         try {
+            if (!_nameTable) _nameTable = createTable();
+            fs.writeFileSync(
+               "./src/Scale/noteStringLookup.json",
+               JSON.stringify(_nameTable)
+            );
+         } catch (err) {
+            console.warn(err);
+         }
+      }
+   })
+   .catch(() => {
+      console.log("Not running from NODE - This is fine");
+   });
 
 export default scaleNameLookup;

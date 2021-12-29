@@ -10,8 +10,9 @@ import wrap from "../utils/wrap";
 import clamp from "../utils/clamp";
 import { registerInitializer } from "../Initializer/Initializer";
 import ChordInterval from "./ChordInterval";
-import { ChordTemplates } from "..";
+import ChordTemplates from "./chordTemplates";
 import ChordInitializer from "./ChordInitializer";
+import table from "./noteLookup.json";
 
 //**********************************************************
 /**
@@ -223,8 +224,34 @@ const chordLookup = (key: string): ChordInitializer => {
    return _chordLookup[key];
 };
 
-registerInitializer(() => {
+// registerInitializer(() => {
+//    _chordLookup = createTable();
+// });
+
+if (table && Object.keys(table).length > 0) {
+   _chordLookup = table;
+} else {
    _chordLookup = createTable();
-});
+}
+
+// save the lookup table to file
+
+import("fs")
+   .then((fs) => {
+      if (process?.env?.GENTABLES ?? false) {
+         try {
+            if (!_chordLookup) _chordLookup = createTable();
+            fs.writeFileSync(
+               "./src/Chord/noteLookup.json",
+               JSON.stringify(_chordLookup)
+            );
+         } catch (err) {
+            console.warn(err);
+         }
+      }
+   })
+   .catch(() => {
+      console.log("Not running from NODE - This is fine");
+   });
 
 export default parseChord;

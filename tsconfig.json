@@ -13,6 +13,7 @@
       "target": "ESNext",
       "module": "esnext",
       "moduleResolution": "node",
+      "resolveJsonModule": true,
     },
     "include": [
       "src/**/*"

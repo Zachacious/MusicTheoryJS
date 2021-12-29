@@ -11,6 +11,7 @@ import wrap from "../utils/wrap";
 import clamp from "../utils/clamp";
 import ScaleTemplates from "./ScaleTemplates";
 import { registerInitializer } from "../Initializer/Initializer";
+import table from "./noteLookup.json";
 
 //**********************************************************
 /**
@@ -184,8 +185,34 @@ const scaleLookup = (key: string): ScaleInitializer => {
    return _scaleLookup[key];
 };
 
-registerInitializer(() => {
+// registerInitializer(() => {
+//    _scaleLookup = createTable();
+// });
+
+if (table && Object.keys(table).length > 0) {
+   _scaleLookup = table;
+} else {
    _scaleLookup = createTable();
-});
+}
+
+// save the lookup table to file
+
+import("fs")
+   .then((fs) => {
+      if (process?.env?.GENTABLES ?? false) {
+         try {
+            if (!_scaleLookup) _scaleLookup = createTable();
+            fs.writeFileSync(
+               "./src/Scale/noteStringLookup.json",
+               JSON.stringify(_scaleLookup)
+            );
+         } catch (err) {
+            console.warn(err);
+         }
+      }
+   })
+   .catch(() => {
+      console.log("Not running from NODE - This is fine");
+   });
 
 export default parseScale;

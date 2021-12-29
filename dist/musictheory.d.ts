@@ -265,6 +265,7 @@ declare class Scale$1 implements Entity {
      * notes are generated and cached as needed
      */
     private _notes;
+    private _notesDirty;
     get notes(): Array<Note>;
     /**
      * generate notes(internal)
@@ -413,6 +414,7 @@ declare class Scale implements Entity {
      * notes are generated and cached as needed
      */
     private _notes;
+    private _notesDirty;
     get notes(): Array<Note>;
     /**
      * generate notes(internal)

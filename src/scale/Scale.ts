@@ -24,6 +24,7 @@ import clone from "../utils/clone";
 import isEqual from "../utils/isEqual";
 import scaleNameLookup from "./scaleNameLookup";
 import { registerInitializer } from "../Initializer/Initializer";
+import table from "./noteLookup.json";
 // import scaleNoteNameLookup from "./scaleNoteNameLookup";
 
 //**********************************************************
@@ -536,13 +537,38 @@ class Scale implements Entity {
     */
    //**********************************************************
    public static async init() {
-      Scale._notesLookup = Scale.createNotesLookupTable();
+      // Scale._notesLookup = Scale.createNotesLookupTable();
+      if (table && Object.keys(table).length > 0) {
+         Scale._notesLookup = table;
+      } else {
+         Scale._notesLookup = Scale.createNotesLookupTable();
+      }
+
+      // save the lookup table to file
+
+      import("fs")
+         .then((fs) => {
+            if (process?.env?.GENTABLES ?? false) {
+               try {
+                  if (!Scale._notesLookup)
+                     Scale._notesLookup = Scale.createNotesLookupTable();
+                  fs.writeFileSync(
+                     "./src/Scale/noteLookup.json",
+                     JSON.stringify(Scale._notesLookup)
+                  );
+               } catch (err) {
+                  console.warn(err);
+               }
+            }
+         })
+         .catch(() => {
+            console.log("Not running from NODE - This is fine");
+         });
    }
 }
 
-registerInitializer(Scale.init);
+// registerInitializer(Scale.init);
+Scale.init();
 
 export default Scale;
-export type { ScaleInitializer };
-
-// look at order of initialized - not working correctly
+// export type { ScaleInitializer };

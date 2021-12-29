@@ -8,6 +8,7 @@ import {
 import Semitone from "../Semitone";
 import wrap from "../utils/wrap";
 import { registerInitializer } from "../Initializer/Initializer";
+import table from "./noteStringLookup.json";
 
 const UNKNOWN_MODIFIER_NOTE_STRINGS: Array<string> = [
    "C",
@@ -100,8 +101,34 @@ const noteStringLookup = (key: string) => {
    return _noteStringLookup[key];
 };
 
-registerInitializer(() => {
+// registerInitializer(() => {
+//    _noteStringLookup = createTable();
+// });
+
+if (table && Object.keys(table).length > 0) {
+   _noteStringLookup = table;
+} else {
    _noteStringLookup = createTable();
-});
+}
+
+// save the lookup table to file
+
+import("fs")
+   .then((fs) => {
+      if (process?.env?.GENTABLES ?? false) {
+         try {
+            if (!_noteStringLookup) _noteStringLookup = createTable();
+            fs.writeFileSync(
+               "./src/Note/noteStringLookup.json",
+               JSON.stringify(_noteStringLookup)
+            );
+         } catch (err) {
+            console.warn(err);
+         }
+      }
+   })
+   .catch(() => {
+      console.log("Not running from NODE - This is fine");
+   });
 
 export default noteStringLookup;

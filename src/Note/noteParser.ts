@@ -5,6 +5,8 @@ import { parseModifier } from "../Modifier";
 import wrap from "../utils/wrap";
 import clamp from "../utils/clamp";
 import { registerInitializer } from "../Initializer/Initializer";
+import table from "./noteLookup.json";
+// import fs from "fs";
 
 //**********************************************************
 /**
@@ -145,8 +147,34 @@ const noteLookup = (key: string) => {
    return _noteLookup[key];
 };
 
-registerInitializer(() => {
+// registerInitializer(() => {
+//    _noteLookup = createTable();
+// });
+
+if (table && Object.keys(table).length > 0) {
+   _noteLookup = table;
+} else {
    _noteLookup = createTable();
-});
+}
+
+// save the lookup table to file
+
+import("fs")
+   .then((fs) => {
+      if (process?.env?.GENTABLES ?? false) {
+         try {
+            if (!_noteLookup) _noteLookup = createTable();
+            fs.writeFileSync(
+               "./src/Note/noteLookup.json",
+               JSON.stringify(_noteLookup)
+            );
+         } catch (err) {
+            console.warn(err);
+         }
+      }
+   })
+   .catch(() => {
+      console.log("Not running from NODE - This is fine");
+   });
 
 export default parseNote;
