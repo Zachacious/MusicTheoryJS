@@ -190,7 +190,7 @@ const scaleLookup = (key: string): ScaleInitializer => {
 // });
 
 if (table && Object.keys(table).length > 0) {
-   _scaleLookup = table;
+   _scaleLookup = table as { [key: string]: ScaleInitializer };
 } else {
    _scaleLookup = createTable();
 }
