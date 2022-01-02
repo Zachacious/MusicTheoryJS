@@ -1,4 +1,4 @@
-import { registerInitializer } from "../Initializer/Initializer";
+// import { registerInitializer } from "../Initializer/Initializer";
 import isEqual from "../utils/isEqual";
 import ScaleTemplates from "./ScaleTemplates";
 import table from "./noteStringLookup.json";

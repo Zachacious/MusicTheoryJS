@@ -23,7 +23,7 @@ import shift from "../utils/shift";
 import clone from "../utils/clone";
 import isEqual from "../utils/isEqual";
 import scaleNameLookup from "./scaleNameLookup";
-import { registerInitializer } from "../Initializer/Initializer";
+// import { registerInitializer } from "../Initializer/Initializer";
 import table from "./noteLookup.json";
 // import scaleNoteNameLookup from "./scaleNoteNameLookup";
 

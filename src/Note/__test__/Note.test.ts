@@ -79,6 +79,7 @@ describe("Note", () => {
 
    it("should return true for isSharp() if the note is sharp, and false for isFlat()", () => {
       const note = new Note("A7");
+      expect(note.isSharp()).toBe(false);
       const sharp = note.sharp();
       note.sharpen();
       expect(note.isSharp()).toBe(true);
@@ -90,6 +91,7 @@ describe("Note", () => {
 
    it("should return true for isFlat() if the note is flat, and false for isSharp()", () => {
       const note = new Note("A7");
+      expect(note.isFlat()).toBe(false);
       const flat = note.flat();
       note.flatten();
       expect(note.isSharp()).toBe(false);

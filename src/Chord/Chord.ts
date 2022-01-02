@@ -16,9 +16,9 @@ import parseChord from "./chordNameParser";
 import shift from "../utils/shift";
 
 class Chord implements Entity {
-   constructor(values?: ChordInitializer) {
+   constructor(values?: ChordInitializer | string) {
       if (!values) {
-         this._template = DEFAULT_CHORD_TEMPLATE;
+         this._template = [...DEFAULT_CHORD_TEMPLATE];
          this.octave = DEFAULT_OCTAVE;
          this.root = DEFAULT_SEMITONE;
       } else if (typeof values === "string") {
@@ -27,7 +27,7 @@ class Chord implements Entity {
          this.octave = parsed?.octave ?? DEFAULT_OCTAVE;
          this.root = parsed?.root ?? DEFAULT_SEMITONE;
       } else {
-         this._template = values.template ?? DEFAULT_CHORD_TEMPLATE;
+         this._template = [...(values.template ?? DEFAULT_CHORD_TEMPLATE)];
          this.octave = values.octave ?? DEFAULT_OCTAVE;
          this.root = values.root ?? DEFAULT_SEMITONE;
       }

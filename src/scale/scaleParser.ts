@@ -10,7 +10,7 @@ import { parseModifier } from "../Modifier";
 import wrap from "../utils/wrap";
 import clamp from "../utils/clamp";
 import ScaleTemplates from "./ScaleTemplates";
-import { registerInitializer } from "../Initializer/Initializer";
+// import { registerInitializer } from "../Initializer/Initializer";
 import table from "./noteLookup.json";
 
 //**********************************************************

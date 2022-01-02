@@ -8,7 +8,7 @@ import { getWholeToneFromName } from "../Semitone";
 import { parseModifier } from "../Modifier";
 import wrap from "../utils/wrap";
 import clamp from "../utils/clamp";
-import { registerInitializer } from "../Initializer/Initializer";
+// import { registerInitializer } from "../Initializer/Initializer";
 import ChordInterval from "./ChordInterval";
 import ChordTemplates from "./chordTemplates";
 import ChordInitializer from "./ChordInitializer";
@@ -229,7 +229,7 @@ const chordLookup = (key: string): ChordInitializer => {
 // });
 
 if (table && Object.keys(table).length > 0) {
-   _chordLookup = table;
+   _chordLookup = table as { [key: string]: ChordInitializer };
 } else {
    _chordLookup = createTable();
 }

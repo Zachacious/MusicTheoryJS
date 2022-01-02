@@ -7,7 +7,7 @@ import {
 } from "./noteConstants";
 import Semitone from "../Semitone";
 import wrap from "../utils/wrap";
-import { registerInitializer } from "../Initializer/Initializer";
+// import { registerInitializer } from "../Initializer/Initializer";
 import table from "./noteStringLookup.json";
 
 const UNKNOWN_MODIFIER_NOTE_STRINGS: Array<string> = [

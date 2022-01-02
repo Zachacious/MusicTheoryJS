@@ -4,7 +4,7 @@ import { getWholeToneFromName } from "../Semitone";
 import { parseModifier } from "../Modifier";
 import wrap from "../utils/wrap";
 import clamp from "../utils/clamp";
-import { registerInitializer } from "../Initializer/Initializer";
+// import { registerInitializer } from "../Initializer/Initializer";
 import table from "./noteLookup.json";
 // import fs from "fs";
 
