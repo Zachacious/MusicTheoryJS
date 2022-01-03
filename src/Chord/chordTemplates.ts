@@ -20,7 +20,7 @@ const ChordTemplates: { [key: string]: ChordInterval[] } = {
    maj7: [1, 3, 5, 7],
    maj9: [1, 3, 5, 7, 9],
    maj11: [1, 3, 5, 7, 9, 11],
-   maj13: [1, 3, 5, 7, 9, 11, 12],
+   maj13: [1, 3, 5, 7, 9, 11, 13],
    maj7s11: [1, 3, 5, 7, [11, sharp]],
    majb5: [1, 3, [5, flat]],
 

@@ -336,4 +336,15 @@ describe("Chord", () => {
          expect(chord.template).toEqual([5, 8, 10]);
       });
    });
+
+   describe("Stringification", () => {
+      it("should print the string form of the chord", () => {
+         const chord = new Chord({
+            root: 0,
+            octave: 4,
+            template: DEFAULT_CHORD_TEMPLATE,
+         });
+         expect(chord.toString()).toEqual("(C4)maj");
+      });
+   });
 });

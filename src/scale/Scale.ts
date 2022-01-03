@@ -204,6 +204,7 @@ class Scale implements Entity {
 
    /**
     * Returns a copy of this Scale
+    * @chainable
     * @returns a copy of this Scale
     * @example
     * ```javascript
@@ -514,6 +515,7 @@ class Scale implements Entity {
    /**
     * relative major
     * returns a new scale that is the relative major of this scale - takes the 3rd degree as it's key
+    * @chainable
     * @returns a new scale that is the relative major of this scale
     * @example
     * ```javascript
@@ -533,6 +535,7 @@ class Scale implements Entity {
    /**
     * relative minor
     * returns a new scale that is the relative minor of this scale - takes the 6th degree as it's key
+    * @chainable
     * @returns a new scale that is the relative minor of this scale
     * @example
     * ```javascript
@@ -581,6 +584,7 @@ class Scale implements Entity {
    /**
     * shifted
     * returns a copy of this scale shifted by the given number of degrees
+    * @chainable
     * @param degrees - the number of degrees to shift the scale
     * @returns a copy of this scale shifted by the given number of degrees
     * @example
@@ -625,6 +629,7 @@ class Scale implements Entity {
     * unshifted
     * returns a copy of this scale with the tonic shifted back
     * to the root position
+    * @chainable
     * @returns a copy of this scale with the tonic shifted back
     * to the root position
     * @example
@@ -663,6 +668,7 @@ class Scale implements Entity {
     */
 
    /**
+    * @chainable
     * @returns a copy of this scale in the Ionian(major) mode
     * @example
     * ```javascript
@@ -677,7 +683,7 @@ class Scale implements Entity {
    }
 
    /**
-    *
+    * @chainable
     * @returns a copy of this scale in the Dorian mode
     * @example
     * ```javascript
@@ -692,7 +698,7 @@ class Scale implements Entity {
    }
 
    /**
-    *
+    * @chainable
     * @returns a copy of this scale in the Phrygian mode
     * @example
     * ```javascript
@@ -707,7 +713,7 @@ class Scale implements Entity {
    }
 
    /**
-    *
+    * @chainable
     * @returns a copy of this scale in the Lydian mode
     * @example
     * ```javascript
@@ -722,7 +728,7 @@ class Scale implements Entity {
    }
 
    /**
-    *
+    * @chainable
     * @returns a copy of this scale in the Mixolydian mode
     * @example
     * ```javascript
@@ -737,7 +743,7 @@ class Scale implements Entity {
    }
 
    /**
-    *
+    * @chainable
     * @returns a copy of this scale in the Aeolian(minor) mode
     * @example
     * ```javascript
@@ -752,7 +758,7 @@ class Scale implements Entity {
    }
 
    /**
-    *
+    * @chainable
     * @returns a copy of this scale in the Locrian mode
     * @example
     * ```javascript

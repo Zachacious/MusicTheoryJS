@@ -1,6 +1,6 @@
 import Entity from "../Entity";
 import { uid } from "uid";
-import { Semitone } from "..";
+import { ChordTemplates, Semitone } from "..";
 import { DEFAULT_SEMITONE, TONES_MAX, TONES_MIN } from "../Note/noteConstants";
 import { DEFAULT_OCTAVE, OCTAVE_MAX, OCTAVE_MIN } from "../Note/noteConstants";
 import wrap from "../utils/wrap";
@@ -378,6 +378,7 @@ class Chord implements Entity {
    }
 
    /**
+    * @chainable
     * @returns a copy of the chord
     * @example
     * ```javascript
@@ -414,6 +415,7 @@ class Chord implements Entity {
 
    /**
     * mutates the chord in place
+    * @chainable
     * @returns the chord with a natrual 3rd
     * @example
     * ```javascript
@@ -451,6 +453,7 @@ class Chord implements Entity {
    }
 
    /**
+    * @chainable
     * @returns a copy of the chord with a natural 3rd
     * @example
     * ```javascript
@@ -490,6 +493,7 @@ class Chord implements Entity {
 
    /**
     *  mutates the chord in place
+    * @chainable
     * @returns the chord with a flat 3rd
     * @example
     * ```javascript
@@ -526,6 +530,7 @@ class Chord implements Entity {
    }
 
    /**
+    * @chainable
     * @returns a copy of the chord with a flat 3rd
     * @example
     * ```javascript
@@ -562,6 +567,7 @@ class Chord implements Entity {
 
    /**
     * Mutates the chord in place
+    * @chainable
     * @returns the chord with a sharp 5th
     * @example
     * ```javascript
@@ -598,6 +604,7 @@ class Chord implements Entity {
    }
 
    /**
+    * @chainable
     * @returns a copy of the chord with a sharp 5th
     * @example
     * ```javascript
@@ -634,6 +641,7 @@ class Chord implements Entity {
 
    /**
     * Mutates the chord in place
+    * @chainable
     * @returns the chord with a flat 5th
     * @example
     * ```javascript
@@ -670,6 +678,7 @@ class Chord implements Entity {
    }
 
    /**
+    * @chainable
     * @returns a copy of the chord with a flat 5th
     * @example
     * ```javascript
@@ -706,6 +715,7 @@ class Chord implements Entity {
 
    /**
     * Mutates the chord in place
+    * @chainable
     * @returns the chord with a flat 3,5, and 7th
     * @example
     * ```javascript
@@ -745,6 +755,7 @@ class Chord implements Entity {
    }
 
    /**
+    * @chainable
     * @returns a copy of the chord with a flat 3,5, and 7th
     * @example
     * ```javascript
@@ -786,6 +797,7 @@ class Chord implements Entity {
 
    /**
     * Mutates the chord in place
+    * @chainable
     * @returns the chord with with the first note moved to the end up one octave
     * @example
     * ```javascript
@@ -817,6 +829,7 @@ class Chord implements Entity {
    }
 
    /**
+    * @chainable
     * @returns a copy of the chord with with the first note moved to the end up one octave
     * @example
     * ```javascript
@@ -830,6 +843,29 @@ class Chord implements Entity {
     */
    public inverted(): Chord {
       return this.copy().invert();
+   }
+
+   /**
+    * @returns the string form of the chord
+    * @example
+    * ```javascript
+    * const chord = new Chord();
+    * console.log(chord.toString()); // '(C4)maj'
+    * ```
+    */
+   public toString(): string {
+      const keys = Object.keys(ChordTemplates);
+      const values = Object.values(ChordTemplates).map((template) =>
+         JSON.stringify(template)
+      );
+      const index = values.indexOf(JSON.stringify(this._template));
+      console.log(index);
+
+      const prefix = `(${Semitone[this._root]}${this._octave})`;
+
+      const str =
+         index > -1 ? prefix + keys[index] : this.getNoteNames().join(",");
+      return str;
    }
 }
 
