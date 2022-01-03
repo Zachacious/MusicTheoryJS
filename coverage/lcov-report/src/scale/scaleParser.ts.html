@@ -268,14 +268,7 @@
 <a name='L209'></a><a href='#L209'>209</a>
 <a name='L210'></a><a href='#L210'>210</a>
 <a name='L211'></a><a href='#L211'>211</a>
-<a name='L212'></a><a href='#L212'>212</a>
-<a name='L213'></a><a href='#L213'>213</a>
-<a name='L214'></a><a href='#L214'>214</a>
-<a name='L215'></a><a href='#L215'>215</a>
-<a name='L216'></a><a href='#L216'>216</a>
-<a name='L217'></a><a href='#L217'>217</a>
-<a name='L218'></a><a href='#L218'>218</a>
-<a name='L219'></a><a href='#L219'>219</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L212'></a><a href='#L212'>212</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -287,10 +280,7 @@
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -299,6 +289,7 @@
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -412,7 +403,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -460,10 +450,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
@@ -505,24 +491,22 @@ import { parseModifier } from "../Modifier";
 import wrap from "../utils/wrap";
 import clamp from "../utils/clamp";
 import ScaleTemplates from "./ScaleTemplates";
-// import { registerInitializer } from "../Initializer/Initializer";
 import table from "./noteLookup.json";
 &nbsp;
-//**********************************************************
 /**
  * Regex for matching note name, modifier, and octave
  */
-//**********************************************************
 const nameRegex = /([A-G])(?![^(]*\))/g;
 const modifierRegex = /(#|s|b)(?![^(]*\))/g;
 const octaveRegex = /([0-9]+)(?![^(]*\))/g;
 const scaleNameRegex = /(\([a-zA-Z]{2,}\))/g;
 &nbsp;
-//**********************************************************
 /**
  * attempts to parse a note from a string
+ * @param scale - the string to parse
+ * @param supressWarning - supress the warning for ineffeciency if true
+ * @internal
  */
-//**********************************************************
 const parseScale = (
    scale: string,
    supressWarning: boolean = false
@@ -626,11 +610,10 @@ const parseScale = (
    throw new Error(`Invalid Scale: ${scale}`);
 };
 &nbsp;
-//**********************************************************
 /**
  * creates a lookup table for all notes formatted as [A-G][#|b|s][0-9]
+ * @internal
  */
-//**********************************************************
 const createTable = <span class="fstat-no" title="function not covered" >(): { [key: string]: ScaleInitializer } =</span>&gt; {
    const scaleTable: { [key: string]: ScaleInitializer } = <span class="cstat-no" title="statement not covered" >{};</span>
 &nbsp;
@@ -665,11 +648,11 @@ const createTable = <span class="fstat-no" title="function not covered" >(): { [
 <span class="cstat-no" title="statement not covered" >   return scaleTable;</span>
 };
 &nbsp;
-//**********************************************************
+//*********************************************************
 /**
  * creates the lookup table as soon as the module is loaded
+ * @internal
  */
-//**********************************************************
 let _scaleLookup: { [key: string]: ScaleInitializer } = {};
 &nbsp;
 const scaleLookup = (key: string): ScaleInitializer =&gt; {
@@ -679,10 +662,6 @@ const scaleLookup = (key: string): ScaleInitializer =&gt; {
 &nbsp;
    return _scaleLookup[key];
 };
-&nbsp;
-// registerInitializer(() =&gt; {
-//    _scaleLookup = createTable();
-// });
 &nbsp;
 if (table &amp;&amp; Object.keys(table).length &gt; 0) {
    _scaleLookup = table as { [key: string]: ScaleInitializer };
@@ -718,7 +697,7 @@ export default parseScale;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Sun Jan 02 2022 11:47:34 GMT-0600 (Central Standard Time)
+                at Sun Jan 02 2022 19:37:09 GMT-0600 (Central Standard Time)
             </div>
         </div>
         <script src="../../prettify.js"></script>

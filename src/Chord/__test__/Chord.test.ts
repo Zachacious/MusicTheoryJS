@@ -219,14 +219,80 @@ describe("Chord", () => {
          expect(chord.isDiminished()).toBe(true);
       });
 
-      it("should half diminish the chord(add and/or flatten a 7th)", () => {
+      it("should make the chord major(add or natrualize the 3rd)", () => {
+         const chord = new Chord({
+            root: 0,
+            octave: 4,
+            template: DEFAULT_CHORD_TEMPLATE,
+         });
+         chord.minor();
+         chord.major();
+         expect(chord.template).toEqual([1, 3, 5]);
+      });
+
+      it("should make a copy chord that is a major", () => {
+         const chord = new Chord({
+            root: 0,
+            octave: 4,
+            template: DEFAULT_CHORD_TEMPLATE,
+         });
+         chord.minor();
+         const major = chord.majored();
+         expect(major).toBeDefined();
+         expect(major.template).toEqual([1, 3, 5]);
+      });
+
+      it("should return true if the chord is major", () => {
+         const chord = new Chord({
+            root: 0,
+            octave: 4,
+            template: DEFAULT_CHORD_TEMPLATE,
+         });
+         expect(chord.isMajor()).toBe(true);
+         chord.minor();
+         expect(chord.isMajor()).toBe(false);
+      });
+
+      it("should make the chord minor(add or natrualize the 3rd)", () => {
+         const chord = new Chord({
+            root: 0,
+            octave: 4,
+            template: DEFAULT_CHORD_TEMPLATE,
+         });
+         chord.minor();
+         expect(chord.template).toEqual([1, [3, -1], 5]);
+      });
+
+      it("should make a copy chord that is a minor", () => {
+         const chord = new Chord({
+            root: 0,
+            octave: 4,
+            template: DEFAULT_CHORD_TEMPLATE,
+         });
+         const minor = chord.minored();
+         expect(minor).toBeDefined();
+         expect(minor.template).toEqual([1, [3, -1], 5]);
+      });
+
+      it("should return true if the chord is minor", () => {
+         const chord = new Chord({
+            root: 0,
+            octave: 4,
+            template: DEFAULT_CHORD_TEMPLATE,
+         });
+         expect(chord.isMinor()).toBe(false);
+         chord.minor();
+         expect(chord.isMinor()).toBe(true);
+      });
+
+      it("should half diminish the chord(add and/or flatten the 3rd, 5th, 7th)", () => {
          const chord = new Chord({
             root: 0,
             octave: 4,
             template: DEFAULT_CHORD_TEMPLATE,
          });
          chord.halfDiminish();
-         expect(chord.template).toEqual([1, 3, 5, [7, -1]]);
+         expect(chord.template).toEqual([1, [3, -1], [5, -1], [7, -1]]);
       });
 
       it("should create a copy half diminished chord", () => {
@@ -237,7 +303,12 @@ describe("Chord", () => {
          });
          const halfDiminished = chord.halfDiminished();
          expect(halfDiminished).toBeDefined();
-         expect(halfDiminished.template).toEqual([1, 3, 5, [7, -1]]);
+         expect(halfDiminished.template).toEqual([
+            1,
+            [3, -1],
+            [5, -1],
+            [7, -1],
+         ]);
       });
 
       it("should be true if half diminished", () => {

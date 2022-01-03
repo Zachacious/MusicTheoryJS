@@ -230,7 +230,7 @@ class Scale implements Entity {
     * @example
     * ```javascript
     * const scale = new Scale();
-    * console.log(scale.key); // 0
+    * console.log(scale.key); // 0(semitone)
     * ```
     */
    public get key(): Semitone {
@@ -238,7 +238,7 @@ class Scale implements Entity {
    }
 
    /**
-    * Setting the semitone to a value outside of the range [0, 11] will<br/>
+    * Setting the semitone to a value outside of the range [0, 11](semitone) will<br/>
     * wrap the semitone to the range [0, 11] and change the octave depending<br/>
     * on how many times the semitone has been wrapped.
     * @example
