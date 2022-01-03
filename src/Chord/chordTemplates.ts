@@ -1,9 +1,17 @@
 import ChordInterval from "./ChordInterval";
 
+/**
+ * Shortcut for modifiers
+ * @internal
+ */
 const flat = -1;
 const flat_flat = -2;
 const sharp = 1;
 
+/**
+ * Chord templates
+ * @internal
+ */
 const ChordTemplates: { [key: string]: ChordInterval[] } = {
    maj: [1, 3, 5],
    maj4: [1, 3, 4, 5],

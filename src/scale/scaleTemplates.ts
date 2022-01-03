@@ -1,3 +1,6 @@
+/**
+ * Maps predefined scales to their names.
+ */
 const ScaleTemplates: { [key: string]: number[] } = {
    wholeTone: [0, 2, 2, 2, 2, 2, 2],
 

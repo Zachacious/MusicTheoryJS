@@ -11,33 +11,147 @@ import {
 } from "../Note/noteConstants";
 import { DEFAULT_SCALE_TEMPLATE } from "./scaleConstants";
 import ScaleInitializer from "./ScaleInitializer";
-// import Modes from "./modes";
 import Note from "../Note/Note";
 import ScaleTemplates from "./ScaleTemplates";
 import { uid } from "uid";
-// import * as uid from 'uid';
-// import Copyable from "../composables/Copyable";
+
 import Entity from "../Entity";
 import parseScale from "./scaleParser";
 import shift from "../utils/shift";
 import clone from "../utils/clone";
 import isEqual from "../utils/isEqual";
 import scaleNameLookup from "./scaleNameLookup";
-// import { registerInitializer } from "../Initializer/Initializer";
 import table from "./noteLookup.json";
-// import scaleNoteNameLookup from "./scaleNoteNameLookup";
 
-//**********************************************************
 /**
- * A musical scale.
- * The primary fields are the semitone and octave.
- * The octave is clamped to the range [0, 9].
- * Setting the semitone to a value outside of the range [0, 11] will
- * wrap the semitone to the range [0, 11] and change the octave depending
- * on how many times the semitone has been wrapped.
+ * Scales consist of a key(tonic or root) and a template(array of integers) that
+ * <br> represents the interval of steps between each note.
+ * <br><br>Scale intervals are represented by an integer
+ * <br>that is the number of semitones between each note.
+ * <br>0 = key - will always represent the tonic
+ * <br>1 = half step
+ * <br>2 = whole step
+ * <br>3 = one and one half steps
+ * <br>4 = double step
+ * <br>[0, 2, 2, 1, 2, 2, 2] represents the major scale
+ * <br><br> Scale templates may have arbitray lengths
+ *
+ * The following Pre-defined templates are available:
+ * <table>
+ * <tr>
+ * <td>major</td>
+ * <td>minor</td>
+ * <td>ionian</td>
+ * <td>dorian</td>
+ * </tr><tr>
+ * <td>phrygian</td>
+ * <td>lydian</td>
+ * <td>mixolydian</td>
+ * <td>aeolian</td>
+ * </tr><tr>
+ * <td>locrian</td>
+ * <td>enigmaticMajor</td>
+ * <td>enigmaticMinor</td>
+ * <td>minor7b5</td>
+ * </tr><tr>
+ * <td>major7s4s5</td>
+ * <td>harmonicMajor</td>
+ * <td>harmonicMinor</td>
+ * <td>doubleHarmonic</td>
+ * </tr><tr>
+ * <td>melodicMinorAscending</td>
+ * <td>melodicMinorDescending</td>
+ * <td>majorPentatonic</td>
+ * <td>majorPentatonicBlues</td>
+ * </tr><tr>
+ * <td>minorPentatonic</td>
+ * <td>minorPentatonicBlues</td>
+ * <td>b5Pentatonic</td>
+ * <td>minor6Pentatonic</td>
+ * </tr><tr>
+ * <td>dim8Tone</td>
+ * <td>dom8Tone</td>
+ * <td>neopolitanMajor</td>
+ * <td>neopolitanMinor</td>
+ * </tr><tr>
+ * <td>hungarianMajor</td>
+ * <td>hungarianMinor</td>
+ * <td>hungarianGypsy</td>
+ * <td>spanish</td>
+ * </tr><tr>
+ * <td>spanish8Tone</td>
+ * <td>spanishGypsy</td>
+ * <td>augmented</td>
+ * <td>dominantSuspended</td>
+ * </tr><tr>
+ * <td>bebopMajor</td>
+ * <td>bebopDominant</td>
+ * <td>mystic</td>
+ * <td>overtone</td>
+ * </tr><tr>
+ * <td>leadingTone</td>
+ * <td>hirojoshi</td>
+ * <td>japaneseA</td>
+ * <td>japaneseB</td>
+ * </tr><tr>
+ * <td>oriental</td>
+ * <td>arabian</td>
+ * <td>persian</td>
+ * <td>balinese</td>
+ * </tr><tr>
+ * <td>kumoi</td>
+ * <td>pelog</td>
+ * <td>algerian</td>
+ * <td>chinese</td>
+ * </tr><tr>
+ * <td>mongolian</td>
+ * <td>egyptian</td>
+ * <td>hindu</td>
+ * <td>romanian</td>
+ * </tr><tr>
+ * <td>hindu</td>
+ * <td>insen</td>
+ * <td>iwato</td>
+ * <td>scottish</td>
+ * </tr><tr>
+ * <td>yo</td>
+ * <td>istrian</td>
+ * <td>ukranianDorian</td>
+ * <td>petrushka</td>
+ * </tr><tr>
+ * <td>ahavaraba</td>
+ * <td>halfDiminished</td>
+ * <td>jewish</td>
+ * <td>byzantine</td>
+ * </tr><tr>
+ * <td>acoustic</td>
+ * </table>
+ *
+ * @example
+ * ```javascript
+ * import {Scale} from 'musictheoryjs';
+ * import {ScaleTemplates} from 'musictheoryjs';
+ * import {ScaleInitializer} from 'musictheoryjs'; // TypeScript only if needed
+ * ```
  */
-//**********************************************************
 class Scale implements Entity {
+   /**
+    * @example
+    * ```javascript
+    * import {Scale, ScaleTemplates} from 'musictheoryjs';
+    *
+    * // creates a scale with the default template, key 0f 0(C) and an octave of 4
+    * const scale = new Scale();
+    *
+    * // creates a scale with the template [0, 2, 2, 1, 2, 2, 2] and key 4(E) and octave 5
+    * const scale2 = new Scale({key: 4, octave: 5, template: ScaleTemplates.major});
+    *
+    *
+    * // String parsing should follow the format: note-name[alteration][octave][(scale-name)]
+    * // creates a scale with the minor template, key Gb and an octave of 7
+    * const scale3 = new Scale('Gb7(minor)');
+    * ```
+    */
    constructor(values?: ScaleInitializer | string) {
       if (!values) {
          this.template = DEFAULT_SCALE_TEMPLATE;
@@ -59,18 +173,27 @@ class Scale implements Entity {
       this._notesDirty = true;
    }
 
-   //**********************************************************
    /**
-    *  unique id for this scale
+    *  unique id for this scale(auto generated)
+    * @example
+    * ```javascript
+    * const scale = new Scale();
+    * console.log(scale.id); // dhlkj5j322
+    * ```
     */
-   //**********************************************************
    id: string = uid();
 
-   //**********************************************************
    /**
     * Returns true if this scale is equal to the given scale
+    * @param scale - the scale to compare to
+    * @returns true if the scales are equal
+    * @example
+    * ```javascript
+    * const scale = new Scale();
+    * const scale2 = new Scale();
+    * console.log(scale.equals(scale2)); // true
+    * ```
     */
-   //**********************************************************
    public equals(scale: Scale): boolean {
       return (
          this._key === scale._key &&
@@ -79,11 +202,16 @@ class Scale implements Entity {
       );
    }
 
-   //**********************************************************
    /**
     * Returns a copy of this Scale
+    * @returns a copy of this Scale
+    * @example
+    * ```javascript
+    * const scale = new Scale();
+    * const scale2 = scale.copy();
+    * console.log(scale.equals(scale2)); // true
+    * ```
     */
-   //**********************************************************
    public copy(): Scale {
       const scale: Scale = new Scale({
          key: this.key,
@@ -94,16 +222,32 @@ class Scale implements Entity {
       return scale;
    }
 
-   //**********************************************************
    /**
     * key
     */
-   //**********************************************************
-   private _key: Semitone = 0;
+   protected _key: Semitone = 0;
+   /**
+    * @example
+    * ```javascript
+    * const scale = new Scale();
+    * console.log(scale.key); // 0
+    * ```
+    */
    public get key(): Semitone {
       return this._key;
    }
 
+   /**
+    * Setting the semitone to a value outside of the range [0, 11] will<br/>
+    * wrap the semitone to the range [0, 11] and change the octave depending<br/>
+    * on how many times the semitone has been wrapped.
+    * @example
+    * ```javascript
+    * const scale = new Scale();
+    * scale.key = 4;
+    * console.log(scale.key); // 4
+    * ```
+    */
    public set key(value: Semitone) {
       const wrapped = wrap(value, TONES_MIN, TONES_MAX);
       this.octave = this.octave + wrapped.numWraps;
@@ -111,45 +255,169 @@ class Scale implements Entity {
       this._notesDirty = true;
    }
 
-   //**********************************************************
    /**
     * octave
     */
-   //**********************************************************
-   private _octave: number = DEFAULT_OCTAVE;
+   protected _octave: number = DEFAULT_OCTAVE;
+   /**
+    * The octave is clamped to the range [0, 9].
+    * @example
+    * ```javascript
+    * const scale = new Scale();
+    * console.log(scale.octave); // 4
+    * ```
+    */
    public get octave(): number {
       return this._octave;
    }
 
+   /**
+    * @example
+    * ```javascript
+    * const scale = new Scale();
+    * scale.octave = 5;
+    * console.log(scale.octave); // 5
+    * ```
+    */
    public set octave(value: number) {
       this._octave = clamp(value, OCTAVE_MIN, OCTAVE_MAX);
       this._notesDirty = true;
    }
 
-   //**********************************************************
    /**
     * template
     */
-   //**********************************************************
-   private _template: Array<number> = [];
+   protected _template: Array<number> = [];
+   /**
+    * @example
+    * ```javascript
+    * const scale = new Scale();
+    * console.log(scale.template); // [0, 2, 2, 1, 2, 2, 2]
+    * ```
+    */
    public get template(): Array<number> {
       return clone(this._template);
    }
 
+   /**
+    * The following Pre-defined templates are available:
+    * <table>
+    * <tr>
+    * <td>major</td>
+    * <td>minor</td>
+    * <td>ionian</td>
+    * <td>dorian</td>
+    * </tr><tr>
+    * <td>phrygian</td>
+    * <td>lydian</td>
+    * <td>mixolydian</td>
+    * <td>aeolian</td>
+    * </tr><tr>
+    * <td>locrian</td>
+    * <td>enigmaticMajor</td>
+    * <td>enigmaticMinor</td>
+    * <td>minor7b5</td>
+    * </tr><tr>
+    * <td>major7s4s5</td>
+    * <td>harmonicMajor</td>
+    * <td>harmonicMinor</td>
+    * <td>doubleHarmonic</td>
+    * </tr><tr>
+    * <td>melodicMinorAscending</td>
+    * <td>melodicMinorDescending</td>
+    * <td>majorPentatonic</td>
+    * <td>majorPentatonicBlues</td>
+    * </tr><tr>
+    * <td>minorPentatonic</td>
+    * <td>minorPentatonicBlues</td>
+    * <td>b5Pentatonic</td>
+    * <td>minor6Pentatonic</td>
+    * </tr><tr>
+    * <td>dim8Tone</td>
+    * <td>dom8Tone</td>
+    * <td>neopolitanMajor</td>
+    * <td>neopolitanMinor</td>
+    * </tr><tr>
+    * <td>hungarianMajor</td>
+    * <td>hungarianMinor</td>
+    * <td>hungarianGypsy</td>
+    * <td>spanish</td>
+    * </tr><tr>
+    * <td>spanish8Tone</td>
+    * <td>spanishGypsy</td>
+    * <td>augmented</td>
+    * <td>dominantSuspended</td>
+    * </tr><tr>
+    * <td>bebopMajor</td>
+    * <td>bebopDominant</td>
+    * <td>mystic</td>
+    * <td>overtone</td>
+    * </tr><tr>
+    * <td>leadingTone</td>
+    * <td>hirojoshi</td>
+    * <td>japaneseA</td>
+    * <td>japaneseB</td>
+    * </tr><tr>
+    * <td>oriental</td>
+    * <td>arabian</td>
+    * <td>persian</td>
+    * <td>balinese</td>
+    * </tr><tr>
+    * <td>kumoi</td>
+    * <td>pelog</td>
+    * <td>algerian</td>
+    * <td>chinese</td>
+    * </tr><tr>
+    * <td>mongolian</td>
+    * <td>egyptian</td>
+    * <td>hindu</td>
+    * <td>romanian</td>
+    * </tr><tr>
+    * <td>hindu</td>
+    * <td>insen</td>
+    * <td>iwato</td>
+    * <td>scottish</td>
+    * </tr><tr>
+    * <td>yo</td>
+    * <td>istrian</td>
+    * <td>ukranianDorian</td>
+    * <td>petrushka</td>
+    * </tr><tr>
+    * <td>ahavaraba</td>
+    * <td>halfDiminished</td>
+    * <td>jewish</td>
+    * <td>byzantine</td>
+    * </tr><tr>
+    * <td>acoustic</td>
+    * </table>
+    * @example
+    * ```javascript
+    * const scale = new Scale();
+    * scale.template = [0, 2, 2, 1, 2, 2, 2];
+    * console.log(scale.template); // [0, 2, 2, 1, 2, 2, 2]
+    * ```
+    */
    public set template(value: Array<number>) {
       this._template = clone(value);
       this._shiftedInterval = 0;
       this._notesDirty = true;
    }
 
-   //**********************************************************
    /**
     * notes
     * notes are generated and cached as needed
     */
-   //**********************************************************
-   private _notes: Array<Note> = [];
-   private _notesDirty: boolean = true;
+   protected _notes: Array<Note> = [];
+   protected _notesDirty: boolean = true;
+
+   /**
+    * will generate the notes if needed or return the cached notes
+    * @example
+    * ```javascript
+    * const scale = new Scale();
+    * console.log(scale.notes); // List of notes
+    * ```
+    */
    public get notes(): Array<Note> {
       if (this._notesDirty) {
          this.generateNotes();
@@ -158,12 +426,10 @@ class Scale implements Entity {
       return this._notes;
    }
 
-   //**********************************************************
    /**
     * generate notes(internal)
     * generates the notes for this scale
     */
-   //**********************************************************
    protected generateNotes(): void {
       // use the template unshifted for simplicity
       const unshiftedTemplate = shift(
@@ -189,8 +455,6 @@ class Scale implements Entity {
          notes.push(note);
       }
 
-      // this._notes = shift(notes, this._shiftedInterval + 1);
-
       // shift notes back to original position
       if (this._shiftedInterval > 0) {
          const temp: Note[] = notes.splice(
@@ -209,22 +473,33 @@ class Scale implements Entity {
       this._notes = notes;
    }
 
-   //**********************************************************
    /**
     * returns the names of the notes in the scale
+    * @param preferSharpKeys - if true then sharps will be preferred over flats when semitones could be either - ex: Bb/A#
+    * @returns the names of the notes in the scale
+    * @example
+    * ```javascript
+    * const scale = new Scale();
+    * console.log(scale.names); // ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4']
+    * ```
     */
-   //**********************************************************
    public getNoteNames(preferSharpKey = true): string[] {
       const names: string[] = Scale.scaleNoteNameLookup(this, preferSharpKey);
       return names;
    }
 
-   //**********************************************************
    /**
     * degree
     * returns a note that represents the given degree
+    * @param degree - the degree to return
+    * @returns a note that represents the given degree
+    * @example
+    * ```javascript
+    * const scale = new Scale();
+    * console.log(scale.degree(0)); // C4(Note)
+    * console.log(scale.degree(1)); // D4(Note) etc
+    * ```
     */
-   //**********************************************************
    public degree(degree: number): Note {
       const wrapped = wrap(
          degree - 1 /*zero index */,
@@ -236,12 +511,16 @@ class Scale implements Entity {
       return note;
    }
 
-   //**********************************************************
    /**
     * relative major
-    * returns a new scale that is the relative major of this scale
+    * returns a new scale that is the relative major of this scale - takes the 3rd degree as it's key
+    * @returns a new scale that is the relative major of this scale
+    * @example
+    * ```javascript
+    * const scale = new Scale();
+    * console.log(scale.relativeMajor()); // Scale
+    * ```
     */
-   //**********************************************************
    public relativeMajor(): Scale {
       const major = new Scale({
          template: ScaleTemplates.major,
@@ -251,12 +530,16 @@ class Scale implements Entity {
       return major;
    }
 
-   //**********************************************************
    /**
     * relative minor
-    * returns a new scale that is the relative minor of this scale
+    * returns a new scale that is the relative minor of this scale - takes the 6th degree as it's key
+    * @returns a new scale that is the relative minor of this scale
+    * @example
+    * ```javascript
+    * const scale = new Scale();
+    * console.log(scale.relativeMinor()); // Scale
+    * ```
     */
-   //**********************************************************
    public relativeMinor(): Scale {
       const minor = new Scale({
          template: ScaleTemplates.minor,
@@ -266,14 +549,23 @@ class Scale implements Entity {
       return minor;
    }
 
-   //**********************************************************
+   /**
+    * shift
+    */
+   protected _shiftedInterval: number = 0;
+   protected _originalTemplate: Array<number> = [];
    /**
     * shift
     * shifts the scale by the given number of degrees
+    * @chainable
+    * @param shift - the number of degrees to shift the scale
+    * @returns a new scale that is the shifted scale
+    * @example
+    * ```javascript
+    * const scale = new Scale();
+    * console.log(scale.shift(1)); // Scale
+    * ```
     */
-   //**********************************************************
-   private _shiftedInterval: number = 0;
-   private _originalTemplate: Array<number> = [];
    public shift(degrees: number = 1): Scale {
       if (this._shiftedInterval === 0) {
          this._originalTemplate = clone(this._template);
@@ -286,24 +578,35 @@ class Scale implements Entity {
       return this;
    }
 
-   //**********************************************************
    /**
     * shifted
     * returns a copy of this scale shifted by the given number of degrees
+    * @param degrees - the number of degrees to shift the scale
+    * @returns a copy of this scale shifted by the given number of degrees
+    * @example
+    * ```javascript
+    * const scale = new Scale();
+    * console.log(scale.shifted(1)); // Scale(copy)
+    * ```
     */
-   //**********************************************************
    public shifted(degrees: number = 1): Scale {
       const scale = this.copy();
       scale.shift(degrees);
       return scale;
    }
 
-   //**********************************************************
    /**
     * unshift
     * shifts the original root back to the root position
+    * @chainable
+    * @returns this scale after unshifting it back to the original root position
+    * @example
+    * ```javascript
+    * const scale = new Scale();
+    * console.log(scale.shift(1));
+    * console.log(scale.unshift());
+    * ```
     */
-   //**********************************************************
    public unshift(): Scale {
       if (this._shiftedInterval !== 0) {
          if (this._originalTemplate.length > 0) {
@@ -318,13 +621,19 @@ class Scale implements Entity {
       return this;
    }
 
-   //**********************************************************
    /**
     * unshifted
     * returns a copy of this scale with the tonic shifted back
     * to the root position
+    * @returns a copy of this scale with the tonic shifted back
+    * to the root position
+    * @example
+    * ```javascript
+    * const scale = new Scale();
+    * console.log(scale.shift(1));
+    * console.log(scale.unshifted()); // Scale(copy)
+    * ```
     */
-   //**********************************************************
    public unshifted(): Scale {
       const scale = this.copy();
       if (this._originalTemplate.length)
@@ -333,80 +642,154 @@ class Scale implements Entity {
       return scale;
    }
 
-   //**********************************************************
    /**
     * returns the amount that the scale has shifted
     * (0 if not shifted)
+    * @returns the amount that the scale has shifted
+    * (0 if not shifted)
+    * @example
+    * ```javascript
+    * const scale = new Scale();
+    * console.log(scale.shift(1));
+    * console.log(scale.shifted()); // 1
+    * ```
     */
-   //**********************************************************
    public shiftedInterval(): number {
       return this._shiftedInterval;
    }
 
-   //**********************************************************
    /**
     * Scale modes
     */
-   //**********************************************************
+
+   /**
+    * @returns a copy of this scale in the Ionian(major) mode
+    * @example
+    * ```javascript
+    * const scale = new Scale();
+    * console.log(scale.ionian()); // Scale(copy)
+    * ```
+    */
    public ionian(): Scale {
       const scale = this.copy();
       scale.template = ScaleTemplates.ionian;
       return scale;
    }
 
+   /**
+    *
+    * @returns a copy of this scale in the Dorian mode
+    * @example
+    * ```javascript
+    * const scale = new Scale();
+    * console.log(scale.dorian()); // Scale(copy)
+    * ```
+    */
    public dorian(): Scale {
       const scale = this.copy();
       scale.template = ScaleTemplates.dorian;
       return scale;
    }
 
+   /**
+    *
+    * @returns a copy of this scale in the Phrygian mode
+    * @example
+    * ```javascript
+    * const scale = new Scale();
+    * console.log(scale.phrygian()); // Scale(copy)
+    * ```
+    */
    public phrygian(): Scale {
       const scale = this.copy();
       scale.template = ScaleTemplates.phrygian;
       return scale;
    }
 
+   /**
+    *
+    * @returns a copy of this scale in the Lydian mode
+    * @example
+    * ```javascript
+    * const scale = new Scale();
+    * console.log(scale.lydian()); // Scale(copy)
+    * ```
+    */
    public lydian(): Scale {
       const scale = this.copy();
       scale.template = ScaleTemplates.lydian;
       return scale;
    }
 
+   /**
+    *
+    * @returns a copy of this scale in the Mixolydian mode
+    * @example
+    * ```javascript
+    * const scale = new Scale();
+    * console.log(scale.mixolydian()); // Scale(copy)
+    * ```
+    */
    public mixolydian(): Scale {
       const scale = this.copy();
       scale.template = ScaleTemplates.mixolydian;
       return scale;
    }
 
+   /**
+    *
+    * @returns a copy of this scale in the Aeolian(minor) mode
+    * @example
+    * ```javascript
+    * const scale = new Scale();
+    * console.log(scale.aeolian()); // Scale(copy)
+    * ```
+    */
    public aeolian(): Scale {
       const scale = this.copy();
       scale.template = ScaleTemplates.aeolian;
       return scale;
    }
 
+   /**
+    *
+    * @returns a copy of this scale in the Locrian mode
+    * @example
+    * ```javascript
+    * const scale = new Scale();
+    * console.log(scale.locrian()); // Scale(copy)
+    * ```
+    */
    public locrian(): Scale {
       const scale = this.copy();
       scale.template = ScaleTemplates.locrian;
       return scale;
    }
 
-   //**********************************************************
    /**
     * returns string version of the scale
+    * @returns string version of the scale
+    * @example
+    * ```javascript
+    * const scale = new Scale();
+    * console.log(scale.toString()); // 'C'
+    * ```
     */
-   //**********************************************************
    public toString(): string {
       let scaleNames: string = scaleNameLookup(this._template);
       if (!scaleNames) scaleNames = this.getNoteNames().join(", ");
       return `${Semitone[this._key]}${this._octave}(${scaleNames})`;
    }
 
-   //**********************************************************
    /**
     * attempts to lookup the note name for a scale efficiently
+    * @static
+    * @param scale - the scale to lookup
+    * @param preferSharpKey - if true, will prefer sharp keys over flat keys
+    * @returns the note name for the scale
+    * @internal
     */
-   //**********************************************************
-   private static scaleNoteNameLookup(
+   protected static scaleNoteNameLookup(
       scale: Scale,
       preferSharpKey: boolean = true
    ) {
@@ -498,12 +881,11 @@ class Scale implements Entity {
 
       return shiftedNoteNames;
    }
-   //**********************************************************
+
    /**
     * creates a lookup table for all notes formatted as [A-G][#|b|s][0-9]
     */
-   //**********************************************************
-   private static createNotesLookupTable(): { [key: string]: string[] } {
+   protected static createNotesLookupTable(): { [key: string]: string[] } {
       const scaleTable: { [key: string]: string[] } = {};
 
       for (let itone = TONES_MIN; itone < TONES_MIN + OCTAVE_MAX; itone++) {
@@ -523,21 +905,16 @@ class Scale implements Entity {
       return scaleTable;
    }
 
-   //**********************************************************
    /**
     * creates the lookup table as soon as the module is loaded
     */
-   //**********************************************************
-   private static _notesLookup: { [key: string]: string[] } = {};
-   // this.createNotesLookupTable();
+   protected static _notesLookup: { [key: string]: string[] } = {};
 
-   //**********************************************************
    /**
     * used to initialize the lookup table
+    * @internal
     */
-   //**********************************************************
    public static async init() {
-      // Scale._notesLookup = Scale.createNotesLookupTable();
       if (table && Object.keys(table).length > 0) {
          Scale._notesLookup = table;
       } else {
@@ -567,8 +944,6 @@ class Scale implements Entity {
    }
 }
 
-// registerInitializer(Scale.init);
 Scale.init();
 
 export default Scale;
-// export type { ScaleInitializer };

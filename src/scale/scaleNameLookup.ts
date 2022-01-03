@@ -1,8 +1,14 @@
-// import { registerInitializer } from "../Initializer/Initializer";
 import isEqual from "../utils/isEqual";
 import ScaleTemplates from "./ScaleTemplates";
 import table from "./noteStringLookup.json";
 
+/**
+ * Will lookup a scale name based on the template.
+ * @param template - the template to lookup
+ * @param supressWarning - supress the warning for ineffeciency if true
+ * @returns the scale name
+ * @internal
+ */
 const scaleNameLookup = (
    template: number[],
    supressWarning: boolean = false
@@ -45,10 +51,6 @@ const nameTable = (key: string) => {
 
    return _nameTable[key];
 };
-
-// registerInitializer(() => {
-//    _nameTable = createTable();
-// });
 
 if (table && Object.keys(table).length > 0) {
    _nameTable = table;

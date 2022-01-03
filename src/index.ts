@@ -1,14 +1,15 @@
 import Note from "./Note/Note";
+import NoteInitializer from "./Note/NoteInitializer";
 import Semitone from "./Semitone";
 import Modifier from "./Modifier";
 import Instrument from "./Instrument/Instrument";
 import Scale from "./scale/Scale";
+import ScaleInitializer from "./scale/ScaleInitializer";
 import ScaleTemplates from "./scale/ScaleTemplates";
 import Chord from "./Chord/Chord";
+import ChordInitializer from "./Chord/ChordInitializer";
+import ChordInterval from "./Chord/ChordInterval";
 import ChordTemplates from "./Chord/chordTemplates";
-// import parseChord from "./Chord/chordNameParser";
-
-// import { init, initAsync } from "./Initializer/Initializer";
 
 export {
    Note,
@@ -17,9 +18,13 @@ export {
    Instrument,
    Scale,
    ScaleTemplates,
-   // init,
-   // initAsync,
    Chord,
    ChordTemplates,
-   // parseChord,
+};
+
+export type {
+   NoteInitializer,
+   ScaleInitializer,
+   ChordInitializer,
+   ChordInterval,
 };

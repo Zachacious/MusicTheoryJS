@@ -1,8 +1,8 @@
-//**********************************************************
 /**
  * Notes starting at C0 - zero index - 12 total
+ * Maps note names to semitone values starting at C=0
+ * @enum
  */
-//**********************************************************
 enum Semitone {
    A = 9,
    As, // save as Bb
@@ -27,6 +27,9 @@ enum Semitone {
    Ab = 8,
 }
 
+/**
+ * Consolidates duplicate names as a map to their semitone values
+ */
 const SemitoneNames: { [key: string]: number } = {
    A: 9,
    "As/Bb": 10,
@@ -42,12 +45,11 @@ const SemitoneNames: { [key: string]: number } = {
    "Gs/Ab": 8,
 };
 
-//**********************************************************
 /**
  * Returns the whole note name (e.g. C, D, E, F, G, A, B) for
  * the given string
+ * @internal
  */
-//**********************************************************
 const getWholeToneFromName = (name: string): Semitone => {
    if (!name || name.length === 0 || name.length > 1)
       throw new Error("Invalid name");
@@ -56,13 +58,12 @@ const getWholeToneFromName = (name: string): Semitone => {
    return Semitone[key as keyof typeof Semitone];
 };
 
-//**********************************************************
 /**
  * Returns a string version of the given semitone
  * if prefered whole note is set, it will return the note that
  * best matches that (for ex: Fs/Gb will return F# if prefered)
+ * @internal
  */
-//**********************************************************
 const getNameForSemitone = (
    semitone: Semitone,
    preferredWholeNote?: string

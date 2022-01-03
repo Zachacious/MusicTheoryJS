@@ -15,7 +15,8 @@
     "serve": "http-server ./ -o ./demo -d false",
     "build": "run-s clean production",
     "production": "rollup -c",
-    "gen-tables": "set GENTABLES=true && node ./GenerateTables.js"
+    "gen-tables": "set GENTABLES=true && node ./GenerateTables.js",
+    "build-docs":"npx typedoc"
   },
   "babel": {
     "env": {
@@ -56,6 +57,7 @@
     "eslint-config-prettier": "^8.3.0",
     "global": "^4.4.0",
     "ts-debounce": "^4.0.0",
+    "typedoc": "^0.22.10",
     "uid": "^2.0.0"
   },
   "devDependencies": {

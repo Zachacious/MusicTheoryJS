@@ -10,24 +10,22 @@ import { parseModifier } from "../Modifier";
 import wrap from "../utils/wrap";
 import clamp from "../utils/clamp";
 import ScaleTemplates from "./ScaleTemplates";
-// import { registerInitializer } from "../Initializer/Initializer";
 import table from "./noteLookup.json";
 
-//**********************************************************
 /**
  * Regex for matching note name, modifier, and octave
  */
-//**********************************************************
 const nameRegex = /([A-G])(?![^(]*\))/g;
 const modifierRegex = /(#|s|b)(?![^(]*\))/g;
 const octaveRegex = /([0-9]+)(?![^(]*\))/g;
 const scaleNameRegex = /(\([a-zA-Z]{2,}\))/g;
 
-//**********************************************************
 /**
  * attempts to parse a note from a string
+ * @param scale - the string to parse
+ * @param supressWarning - supress the warning for ineffeciency if true
+ * @internal
  */
-//**********************************************************
 const parseScale = (
    scale: string,
    supressWarning: boolean = false
@@ -131,11 +129,10 @@ const parseScale = (
    throw new Error(`Invalid Scale: ${scale}`);
 };
 
-//**********************************************************
 /**
  * creates a lookup table for all notes formatted as [A-G][#|b|s][0-9]
+ * @internal
  */
-//**********************************************************
 const createTable = (): { [key: string]: ScaleInitializer } => {
    const scaleTable: { [key: string]: ScaleInitializer } = {};
 
@@ -170,11 +167,11 @@ const createTable = (): { [key: string]: ScaleInitializer } => {
    return scaleTable;
 };
 
-//**********************************************************
+//*********************************************************
 /**
  * creates the lookup table as soon as the module is loaded
+ * @internal
  */
-//**********************************************************
 let _scaleLookup: { [key: string]: ScaleInitializer } = {};
 
 const scaleLookup = (key: string): ScaleInitializer => {
@@ -184,10 +181,6 @@ const scaleLookup = (key: string): ScaleInitializer => {
 
    return _scaleLookup[key];
 };
-
-// registerInitializer(() => {
-//    _scaleLookup = createTable();
-// });
 
 if (table && Object.keys(table).length > 0) {
    _scaleLookup = table as { [key: string]: ScaleInitializer };

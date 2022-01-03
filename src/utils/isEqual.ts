@@ -1,8 +1,7 @@
-//**********************************************************
 /**
  * simple util to lazy check equality of objects and arrays
+ * @internal
  */
-//**********************************************************
 
 const isEqual = <T>(a: T, b: T): boolean => {
    const stringA = JSON.stringify(a);

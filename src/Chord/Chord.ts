@@ -15,7 +15,100 @@ import isEqual from "../utils/isEqual";
 import parseChord from "./chordNameParser";
 import shift from "../utils/shift";
 
+/**
+ * Chords consist of a root note, octave, chord template, and a base scale.<br><br>
+ * The chord template is an array of integers, each integer representing<br>
+ *  a scale degree from the base scale(defaults to major).<br>
+ * The default template is the I,III,V denoted as [1,3,5]<br>
+ * ChordIntervals used in templates can also contain a modifier,<br>
+ * for a particular scale degree, such as [1,3,[5, -1]]<br>
+ * where -1 is flat, 0 is natural, and 1 is sharp.<br>
+ * It could also be written as [1,3,[5, modifier.flat]]<br>
+ * if you import modifier.
+ *
+ * The following predefined templates are available:<br>
+ * <table>
+ * <tr>
+ * <td>maj</td>
+ * <td>maj4</td>
+ * <td>maj6</td>
+ * <td>maj69</td>
+ * </tr><tr>
+ * <td>maj7</td>
+ * <td>maj9</td>
+ * <td>maj11</td>
+ * <td>maj13</td>
+ * </tr><tr>
+ * <td>maj7s11</td>
+ * <td>majb5</td>
+ * <td>min</td>
+ * <td>min4</td>
+ * </tr><tr>
+ * <td>min6</td>
+ * <td>min7</td>
+ * <td>minAdd9</td>
+ * <td>min69</td>
+ * </tr><tr>
+ * <td>min9</td>
+ * <td>min11</td>
+ * <td>min13</td>
+ * <td>min7b5</td>
+ * </tr><tr>
+ * <td>dom7</td>
+ * <td>dom9</td>
+ * <td>dom11</td>
+ * <td>dom13</td>
+ * </tr><tr>
+ * <td>dom7s5</td>
+ * <td>dom7b5</td>
+ * <td>dom7s9</td>
+ * <td>dom7b9</td>
+ * </tr><tr>
+ * <td>dom9b5</td>
+ * <td>dom9s5</td>
+ * <td>dom7s11</td>
+ * <td>dom7s5s9</td>
+ * </tr><tr>
+ * <td>dom7s5b9</td>
+ * <td>dim</td>
+ * <td>dim7</td>
+ * <td>aug</td>
+ * </tr><tr>
+ * <td>sus2</td>
+ * <td>sus4</td>
+ * <td>fifth</td>
+ * <td>b5</td>
+ * </tr><tr>
+ * <td>s11</td>
+ * </tr>
+ * </table>
+ *
+ * @example
+ * ```javascript
+ * import { Chord } from "musictheoryjs";
+ * import {ChordTemplate} from "musictheoryjs";
+ * import {ChordInterval} from "musictheoryjs";
+ * import {Modifier} from "musictheoryjs";
+ * import {ChordInitializer} from "musictheoryjs";// Typescript only if needed
+ * ```
+ */
 class Chord implements Entity {
+   /**
+    * @example
+    * ```javascript
+    * import { Chord, ChordTemplates, Modifier } from "musictheoryjs";
+    *
+    * //creates a chord with the default(1,3,5) template, root of C, in the 4th octave
+    * const chord = new Chord();
+    *
+    * // creates a chord with the pre-defined diminished template, root of Eb, in the 5th octave
+    * const chord = new Chord({root: 3, octave: 5, template: ChordTemplates.dim});
+    *
+    * // String parsing should follow the format: (root-note-name[s,#,b][octave])[chord-template-name|[chord-quality][modifiers]]
+    * // creates a chord from a string
+    * const chord = new Chord('(D4)min4');
+    * ```
+    */
    constructor(values?: ChordInitializer | string) {
       if (!values) {
          this._template = [...DEFAULT_CHORD_TEMPLATE];
@@ -81,7 +174,7 @@ class Chord implements Entity {
       this._notesDirty = true;
    }
 
-   private _template: ChordInterval[] = [];
+   protected _template: ChordInterval[] = [];
    public get template(): ChordInterval[] {
       return [...this._template];
    }
@@ -97,8 +190,8 @@ class Chord implements Entity {
     * notes are generated and cached as needed
     */
    //**********************************************************
-   private _notes: Array<Note> = [];
-   private _notesDirty: boolean = true;
+   protected _notes: Array<Note> = [];
+   protected _notesDirty: boolean = true;
    public get notes(): Array<Note> {
       if (this._notesDirty) {
          this.generateNotes();
@@ -107,7 +200,7 @@ class Chord implements Entity {
       return this._notes;
    }
 
-   private generateNotes(): Note[] {
+   protected generateNotes(): Note[] {
       this._notes = [];
       for (const interval of this._template) {
          let tone = 0;
@@ -288,7 +381,6 @@ class Chord implements Entity {
       } else {
          this._template[0] += this._baseScale.template.length;
       }
-      console.log(this._template[0]);
 
       const newTemplate: ChordInterval[] = shift(
          this._template,

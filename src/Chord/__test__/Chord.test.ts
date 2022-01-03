@@ -1,5 +1,6 @@
 import Chord from "../Chord";
 import { DEFAULT_CHORD_TEMPLATE } from "../ChordConstants";
+import Scale from "../../Scale/Scale";
 
 describe("Chord", () => {
    describe("Initialization", () => {
@@ -54,6 +55,21 @@ describe("Chord", () => {
          expect(chord.root).toBe(5);
       });
 
+      it("should get the base scale", () => {
+         const chord = new Chord({ root: 11, octave: 4 });
+         expect(chord.baseScale).toBeDefined();
+         expect(chord.baseScale.key).toBe(11);
+         expect(chord.baseScale.octave).toBe(4);
+      });
+
+      it("should set the base scale", () => {
+         const chord = new Chord({ root: 11, octave: 4 });
+         chord.baseScale = new Scale({ key: 5, octave: 4 });
+         expect(chord.baseScale).toBeDefined();
+         expect(chord.baseScale.key).toBe(5);
+         expect(chord.baseScale.octave).toBe(4);
+      });
+
       it("should get the octave", () => {
          const chord = new Chord({ root: 11, octave: 4 });
          expect(chord.octave).toBe(4);
@@ -82,12 +98,22 @@ describe("Chord", () => {
             octave: 4,
             template: DEFAULT_CHORD_TEMPLATE,
          });
-         const notes = chord.notes;
+         let notes = chord.notes;
          expect(notes[0].semitone).toBe(0);
          expect(notes[0].octave).toBe(4);
          expect(notes[1].semitone).toBe(4);
          expect(notes[1].octave).toBe(4);
          expect(notes[2].semitone).toBe(7);
+         expect(notes[2].octave).toBe(4);
+
+         chord.diminish();
+
+         notes = chord.notes;
+         expect(notes[0].semitone).toBe(0);
+         expect(notes[0].octave).toBe(4);
+         expect(notes[1].semitone).toBe(4);
+         expect(notes[1].octave).toBe(4);
+         expect(notes[2].semitone).toBe(6);
          expect(notes[2].octave).toBe(4);
       });
 
