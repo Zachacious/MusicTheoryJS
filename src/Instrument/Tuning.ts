@@ -1,17 +1,14 @@
-// import Identifiable from "../composables/Identifiable";
 import { createTables } from "./instrumentTables";
 import { uid } from "uid";
 import Entity from "../Entity";
 
-//**********************************************************
 /**
- * Tuning component used by Instrument class
- * - containes the a4 tuning - default is 440Hz
- * - builds lookup tables for midi key and frequency
- * - based on the tuning
+ * Tuning component used by Instrument class<br>
+ * containes the a4 tuning - default is 440Hz<br>
+ * builds lookup tables for midi key and frequency<br>
+ * based on the tuning
+ * @internal
  */
-//**********************************************************
-// @Identifiable()
 class Tuning implements Entity {
    /**
     * Creates the object and builds the lookup tables.
@@ -21,11 +18,9 @@ class Tuning implements Entity {
       this.buildTables();
    }
 
-   //**********************************************************
    /**
     * unique id for this instance
     */
-   //**********************************************************
    id: string = uid();
 
    public copy(): Tuning {
@@ -36,68 +31,56 @@ class Tuning implements Entity {
       return this._a4 === other._a4;
    }
 
-   //**********************************************************
    /**
     * a4 Tuning
     */
-   //**********************************************************
-   private _a4: number = 440;
+   protected _a4: number = 440;
 
    public get a4(): number {
       return this._a4;
    }
 
-   //**********************************************************
    /**
     * setting the tuning will rebuild the lookup tables
     */
-   //**********************************************************
    public set a4(value: number) {
       this._a4 = value;
       this.buildTables();
    }
 
-   //**********************************************************
    /**
     * lookup table for midi key
     */
-   //**********************************************************
 
-   private _midiKeyTable: { [key: string]: number } = {};
+   protected _midiKeyTable: { [key: string]: number } = {};
 
    public midiKeyLookup(octave: number, semitone: number): number {
       const key = `${octave}-${semitone}`;
       return this._midiKeyTable[key];
    }
 
-   //**********************************************************
    /**
     * lookup table for frequency
     */
-   //**********************************************************
-   private _freqTable: { [key: string]: number } = {};
+   protected _freqTable: { [key: string]: number } = {};
 
    public freqLookup(octave: number, semitone: number): number {
       const key = `${octave}-${semitone}`;
       return this._freqTable[key];
    }
 
-   //**********************************************************
    /**
     * Builds the lookup tables for midi key and frequency
     */
-   //**********************************************************
-   private buildTables(): void {
+   protected buildTables(): void {
       const tables = createTables(this._a4);
       this._midiKeyTable = tables.midiLookup;
       this._freqTable = tables.freqLookup;
    }
 
-   //**********************************************************
    /**
     * returns the tuning as a string
     */
-   //**********************************************************
    public toString(): string {
       return `Tuning(${this._a4})`;
    }
