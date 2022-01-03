@@ -3,6 +3,7 @@
 bower_components/
 node_modules/
 
+/dist
 
 #Exclude tsc generated files
 js/*.map
