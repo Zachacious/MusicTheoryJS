@@ -121,38 +121,18 @@
 <a name='L62'></a><a href='#L62'>62</a>
 <a name='L63'></a><a href='#L63'>63</a>
 <a name='L64'></a><a href='#L64'>64</a>
-<a name='L65'></a><a href='#L65'>65</a>
-<a name='L66'></a><a href='#L66'>66</a>
-<a name='L67'></a><a href='#L67'>67</a>
-<a name='L68'></a><a href='#L68'>68</a>
-<a name='L69'></a><a href='#L69'>69</a>
-<a name='L70'></a><a href='#L70'>70</a>
-<a name='L71'></a><a href='#L71'>71</a>
-<a name='L72'></a><a href='#L72'>72</a>
-<a name='L73'></a><a href='#L73'>73</a>
-<a name='L74'></a><a href='#L74'>74</a>
-<a name='L75'></a><a href='#L75'>75</a>
-<a name='L76'></a><a href='#L76'>76</a>
-<a name='L77'></a><a href='#L77'>77</a>
-<a name='L78'></a><a href='#L78'>78</a>
-<a name='L79'></a><a href='#L79'>79</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L65'></a><a href='#L65'>65</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">1320x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -172,20 +152,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">11x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -213,62 +185,48 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">//**********************************************************
-/**
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * Constants
  */
-//**********************************************************
 const MIDIKEY_START = 12;
 const NUM_OCTAVES = 10;
 const NUM_SEMITONES = 12;
 &nbsp;
-//**********************************************************
 /**
  * Calculates the midi key for a given octave and semitone.
  */
-//**********************************************************
 const calcMidiKey = (octave: number, semitone: number): number =&gt;
    MIDIKEY_START + octave * NUM_SEMITONES + semitone;
 &nbsp;
-//**********************************************************
 /**
  * Calculates the frequency for a given octave and semitone given
  * a tuning for a4.
  */
-//**********************************************************
 const calcFrequency = (midiKey: number, a4Tuning: number): number =&gt;
    2 ** ((midiKey - 69) / 12) * a4Tuning;
 &nbsp;
-//**********************************************************
 /**
  * Tables - return type for create tables
  */
-//**********************************************************
 type Tables = {
    freqLookup: { [key: string]: number };
    midiLookup: { [key: string]: number };
 };
 &nbsp;
-//**********************************************************
 /**
  * Creates and return lookup tables for midikey and frequency.
  */
-//**********************************************************
 const createTables = (a4Tuning: number = 440): Tables =&gt; {
-   //**********************************************************
    /**
     * Maps octave and semitone to note frequency(hertz).
     * requires a key in the form of `&lt;octave&gt;-&lt;semitone&gt;`
     */
-   //**********************************************************
    const freqTable: { [key: string]: number } = {};
 &nbsp;
-   //**********************************************************
    /**
     * Maps octave and semitone to midi key.
     * requires a key in the form of `&lt;octave&gt;-&lt;semitone&gt;`
     */
-   //**********************************************************
    const midiTable: { [key: string]: number } = {};
 &nbsp;
    let iOctave: number = 0;
@@ -298,7 +256,7 @@ export { createTables };
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Sun Jan 02 2022 20:24:19 GMT-0600 (Central Standard Time)
+                at Sun Jan 02 2022 22:12:50 GMT-0600 (Central Standard Time)
             </div>
         </div>
         <script src="../../prettify.js"></script>

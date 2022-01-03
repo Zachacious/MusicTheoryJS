@@ -314,7 +314,19 @@
 <a name='L255'></a><a href='#L255'>255</a>
 <a name='L256'></a><a href='#L256'>256</a>
 <a name='L257'></a><a href='#L257'>257</a>
-<a name='L258'></a><a href='#L258'>258</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L258'></a><a href='#L258'>258</a>
+<a name='L259'></a><a href='#L259'>259</a>
+<a name='L260'></a><a href='#L260'>260</a>
+<a name='L261'></a><a href='#L261'>261</a>
+<a name='L262'></a><a href='#L262'>262</a>
+<a name='L263'></a><a href='#L263'>263</a>
+<a name='L264'></a><a href='#L264'>264</a>
+<a name='L265'></a><a href='#L265'>265</a>
+<a name='L266'></a><a href='#L266'>266</a>
+<a name='L267'></a><a href='#L267'>267</a>
+<a name='L268'></a><a href='#L268'>268</a>
+<a name='L269'></a><a href='#L269'>269</a>
+<a name='L270'></a><a href='#L270'>270</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -325,12 +337,9 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -340,6 +349,11 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">3x</span>
@@ -442,6 +456,10 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -531,6 +549,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">3x</span>
@@ -581,23 +605,25 @@ import { getWholeToneFromName } from "../Semitone";
 import { parseModifier } from "../Modifier";
 import wrap from "../utils/wrap";
 import clamp from "../utils/clamp";
-// import { registerInitializer } from "../Initializer/Initializer";
 import ChordInterval from "./ChordInterval";
 import ChordTemplates from "./chordTemplates";
 import ChordInitializer from "./ChordInitializer";
 import table from "./noteLookup.json";
 &nbsp;
-//**********************************************************
 /**
  * Regex for matching note name, modifier, and octave
  */
-//**********************************************************
 const nameRegex = /([A-G])(?=[^(]*\))/g;
 const modifierRegex = /(#|s|b)(?=[^(]*\))/g;
 const octaveRegex = /([0-9]+)(?=[^(]*\))/g;
 const chordNameRegex = /(min|maj|dim|aug)(?![^(]*\))/g;
 const additionsRegex = /([#|s|b]?[0-9]+)(?![^(]*\))/g;
 &nbsp;
+/**
+ * @param chord the string to parse
+ * @returns a valid ChordInitializer
+ * @internal
+ */
 const parseChord = (chord: string): ChordInitializer =&gt; {
    try {
       const result: ChordInitializer = chordLookup(chord);
@@ -699,6 +725,10 @@ const parseChord = (chord: string): ChordInitializer =&gt; {
 <span class="cstat-no" title="statement not covered" >   throw new Error("Invalid chord name");</span>
 };
 &nbsp;
+/**
+ * @returns a lookup table of chord names and their initializers
+ * @internal
+ */
 const createTable = <span class="fstat-no" title="function not covered" >(): { [key: string]: ChordInitializer } =</span>&gt; {
    const table: { [key: string]: ChordInitializer } = <span class="cstat-no" title="statement not covered" >{};</span>
 &nbsp;
@@ -789,6 +819,12 @@ const createTable = <span class="fstat-no" title="function not covered" >(): { [
 &nbsp;
 let _chordLookup: { [key: string]: ChordInitializer } = {};
 &nbsp;
+/**
+ * @param key the string to lookup
+ * @returns a valid chord initializer
+ * @throws an error if the key is not a valid chord
+ * @internal
+ */
 const chordLookup = (key: string): ChordInitializer =&gt; {
    <span class="missing-if-branch" title="if path not taken" >I</span>if (_chordLookup.length === 0) {
 <span class="cstat-no" title="statement not covered" >      _chordLookup = createTable();</span>
@@ -835,7 +871,7 @@ export default parseChord;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Sun Jan 02 2022 20:24:19 GMT-0600 (Central Standard Time)
+                at Sun Jan 02 2022 22:12:50 GMT-0600 (Central Standard Time)
             </div>
         </div>
         <script src="../../prettify.js"></script>

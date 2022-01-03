@@ -1,14 +1,14 @@
 import Entity from "../Entity";
 import { uid } from "uid";
-import { ChordTemplates, Semitone } from "..";
+import Semitone from "../Semitone";
 import { DEFAULT_SEMITONE, TONES_MAX, TONES_MIN } from "../Note/noteConstants";
 import { DEFAULT_OCTAVE, OCTAVE_MAX, OCTAVE_MIN } from "../Note/noteConstants";
 import wrap from "../utils/wrap";
 import clamp from "../utils/clamp";
 import ChordInitializer from "./ChordInitializer";
+import ChordTemplates from "./chordTemplates";
 import Note from "../Note/Note";
 import { DEFAULT_CHORD_TEMPLATE, DEFAULT_SCALE } from "./ChordConstants";
-// import { getNameForSemitone, getWholeToneFromName } from "../Semitone";
 import ChordInterval from "./ChordInterval";
 import Scale from "../Scale/Scale";
 import isEqual from "../utils/isEqual";

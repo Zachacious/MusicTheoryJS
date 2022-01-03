@@ -8,23 +8,25 @@ import { getWholeToneFromName } from "../Semitone";
 import { parseModifier } from "../Modifier";
 import wrap from "../utils/wrap";
 import clamp from "../utils/clamp";
-// import { registerInitializer } from "../Initializer/Initializer";
 import ChordInterval from "./ChordInterval";
 import ChordTemplates from "./chordTemplates";
 import ChordInitializer from "./ChordInitializer";
 import table from "./noteLookup.json";
 
-//**********************************************************
 /**
  * Regex for matching note name, modifier, and octave
  */
-//**********************************************************
 const nameRegex = /([A-G])(?=[^(]*\))/g;
 const modifierRegex = /(#|s|b)(?=[^(]*\))/g;
 const octaveRegex = /([0-9]+)(?=[^(]*\))/g;
 const chordNameRegex = /(min|maj|dim|aug)(?![^(]*\))/g;
 const additionsRegex = /([#|s|b]?[0-9]+)(?![^(]*\))/g;
 
+/**
+ * @param chord the string to parse
+ * @returns a valid ChordInitializer
+ * @internal
+ */
 const parseChord = (chord: string): ChordInitializer => {
    try {
       const result: ChordInitializer = chordLookup(chord);
@@ -126,6 +128,10 @@ const parseChord = (chord: string): ChordInitializer => {
    throw new Error("Invalid chord name");
 };
 
+/**
+ * @returns a lookup table of chord names and their initializers
+ * @internal
+ */
 const createTable = (): { [key: string]: ChordInitializer } => {
    const table: { [key: string]: ChordInitializer } = {};
 
@@ -216,6 +222,12 @@ const createTable = (): { [key: string]: ChordInitializer } => {
 
 let _chordLookup: { [key: string]: ChordInitializer } = {};
 
+/**
+ * @param key the string to lookup
+ * @returns a valid chord initializer
+ * @throws an error if the key is not a valid chord
+ * @internal
+ */
 const chordLookup = (key: string): ChordInitializer => {
    if (_chordLookup.length === 0) {
       _chordLookup = createTable();

@@ -1,5 +1,7 @@
 /**
  * Notes starting at C0 - zero index - 12 total
+ * Maps note names to semitone values starting at C=0
+ * @enum
  */
 declare enum Semitone {
     A = 9,
@@ -27,12 +29,14 @@ declare enum Semitone {
 /**
  * Returns the whole note name (e.g. C, D, E, F, G, A, B) for
  * the given string
+ * @internal
  */
 declare const getWholeToneFromName: (name: string) => Semitone;
 /**
  * Returns a string version of the given semitone
  * if prefered whole note is set, it will return the note that
  * best matches that (for ex: Fs/Gb will return F# if prefered)
+ * @internal
  */
 declare const getNameForSemitone: (semitone: Semitone, preferredWholeNote?: string | undefined) => string;
 export default Semitone;

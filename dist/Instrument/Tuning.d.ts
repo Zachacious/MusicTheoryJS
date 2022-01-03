@@ -1,9 +1,10 @@
 import Entity from "../Entity";
 /**
- * Tuning component used by Instrument class
- * - containes the a4 tuning - default is 440Hz
- * - builds lookup tables for midi key and frequency
- * - based on the tuning
+ * Tuning component used by Instrument class<br>
+ * containes the a4 tuning - default is 440Hz<br>
+ * builds lookup tables for midi key and frequency<br>
+ * based on the tuning
+ * @internal
  */
 declare class Tuning implements Entity {
     /**
@@ -19,7 +20,7 @@ declare class Tuning implements Entity {
     /**
      * a4 Tuning
      */
-    private _a4;
+    protected _a4: number;
     get a4(): number;
     /**
      * setting the tuning will rebuild the lookup tables
@@ -28,17 +29,21 @@ declare class Tuning implements Entity {
     /**
      * lookup table for midi key
      */
-    private _midiKeyTable;
+    protected _midiKeyTable: {
+        [key: string]: number;
+    };
     midiKeyLookup(octave: number, semitone: number): number;
     /**
      * lookup table for frequency
      */
-    private _freqTable;
+    protected _freqTable: {
+        [key: string]: number;
+    };
     freqLookup(octave: number, semitone: number): number;
     /**
      * Builds the lookup tables for midi key and frequency
      */
-    private buildTables;
+    protected buildTables(): void;
     /**
      * returns the tuning as a string
      */

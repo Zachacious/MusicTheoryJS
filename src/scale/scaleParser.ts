@@ -167,7 +167,6 @@ const createTable = (): { [key: string]: ScaleInitializer } => {
    return scaleTable;
 };
 
-//*********************************************************
 /**
  * creates the lookup table as soon as the module is loaded
  * @internal
