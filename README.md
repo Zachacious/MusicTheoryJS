@@ -6,6 +6,32 @@ Music Theory Abstractions for analysis, synthesis, and real-time music compositi
 
 Includes nearly 70 pre-defined scale templates and over 40 pre-defined chords templates.
 
+Designed to be an enterprise grade library that's easy to use and extend.
+
+Examples:
+
+```javascript
+import { Scale, Chord, Note, Instrument } from "musictheoryjs";
+
+// create a note
+const note = new Note("D4");
+
+// create a scale
+const scale = new Scale("C5(major)");
+console.log(scale.getNoteNames()); // --> ["C5", "D5", "E5", "F5", "G5", "A5", "B5"]
+
+// create a chord
+const chord = new Chord("(Ab3)maj7");
+console.log(chord.notes); // --> array of notes in the chord
+
+// get the frequency of the scales 3rd degree
+const instrument = new Instrument();
+const freq = instrument.getFrequency(scale.degree(3)); // --> 659.26
+
+// get the midi key for the scales 3rd degree
+const midiKey = instrument.getMidiKey(scale.degree(3)); // --> 76
+```
+
 ---
 
 ## Installation
@@ -247,3 +273,43 @@ The following Pre-defined templates are available:
   </tr><tr>
   <td>acoustic</td>
   </table>
+
+---
+
+## Development
+
+Step 1:<br>
+Fork the project
+
+Step 2:<br>
+Create a new branch - Name it based on the work/feature your working on
+
+Step 3:<br>
+From the project root(after you checkout your branch), run:<br>
+
+```bash
+npm install
+```
+
+or
+
+```bash
+yarn install
+```
+
+Step 4:<br>
+Submit a pull request
+
+### Scripts:
+
+Build:
+
+```bash
+npm run build
+```
+
+or
+
+```bash
+yarn build
+```
