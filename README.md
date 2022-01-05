@@ -300,9 +300,11 @@ yarn install
 Step 4:<br>
 Submit a pull request
 
-### Scripts:
+---
 
-Build:
+## Scripts:
+
+### Build:
 
 ```bash
 npm run build
@@ -312,4 +314,40 @@ or
 
 ```bash
 yarn build
+```
+
+### Test:
+
+```bash
+npm run test
+```
+
+or
+
+```bash
+yarn test
+```
+
+### Lint:
+
+```bash
+npm run lint
+```
+
+or
+
+```bash
+yarn lint
+```
+
+### Build Docs:
+
+```bash
+npm run build-docs
+```
+
+or
+
+```bash
+yarn build-docs
 ```
