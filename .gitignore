@@ -4,6 +4,8 @@ bower_components/
 node_modules/
 
 /dist
+/coverage
+/demo
 
 #Exclude tsc generated files
 js/*.map
