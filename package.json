@@ -1,7 +1,7 @@
 {
   "name": "musictheoryjs",
   "version": "2.0.0",
-  "description": "A music theory library",
+  "description": "A music theory library for JavaScript",
   "source": "src/index.ts",
   "main": "dist/musictheory.js",
   "module": "dist/module.js",
@@ -15,6 +15,19 @@
     "gen-tables": "set GENTABLES=true && node ./GenerateTables.js",
     "build-docs":"npx typedoc"
   },
+  "keywords": [
+   "music",
+   "theory",
+   "note",
+   "scale",
+   "interval",
+   "chord",
+   "key",
+   "progression",
+   "mode",
+   "major",
+   "minor"
+ ],
   "babel": {
     "env": {
       "test": {
@@ -33,31 +46,21 @@
     "type": "git",
     "url": "git+https://github.com/Zachacious/MusicTheoryJS.git"
   },
-  "keywords": [
-    "music",
-    "theory",
-    "js",
-    "note",
-    "chord",
-    "scale",
-    "timbre"
-  ],
   "author": "Zach Moore",
-  "license": "MIT",
+  "license": "ISC",
   "bugs": {
     "url": "https://github.com/Zachacious/MusicTheoryJS/issues"
   },
   "homepage": "https://github.com/Zachacious/MusicTheoryJS#readme",
   "dependencies": {
     "@types/node": "^17.0.5",
-    "dpdm": "^3.8.0",
-    "eslint-config-prettier": "^8.3.0",
     "global": "^4.4.0",
     "ts-debounce": "^4.0.0",
     "typedoc": "^0.22.10",
     "uid": "^2.0.0"
   },
   "devDependencies": {
+   "eslint-config-prettier": "^8.3.0",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^13.0.6",
     "@types/jest": "^27.0.3",

@@ -1,6 +1,7 @@
 # MusicTheoryJS v2
 
 <strong>[Documentation](https://zachacious.github.io/MusicTheoryJS/)</strong>
+<strong>[License(ISC)](LICENSE.txt)</strong>
 
 ---
 
