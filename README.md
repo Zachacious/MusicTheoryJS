@@ -1,6 +1,9 @@
 # MusicTheoryJS v2
 
-Documentation
+<strong>[Documentation](https://zachacious.github.io/MusicTheoryJS/)</strong>
+<strong>[License(ISC)](LICENSE.txt)</strong>
+
+---
 
 Music Theory Abstractions for analysis, synthesis, and real-time music composition. Designed for use with MIDI.
 
