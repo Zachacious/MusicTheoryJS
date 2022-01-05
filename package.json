@@ -13,21 +13,21 @@
     "build": "run-s clean production",
     "production": "rollup -c",
     "gen-tables": "set GENTABLES=true && node ./GenerateTables.js",
-    "build-docs":"npx typedoc"
+    "build-docs": "npx typedoc"
   },
   "keywords": [
-   "music",
-   "theory",
-   "note",
-   "scale",
-   "interval",
-   "chord",
-   "key",
-   "progression",
-   "mode",
-   "major",
-   "minor"
- ],
+    "music",
+    "theory",
+    "note",
+    "scale",
+    "interval",
+    "chord",
+    "key",
+    "progression",
+    "mode",
+    "major",
+    "minor"
+  ],
   "babel": {
     "env": {
       "test": {
@@ -55,18 +55,19 @@
   "dependencies": {
     "@types/node": "^17.0.5",
     "global": "^4.4.0",
+    "np": "^7.6.0",
     "ts-debounce": "^4.0.0",
     "typedoc": "^0.22.10",
     "uid": "^2.0.0"
   },
   "devDependencies": {
-   "eslint-config-prettier": "^8.3.0",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^13.0.6",
     "@types/jest": "^27.0.3",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
     "eslint": "^8.3.0",
+    "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-jest": "^25.3.0",
     "http-server": "^14.0.0",
     "jest": "^27.3.1",
