@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+<head>
+    <script src="../dist/musictheory.js"></script>
+</head>
+<body>
+Your HTML here
+
+<script>
+// self executing function here
+(function() {
+   console.log(window);
+   const mt = window.MusicTheory;
+
+   const chord = new mt.Chord('(C6)maj');
+   console.log(chord);
+   console.log(chord.notes);
+   console.log(chord.invert());
+
+
+})();
+</script>
+</body>
+</html>

@@ -1,58 +1,93 @@
 {
   "name": "musictheoryjs",
-  "version": "0.3.1",
-  "description": "Music theory lib for JavaScript",
-  "main": "dist/musictheory.min.js",
+  "version": "2.0.0",
+  "description": "A music theory library",
+  "source": "src/index.ts",
+  "main": "dist/musictheory.js",
+  "module": "dist/module.js",
+  "types": "dist/musictheory.d.ts",
   "scripts": {
-    "deploy": "np --no-publish",
-    "build": "webpack -p --progress --config ./webpack.config.js --mode production",
-    "start": "webpack -p --progress --mode development && webpack-dev-server --config ./webpack.config.js --mode development",
-    "docs": "jsdoc -c jsdoc.json",
-    "test": "echo \"Error: no test specified\""
+    "test": "jest",
+    "lint": "eslint -c .eslintrc.js *.ts",
+    "clean": "rimraf dist",
+    "build": "run-s clean production",
+    "production": "rollup -c",
+    "gen-tables": "set GENTABLES=true && node ./GenerateTables.js",
+    "build-docs":"npx typedoc"
+  },
+  "babel": {
+    "env": {
+      "test": {
+        "plugins": [
+          [
+            "@babel/plugin-proposal-decorators",
+            {
+              "legacy": true
+            }
+          ]
+        ]
+      }
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zachacious/MusicTheoryJS.git"
   },
   "keywords": [
     "music",
     "theory",
+    "js",
     "note",
-    "scale",
-    "interval",
     "chord",
-    "key",
-    "progression",
-    "mode",
-    "major",
-    "minor"
+    "scale",
+    "timbre"
   ],
   "author": "Zach Moore",
-  "license": "ISC",
-  "homepage": "https://github.com/zachacious/musictheoryjs",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Zachacious/MusicTheoryJS.git"
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Zachacious/MusicTheoryJS/issues"
   },
-  "np": {
-    "yarn": false,
-    "contents": "dist"
+  "homepage": "https://github.com/Zachacious/MusicTheoryJS#readme",
+  "dependencies": {
+    "@types/node": "^17.0.5",
+    "dpdm": "^3.8.0",
+    "eslint-config-prettier": "^8.3.0",
+    "global": "^4.4.0",
+    "ts-debounce": "^4.0.0",
+    "typedoc": "^0.22.10",
+    "uid": "^2.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.8.3",
-    "@babel/plugin-proposal-class-properties": "^7.8.3",
-    "@babel/plugin-proposal-private-methods": "^7.8.3",
-    "@babel/preset-env": "^7.8.3",
-    "babel-eslint": "^10.0.3",
-    "babel-loader": "^8.0.6",
-    "better-docs": "^1.4.7",
-    "eslint": "^6.1.0",
-    "eslint-config-airbnb": "^18.0.1",
-    "eslint-loader": "^3.0.3",
-    "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-jsx-a11y": "^6.2.3",
-    "eslint-plugin-react": "^7.14.3",
-    "eslint-plugin-react-hooks": "^1.7.0",
-    "jsdoc-webpack-plugin": "^0.2.0",
-    "webpack": "^4.41.5",
-    "webpack-cli": "^3.3.10",
-    "webpack-dev-server": "^3.10.1"
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^13.0.6",
+    "@types/jest": "^27.0.3",
+    "@typescript-eslint/eslint-plugin": "^5.4.0",
+    "@typescript-eslint/parser": "^5.4.0",
+    "eslint": "^8.3.0",
+    "eslint-plugin-jest": "^25.3.0",
+    "http-server": "^14.0.0",
+    "jest": "^27.3.1",
+    "livereload": "^0.9.3",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.60.0",
+    "rollup-plugin-dts": "^4.0.1",
+    "rollup-plugin-typescript2": "^0.31.0",
+    "rollup-plugin-uglify": "^6.0.4",
+    "ts-jest": "^27.0.7",
+    "ts-node": "^10.4.0",
+    "tslint-eslint-rules": "^5.4.0",
+    "typescript": "^4.5.2"
   },
-  "dependencies": {}
+  "browserslist": [
+    "last 10 Chrome versions",
+    "last 10 Firefox versions",
+    "last 4 Edge versions",
+    "last 7 Safari versions",
+    "last 8 Android versions",
+    "last 8 ChromeAndroid versions",
+    "last 8 FirefoxAndroid versions",
+    "last 10 iOS versions",
+    "last 5 Opera versions"
+  ]
 }

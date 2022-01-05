@@ -1,251 +1,293 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    
-    <meta charset="utf-8">
-    <title>JSDoc: Home</title>
-
-    <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="./build/entry.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <link href="https://fonts.googleapis.com/css?family=Muli:100,400,700|Oswald:300|Inconsolata,700" rel="stylesheet">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
-    <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
-    <link type="text/css" rel="stylesheet" href="styles/app.min.css">
-    <link type="text/css" rel="stylesheet" href="styles/iframe.css">
-</head>
-
-<body>
-    <div id="stickyNavbarOverlay"></div>
-    <div class="top-navbar">
-        <div class="container">
-            <nav class="navbar" role="navigation" aria-label="main navigation">
-                <div class="navbar-brand">
-                     
-                        <img src="mtjs.jpg" alt="logo">
-                    
-                     
-                        <h1 class="navbar-item">MusicTheoryJS Documentation</h1>
-                    
-                    <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
-                        <span aria-hidden="true"></span>
-                        <span aria-hidden="true"></span>
-                        <span aria-hidden="true"></span>
-                    </a>
-                </div>
-                 
-                <div class="navbar-menu">
-                    <div class="navbar-end">
-                    
-                        <div class="navbar-item">
-                            <a href="https://github.com/zachacious/musictheoryjs" target="_blank">
-                                Github
-                            </a>
-                        </div>
-                    
-                        <div class="navbar-item">
-                            <a href="https://zachacious.github.io/MusicTheoryJSDemo/" target="_blank">
-                                Demo App ▶️
-                            </a>
-                        </div>
-                    
-                    </div>
-                </div>
-                
-            </nav>
-        </div>
-    </div>
-    <div class="container">
-        <div class="columns">
-            <div class="column is-3" id="sidebarNav">
-                <div class="sidebar">
-                    <nav>
-                        <h2><a href="index.html">Home</a></h2><div class="category"><h3>Modules</h3><ul><li><a href="module-MT.html">MT</a></li></ul><h3>Classes</h3><ul><li><a href="module-MT.Chord.html">Chord</a></li><li><a href="module-MT.ChordInterval.html">ChordInterval</a></li><li><a href="module-MT.Note.html">Note</a></li><li><a href="module-MT.Scale.html">Scale</a></li></ul></div>
-                    </nav>
-                </div>
-            </div>
-            <div class="column is-9-desktop">
-                <div class="content" id="main-content-wrapper">
-                    <header class="page-title">
-                        <p>Title</p>
-                        <h1>Home</h1>
-                    </header>
-                    
-                    
-
-
-
-    
-
-
-    <h3> </h3>
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-    <section>
-        <article><h1>🎵MusicTheoryJS</h1>
-<p><a href="https://circleci.com/gh/Zachacious/MusicTheoryJS/tree/master"><img src="https://circleci.com/gh/Zachacious/MusicTheoryJS/tree/master.svg?style=svg" alt="CircleCI"></a>
-<img src="https://img.shields.io/npm/v/musictheoryjs" alt="npm">
-<img src="https://img.shields.io/npm/dw/musictheoryjs" alt="npm">
-<a href="http://inch-ci.org/github/zachacious/musictheoryjs"><img src="http://inch-ci.org/github/zachacious/musictheoryjs.svg?branch=master" alt="Inline docs"></a>
-<a href="http://opensource.org/licenses/ISC"><img src="http://img.shields.io/badge/license-ISC-brightgreen.svg" alt="ISC license"></a></p>
-<p>MusicTheoryJS is a fully documented, lightweight(5kb gzip), chainable music theory library for realtime procedural music generation, analysis and computer aided music composition.</p>
-<p>Includes nearly 70 built in scales and over 40 built in chords</p>
-<p>📘<a href="https://zachacious.github.io/MusicTheoryJS/">Documentation</a></p>
-<p>▶️<a href="https://zachacious.github.io/MusicTheoryJSDemo/">Chord Progression Demo</a></p>
-<hr>
-<h2>Install</h2>
-<p>npm:</p>
-<pre class="prettyprint source"><code>npm i musictheoryjs@latest
-</code></pre>
-<pre class="prettyprint source lang-javascript"><code>import * as MT from 'musictheoryjs';
-</code></pre>
-<p>CDN:</p>
-<pre class="prettyprint source"><code>https://unpkg.com/musictheoryjs@latest/dist/musictheory.min.js
+<!DOCTYPE html><html class="default"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>musictheoryjs</title><meta name="description" content="Documentation for musictheoryjs"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script async src="assets/search.js" id="search-script"></script></head><body><script>document.body.classList.add(localStorage.getItem("tsd-theme") || "os")</script><header><div class="tsd-page-toolbar"><div class="container"><div class="table-wrap"><div class="table-cell" id="tsd-search" data-base="."><div class="field"><label for="tsd-search-field" class="tsd-widget search no-caption">Search</label><input type="text" id="tsd-search-field"/></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">musictheoryjs</a></div><div class="table-cell" id="tsd-widgets"><div id="tsd-filter"><a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a><div class="tsd-filter-group"><div class="tsd-select" id="tsd-filter-visibility"><span class="tsd-select-label">All</span><ul class="tsd-select-list"><li data-value="public">Public</li><li data-value="protected">Public/Protected</li><li data-value="private" class="selected">All</li></ul></div> <input type="checkbox" id="tsd-filter-inherited" checked/><label class="tsd-widget" for="tsd-filter-inherited">Inherited</label><input type="checkbox" id="tsd-filter-externals" checked/><label class="tsd-widget" for="tsd-filter-externals">Externals</label></div></div><a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a></div></div></div></div><div class="tsd-page-title"><div class="container"><h1>musictheoryjs</h1></div></div></header><div class="container container-main"><div class="row"><div class="col-8 col-content"><div class="tsd-panel tsd-typography">
+<a href="#musictheoryjs-v2" id="musictheoryjs-v2" style="color: inherit; text-decoration: none;">
+  <h1>MusicTheoryJS v2</h1>
+</a>
+<p>Documentation</p>
+<p>Music Theory Abstractions for analysis, synthesis, and real-time music composition. Designed for use with MIDI.</p>
+<p>Includes nearly 70 pre-defined scale templates and over 40 pre-defined chords templates.</p>
+<p>Designed to be an enterprise grade library that&#39;s easy to use and extend.</p>
+<p>Examples:</p>
+<pre><code class="language-javascript"><span class="hl-0">import</span><span class="hl-1"> { </span><span class="hl-2">Scale</span><span class="hl-1">, </span><span class="hl-2">Chord</span><span class="hl-1">, </span><span class="hl-2">Note</span><span class="hl-1">, </span><span class="hl-2">Instrument</span><span class="hl-1"> } </span><span class="hl-0">from</span><span class="hl-1"> </span><span class="hl-3">&quot;musictheoryjs&quot;</span><span class="hl-1">;</span><br/><br/><span class="hl-4">// create a note</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">note</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-7">Note</span><span class="hl-1">(</span><span class="hl-3">&quot;D4&quot;</span><span class="hl-1">);</span><br/><br/><span class="hl-4">// create a scale</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">scale</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-7">Scale</span><span class="hl-1">(</span><span class="hl-3">&quot;C5(major)&quot;</span><span class="hl-1">);</span><br/><span class="hl-2">console</span><span class="hl-1">.</span><span class="hl-7">log</span><span class="hl-1">(</span><span class="hl-2">scale</span><span class="hl-1">.</span><span class="hl-7">getNoteNames</span><span class="hl-1">()); </span><span class="hl-4">// --&gt; [&quot;C5&quot;, &quot;D5&quot;, &quot;E5&quot;, &quot;F5&quot;, &quot;G5&quot;, &quot;A5&quot;, &quot;B5&quot;]</span><br/><br/><span class="hl-4">// create a chord</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">chord</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-7">Chord</span><span class="hl-1">(</span><span class="hl-3">&quot;(Ab3)maj7&quot;</span><span class="hl-1">);</span><br/><span class="hl-2">console</span><span class="hl-1">.</span><span class="hl-7">log</span><span class="hl-1">(</span><span class="hl-2">chord</span><span class="hl-1">.</span><span class="hl-2">notes</span><span class="hl-1">); </span><span class="hl-4">// --&gt; array of notes in the chord</span><br/><br/><span class="hl-4">// get the frequency of the scales 3rd degree</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">instrument</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-7">Instrument</span><span class="hl-1">();</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">freq</span><span class="hl-1"> = </span><span class="hl-2">instrument</span><span class="hl-1">.</span><span class="hl-7">getFrequency</span><span class="hl-1">(</span><span class="hl-2">scale</span><span class="hl-1">.</span><span class="hl-7">degree</span><span class="hl-1">(</span><span class="hl-8">3</span><span class="hl-1">)); </span><span class="hl-4">// --&gt; 659.26</span><br/><br/><span class="hl-4">// get the midi key for the scales 3rd degree</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">midiKey</span><span class="hl-1"> = </span><span class="hl-2">instrument</span><span class="hl-1">.</span><span class="hl-7">getMidiKey</span><span class="hl-1">(</span><span class="hl-2">scale</span><span class="hl-1">.</span><span class="hl-7">degree</span><span class="hl-1">(</span><span class="hl-8">3</span><span class="hl-1">)); </span><span class="hl-4">// --&gt; 76</span>
 </code></pre>
 <hr>
-<h2>Classes</h2>
-<p>MusicTheoryJS is comprised of 3 main classes:</p>
-<h3>Note</h3>
-<p>Notes consist of a semitone interval (G#(1) - G(12)) and an octave(0-10).</p>
-<pre class="prettyprint source lang-Javascript"><code>// Notes can be created from a string
-// 'note[alterations][octave]'
-let A4 = new MT.Note('A#4');
 
-// ... or created directly from a semiton and octave
-let A5 = new MT.Note(2, 5); // A semitone = 2 -- octave 5
-
-// ... or from the tones enum
-let A6 = new MT.Note(MT.Note.tones.A, 6);
-
-// ... or from a builtin
-let A7 = MT.Note.A(7); // built in
-
-// modifiers can be chained
-A4.tone(MT.Note.tones.D_FLAT).octave(7).sharp(); // A4 becomes D7
-A4.tone(2).octave(4); // change back to A4
-
-// The tuning can be altered by changing the A4 base frequency
-// Note: this will change the frequency returned by every note 
-MT.Note.A4Tuning(432); // default is 440
-
-// other methods
-console.log(A7.asString); // A7
-console.log(A4.midiKey); // 69
-console.log(A7.isFlat()); // false
-console.log(A4.freq); // 432 - because we changed it above
+<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+  <h2>Installation</h2>
+</a>
+<p>npm:<br></p>
+<pre><code class="language-bash"><span class="hl-1">npm i musictheoryjs@latest</span>
 </code></pre>
-<h3>Scale</h3>
-<p>Scales consist of a root note(tonic or key) and a template(array of integers) that
-represents the interval of steps between each note.</p>
-<p>Scale intervals are represented by an integer 1 - 4:</p>
-<ul>
-<li>1 = half step</li>
-<li>2 = whole step</li>
-<li>3 = one and one half steps</li>
-<li>4 = double step</li>
-</ul>
-<p>[2, 2, 1, 2, 2, 2] represents the major scale</p>
-<p>Scale templates may have arbitray lengths and do NOT include the root note</p>
-<p>Check the docs - nearly 70 built in scales</p>
-<pre class="prettyprint source lang-Javascript"><code>// Create from a root note and a template
-let aMajor = MT.Scale(MT.Note.A(), [2, 2, 1, 2, 2, 2]);
-
-// ... or from a builtin
-let aPentatonicMajorBlues = MT.Scale.PentatonicMajorBlues(MT.Note.A());
-
-// relative modes
-// returns a new scale
-let aMDor = aMajor.dorianMode();
-let aMLoc = aMajor.locrianMode(); 
-
-// parallel modes
-aMajor.parallelMode(MT.Scale.modes.PHRYGIAN);
-
-// chainable
-aMajor.minor().tone(MT.Note.tones.F);
-
-// relativeMajor/relativeMinor
-let s = aMajor.relativeMajor();
-</code></pre>
-<h3>Chord</h3>
-<p>Chords are created from a root note, template, and a scale.
-The template is created from an array of Chord Interval objects representing the scale degree and alterations of each note in the chord.</p>
-<p>Over 40 builtin chords</p>
-<pre class="prettyprint source lang-Javascript"><code>const CI = MT.ChordInterval.create; // alias
-const mod = MT.Note.modifier; // alias
-
-// Create from string
-// If performance matters, avoid this method
-let AbM7s11 = new MT.Chord('AbM7s11'); 
-
-// ... or from root note and template
-let Cm = new MT.Chord(MT.Note.C(), [CI(1), CI(3, mod.FLAT), CI(5)]);
-
-// ... or from a builtin
-let Fdom7s11 = MT.Chord.dom7s11(MT.Note.F()); 
-
-// chains
-Cm.root(new MT.Note(2)).octave(2).diminish().major();
-
-// invert
-Cm.invert().invert();
-
-// create chord progressions
-
-let s = MT.Scale.HarmonicMajor(MT.Note.A(4));
-
-let progression = [];
-progression.push(MT.Chord.M(s.degree(1))); // creates I chord 
-progression.push(MT.Chord.M7b5(s.degree(4))); // creates IV chord 
-progression.push(MT.Chord.M7s11(s.degree(5))); // creates V chord 
+<p>yarn:<br></p>
+<pre><code class="language-bash"><span class="hl-1">yarn add musictheoryjs</span>
 </code></pre>
 <hr>
-<h2>Dev Setup</h2>
-<p>Clone the project</p>
-<p>Install Deps:</p>
-<pre class="prettyprint source"><code>npm install
+
+<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+  <h2>Usage</h2>
+</a>
+<pre><code class="language-javascript"><span class="hl-0">import</span><span class="hl-1"> </span><span class="hl-5">*</span><span class="hl-1"> </span><span class="hl-0">as</span><span class="hl-1"> </span><span class="hl-2">mt</span><span class="hl-1"> </span><span class="hl-0">from</span><span class="hl-1"> </span><span class="hl-3">&quot;musictheoryjs&quot;</span><span class="hl-1">;</span><br/><span class="hl-4">// or</span><br/><span class="hl-0">import</span><span class="hl-1"> {</span><br/><span class="hl-1">   </span><span class="hl-2">Chord</span><span class="hl-1">,</span><br/><span class="hl-1">   </span><span class="hl-2">Scale</span><span class="hl-1">,</span><br/><span class="hl-1">   </span><span class="hl-2">Note</span><span class="hl-1">,</span><br/><span class="hl-1">   </span><span class="hl-2">Instrument</span><span class="hl-1">,</span><br/><span class="hl-1">   </span><span class="hl-2">Semitone</span><span class="hl-1">,</span><br/><span class="hl-1">   </span><span class="hl-2">Modifier</span><span class="hl-1">,</span><br/><span class="hl-1">} </span><span class="hl-0">from</span><span class="hl-1"> </span><span class="hl-3">&quot;musictheoryjs&quot;</span><span class="hl-1">;</span>
 </code></pre>
-<p>Build:</p>
-<pre class="prettyprint source"><code>npm run build
+<hr>
+<hr>
+
+<a href="#semitones" id="semitones" style="color: inherit; text-decoration: none;">
+  <h2>Semitones</h2>
+</a>
+<p>Semitones are simple numbers that represent notes<br>
+There are 12 in total ranging from 0(C) to 11(B)<br>
+0 -&gt; C<br>
+1 -&gt; C#<br>
+2 -&gt; D<br>
+3 -&gt; D#<br>
+4 -&gt; E<br>
+5 -&gt; F<br>
+6 -&gt; F#<br>
+7 -&gt; G<br>
+8 -&gt; G#<br>
+9 -&gt; A<br>
+10 -&gt; A#<br>
+11 -&gt; B<br></p>
+<hr>
+
+<a href="#modifiers" id="modifiers" style="color: inherit; text-decoration: none;">
+  <h2>Modifiers</h2>
+</a>
+<p>Modifiers are this library&#39;s way of representing alterations.<br>
+Think of modifiers as the mathematical form.<br>
+Flat is represented as -1,<br>
+Sharp is represented as 1,<br>
+Natural is represented as 0.<br></p>
+<p>You can import the Modifier enum or just create your own constants when needed.<br></p>
+<hr>
+
+<a href="#instruments" id="instruments" style="color: inherit; text-decoration: none;">
+  <h2>Instruments</h2>
+</a>
+<p>Instruments encapsulate tuning and methods for calculating the frequency and midi key notes.</p>
+<p>the tuning is specified as the A4 frequency in Hertz. The default tuning is 440Hz.</p>
+<hr>
+
+<a href="#notes" id="notes" style="color: inherit; text-decoration: none;">
+  <h2>Notes</h2>
+</a>
+<p>Notes encapsulate the semitone and octave of a musical note.</p>
+<hr>
+
+<a href="#chords" id="chords" style="color: inherit; text-decoration: none;">
+  <h2>Chords</h2>
+</a>
+<p>Chords are made from a root semitone, octave, template(containing ChordIntervals), and a base scale(default is the Major scale).</p>
+<p>The following Pre-defined templates are available:</p>
+  <table>
+  <tr>
+  <td>maj</td>
+  <td>maj4</td>
+  <td>maj6</td>
+  <td>maj69</td>
+  </tr><tr>
+  <td>maj7</td>
+  <td>maj9</td>
+  <td>maj11</td>
+  <td>maj13</td>
+  </tr><tr>
+  <td>maj7s11</td>
+  <td>majb5</td>
+  <td>min</td>
+  <td>min4</td>
+  </tr><tr>
+  <td>min6</td>
+  <td>min7</td>
+  <td>minAdd9</td>
+  <td>min69</td>
+  </tr><tr>
+  <td>min9</td>
+  <td>min11</td>
+  <td>min13</td>
+  <td>min7b5</td>
+  </tr><tr>
+  <td>dom7</td>
+  <td>dom9</td>
+  <td>dom11</td>
+  <td>dom13</td>
+  </tr><tr>
+  <td>dom7s5</td>
+  <td>dom7b5</td>
+  <td>dom7s9</td>
+  <td>dom7b9</td>
+  </tr><tr>
+  <td>dom9b5</td>
+  <td>dom9s5</td>
+  <td>dom7s11</td>
+  <td>dom7s5s9</td>
+  </tr><tr>
+  <td>dom7s5b9</td>
+  <td>dim</td>
+  <td>dim7</td>
+  <td>aug</td>
+  </tr><tr>
+  <td>sus2</td>
+  <td>sus4</td>
+  <td>fifth</td>
+  <td>b5</td>
+  </tr><tr>
+  <td>s11</td>
+  </tr>
+  </table>
+
+<hr>
+
+<a href="#scales" id="scales" style="color: inherit; text-decoration: none;">
+  <h2>Scales</h2>
+</a>
+<p>Scales are made from a key semitone, octave, template(a list of intervals).</p>
+<p>The following Pre-defined templates are available:</p>
+  <table>
+  <tr>
+  <td>major</td>
+  <td>minor</td>
+  <td>ionian</td>
+  <td>dorian</td>
+  </tr><tr>
+  <td>phrygian</td>
+  <td>lydian</td>
+  <td>mixolydian</td>
+  <td>aeolian</td>
+  </tr><tr>
+  <td>locrian</td>
+  <td>enigmaticMajor</td>
+  <td>enigmaticMinor</td>
+  <td>minor7b5</td>
+  </tr><tr>
+  <td>major7s4s5</td>
+  <td>harmonicMajor</td>
+  <td>harmonicMinor</td>
+  <td>doubleHarmonic</td>
+  </tr><tr>
+  <td>melodicMinorAscending</td>
+  <td>melodicMinorDescending</td>
+  <td>majorPentatonic</td>
+  <td>majorPentatonicBlues</td>
+  </tr><tr>
+  <td>minorPentatonic</td>
+  <td>minorPentatonicBlues</td>
+  <td>b5Pentatonic</td>
+  <td>minor6Pentatonic</td>
+  </tr><tr>
+  <td>dim8Tone</td>
+  <td>dom8Tone</td>
+  <td>neopolitanMajor</td>
+  <td>neopolitanMinor</td>
+  </tr><tr>
+  <td>hungarianMajor</td>
+  <td>hungarianMinor</td>
+  <td>hungarianGypsy</td>
+  <td>spanish</td>
+  </tr><tr>
+  <td>spanish8Tone</td>
+  <td>spanishGypsy</td>
+  <td>augmented</td>
+  <td>dominantSuspended</td>
+  </tr><tr>
+  <td>bebopMajor</td>
+  <td>bebopDominant</td>
+  <td>mystic</td>
+  <td>overtone</td>
+  </tr><tr>
+  <td>leadingTone</td>
+  <td>hirojoshi</td>
+  <td>japaneseA</td>
+  <td>japaneseB</td>
+  </tr><tr>
+  <td>oriental</td>
+  <td>arabian</td>
+  <td>persian</td>
+  <td>balinese</td>
+  </tr><tr>
+  <td>kumoi</td>
+  <td>pelog</td>
+  <td>algerian</td>
+  <td>chinese</td>
+  </tr><tr>
+  <td>mongolian</td>
+  <td>egyptian</td>
+  <td>hindu</td>
+  <td>romanian</td>
+  </tr><tr>
+  <td>hindu</td>
+  <td>insen</td>
+  <td>iwato</td>
+  <td>scottish</td>
+  </tr><tr>
+  <td>yo</td>
+  <td>istrian</td>
+  <td>ukranianDorian</td>
+  <td>petrushka</td>
+  </tr><tr>
+  <td>ahavaraba</td>
+  <td>halfDiminished</td>
+  <td>jewish</td>
+  <td>byzantine</td>
+  </tr><tr>
+  <td>acoustic</td>
+  </table>
+
+<hr>
+
+<a href="#development" id="development" style="color: inherit; text-decoration: none;">
+  <h2>Development</h2>
+</a>
+<p>Step 1:<br>
+Fork the project</p>
+<p>Step 2:<br>
+Create a new branch - Name it based on the work/feature your working on</p>
+<p>Step 3:<br>
+From the project root(after you checkout your branch), run:<br></p>
+<pre><code class="language-bash"><span class="hl-1">npm install</span>
 </code></pre>
-<p>Dev Server:</p>
-<pre class="prettyprint source"><code>npm start
+<p>or</p>
+<pre><code class="language-bash"><span class="hl-1">yarn install</span>
 </code></pre>
-<p>Build Docs:</p>
-<pre class="prettyprint source"><code>npm run docs
-</code></pre></article>
-    </section>
+<p>Step 4:<br>
+Submit a pull request</p>
+<hr>
 
+<a href="#scripts" id="scripts" style="color: inherit; text-decoration: none;">
+  <h2>Scripts:</h2>
+</a>
 
+<a href="#build" id="build" style="color: inherit; text-decoration: none;">
+  <h3>Build:</h3>
+</a>
+<pre><code class="language-bash"><span class="hl-1">npm run build</span>
+</code></pre>
+<p>or</p>
+<pre><code class="language-bash"><span class="hl-1">yarn build</span>
+</code></pre>
 
+<a href="#test" id="test" style="color: inherit; text-decoration: none;">
+  <h3>Test:</h3>
+</a>
+<pre><code class="language-bash"><span class="hl-1">npm run </span><span class="hl-7">test</span>
+</code></pre>
+<p>or</p>
+<pre><code class="language-bash"><span class="hl-1">yarn </span><span class="hl-7">test</span>
+</code></pre>
 
+<a href="#lint" id="lint" style="color: inherit; text-decoration: none;">
+  <h3>Lint:</h3>
+</a>
+<pre><code class="language-bash"><span class="hl-1">npm run lint</span>
+</code></pre>
+<p>or</p>
+<pre><code class="language-bash"><span class="hl-1">yarn lint</span>
+</code></pre>
 
-
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-
-<script src="scripts/app.min.js"></script>
-<script src="scripts/linenumber.js"> </script>
-</body>
-</html>
+<a href="#build-docs" id="build-docs" style="color: inherit; text-decoration: none;">
+  <h3>Build Docs:</h3>
+</a>
+<pre><code class="language-bash"><span class="hl-1">npm run build-docs</span>
+</code></pre>
+<p>or</p>
+<pre><code class="language-bash"><span class="hl-1">yarn build-docs</span>
+</code></pre>
+</div></div><div class="col-4 col-menu menu-sticky-wrap menu-highlight"><nav class="tsd-navigation primary"><ul><li class="current"><a href="modules.html">Exports</a></li></ul></nav><nav class="tsd-navigation secondary menu-sticky"><ul><li class="tsd-kind-enum"><a href="enums/Modifier.html" class="tsd-kind-icon">Modifier</a></li><li class="tsd-kind-enum"><a href="enums/Semitone.html" class="tsd-kind-icon">Semitone</a></li><li class="tsd-kind-class"><a href="classes/Chord.html" class="tsd-kind-icon">Chord</a></li><li class="tsd-kind-class"><a href="classes/Instrument.html" class="tsd-kind-icon">Instrument</a></li><li class="tsd-kind-class"><a href="classes/Note.html" class="tsd-kind-icon">Note</a></li><li class="tsd-kind-class"><a href="classes/Scale.html" class="tsd-kind-icon">Scale</a></li><li class="tsd-kind-type-alias"><a href="modules.html#ChordInitializer" class="tsd-kind-icon">Chord<wbr/>Initializer</a></li><li class="tsd-kind-type-alias"><a href="modules.html#ChordInterval" class="tsd-kind-icon">Chord<wbr/>Interval</a></li><li class="tsd-kind-type-alias"><a href="modules.html#NoteInitializer" class="tsd-kind-icon">Note<wbr/>Initializer</a></li><li class="tsd-kind-type-alias"><a href="modules.html#ScaleInitializer" class="tsd-kind-icon">Scale<wbr/>Initializer</a></li><li class="tsd-kind-variable"><a href="modules.html#ScaleTemplates" class="tsd-kind-icon">Scale<wbr/>Templates</a></li></ul></nav></div></div></div><footer class="with-border-bottom"><div class="container"><h2>Legend</h2><div class="tsd-legend-group"><ul class="tsd-legend"><li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li><li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li><li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li><li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li></ul><ul class="tsd-legend"><li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li></ul></div><h2>Settings</h2><p>Theme <select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></p></div></footer><div class="container tsd-generator"><p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div><div class="overlay"></div><script src="assets/main.js"></script></body></html>
