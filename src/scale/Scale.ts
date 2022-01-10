@@ -485,7 +485,7 @@ class Scale implements Entity {
     * ```
     */
    public getNoteNames(preferSharpKey = true): string[] {
-      const names: string[] = Scale.scaleNoteNameLookup(this, preferSharpKey);
+      const names: string[] = scaleNoteNameLookup(this, preferSharpKey);
       return names;
    }
 
@@ -787,169 +787,166 @@ class Scale implements Entity {
       return `${Semitone[this._key]}${this._octave}(${scaleNames})`;
    }
 
-   /**
-    * attempts to lookup the note name for a scale efficiently
-    * @static
-    * @param scale - the scale to lookup
-    * @param preferSharpKey - if true, will prefer sharp keys over flat keys
-    * @returns the note name for the scale
-    * @internal
-    */
-   protected static scaleNoteNameLookup(
-      scale: Scale,
-      preferSharpKey: boolean = true
-   ) {
-      try {
-         const key = `${scale.key}-${scale.octave}-${JSON.stringify(
-            scale.template
-         )}`;
-         const notes = this._notesLookup[key];
-         if (notes) {
-            return notes;
-         }
-      } catch (e) {
-         // do nothing
-      }
+   // /**
+   //  * used to initialize the lookup table
+   //  * @internal
+   //  */
+   // public static async init() {
+   // if (table && Object.keys(table).length > 0) {
+   //    Scale._notesLookup = table;
+   // } else {
+   //    Scale._notesLookup = Scale.createNotesLookupTable();
+   // }
 
-      let notes = [...scale.notes];
-      notes = shift(notes, -scale.shiftedInterval()); //unshift back to key = 0 index
-      const notesParts: string[][] = notes.map((note) =>
-         note.toString().split("/")
-      );
+   // save the lookup table to file
 
-      const octaves = notes.map((note) => note.octave);
-
-      const removables = ["B#", "Bs", "Cb", "E#", "Es", "Fb"];
-
-      const noteNames: Array<string> = [];
-
-      for (const [i, noteParts] of notesParts.entries()) {
-         //remove Cb B# etc
-         for (const part of noteParts) {
-            // remove any numbers from the note name(octave)
-            // part.replace(/\d/g, "");
-
-            if (removables.includes(part)) {
-               const index = noteNames.indexOf(part);
-               noteNames.splice(index, 1);
-            }
-         }
-
-         if (noteNames.length === 0) {
-            noteNames.push(
-               preferSharpKey ? noteParts[0] : noteParts[noteParts.length - 1]
-            );
-            continue;
-         }
-
-         if (noteParts.length === 1) {
-            noteNames.push(noteParts[0]);
-            continue;
-         }
-
-         const wholeNotes = [
-            "A",
-            "B",
-            "C",
-            "D",
-            "E",
-            "F",
-            "G",
-            "A",
-            "B",
-            "C",
-            "D",
-            "E",
-            "F",
-            "G",
-         ];
-
-         const lastWholeNote = noteNames[noteNames.length - 1][0];
-         const lastIndex = wholeNotes.indexOf(lastWholeNote);
-         const nextNote = wholeNotes[lastIndex + 1];
-
-         if (noteParts[0].includes(nextNote)) {
-            const hasOctave = noteParts[0].match(/\d/g);
-            noteNames.push(noteParts[0] + (hasOctave ? "" : octaves[i]));
-            continue;
-         }
-
-         const hasOctave = noteParts[noteParts.length - 1].match(/\d/g);
-         noteNames.push(
-            noteParts[noteParts.length - 1] + (hasOctave ? "" : octaves[i])
-         );
-      }
-
-      const shiftedNoteNames: string[] = shift(
-         noteNames,
-         scale.shiftedInterval()
-      );
-
-      return shiftedNoteNames;
-   }
-
-   /**
-    * creates a lookup table for all notes formatted as [A-G][#|b|s][0-9]
-    */
-   protected static createNotesLookupTable(): { [key: string]: string[] } {
-      const scaleTable: { [key: string]: string[] } = {};
-
-      for (let itone = TONES_MIN; itone < TONES_MIN + OCTAVE_MAX; itone++) {
-         for (let ioctave = OCTAVE_MIN; ioctave <= OCTAVE_MAX; ioctave++) {
-            for (const template of Object.values(ScaleTemplates)) {
-               const scale = new Scale({
-                  key: itone,
-                  template: template,
-                  octave: ioctave,
-               });
-               scaleTable[`${itone}-${ioctave}-${JSON.stringify(template)}`] =
-                  Scale.scaleNoteNameLookup(scale);
-            }
-         }
-      }
-
-      return scaleTable;
-   }
-
-   /**
-    * creates the lookup table as soon as the module is loaded
-    */
-   protected static _notesLookup: { [key: string]: string[] } = {};
-
-   /**
-    * used to initialize the lookup table
-    * @internal
-    */
-   public static async init() {
-      if (table && Object.keys(table).length > 0) {
-         Scale._notesLookup = table;
-      } else {
-         Scale._notesLookup = Scale.createNotesLookupTable();
-      }
-
-      // save the lookup table to file
-
-      import("fs")
-         .then((fs) => {
-            if (process?.env?.GENTABLES ?? false) {
-               try {
-                  if (!Scale._notesLookup)
-                     Scale._notesLookup = Scale.createNotesLookupTable();
-                  fs.writeFileSync(
-                     "./src/Scale/noteLookup.json",
-                     JSON.stringify(Scale._notesLookup)
-                  );
-               } catch (err) {
-                  console.warn(err);
-               }
-            }
-         })
-         .catch(() => {
-            console.log("Not running from NODE - This is fine");
-         });
-   }
+   //    import("fs")
+   //       .then((fs) => {
+   //          if (process?.env?.GENTABLES ?? false) {
+   //             try {
+   //                if (!Scale._notesLookup)
+   //                   Scale._notesLookup = Scale.createNotesLookupTable();
+   //                fs.writeFileSync(
+   //                   "./src/Scale/noteLookup.json",
+   //                   JSON.stringify(Scale._notesLookup)
+   //                );
+   //             } catch (err) {
+   //                console.warn(err);
+   //             }
+   //          }
+   //       })
+   //       .catch(() => {
+   //          console.log("Not running from NODE - This is fine");
+   //       });
+   // }
 }
 
-Scale.init();
+/**
+ * attempts to lookup the note name for a scale efficiently
+ * @param scale - the scale to lookup
+ * @param preferSharpKey - if true, will prefer sharp keys over flat keys
+ * @returns the note names for the scale
+ * @internal
+ */
+const scaleNoteNameLookup = (scale: Scale, preferSharpKey: boolean = true) => {
+   try {
+      const key = `${scale.key}-${scale.octave}-${JSON.stringify(
+         scale.template
+      )}`;
+      const notes = _notesLookup[key];
+      if (notes) {
+         return notes;
+      }
+   } catch (e) {
+      // do nothing
+   }
+
+   let notes = [...scale.notes];
+   notes = shift(notes, -scale.shiftedInterval()); //unshift back to key = 0 index
+   const notesParts: string[][] = notes.map((note) =>
+      note.toString().split("/")
+   );
+
+   const octaves = notes.map((note) => note.octave);
+
+   const removables = ["B#", "Bs", "Cb", "E#", "Es", "Fb"];
+
+   const noteNames: Array<string> = [];
+
+   for (const [i, noteParts] of notesParts.entries()) {
+      //remove Cb B# etc
+      for (const part of noteParts) {
+         // remove any numbers from the note name(octave)
+         // part.replace(/\d/g, "");
+
+         if (removables.includes(part)) {
+            const index = noteNames.indexOf(part);
+            noteNames.splice(index, 1);
+         }
+      }
+
+      if (noteNames.length === 0) {
+         noteNames.push(
+            preferSharpKey ? noteParts[0] : noteParts[noteParts.length - 1]
+         );
+         continue;
+      }
+
+      if (noteParts.length === 1) {
+         noteNames.push(noteParts[0]);
+         continue;
+      }
+
+      const wholeNotes = [
+         "A",
+         "B",
+         "C",
+         "D",
+         "E",
+         "F",
+         "G",
+         "A",
+         "B",
+         "C",
+         "D",
+         "E",
+         "F",
+         "G",
+      ];
+
+      const lastWholeNote = noteNames[noteNames.length - 1][0];
+      const lastIndex = wholeNotes.indexOf(lastWholeNote);
+      const nextNote = wholeNotes[lastIndex + 1];
+
+      if (noteParts[0].includes(nextNote)) {
+         const hasOctave = noteParts[0].match(/\d/g);
+         noteNames.push(noteParts[0] + (hasOctave ? "" : octaves[i]));
+         continue;
+      }
+
+      const hasOctave = noteParts[noteParts.length - 1].match(/\d/g);
+      noteNames.push(
+         noteParts[noteParts.length - 1] + (hasOctave ? "" : octaves[i])
+      );
+   }
+
+   const shiftedNoteNames: string[] = shift(noteNames, scale.shiftedInterval());
+
+   return shiftedNoteNames;
+};
+
+/**
+ * creates a lookup table for all notes formatted as [A-G][#|b|s][0-9]
+ */
+const createNotesLookupTable = (): { [key: string]: string[] } => {
+   const scaleTable: { [key: string]: string[] } = {};
+
+   for (let itone = TONES_MIN; itone < TONES_MIN + OCTAVE_MAX; itone++) {
+      for (let ioctave = OCTAVE_MIN; ioctave <= OCTAVE_MAX; ioctave++) {
+         for (const template of Object.values(ScaleTemplates)) {
+            const scale = new Scale({
+               key: itone,
+               template: template,
+               octave: ioctave,
+            });
+            scaleTable[`${itone}-${ioctave}-${JSON.stringify(template)}`] =
+               scaleNoteNameLookup(scale);
+         }
+      }
+   }
+
+   return scaleTable;
+};
+
+/**
+ * creates the lookup table as soon as the module is loaded
+ */
+let _notesLookup: { [key: string]: string[] } = {};
+
+// Scale.init();
+
+const buildScaleNoteTable = (): { [key: string]: string[] } =>
+   (_notesLookup = createNotesLookupTable());
 
 export default Scale;
+export { buildScaleNoteTable };

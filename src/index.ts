@@ -10,6 +10,7 @@ import Chord from "./Chord/Chord";
 import ChordInitializer from "./Chord/ChordInitializer";
 import ChordInterval from "./Chord/ChordInterval";
 import ChordTemplates from "./Chord/chordTemplates";
+import buildTables from "./buildTables";
 
 export {
    Note,
@@ -20,6 +21,7 @@ export {
    ScaleTemplates,
    Chord,
    ChordTemplates,
+   buildTables,
 };
 
 export type {

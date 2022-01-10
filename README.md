@@ -1,6 +1,6 @@
 # MusicTheoryJS v2
 
-<strong>[Documentation](https://zachacious.github.io/MusicTheoryJS/)</strong>
+<strong>[Documentation](https://zachacious.github.io/MusicTheoryJS/)</strong> |
 <strong>[License(ISC)](LICENSE.txt)</strong>
 
 ---
@@ -34,6 +34,28 @@ const freq = instrument.getFrequency(scale.degree(3)); // --> 659.26
 // get the midi key for the scales 3rd degree
 const midiKey = instrument.getMidiKey(scale.degree(3)); // --> 76
 ```
+
+---
+
+## A Note On Performance
+
+The most performant and efficient way to create entities in MusicTheoryJS is to use Initializer objects e.g. {root: 5, octave: 3}. Using strings e.g. "C5(major)" is also fast but there are some things you should know.
+
+1. The first time you create an entity with a string initializer, a lookup(hash) table is created to speed up subsequent lookups. It initializes the lookup table on the first lookup(when the first object of that type is created).
+2. You can manually force the lookup tables to be created by calling buildTables() like so:
+
+```javascript
+import { buildTables } from "musictheoryjs";
+
+buildTables();
+```
+
+This can be great for client side
+if you run buildTables in an async function and you present a spinner and/or prevent the user from creating new entities until the tables are built.
+This way you have control over the performance of your application.
+
+Note:
+buildTables should only(optionally) be called once soon after your app loads and only if you intend to use string initialization.
 
 ---
 

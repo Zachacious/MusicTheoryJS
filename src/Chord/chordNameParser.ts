@@ -11,7 +11,7 @@ import clamp from "../utils/clamp";
 import ChordInterval from "./ChordInterval";
 import ChordTemplates from "./chordTemplates";
 import ChordInitializer from "./ChordInitializer";
-import table from "./noteLookup.json";
+// import table from "./noteLookup.json";
 
 /**
  * Regex for matching note name, modifier, and octave
@@ -240,30 +240,34 @@ const chordLookup = (key: string): ChordInitializer => {
 //    _chordLookup = createTable();
 // });
 
-if (table && Object.keys(table).length > 0) {
-   _chordLookup = table as { [key: string]: ChordInitializer };
-} else {
-   _chordLookup = createTable();
-}
+// if (table && Object.keys(table).length > 0) {
+//    _chordLookup = table as { [key: string]: ChordInitializer };
+// } else {
+//    _chordLookup = createTable();
+// }
+
+const buildChordTable = (): { [key: string]: ChordInitializer } =>
+   (_chordLookup = createTable());
 
 // save the lookup table to file
 
-import("fs")
-   .then((fs) => {
-      if (process?.env?.GENTABLES ?? false) {
-         try {
-            if (!_chordLookup) _chordLookup = createTable();
-            fs.writeFileSync(
-               "./src/Chord/noteLookup.json",
-               JSON.stringify(_chordLookup)
-            );
-         } catch (err) {
-            console.warn(err);
-         }
-      }
-   })
-   .catch(() => {
-      console.log("Not running from NODE - This is fine");
-   });
+// import("fs")
+//    .then((fs) => {
+//       if (process?.env?.GENTABLES ?? false) {
+//          try {
+//             if (!_chordLookup) _chordLookup = createTable();
+//             fs.writeFileSync(
+//                "./src/Chord/noteLookup.json",
+//                JSON.stringify(_chordLookup)
+//             );
+//          } catch (err) {
+//             console.warn(err);
+//          }
+//       }
+//    })
+//    .catch(() => {
+//       console.log("Not running from NODE - This is fine");
+//    });
 
 export default parseChord;
+export { buildChordTable };

@@ -9,14 +9,21 @@ Your HTML here
 <script>
 // self executing function here
 (function() {
-   console.log(window);
    const mt = window.MusicTheory;
+   mt.buildTables();
+   console.log(mt);
 
    const chord = new mt.Chord('(C6)maj');
    console.log(chord);
    console.log(chord.notes);
    console.log(chord.invert());
 
+   const chords = [];
+   for(let i = 0; i < 1000000; i++) {
+       const c = new mt.Chord('(Eb)min7');
+       chords.push(c);
+   }
+   console.log(chords);
 
 })();
 </script>
