@@ -859,7 +859,6 @@ class Chord implements Entity {
          JSON.stringify(template)
       );
       const index = values.indexOf(JSON.stringify(this._template));
-      console.log(index);
 
       const prefix = `(${Semitone[this._root]}${this._octave})`;
 

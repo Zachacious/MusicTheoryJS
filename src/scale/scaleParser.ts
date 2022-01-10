@@ -174,10 +174,7 @@ const createTable = (): { [key: string]: ScaleInitializer } => {
 let _scaleLookup: { [key: string]: ScaleInitializer } = {};
 
 const scaleLookup = (key: string): ScaleInitializer => {
-   if (!_scaleLookup) {
-      _scaleLookup = createTable();
-   }
-
+   // buildScaleTable();
    return _scaleLookup[key];
 };
 
@@ -187,8 +184,13 @@ const scaleLookup = (key: string): ScaleInitializer => {
 //    _scaleLookup = createTable();
 // }
 
-const buildScaleTable = (): { [key: string]: ScaleInitializer } =>
-   (_scaleLookup = createTable());
+const buildScaleTable = (): { [key: string]: ScaleInitializer } => {
+   // if (Object.entries(_scaleLookup).length > 0) return _scaleLookup;
+   _scaleLookup = createTable();
+   // Object.freeze(_scaleLookup);
+   console.log("Scale Table Built");
+   return _scaleLookup;
+};
 
 // save the lookup table to file
 

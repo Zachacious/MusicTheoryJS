@@ -229,10 +229,7 @@ let _chordLookup: { [key: string]: ChordInitializer } = {};
  * @internal
  */
 const chordLookup = (key: string): ChordInitializer => {
-   if (_chordLookup.length === 0) {
-      _chordLookup = createTable();
-   }
-
+   // buildChordTable();
    return _chordLookup[key];
 };
 
@@ -246,8 +243,14 @@ const chordLookup = (key: string): ChordInitializer => {
 //    _chordLookup = createTable();
 // }
 
-const buildChordTable = (): { [key: string]: ChordInitializer } =>
-   (_chordLookup = createTable());
+const buildChordTable = (): { [key: string]: ChordInitializer } => {
+   // if (Object.entries(_chordLookup).length > 0) return _chordLookup;
+   _chordLookup = createTable();
+   Object.freeze(_chordLookup);
+   console.log("built chord table");
+   // console.log(Object.entries(_chordLookup).length);
+   return _chordLookup;
+};
 
 // save the lookup table to file
 

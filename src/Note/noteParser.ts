@@ -5,7 +5,7 @@ import { parseModifier } from "../Modifier";
 import wrap from "../utils/wrap";
 import clamp from "../utils/clamp";
 // import { registerInitializer } from "../Initializer/Initializer";
-import table from "./noteLookup.json";
+// import table from "./noteLookup.json";
 // import fs from "fs";
 
 //**********************************************************
@@ -34,12 +34,12 @@ const parseNote = (
 
       if (!supressWarning)
          console.warn(
-            `Ineffecient note string formatting - ${note}. Get a performanc increase by using the format [A-G][#|s|b][0-9]`
+            `Ineffecient note string formatting - ${note}. Get a performance increase by using the format [A-G][#|s|b][0-9] and using buildTables method(see documentation)`
          );
    } catch (err) {
       if (!supressWarning)
          console.warn(
-            `Ineffecient note string formatting - ${note}. Get a performanc increase by using the format [A-G][#|s|b][0-9]`
+            `Ineffecient note string formatting - ${note}. Get a performance increase by using the format [A-G][#|s|b][0-9] and using buildTables method(see documentation)`
          );
    }
 
@@ -133,17 +133,13 @@ const createTable = (): { [key: string]: NoteInitializer } => {
    return noteTable;
 };
 
-//**********************************************************
 /**
- * creates the lookup table as soon as the module is loaded
+ * The lookup table
  */
-//**********************************************************
 let _noteLookup: { [key: string]: NoteInitializer } = {};
 
 const noteLookup = (key: string) => {
-   if (!_noteLookup) {
-      _noteLookup = createTable();
-   }
+   // buildNoteTable();
    return _noteLookup[key];
 };
 
@@ -157,8 +153,12 @@ const noteLookup = (key: string) => {
 //    _noteLookup = createTable();
 // }
 
-const buildNoteTable = (): { [key: string]: NoteInitializer } =>
-   (_noteLookup = createTable());
+const buildNoteTable = (): { [key: string]: NoteInitializer } => {
+   _noteLookup = createTable();
+   Object.freeze(_noteLookup);
+   console.log("built note table");
+   return _noteLookup;
+};
 
 // save the lookup table to file
 

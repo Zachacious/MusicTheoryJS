@@ -833,7 +833,7 @@ const scaleNoteNameLookup = (scale: Scale, preferSharpKey: boolean = true) => {
       const key = `${scale.key}-${scale.octave}-${JSON.stringify(
          scale.template
       )}`;
-      const notes = _notesLookup[key];
+      const notes = notesLookup(key);
       if (notes) {
          return notes;
       }
@@ -943,10 +943,18 @@ const createNotesLookupTable = (): { [key: string]: string[] } => {
  */
 let _notesLookup: { [key: string]: string[] } = {};
 
-// Scale.init();
+const notesLookup = (key: string): string[] => {
+   // buildScaleNoteTable();
+   return _notesLookup[key];
+};
 
-const buildScaleNoteTable = (): { [key: string]: string[] } =>
-   (_notesLookup = createNotesLookupTable());
+const buildScaleNoteTable = (): { [key: string]: string[] } => {
+   // if (Object.entries(_notesLookup).length > 0) return _notesLookup;
+   _notesLookup = createNotesLookupTable();
+   Object.freeze(_notesLookup);
+   console.log("built scale note table");
+   return _notesLookup;
+};
 
 export default Scale;
 export { buildScaleNoteTable };

@@ -2,13 +2,13 @@ import {
    MODIFIED_SEMITONES,
    TONES_MAX,
    TONES_MIN,
-   OCTAVE_MAX,
-   OCTAVE_MIN,
+   // OCTAVE_MAX,
+   // OCTAVE_MIN,
 } from "./noteConstants";
-import Semitone from "../Semitone";
+// import Semitone from "../Semitone";
 import wrap from "../utils/wrap";
 // import { registerInitializer } from "../Initializer/Initializer";
-import table from "./noteStringLookup.json";
+// import table from "./noteStringLookup.json";
 
 const UNKNOWN_MODIFIER_NOTE_STRINGS: Array<string> = [
    "C",
@@ -94,10 +94,8 @@ const getNoteLabel = (tone: number, modifier: string): string => {
 let _noteStringLookup: { [key: string]: string } = {};
 
 const noteStringLookup = (key: string) => {
-   if (!_noteStringLookup) {
-      _noteStringLookup = createTable();
-   }
-
+   // buildNoteStringTable();
+   if (Object.keys(_noteStringLookup).length === 0) buildNoteStringTable();
    return _noteStringLookup[key];
 };
 
@@ -111,7 +109,13 @@ const noteStringLookup = (key: string) => {
 //    _noteStringLookup = createTable();
 // }
 
-const buildNoteStringTable = () => (_noteStringLookup = createTable());
+const buildNoteStringTable = () => {
+   // if (Object.keys(_noteStringLookup).length > 0) return _noteStringLookup;
+   _noteStringLookup = createTable();
+   Object.freeze(_noteStringLookup);
+   console.log("Note string table built.");
+   return _noteStringLookup;
+};
 
 // save the lookup table to file
 

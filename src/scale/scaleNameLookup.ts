@@ -45,10 +45,7 @@ const createTable = (): { [key: string]: string } => {
 let _nameTable: { [key: string]: string } = {};
 
 const nameTable = (key: string) => {
-   if (!_nameTable[key]) {
-      _nameTable = createTable();
-   }
-
+   // buildScaleNameTable();
    return _nameTable[key];
 };
 
@@ -58,8 +55,13 @@ const nameTable = (key: string) => {
 //    _nameTable = createTable();
 // }
 
-const buildScaleNameTable = (): { [key: string]: string } =>
-   (_nameTable = createTable());
+const buildScaleNameTable = (): { [key: string]: string } => {
+   // if (Object.entries(_nameTable).length > 0) return _nameTable;
+   _nameTable = createTable();
+   Object.freeze(_nameTable);
+   console.log("Scale name table built");
+   return _nameTable;
+};
 
 // // save the lookup table to file
 
