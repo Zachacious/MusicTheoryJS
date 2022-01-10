@@ -14,7 +14,10 @@ Designed to be an enterprise grade library that's easy to use and extend.
 Examples:
 
 ```javascript
-import { Scale, Chord, Note, Instrument } from "musictheoryjs";
+import { Scale, Chord, Note, Instrument, buildTables } from "musictheoryjs";
+
+// build the string tables
+buildTables();
 
 // create a note
 const note = new Note("D4");
@@ -39,10 +42,11 @@ const midiKey = instrument.getMidiKey(scale.degree(3)); // --> 76
 
 ## A Note On Performance
 
-The most performant and efficient way to create entities in MusicTheoryJS is to use Initializer objects e.g. {root: 5, octave: 3}. Using strings e.g. "C5(major)" is also fast but there are some things you should know.
+The most performant and efficient way to create entities in MusicTheoryJS is to use Initializer objects e.g. {root: 5, octave: 3}. Using strings e.g. "C5(major)" is also fast when used the right way.
 
-1. The first time you create an entity with a string initializer, a lookup(hash) table is created to speed up subsequent lookups. It initializes the lookup table on the first lookup(when the first object of that type is created).
-2. You can manually force the lookup tables to be created by calling buildTables() like so:
+Each entity that accepts a string initializer uses an ideal format specified in the documentation. Using a format other what is prescribed will bypass the lookup table and the resulting performance will be much slower.
+
+If you intend to use string initializers, you should probably use the `buildTables` function to create the lookup tables. Probably soon after the library loads.
 
 ```javascript
 import { buildTables } from "musictheoryjs";
