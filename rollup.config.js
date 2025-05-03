@@ -1,46 +1,85 @@
-import typescript from "rollup-plugin-typescript2";
-import { uglify } from "rollup-plugin-uglify";
+import commonjs from "@rollup/plugin-commonjs";
 import dts from "rollup-plugin-dts";
-import { nodeResolve } from "@rollup/plugin-node-resolve";
 import json from "@rollup/plugin-json";
-
-const uglifyOptions = {
-   sourcemap: true,
-};
+import { nodeResolve } from "@rollup/plugin-node-resolve";
+import { terser } from "rollup-plugin-terser";
+import typescript from "rollup-plugin-typescript2";
 
 export default [
-   {
-      input: "src/index.ts",
-      output: [
-         {
-            name: "MusicTheory",
-            file: "dist/musictheory.js",
-            format: "umd",
-         },
-      ],
-      plugins: [typescript(), nodeResolve(), json()],
-   },
+  {
+    input: "src/index.ts",
+    output: [
+      {
+        name: "MusicTheoryJS",
+        file: "dist/musictheory.js",
+        format: "umd",
+        sourcemap: true,
+      },
+      {
+        file: "dist/musictheory.esm.js",
+        format: "esm",
+        sourcemap: true,
+      },
+      {
+        file: "dist/musictheory.cjs.js",
+        format: "cjs",
+        sourcemap: true,
+      },
+    ],
+    plugins: [
+      typescript({
+        useTsconfigDeclarationDir: true,
+        tsconfigOverride: {
+          exclude: ["**/*.test.ts", "**/*.spec.ts"],
+        },
+      }),
+      nodeResolve(),
+      commonjs(),
+      json(),
+    ],
+  },
 
-   {
-      input: "src/index.ts",
-      output: [
-         {
-            name: "MusicTheory",
-            file: "dist/musictheory.min.js",
-            format: "umd",
-         },
-      ],
-      plugins: [typescript(), nodeResolve(), json(), uglify(uglifyOptions)],
-   },
+  {
+    input: "src/index.ts",
+    output: [
+      {
+        name: "MusicTheoryJS",
+        file: "dist/musictheory.min.js",
+        format: "umd",
+        sourcemap: true,
+      },
+      {
+        file: "dist/musictheory.esm.min.js",
+        format: "esm",
+        sourcemap: true,
+      },
+    ],
+    plugins: [
+      typescript({
+        useTsconfigDeclarationDir: true,
+        tsconfigOverride: {
+          exclude: ["**/*.test.ts", "**/*.spec.ts"],
+        },
+      }),
+      nodeResolve(),
+      commonjs(),
+      json(),
+      terser({
+        format: {
+          comments: false,
+        },
+      }),
+    ],
+  },
 
-   {
-      input: "dist/index.d.ts",
-      output: [
-         {
-            file: "dist/musictheory.d.ts",
-            format: "umd",
-         },
-      ],
-      plugins: [dts()],
-   },
+  {
+    input: "dist/index.d.ts",
+    output: [
+      {
+        file: "dist/musictheory.d.ts",
+        format: "es",
+      },
+    ],
+    plugins: [dts()],
+  },
 ];

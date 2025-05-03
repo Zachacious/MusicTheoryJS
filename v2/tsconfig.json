@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+       "esModuleInterop": true,
+      "isolatedModules": true,
+      "noImplicitAny": true,
+      "strictNullChecks": true,
+      "strictPropertyInitialization": true,
+      "noImplicitThis": true,
+      "alwaysStrict": true,
+      // "strict": true,
+      "experimentalDecorators": true,
+      "declaration": true,
+      "target": "ESNext",
+      "module": "esnext",
+      "moduleResolution": "node",
+      "resolveJsonModule": true,
+    },
+    "include": [
+      "src/**/*"
+    ],
+    "exclude": [
+      "src/**/*.test.ts"
+    ]
+  }
