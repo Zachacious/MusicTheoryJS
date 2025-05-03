@@ -23,7 +23,9 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "declarationMap": true,
+    "rootDir": "./src"
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist", "**/*.test.ts"]

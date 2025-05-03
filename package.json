@@ -7,13 +7,6 @@
   "browser": "dist/musictheory.min.js",
   "types": "dist/musictheory.d.ts",
   "type": "module",
-  "exports": {
-    ".": {
-      "import": "./dist/musictheory.esm.js",
-      "require": "./dist/musictheory.cjs.js",
-      "types": "./dist/musictheory.d.ts"
-    }
-  },
   "files": [
     "dist",
     "README.md",
@@ -58,5 +51,22 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/Zachacious/musictheoryjs"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./note": {
+      "import": "./dist/note/index.js",
+      "require": "./dist/note/index.js",
+      "types": "./dist/note/index.d.ts"
+    },
+    "./scale": {
+      "import": "./dist/scale/index.js",
+      "require": "./dist/scale/index.js",
+      "types": "./dist/scale/index.d.ts"
+    }
   }
 }
