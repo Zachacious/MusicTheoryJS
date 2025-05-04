@@ -20,7 +20,10 @@
     "clean": "rimraf dist",
     "test": "jest",
     "lint": "eslint src --ext .ts",
-    "prepublishOnly": "npm run lint && npm run build"
+    "prepublishOnly": "npm run lint && npm run build",
+    "docs": "typedoc",
+    "docs:publish": "typedoc && gh-pages -d docs",
+    "docs:serve": "typedoc --watch --out docs src/ && npx http-server docs"
   },
   "keywords": [
     "music",
@@ -68,5 +71,9 @@
       "require": "./dist/scale/index.js",
       "types": "./dist/scale/index.d.ts"
     }
+  },
+  "dependencies": {
+    "typedoc": "^0.28.4",
+    "typedoc-plugin-markdown": "^4.6.3"
   }
 }

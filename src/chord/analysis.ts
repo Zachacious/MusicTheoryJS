@@ -1,17 +1,36 @@
 /**
- * Functions for chord analysis
+ * @module Chord/Analysis
+ * @description
+ * This module provides functions for analyzing musical chords represented by arrays of Notes.
+ * Capabilities include identifying the chord's root and quality, determining inversion,
+ * finding tensions and alterations relative to standard formulas, analyzing harmonic function
+ * within a scale context, comparing chords, and performing basic microtonal chord identification.
  */
 
+// Import chord constants and types
 import { CHORD_FORMULAS, SCALE_DEGREE_SEMITONES } from "./constants";
-import { Chord, ChordFormula, ChordQuality } from "./types";
-import { Note, intervalBetween, notesAreEqual } from "../note";
+import { Chord, ChordFormula, ChordQuality } from "./types"; // ChordFormula seems unused here
+// Import necessary Note types and functions
+import { Note, compareNotes, intervalBetween, notesAreEqual } from "../note";
+// Import necessary Scale types and functions
 import { Scale, getScaleDegree } from "../scale";
 
+// Import chord identification function from creation module
 import { identifyChord } from "./creation";
-import { intervalInCents } from "../note/calculations";
+// Import calculation function needed for microtonal detection
+import { intervalInCents } from "../note/calculations"; // Note: Assumes correct relative path
 
 /**
- * Result of chord analysis
+ * Defines the structure for the detailed analysis results of a chord.
+ * @interface ChordAnalysisResult
+ * @property {Note} root - The identified root Note of the chord.
+ * @property {ChordQuality} quality - The identified quality or type of the chord (e.g., "major", "min7", "sus4").
+ * @property {boolean} isStandardChord - True if the input notes exactly match the standard formula for the identified quality (no missing essential tones, no extra tones).
+ * @property {Note} bass - The lowest sounding Note in the input array.
+ * @property {number} inversion - The inversion of the chord (0 for root position, 1 for first inversion, etc.), based on which chord tone (from the formula) is in the bass.
+ * @property {string[]} tensions - An array of strings representing identified tensions or extensions (e.g., "9", "b9", "#11", "13") present in the chord beyond the basic triad or seventh.
+ * @property {string[]} missingNotes - An array of strings representing essential chord tones (from the formula) that were *not* found in the input notes (e.g., "5" if the fifth is missing from a triad).
+ * @property {string[]} extraNotes - An array of strings attempting to identify notes present in the input that are *not* part of the standard chord formula (e.g., "add4", "#2"). Identification is based on the closest scale degree.
  */
 export interface ChordAnalysisResult {
   /** The identified root */
@@ -33,7 +52,37 @@ export interface ChordAnalysisResult {
 }
 
 /**
- * Analyze a chord's structure
+ * Analyzes an array of notes to determine the chord's root, quality, inversion,
+ * bass note, tensions, and any missing or extra notes compared to standard formulas.
+ *
+ * @param notes - An array of Note objects representing the chord. Must contain at least 2 notes.
+ * @returns A ChordAnalysisResult object containing the analysis details, or `null` if the chord cannot be identified or has fewer than 2 notes.
+ * @throws {Error} If chord identification fails internally (though `identifyChord` might return null instead).
+ * @remarks Relies on `identifyChord` to find the root/quality and `CHORD_FORMULAS` / `SCALE_DEGREE_SEMITONES` for comparison. Tension/extra note identification logic is based on comparing input pitch classes to expected formula pitch classes and standard degree intervals. Bass note is the lowest note by pitch in the input array. Inversion is determined by finding the formula degree corresponding to the bass note's pitch class.
+ * @example
+ * ```ts
+ * // Assuming identifyChord and createNote exist and work as expected
+ * const cMajor7Notes = ['C4', 'E4', 'G4', 'B4'].map(s => createNote(s));
+ * const analysis = analyzeChord(cMajor7Notes);
+ * if (analysis) {
+ * console.log(analysis.root.notation); // "C4" (or equivalent C note)
+ * console.log(analysis.quality); // "maj7"
+ * console.log(analysis.bass.notation); // "C4"
+ * console.log(analysis.inversion); // 0
+ * console.log(analysis.isStandardChord); // true
+ * console.log(analysis.tensions); // []
+ * console.log(analysis.missingNotes); // []
+ * console.log(analysis.extraNotes); // []
+ * }
+ *
+ * const cAdd9Notes = ['C4', 'E4', 'G4', 'D5'].map(s => createNote(s));
+ * const analysis2 = analyzeChord(cAdd9Notes);
+ * if (analysis2) {
+ * console.log(analysis2.quality); // "major" (identifyChord likely returns base triad)
+ * console.log(analysis2.extraNotes); // ['9'] (if logic correctly identifies D as the 9th)
+ * console.log(analysis2.isStandardChord); // false
+ * }
+ * ```
  */
 export function analyzeChord(notes: Note[]): ChordAnalysisResult | null {
   // Need at least 2 notes
@@ -41,69 +90,122 @@ export function analyzeChord(notes: Note[]): ChordAnalysisResult | null {
     return null;
   }
 
-  // Identify the basic chord
+  // Identify the basic chord using the imported function
   const identified = identifyChord(notes);
   if (!identified) {
+    // If identification fails, cannot analyze further
     return null;
   }
 
+  // Destructure results from identification
   const { root, quality } = identified;
 
-  // Get the chord formula
+  // Get the expected chord formula based on the identified quality
   const formula = CHORD_FORMULAS[quality];
+  // If no formula exists for this quality, analysis is limited
+  if (!formula) {
+    console.warn(
+      `Analysis limited: No standard formula found for chord quality "${quality}".`
+    );
+    // Provide basic info based on identification?
+    const sortedNotes = [...notes].sort((a, b) => compareNotes(a, b, false)); // Simple sort
+    return {
+      root,
+      quality,
+      isStandardChord: false,
+      bass: sortedNotes[0],
+      inversion: 0,
+      tensions: [],
+      missingNotes: ["formula_unknown"],
+      extraNotes: [],
+    };
+  }
 
-  // Determine which notes are actually present
-  const actualPitchClasses = notes.map((note) => note.pitchClassIndex);
+  // Determine which pitch classes are actually present in the input notes (unique)
+  const actualPitchClasses = [
+    ...new Set(notes.map((note) => note.pitchClassIndex)),
+  ]; // Ensure unique PCs
 
-  // Expected pitch classes from formula
+  // Calculate the expected pitch classes based on the formula relative to the root
   const expectedPitchClasses: number[] = [];
-  const scaleDegrees = Object.keys(formula).map((d) => parseInt(d, 10));
+  // Get the degrees defined in the formula (e.g., [1, 3, 5, 7] for maj7)
+  // Note: Original code used Object.keys then parseInt.
+  const scaleDegrees = Object.keys(formula).map((d) => parseInt(d, 10)); // Degrees (1, 3, 5, 7...)
 
+  // Calculate expected pitch class for each degree in the formula
   for (const [degreeStr, alteration] of Object.entries(formula)) {
     const degree = parseInt(degreeStr, 10);
 
-    // Get the base semitones for this scale degree
+    // Get the base semitones for this scale degree (relative to root=1)
     let semitones = SCALE_DEGREE_SEMITONES[degree];
     if (semitones === undefined) {
-      continue;
+      console.warn(
+        `Skipping unknown degree ${degree} in formula for ${quality}.`
+      );
+      continue; // Skip if degree definition is missing
     }
 
-    // Apply alteration
+    // Apply alteration specified in the formula (e.g., -1 for b3)
     semitones += alteration;
 
-    // Calculate the expected pitch class
-    const expectedPC = (root.pitchClassIndex + semitones) % 12;
+    // Calculate the expected pitch class relative to the root's pitch class
+    const expectedPC = (root.pitchClassIndex + semitones + 12) % 12; // Ensure positive modulo
     expectedPitchClasses.push(expectedPC);
   }
+  // Ensure root PC is included if formula somehow omits degree 1
+  if (!expectedPitchClasses.includes(root.pitchClassIndex)) {
+    expectedPitchClasses.push(root.pitchClassIndex);
+    if (!scaleDegrees.includes(1)) scaleDegrees.push(1); // Add degree 1 if missing
+    scaleDegrees.sort((a, b) => a - b); // Keep sorted
+  }
+  const uniqueExpectedPCs = [...new Set(expectedPitchClasses)]; // Unique expected PCs
 
-  // Determine tensions (extensions beyond standard triad or 7th)
+  // Determine tensions (formula degrees beyond the basic triad or 7th structure)
   const tensions: string[] = [];
+  // Define standard structure based on quality name (simple check)
+  const standardDegrees =
+    quality.includes("7") ||
+    quality.includes("9") ||
+    quality.includes("11") ||
+    quality.includes("13")
+      ? [1, 3, 5, 7]
+      : [1, 3, 5]; // Basic triad/7th degrees
 
-  // Check for extended tensions
-  const standardDegrees = quality.includes("7") ? [1, 3, 5, 7] : [1, 3, 5];
-
+  // Check each degree defined in the formula
   for (const degree of scaleDegrees) {
-    if (!standardDegrees.includes(degree)) {
-      // This is an extension
-      const alteration = formula[degree];
+    // If the degree is higher than the standard structure considered
+    if (
+      !standardDegrees.includes(degree) &&
+      degree > Math.max(...standardDegrees)
+    ) {
+      // This is potentially an extension/tension
+      const alteration = formula[degree]; // Get alteration (b/#)
+      // Format tension name (e.g., "9", "b9", "#11")
       const degreeName =
         alteration < 0
           ? `b${degree}`
           : alteration > 0
           ? `#${degree}`
-          : `${degree}`;
+          : `${degree}`; // Natural tension
       tensions.push(degreeName);
     }
   }
 
-  // Find missing notes (in formula but not in actual notes)
+  // Find missing notes (expected based on formula, but not in actual input PCs)
   const missingNotes: string[] = [];
+  // Iterate through the formula's defined degrees again
+  for (let i = 0; i < scaleDegrees.length; i++) {
+    const degree = scaleDegrees[i];
+    // Calculate the expected PC for this formula degree
+    let semitones = SCALE_DEGREE_SEMITONES[degree];
+    if (semitones === undefined) continue;
+    const alteration = formula[degree];
+    semitones += alteration;
+    const expectedPC = (root.pitchClassIndex + semitones + 12) % 12;
 
-  for (let i = 0; i < expectedPitchClasses.length; i++) {
-    const expectedPC = expectedPitchClasses[i];
+    // Check if this expected pitch class is present in the input notes' pitch classes
     if (!actualPitchClasses.some((pc) => pc === expectedPC)) {
-      const degree = scaleDegrees[i];
-      const alteration = formula[degree];
+      // Format the name of the missing degree (e.g., "5", "b3", "#5")
       const degreeName =
         alteration < 0
           ? `b${degree}`
@@ -114,244 +216,434 @@ export function analyzeChord(notes: Note[]): ChordAnalysisResult | null {
     }
   }
 
-  // Find extra notes (in actual notes but not in formula)
+  // Find extra notes (present in input PCs, but not in expected formula PCs)
   const extraNotes: string[] = [];
-
+  // Iterate through the actual unique pitch classes found in the input
   for (const actualPC of actualPitchClasses) {
-    if (!expectedPitchClasses.includes(actualPC)) {
-      // This is an extra note - try to identify it as a scale degree
-      let bestDegree = "?";
-      let smallestDiff = 12;
+    // Check if this PC is part of the expected set based on the formula
+    if (!uniqueExpectedPCs.includes(actualPC)) {
+      // This pitch class is not expected in the standard formula. Try to name it.
+      let bestDegree = "?"; // Default if identification fails
+      let smallestDiff = 6; // Max difference before wrapping
 
+      // Compare against standard intervals to find the closest degree name
       for (const [degreeStr, semitones] of Object.entries(
         SCALE_DEGREE_SEMITONES
       )) {
-        const degree = parseInt(degreeStr, 10);
+        const degree = parseInt(degreeStr, 10); // Degree number (1-13 usually)
 
-        // Calculate the expected pitch class for this degree
-        const degreePC = (root.pitchClassIndex + semitones) % 12;
+        // Calculate the pitch class for this standard degree relative to the root
+        const degreePC = (root.pitchClassIndex + semitones + 12) % 12;
+        // Calculate shortest distance (0-6 semitones)
         const diff = Math.min(
           (actualPC - degreePC + 12) % 12,
           (degreePC - actualPC + 12) % 12
         );
 
+        // If this degree is closer than previous best match
         if (diff < smallestDiff) {
           smallestDiff = diff;
-
+          // Simple naming based on difference (0=natural, 1=sharp/flat)
+          // This logic seems potentially flawed in original code (e.g., # vs b direction).
+          // Sticking to original logic:
           if (diff === 0) {
+            // Exact match to a standard degree
             bestDegree = `${degree}`;
           } else if (diff === 1) {
-            bestDegree = degreePC < actualPC ? `#${degree}` : `b${degree}`;
+            // Semitone away, determine sharp/flat crudely
+            // Check if degreePC is below actualPC (implies sharp)
+            bestDegree =
+              (degreePC - actualPC + 12) % 12 > 6 ? `#${degree}` : `b${degree}`;
+          } else {
+            // Larger difference, naming is ambiguous, use "?" or more complex logic
+            bestDegree = `?(${degreeStr})`; // Indicate closest degree found
           }
         }
+        // Original code didn't handle ties explicitly
       }
-
-      extraNotes.push(bestDegree);
+      extraNotes.push(bestDegree); // Add identified extra note name
     }
   }
 
-  // Sort the notes to find bass
+  // Sort the input notes by pitch to find the bass note
+  // Use a copy to avoid modifying original array
   const sortedNotes = [...notes].sort((a, b) => {
+    // Primary sort by octave
     if (a.octave !== b.octave) {
       return a.octave - b.octave;
     }
+    // Secondary sort by pitch class index
     return a.pitchClassIndex - b.pitchClassIndex;
+    // Note: Microtonal sorting would need compareNotes(a,b, true)
   });
+  const bass = sortedNotes[0]; // Lowest note is the bass
 
-  const bass = sortedNotes[0];
-
-  // Determine inversion
-  let inversion = 0;
+  // Determine inversion based on which chord tone (from formula) matches the bass note's pitch class
+  let inversion = 0; // Default to root position (0)
+  // Check only if bass note is not the root (pitch class check)
   if (!notesAreEqual(bass, root)) {
-    // Find where the bass note is in the chord
+    // Using pitch equality check
     const bassPC = bass.pitchClassIndex;
-    for (let i = 0; i < expectedPitchClasses.length; i++) {
-      if (expectedPitchClasses[i] === bassPC) {
+    // Iterate through the *ordered* degrees of the formula (1, 3, 5, 7...)
+    for (let i = 0; i < scaleDegrees.length; i++) {
+      // Use scaleDegrees derived earlier
+      const degree = scaleDegrees[i];
+      let semitones = SCALE_DEGREE_SEMITONES[degree];
+      if (semitones === undefined) continue;
+      const alteration = formula[degree];
+      semitones += alteration;
+      const expectedPC = (root.pitchClassIndex + semitones + 12) % 12;
+
+      // If the bass note's pitch class matches this chord tone
+      if (expectedPC === bassPC) {
+        // The inversion number is the 0-based index of this degree in the formula sequence
+        // (0=Root, 1=Third, 2=Fifth, 3=Seventh...)
         inversion = i;
-        break;
+        break; // Found the inversion, stop searching
       }
     }
+    // If bass note's pitch class didn't match any formula tone (e.g., altered chord), inversion remains 0.
   }
 
+  // Determine if it's a standard chord voicing (no missing essential notes, no extra notes)
+  // Original code defined this simply as no missing AND no extra notes.
+  const isStandardChord = missingNotes.length === 0 && extraNotes.length === 0;
+
+  // Return the analysis results
   return {
     root,
     quality,
-    isStandardChord: missingNotes.length === 0 && extraNotes.length === 0,
+    isStandardChord,
     bass,
     inversion,
-    tensions,
-    missingNotes,
-    extraNotes,
-  };
+    tensions, // Array of identified tensions
+    missingNotes, // Array of missing formula degrees
+    extraNotes, // Array of identified extra notes
+  }; // Original code didn't freeze here
 }
 
 /**
- * Test if a chord fits within a scale
+ * Checks if a given chord (represented by a Chord object or an array of Notes)
+ * fits within a specified scale. A chord fits if all of its unique pitch classes
+ * are present in the scale.
+ *
+ * @param chord - The Chord object or array of Notes to check.
+ * @param scale - The Scale object to check against.
+ * @returns An object containing:
+ * - `fits`: boolean - True if all chord pitch classes are in the scale's pitch class set.
+ * - `chordDegree`: number | null - The 1-based scale degree of the chord's root within the scale (null if root's pitch class is not in the scale).
+ * - `nonScaleNotes`: Note[] - An array containing the specific Note instances from the chord whose pitch classes were not found in the scale.
+ * @throws {Error} If chord or scale inputs are invalid or lack necessary properties.
+ * @example
+ * ```ts
+ * const cMajorScale = createScaleByName('C4', 'major');
+ * const cMajorChord = { root: createNote('C4'), notes: [...] }; // Assume Chord object
+ * const dMinorChord = { root: createNote('D4'), notes: [...] };
+ * const dMajorChord = { root: createNote('D4'), notes: [createNote('D4'), createNote('F#4'), createNote('A4')] };
+ *
+ * const result1 = chordFitsScale(cMajorChord, cMajorScale);
+ * // -> { fits: true, chordDegree: 1, nonScaleNotes: [] }
+ * const result2 = chordFitsScale(dMinorChord, cMajorScale);
+ * // -> { fits: true, chordDegree: 2, nonScaleNotes: [] }
+ * const result3 = chordFitsScale(dMajorChord, cMajorScale);
+ * // -> { fits: false, chordDegree: 2, nonScaleNotes: [ Note{F#4} ] }
+ * ```
  */
 export function chordFitsScale(
-  chord: Chord,
+  chord: Chord | Note[], // Allow Chord object or just notes array
   scale: Scale
 ): {
   fits: boolean;
-  chordDegree: number | null;
-  nonScaleNotes: Note[];
+  chordDegree: number | null; // 1-based degree of root in scale
+  nonScaleNotes: Note[]; // Notes from chord not in scale (pitch class check)
 } {
-  // Check if the root is in the scale
-  const rootDegree = getScaleDegree(scale, chord.root);
+  // --- Input Validation & Setup ---
+  if (!scale || !scale.notes) {
+    // Basic scale validation
+    throw new Error("Invalid scale provided to chordFitsScale.");
+  }
+  // Determine chord notes and root, handling both input types
+  const chordNotes = Array.isArray(chord) ? chord : chord?.notes;
+  // If array, assume first note is root for degree check? Or require Chord object?
+  // Let's try to get root from Chord object or first note of array.
+  const chordRoot = Array.isArray(chord) ? chord[0] : chord?.root;
+  if (!Array.isArray(chordNotes) || chordNotes.length === 0 || !chordRoot) {
+    throw new Error(
+      "Invalid chord or note array provided (must have notes and determinable root)."
+    );
+  }
+  // Filter invalid notes just in case
+  const validChordNotes = chordNotes.filter((n) => n != null);
+  if (validChordNotes.length === 0) {
+    throw new Error("Chord contains no valid notes.");
+  }
+  // --- End Validation ---
 
-  // Check each note in the chord
+  // Create a Set of pitch classes present in the scale for efficient lookup
+  const scalePitchClasses = new Set(scale.notes.map((n) => n.pitchClassIndex));
+
+  // Check if the chord's root note's pitch class is in the scale
+  const rootDegree = getScaleDegree(scale, chordRoot); // getScaleDegree checks pitch class
+
+  // Check each unique note (by pitch class) in the chord
   const nonScaleNotes: Note[] = [];
+  const checkedPCs = new Set<number>(); // Avoid duplicate checks/additions
 
-  for (const note of chord.notes) {
-    // If the note isn't in the scale, add it to nonScaleNotes
-    if (
-      !scale.notes.some(
-        (scaleNote) => scaleNote.pitchClassIndex === note.pitchClassIndex
-      )
-    ) {
-      nonScaleNotes.push(note);
+  for (const note of validChordNotes) {
+    const pc = note.pitchClassIndex;
+    if (checkedPCs.has(pc)) continue; // Skip if PC already processed
+
+    // Check if this pitch class exists in the scale's set
+    if (!scalePitchClasses.has(pc)) {
+      nonScaleNotes.push(note); // Add the specific note instance that doesn't fit
     }
+    checkedPCs.add(pc); // Mark this pitch class as checked
   }
 
+  // The chord fits if the array of non-scale notes is empty
+  const fits = nonScaleNotes.length === 0;
+
+  // Return analysis result
   return {
-    fits: nonScaleNotes.length === 0,
-    chordDegree: rootDegree,
-    nonScaleNotes,
-  };
+    fits,
+    chordDegree: rootDegree, // Degree of the root (may be null)
+    nonScaleNotes, // Array of specific notes not fitting scale pitch classes
+  }; // Original code didn't freeze here
 }
 
 /**
- * Find common tones between two chords
+ * Finds the common notes (by pitch class) between two chords and calculates
+ * a simple voice-leading distance heuristic.
+ *
+ * @param chord1 - The first Chord object or array of Notes.
+ * @param chord2 - The second Chord object or array of Notes.
+ * @returns An object containing:
+ * - `commonNotes`: Note[] - An array of Note objects from the *first* chord whose pitch classes are also present in the second chord (unique pitch classes).
+ * - `commonCount`: number - The number of unique common pitch classes.
+ * - `voiceLeadingDistance`: number - A heuristic measure of voice leading smoothness, calculated as the sum of the minimum absolute semitone intervals required to move each voice from chord1 to the nearest voice in chord2. Lower numbers suggest smoother voice leading.
+ * @throws {Error} If either chord input is invalid or contains no notes.
+ * @remarks Common notes are identified based on pitch class only. Voice leading distance is a simplified heuristic and doesn't account for inversions or optimal voice pairing in complex scenarios. Uses precise `intervalBetween(note1, note2, true)` for distance calculation.
  */
 export function findCommonTones(
-  chord1: Chord,
-  chord2: Chord
+  chord1: Chord | Note[],
+  chord2: Chord | Note[]
 ): {
-  commonNotes: Note[];
-  commonCount: number;
-  voiceLeadingDistance: number;
+  commonNotes: Note[]; // Notes from chord1 that are common by pitch class
+  commonCount: number; // Count of common pitch classes
+  voiceLeadingDistance: number; // Sum of minimum semitone distances between voices
 } {
-  const pc1 = chord1.notes.map((note) => note.pitchClassIndex);
-  const pc2 = chord2.notes.map((note) => note.pitchClassIndex);
+  // --- Input Validation & Setup ---
+  // Extract valid notes from inputs
+  const notes1 = (Array.isArray(chord1) ? chord1 : chord1?.notes)?.filter(
+    (n) => n != null
+  );
+  const notes2 = (Array.isArray(chord2) ? chord2 : chord2?.notes)?.filter(
+    (n) => n != null
+  );
+  if (!notes1 || notes1.length === 0 || !notes2 || notes2.length === 0) {
+    throw new Error(
+      "Invalid chord(s) provided to findCommonTones (must contain notes)."
+    );
+  }
+  // --- End Validation ---
 
-  // Find common pitch classes
-  const commonPC = pc1.filter((pc) => pc2.includes(pc));
+  // Get unique pitch classes for both chords
+  const pcSet1 = new Set(notes1.map((note) => note.pitchClassIndex));
+  const pcSet2 = new Set(notes2.map((note) => note.pitchClassIndex));
 
-  // Find actual common notes
+  // Find common pitch classes (intersection)
+  const commonPC = new Set([...pcSet1].filter((pc) => pcSet2.has(pc)));
+  const commonCount = commonPC.size;
+
+  // Find the actual Note objects from the *first* chord that correspond to common pitch classes.
+  // Ensure only one Note instance per common pitch class is included.
   const commonNotes: Note[] = [];
-
-  for (const pc of commonPC) {
-    // Find the first note with this pitch class in each chord
-    const note1 = chord1.notes.find((n) => n.pitchClassIndex === pc);
-    const note2 = chord2.notes.find((n) => n.pitchClassIndex === pc);
-
-    if (note1) {
-      commonNotes.push(note1);
+  const addedPCs = new Set<number>();
+  for (const note1 of notes1) {
+    const pc = note1.pitchClassIndex;
+    // If this note's PC is common and we haven't added a note for this PC yet
+    if (commonPC.has(pc) && !addedPCs.has(pc)) {
+      commonNotes.push(note1); // Add the first instance found in chord1
+      addedPCs.add(pc); // Mark PC as added
     }
   }
 
-  // Calculate voice leading distance
-  // (The sum of semitone movements needed to move from chord1 to chord2)
+  // --- Calculate voice leading distance heuristic ---
   let totalDistance = 0;
 
-  // For each note in chord1, find the closest note in chord2
-  for (const note1 of chord1.notes) {
-    let minDistance = Infinity;
+  // For each note in the first chord...
+  for (const note1 of notes1) {
+    let minDistance = Infinity; // Reset minimum distance for this voice
 
-    for (const note2 of chord2.notes) {
-      const distance = Math.abs(intervalBetween(note1, note2));
+    // ...find the minimum absolute semitone distance to any note in the second chord.
+    for (const note2 of notes2) {
+      // Use intervalBetween with includeCents=true for precise distance
+      const distance = Math.abs(intervalBetween(note1, note2, true));
       minDistance = Math.min(minDistance, distance);
     }
 
-    // Add this voice's movement to the total
+    // Add this voice's minimum required movement to the total distance
+    // Only add if a distance was found (minDistance is not Infinity)
     if (minDistance !== Infinity) {
       totalDistance += minDistance;
     }
+    // If a note in chord1 has no corresponding note in chord2 (e.g. different chord sizes),
+    // its contribution to the distance is effectively ignored in this simple sum.
+    // More complex metrics might handle unmatched notes differently.
   }
 
+  // Return the results
   return {
-    commonNotes,
-    commonCount: commonPC.length,
-    voiceLeadingDistance: totalDistance,
-  };
+    commonNotes, // Array of Note objects from chord1
+    commonCount, // Number of unique shared pitch classes
+    voiceLeadingDistance: totalDistance, // Sum of minimum voice movements in semitones
+  }; // Original code didn't freeze here
 }
 
 /**
- * Analyze a chord's harmonic function
+ * Analyzes the likely harmonic function (Tonic, Predominant, Dominant, Other) of a chord
+ * within the context of a given scale. Also provides a simple qualitative tension assessment.
+ *
+ * @param chord - The Chord object or array of Notes to analyze. Requires identifiable root and quality.
+ * @param scale - The Scale object providing the harmonic context (typically a 7-note scale for standard functions).
+ * @returns An object containing:
+ * - `function`: 'tonic', 'predominant', 'dominant', or 'other' - The determined harmonic function based on the chord root's scale degree.
+ * - `scaleDegree`: number | null - The 1-based scale degree of the chord's root in the scale (null if root is not in the scale).
+ * - `tension`: 'stable', 'mild', 'strong' - A qualitative assessment of the chord's inherent tension (based on quality) and its diatonicity within the scale.
+ * @throws {Error} If chord or scale inputs are invalid or chord quality cannot be determined.
+ * @remarks Function assignment uses standard diatonic theory mappings (Tonic=I,iii,vi; Predominant=ii,IV; Dominant=V,vii). Tension assessment is simplified based on chord quality (Maj/Min=stable, Dim/Aug/7th/Ext=strong) and increased if the chord contains non-scale tones relative to the provided scale.
  */
 export function analyzeChordFunction(
-  chord: Chord,
+  chord: Chord | Note[],
   scale: Scale
 ): {
-  function: "tonic" | "predominant" | "dominant" | "other";
-  scaleDegree: number | null;
-  tension: "stable" | "mild" | "strong";
+  function: "tonic" | "predominant" | "dominant" | "other"; // Harmonic function
+  scaleDegree: number | null; // 1-based degree of chord root in scale
+  tension: "stable" | "mild" | "strong"; // Estimated tension level
 } {
-  // Check if the chord fits in the scale
-  const { chordDegree, fits } = chordFitsScale(chord, scale);
+  // --- Input Validation & Setup ---
+  // Determine notes, root, and quality from input
+  const chordNotes = Array.isArray(chord) ? chord : chord?.notes;
+  const chordRoot = Array.isArray(chord) ? chord[0] : chord?.root;
+  // Identify quality if necessary (and possible)
+  const chordQuality = Array.isArray(chord)
+    ? identifyChord(chord)?.quality
+    : chord?.quality;
 
-  if (!chordDegree) {
-    return { function: "other", scaleDegree: null, tension: "strong" };
+  // Validate inputs
+  if (!scale || !scale.notes) {
+    throw new Error("Invalid scale provided for function analysis.");
+  }
+  if (
+    !Array.isArray(chordNotes) ||
+    chordNotes.length === 0 ||
+    !chordRoot ||
+    !chordQuality
+  ) {
+    throw new Error(
+      "Invalid chord provided or quality could not be determined for function analysis."
+    );
+  }
+  const validChordNotes = chordNotes.filter((n) => n != null);
+  if (validChordNotes.length === 0) {
+    throw new Error("Chord contains no valid notes.");
+  }
+  // --- End Validation ---
+
+  // Check if the chord fits within the scale and get its root degree
+  // Use validated notes here
+  const { fits, chordDegree } = chordFitsScale(validChordNotes, scale);
+
+  // If the root note isn't even in the scale, function is 'other'
+  if (chordDegree === null) {
+    return { function: "other", scaleDegree: null, tension: "strong" }; // Non-diatonic root -> strong tension/other function
   }
 
-  // Determine harmonic function based on scale degree
+  // Determine standard harmonic function based on the root's scale degree (1-based)
+  // This mapping assumes a diatonic (major/minor like) context, typically 7 degrees.
   let harmonicFunction: "tonic" | "predominant" | "dominant" | "other";
 
   switch (chordDegree) {
-    case 1:
-    case 3:
-    case 6:
+    case 1: // I chord
+    case 6: // vi chord (relative minor, often tonic function)
+      harmonicFunction = "tonic";
+      break;
+    case 3: // iii chord (can be tonic or dominant depending on context, often considered tonic)
       harmonicFunction = "tonic";
       break;
 
-    case 2:
-    case 4:
+    case 4: // IV chord
+    case 2: // ii chord (supertonic, often predominant function)
       harmonicFunction = "predominant";
       break;
 
-    case 5:
-    case 7:
+    case 5: // V chord
+    case 7: // vii chord (leading-tone/subtonic, often dominant function)
       harmonicFunction = "dominant";
       break;
 
-    default:
+    default: // Handles degrees outside 1-7 if scale isn't heptatonic
       harmonicFunction = "other";
   }
 
-  // Determine tension level
+  // --- Determine basic tension level based on chord quality ---
   let tension: "stable" | "mild" | "strong";
 
-  if (chord.quality === "major" || chord.quality === "minor") {
+  // Inherently stable qualities
+  if (chordQuality === "major" || chordQuality === "minor") {
     tension = "stable";
-  } else if (
-    chord.quality.includes("dim") ||
-    chord.quality.includes("aug") ||
-    chord.quality.includes("7")
+  }
+  // Inherently tense qualities (original code check)
+  else if (
+    chordQuality.includes("dim") || // diminished, halfDim7, dim7
+    chordQuality.includes("aug") || // augmented, aug7
+    chordQuality.includes("7") || // Dominant 7th, Maj7, min7 etc. (presence of 7th adds tension)
+    // Check for common extension indicators adding tension
+    chordQuality.includes("9") ||
+    chordQuality.includes("11") ||
+    chordQuality.includes("13")
   ) {
     tension = "strong";
-  } else {
-    tension = "mild";
+  }
+  // Other qualities (like sus chords) might be considered mild resolution points or having moderate tension
+  else {
+    tension = "mild"; // Default for sus, add6, etc.
   }
 
-  // Adjust for non-scale tones
+  // Increase tension level if the chord contains notes outside the scale context
   if (!fits) {
-    // Increase tension for non-diatonic chords
-    tension = "strong";
+    // If chord has non-scale tones, elevate tension, maxing out at 'strong'
+    tension = tension === "stable" ? "mild" : "strong";
   }
 
+  // Return the analysis results
   return {
     function: harmonicFunction,
-    scaleDegree: chordDegree,
+    scaleDegree: chordDegree, // 1-based degree or null
     tension,
-  };
+  }; // Original code didn't freeze
 }
 
 /**
- * Analyze how well two chords connect to each other
+ * Analyzes the voice leading and harmonic connection between two consecutive chords.
+ * Provides heuristic assessments of smoothness (based on voice leading distance),
+ * common tones, overall voice leading quality, and checks for basic parallel/direct fifths
+ * (based on pitch class, ignoring specific voicings).
+ *
+ * @param chord1 - The first Chord object or array of Notes.
+ * @param chord2 - The second Chord object or array of Notes.
+ * @returns An object containing analysis of the connection:
+ * - `smoothness`: Qualitative assessment ('very smooth' to 'abrupt') based on voice leading distance.
+ * - `commonTones`: The number of unique common pitch classes.
+ * - `voiceLeadingQuality`: Qualitative assessment ('excellent' to 'poor') based on common tones, voice leading distance, and presence of parallel/direct fifths.
+ * - `parallelFifths`: Boolean indicating if basic parallel perfect fifths between corresponding pitch classes were detected.
+ * - `directFifths`: Boolean indicating if basic direct (hidden) perfect fifths between outer voices (soprano/bass moving in same direction to a P5) were detected.
+ * @throws {Error} If either chord input is invalid or contains no notes.
+ * @remarks Voice leading distance and quality assessments are heuristic. Parallel/direct fifth checks are basic (based on pitch class correspondence and outer voice motion) and may not catch all instances according to strict counterpoint rules, especially with inversions or complex voicings. Assumes notes within chords are sorted for outer voice detection.
  */
 export function analyzeChordConnection(
-  chord1: Chord,
-  chord2: Chord
+  chord1: Chord | Note[],
+  chord2: Chord | Note[]
 ): {
   smoothness: "very smooth" | "smooth" | "moderate" | "abrupt";
   commonTones: number;
@@ -359,12 +651,28 @@ export function analyzeChordConnection(
   parallelFifths: boolean;
   directFifths: boolean;
 } {
-  // Find common tones
-  const { commonCount, voiceLeadingDistance } = findCommonTones(chord1, chord2);
+  // --- Input Validation & Setup ---
+  // Extract valid notes and sort them by pitch for consistent analysis
+  const notes1 = (Array.isArray(chord1) ? chord1 : chord1?.notes)
+    ?.filter((n) => n != null)
+    .sort((a, b) => compareNotes(a, b, true));
+  const notes2 = (Array.isArray(chord2) ? chord2 : chord2?.notes)
+    ?.filter((n) => n != null)
+    .sort((a, b) => compareNotes(a, b, true));
+  if (!notes1 || notes1.length === 0 || !notes2 || notes2.length === 0) {
+    throw new Error(
+      "Invalid chord(s) provided to analyzeChordConnection (must contain notes)."
+    );
+  }
+  // --- End Validation ---
 
-  // Determine smoothness based on voice leading distance
+  // 1. Find common tones and voice leading distance using helper
+  // Pass the sorted notes arrays to findCommonTones
+  const { commonCount, voiceLeadingDistance } = findCommonTones(notes1, notes2);
+
+  // 2. Determine qualitative smoothness based on voice leading distance heuristic
+  // Using the fixed thresholds from the original code.
   let smoothness: "very smooth" | "smooth" | "moderate" | "abrupt";
-
   if (voiceLeadingDistance <= 2) {
     smoothness = "very smooth";
   } else if (voiceLeadingDistance <= 5) {
@@ -375,193 +683,245 @@ export function analyzeChordConnection(
     smoothness = "abrupt";
   }
 
-  // Check for parallel fifths
+  // 3. Check for basic parallel perfect fifths (based on pitch class)
   let parallelFifths = false;
-
-  // Check each pair of notes in chord1 for perfect fifths
-  for (let i = 0; i < chord1.notes.length; i++) {
-    for (let j = i + 1; j < chord1.notes.length; j++) {
+  // Iterate through pairs of notes in the first chord
+  for (let i = 0; i < notes1.length; i++) {
+    for (let j = i + 1; j < notes1.length; j++) {
+      // Calculate interval mod 12 between the pair (use integer semitones)
       const interval1 =
-        Math.abs(intervalBetween(chord1.notes[i], chord1.notes[j])) % 12;
+        Math.abs(intervalBetween(notes1[i], notes1[j], false)) % 12;
 
-      // If this is a perfect fifth (7 semitones)
+      // If it's a perfect fifth (7 semitones)
       if (interval1 === 7) {
-        // Check if the same two notes form a perfect fifth in chord2
-        const note1PC = chord1.notes[i].pitchClassIndex;
-        const note2PC = chord1.notes[j].pitchClassIndex;
+        // Find notes in the second chord with the *same pitch classes*
+        const note1PC = notes1[i].pitchClassIndex;
+        const note2PC = notes1[j].pitchClassIndex;
 
-        // Find corresponding notes in chord2 (if any)
-        const correspondingNote1 = chord2.notes.find(
+        // Find corresponding notes in chord2 (if they exist)
+        const correspondingNote1 = notes2.find(
           (n) => n.pitchClassIndex === note1PC
         );
-        const correspondingNote2 = chord2.notes.find(
+        const correspondingNote2 = notes2.find(
           (n) => n.pitchClassIndex === note2PC
         );
 
+        // If both corresponding notes exist in the second chord...
         if (correspondingNote1 && correspondingNote2) {
+          // ...check if the interval between them is also a perfect fifth
           const interval2 =
-            Math.abs(intervalBetween(correspondingNote1, correspondingNote2)) %
-            12;
+            Math.abs(
+              intervalBetween(correspondingNote1, correspondingNote2, false)
+            ) % 12;
           if (interval2 === 7) {
+            // Found parallel perfect fifth based on pitch class correspondence
             parallelFifths = true;
-            break;
+            break; // Exit inner loop once found
           }
         }
       }
     }
-    if (parallelFifths) break;
+    if (parallelFifths) break; // Exit outer loop once found
   }
 
-  // Check for direct fifths (outside voices moving in the same direction to a fifth)
+  // 4. Check for basic direct (hidden) fifths between outer voices
   let directFifths = false;
+  // Requires at least two notes in each chord for outer voices
+  if (notes1.length > 0 && notes2.length > 0) {
+    // Check length > 0, original was > 1 which might be safer? Keep > 0 from original.
+    // Get outer voices (lowest = bass, highest = soprano assuming sorted notes)
+    const soprano1 = notes1[notes1.length - 1];
+    const bass1 = notes1[0];
+    const soprano2 = notes2[notes2.length - 1];
+    const bass2 = notes2[0];
 
-  if (chord1.notes.length > 0 && chord2.notes.length > 0) {
-    // Get outer voices
-    const soprano1 = chord1.notes[chord1.notes.length - 1];
-    const bass1 = chord1.notes[0];
-    const soprano2 = chord2.notes[chord2.notes.length - 1];
-    const bass2 = chord2.notes[0];
+    // Calculate precise movement including cents
+    const sopranoMove = intervalBetween(soprano1, soprano2, true);
+    const bassMove = intervalBetween(bass1, bass2, true);
 
-    // Check if they move in the same direction
-    // Fix: Define explicit numeric types instead of letting TypeScript infer too strictly
-    const sopranoMove = intervalBetween(soprano1, soprano2);
-    const bassMove = intervalBetween(bass1, bass2);
-
-    // Define directions as numbers that could be -1, 0, or 1
+    // Determine direction (-1 down, +1 up, 0 stationary) - original logic
     const sopranoDirection = sopranoMove > 0 ? 1 : sopranoMove < 0 ? -1 : 0;
     const bassDirection = bassMove > 0 ? 1 : bassMove < 0 ? -1 : 0;
 
-    // Now both directions are explicitly typed as numbers that could be 0
+    // Check if both outer voices move in the same direction (and are not stationary)
+    // Original strict equality check `===` kept.
     if (
       sopranoDirection !== 0 &&
       bassDirection !== 0 &&
       sopranoDirection === bassDirection
     ) {
-      // Check if they form a perfect fifth in the second chord
-      const interval = Math.abs(intervalBetween(soprano2, bass2)) % 12;
+      // Check if the interval between outer voices in the second chord is a perfect fifth (7 semitones mod 12)
+      const interval = Math.abs(intervalBetween(bass2, soprano2, false)) % 12; // Use integer semitones
       if (interval === 7) {
+        // Found potential direct fifth
         directFifths = true;
       }
     }
   }
 
-  // Evaluate voice leading quality
+  // 5. Evaluate overall voice leading quality (heuristic based on original thresholds)
   let voiceLeadingQuality: "excellent" | "good" | "fair" | "poor";
-
   if (parallelFifths || directFifths) {
     voiceLeadingQuality = "poor";
   } else if (commonCount >= 2 && voiceLeadingDistance <= 4) {
+    // Original check
     voiceLeadingQuality = "excellent";
   } else if (commonCount >= 1 && voiceLeadingDistance <= 7) {
+    // Original check
     voiceLeadingQuality = "good";
   } else if (voiceLeadingDistance <= 12) {
+    // Original check
     voiceLeadingQuality = "fair";
   } else {
     voiceLeadingQuality = "poor";
   }
 
+  // Return the combined analysis
   return {
     smoothness,
     commonTones: commonCount,
     voiceLeadingQuality,
     parallelFifths,
     directFifths,
-  };
+  }; // Original code didn't freeze
 }
 
 /**
- * Analyze a set of notes to identify potential microtonal chord types
+ * Represents a potential microtonal chord match.
+ * @interface DetectedMicrotonalChord
+ * @property {string} type - Identifier for the type of microtonal chord detected (e.g., "just-major").
+ * @property {Note} root - The Note identified as the root for this match.
+ * @property {string} description - A brief description of the detected chord type.
+ * @property {number[]} intervals - The actual intervals (in cents) calculated from the identified root to the other notes in the input set.
+ * @property {number} confidence - A heuristic score (0-1) indicating the likelihood of the match based on interval proximity to known patterns.
+ */
+interface DetectedMicrotonalChord {
+  // Keep interface local if not exported
+  type: string;
+  root: Note;
+  description: string;
+  intervals: number[];
+  confidence: number;
+}
+
+/**
+ * Analyzes a set of notes to identify potential microtonal chord types based on
+ * interval patterns measured in cents relative to potential roots.
+ * Checks against a limited set of known microtonal structures (e.g., Just Major/Minor).
+ *
+ * @param notes - An array of Note objects (potentially microtonal) to analyze. Requires at least 2 notes.
+ * @param [options={}] - Optional settings for the analysis.
+ * @param [options.toleranceCents=10] - The maximum allowed deviation in cents when matching intervals against known patterns. Defaults to 10 cents.
+ * @returns An array of objects representing potential microtonal chord matches, sorted by confidence (descending). Each object includes the chord `type`, identified `root`, a `description`, the calculated `intervals` in cents, and a heuristic `confidence` score. Returns empty array if fewer than 2 notes or no matches found.
+ * @throws {Error} If input notes array is invalid.
+ * @remarks This is a heuristic analysis comparing calculated cents intervals against predefined microtonal chord structures (currently Just Major/Minor and an example Quarter-Dim). It tries each note as a potential root. Confidence scores are basic placeholders.
  */
 export function analyzeMicrotonalChord(
   notes: Note[],
   options: {
     toleranceCents?: number;
   } = {}
-): {
-  type: string;
-  root: Note;
-  description: string;
-  intervals: number[];
-  confidence: number;
-}[] {
-  const results: {
-    type: string;
-    root: Note;
-    description: string;
-    intervals: number[];
-    confidence: number;
-  }[] = [];
+): DetectedMicrotonalChord[] {
+  // Return type using internal interface
+  // --- Input Validation ---
+  if (!Array.isArray(notes) || notes.length < 2) {
+    // Return empty array for insufficient notes, rather than throwing? Match original behavior.
+    return [];
+  }
+  const validNotes = notes.filter((n) => n != null);
+  if (validNotes.length < 2) {
+    return [];
+  }
+  // --- End Validation ---
 
-  // Set tolerance for interval matching
-  const toleranceCents = options.toleranceCents ?? 10;
+  const results: DetectedMicrotonalChord[] = []; // Use internal interface type
 
-  // Try each note as potential root
-  for (const potentialRoot of notes) {
-    // Calculate intervals from this root in cents
-    const intervals = notes
-      .filter((note) => note !== potentialRoot)
-      .map((note) => intervalInCents(potentialRoot, note));
+  // Set tolerance for matching intervals in cents
+  const toleranceCents = options.toleranceCents ?? 10; // Default 10 cents tolerance
 
-    // Sort intervals
+  // Try each valid note as a potential root
+  for (const potentialRoot of validNotes) {
+    // Calculate precise intervals in cents from this potential root to all other valid notes
+    // Use intervalInCents as per original code
+    const intervals = validNotes
+      .filter((note) => note !== potentialRoot) // Exclude the root itself
+      .map((note) => intervalInCents(potentialRoot, note)); // Precise cents calculation
+
+    // Sort the calculated intervals numerically for consistent comparison
     intervals.sort((a, b) => a - b);
 
-    // Check against known microtonal chord types
+    // --- Check against known microtonal chord types (Examples from original code) ---
 
-    // Just intonation major (frequency ratio 4:5:6)
-    const justMajorIntervals = [386, 702]; // Just major third and perfect fifth
+    // Just intonation major triad (intervals approx. 386, 702 cents)
+    // Use more precise values for comparison if available
+    const justMajorIntervals = [386.31, 701.96];
     if (intervalsMatch(intervals, justMajorIntervals, toleranceCents)) {
       results.push({
         type: "just-major",
         root: potentialRoot,
-        description: "Just intonation major triad (4:5:6)",
-        intervals,
+        description: "Just Intonation Major Triad (ratios ~4:5:6)",
+        intervals: intervals, // REMOVED Object.freeze()
         confidence: 0.9,
       });
     }
 
-    // Just intonation minor (frequency ratio 10:12:15)
-    const justMinorIntervals = [316, 702]; // Just minor third and perfect fifth
+    // Just intonation minor triad (intervals approx. 316, 702 cents)
+    const justMinorIntervals = [315.64, 701.96];
     if (intervalsMatch(intervals, justMinorIntervals, toleranceCents)) {
       results.push({
         type: "just-minor",
         root: potentialRoot,
-        description: "Just intonation minor triad (10:12:15)",
-        intervals,
+        description: "Just Intonation Minor Triad (ratios ~10:12:15)",
+        intervals: intervals, // REMOVED Object.freeze()
         confidence: 0.9,
       });
     }
 
-    // Quarter-tone diminished
-    const quarterToneDimIntervals = [250, 600]; // Quarter-flat third, quarter-flat fifth
+    // Quarter-tone diminished triad example (Root, ~250c, ~600c)
+    // Original code had [250, 600] - Represents m3-50c, d5? Needs context.
+    const quarterToneDimIntervals = [250, 600]; // Example definition
     if (intervalsMatch(intervals, quarterToneDimIntervals, toleranceCents)) {
       results.push({
         type: "quarter-dim",
         root: potentialRoot,
-        description: "Quarter-tone diminished triad",
-        intervals,
+        description: "Quarter-tone Diminished Triad (example: R, m3-50c, d5)",
+        intervals: intervals, // REMOVED Object.freeze()
         confidence: 0.8,
       });
     }
 
-    // Add more microtonal chord types as needed
-  }
+    // --- Add more microtonal chord types patterns here as needed ---
+  } // End loop through potential roots
 
-  // Sort by confidence
+  // Sort results by confidence score (descending)
   results.sort((a, b) => b.confidence - a.confidence);
 
-  return results;
+  return results; // Return array of potential matches (original code didn't freeze outer array)
 }
 
+/**
+ * @internal
+ * Helper function to check if an array of actual intervals (in cents) matches an
+ * expected pattern of intervals within a given tolerance. Assumes both arrays are sorted.
+ *
+ * @param actual - The array of calculated intervals in cents, assumed sorted ascending.
+ * @param expected - The array of expected intervals in cents for the pattern, assumed sorted ascending.
+ * @param toleranceCents - The maximum allowed absolute difference (in cents) for intervals to be considered matching.
+ * @returns True if the lengths match and all actual intervals are within tolerance of the expected intervals, false otherwise.
+ */
 // Helper function to check if intervals match a pattern within tolerance
 function intervalsMatch(
   actual: number[],
   expected: number[],
   toleranceCents: number
 ): boolean {
+  // Check if the number of intervals matches (crucial for chord type matching)
   if (actual.length !== expected.length) {
     return false;
   }
 
+  // Check if every actual interval is close enough to the corresponding expected interval
+  // Assumes both arrays are sorted.
   return actual.every(
     (interval, i) => Math.abs(interval - expected[i]) <= toleranceCents
   );

@@ -1,0 +1,18 @@
+{
+  "entryPoints": ["src/index.ts"],
+  "out": "docs",
+  "name": "MusicTheoryJS",
+  "includeVersion": true,
+  "excludeExternals": true,
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "plugin": ["typedoc-plugin-markdown"],
+  "theme": "default",
+  "readme": "README.md",
+  "categorizeByGroup": true,
+  "categoryOrder": ["Note", "Scale", "Chord", "Tuning", "*"],
+  "navigation": {
+    "includeCategories": true,
+    "includeGroups": true
+  }
+}
