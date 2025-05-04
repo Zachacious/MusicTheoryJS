@@ -216,11 +216,11 @@ export const QUARTER_TONE_NAMES: ReadonlyArray<string> = [
   "C", // 0
   "C+", // 1 (+50c)
   "C#", // 2 (+100c)
-  "C#+" /* or "Db+"? */, // 3 (+150c) Needs clear convention if Db+ is preferred
+  "C#+", // 3 (+150c)
   "D", // 4 (+200c)
   "D+", // 5 (+250c)
   "D#", // 6 (+300c)
-  "D#+" /* or "Eb+"? */, // 7 (+350c)
+  "D#+", // 7 (+350c)
   "E", // 8 (+400c)
   "E+", // 9 (+450c) Note: E# is F
   "F", // 10 (+500c)
@@ -271,18 +271,11 @@ export const JUST_INTONATION_RATIOS: Record<string, number> = {
   // Note: A complete Just Intonation system requires more complex ratio handling.
 };
 
-// Tuning system definitions
 /**
- * A record defining parameters and characteristics of different tuning systems.
- * Each entry includes a name, description, and an optional `centsAdjustment` function.
- * The `centsAdjustment` function calculates the deviation in cents for a given pitch class
- * relative to standard 12-tone Equal Temperament.
- * @readonly
- * @property {object} equalTemperament - Standard 12-TET. Cents adjustment is always 0.
- * @property {object} pythagorean - Tuning based on pure perfect fifths (3/2 ratio). Contains approximate cents adjustments.
- * @property {object} justIntonation - Tuning based on simple integer ratios. Contains approximate cents adjustments for a C major context.
- * @property {object} quarterTone - 24-TET system. Cents adjustment is 0 as microtones are handled explicitly.
- * @property {object} custom - Placeholder for user-defined systems.
+ * Defines parameters and characteristics of different tuning systems.
+ * Each entry includes a name, description, and an optional `centsAdjustment` function
+ * which calculates the deviation in cents for a given pitch class index (relative to C=0)
+ * compared to standard 12-tone Equal Temperament (12-TET).
  */
 export const TUNING_SYSTEMS: Record<
   TuningSystem,
@@ -292,60 +285,90 @@ export const TUNING_SYSTEMS: Record<
     /** Optional function returning cents adjustment relative to 12-TET for a given pitch class index. */
     centsAdjustment?: (pitchClass: PitchClassIndex) => number;
   }
-> = {
-  equalTemperament: {
-    name: "12-tone Equal Temperament",
-    description: "Standard tuning with 12 equal semitones per octave",
-    centsAdjustment: () => 0, // No adjustment relative to itself
-  },
-  pythagorean: {
-    name: "Pythagorean Tuning",
-    description: "Based on stacking pure perfect fifths (3/2 ratio)",
-    // These adjustments are approximate relative to 12-TET C=0
-    // Calculated based on powers of 3/2 ratio, modulo octave
-    centsAdjustment: (pitchClass) => {
-      // Example calculation relative to C=0 (can be more precise)
-      // const pythagoreanCents = [
-      //   0, 113.69, 203.91, 317.6, 407.82, 521.51, 611.73, 701.96, 815.64,
-      //   905.87, 1019.55, 1109.78,
-      // ];
-      // const etCents = pitchClass * 100;
-      // Return deviation (example uses pre-calculated approximate values)
-      const adjustmentsApprox = [
-        0, -6.3, 3.9, -10.4, -0.2, -14.5, -4.3, 2.0, -8.4, 5.9, -12.5, -0.2,
-      ]; // Rough example values
-      return adjustmentsApprox[pitchClass];
+> = (() => {
+  // --- Helper: Calculate cents from ratio ---
+  const ratioToCents = (ratio: number): number => 1200 * Math.log2(ratio);
+
+  // --- Pythagorean Calculations ---
+  // Based on stacking perfect fifths (3/2 ratio) relative to C=0
+  const pythagoreanFifthCents = ratioToCents(3 / 2); // ~701.955 cents
+  // Cents values derived from sequence of fifths (0=C, 1=G, 2=D, ..., 11=F)
+  // Using standard derivation where F is down a fifth from C.
+  const pythagoreanNoteCents: number[] = [
+    0, // C (0 fifths)
+    (pythagoreanFifthCents * 7) % 1200, // C# (7 fifths) ~113.69
+    (pythagoreanFifthCents * 2) % 1200, // D (2 fifths) ~203.91
+    (pythagoreanFifthCents * 9) % 1200, // D# (9 fifths) ~317.60
+    (pythagoreanFifthCents * 4) % 1200, // E (4 fifths) ~407.82
+    (1200 + ratioToCents(2 / 3)) % 1200, // F (Down 1 fifth) ~498.04
+    (pythagoreanFifthCents * 6) % 1200, // F# (6 fifths) ~611.73
+    (pythagoreanFifthCents * 1) % 1200, // G (1 fifth) ~701.96
+    (pythagoreanFifthCents * 8) % 1200, // G# (8 fifths) ~815.64
+    (pythagoreanFifthCents * 3) % 1200, // A (3 fifths) ~905.87
+    (pythagoreanFifthCents * 10) % 1200, // A# (10 fifths) ~1019.55
+    (pythagoreanFifthCents * 5) % 1200, // B (5 fifths) ~1109.78
+  ];
+  // Calculate adjustments relative to 12-TET
+  const pythagoreanAdjustments = pythagoreanNoteCents.map(
+    (cents, i) => cents - i * 100
+  );
+
+  // --- Just Intonation (5-Limit, C-Major context) Calculations ---
+  // WARNING: JI is highly context-dependent. These values represent ONE common set of 12 notes
+  // derived from C major ratios (1/1, 9/8, 5/4, 4/3, 3/2, 5/3, 15/8) plus common additions.
+  const justNoteCents: number[] = [
+    ratioToCents(1 / 1), // C: 0
+    ratioToCents(25 / 16), // C#: ~70.67 (Major Third above A) - *Example derivation*
+    ratioToCents(9 / 8), // D: ~203.91
+    ratioToCents(6 / 5), // Eb: ~315.64 (Minor Third above C)
+    ratioToCents(5 / 4), // E: ~386.31
+    ratioToCents(4 / 3), // F: ~498.04
+    ratioToCents(45 / 32), // F#: ~590.22 (Major Third above D) - *Example derivation*
+    ratioToCents(3 / 2), // G: ~701.96
+    ratioToCents(8 / 5), // Ab: ~813.69 (Minor Sixth above C)
+    ratioToCents(5 / 3), // A: ~884.36
+    ratioToCents(9 / 5), // Bb: ~1017.60 (Minor Seventh above C) - *Example derivation*
+    ratioToCents(15 / 8), // B: ~1088.27
+  ];
+  // Calculate adjustments relative to 12-TET
+  const justAdjustments = justNoteCents.map((cents, i) => cents - i * 100);
+
+  // --- Return the TUNING_SYSTEMS object ---
+  return {
+    equalTemperament: {
+      name: "12-tone Equal Temperament",
+      description: "Standard tuning with 12 equal semitones per octave.",
+      centsAdjustment: () => 0, // No adjustment relative to itself
     },
-  },
-  justIntonation: {
-    name: "Just Intonation (5-limit)",
-    description: "Uses pure frequency ratios based on primes 2, 3, 5",
-    // These adjustments are approximate relative to 12-TET C=0, using common C major ratios
-    centsAdjustment: (pitchClass) => {
-      // const justCents = [
-      //   0, 111.73, 203.91, 315.64, 386.31, 498.04, 590.22, 701.96, 813.69,
-      //   884.36, 1017.59, 1088.27,
-      // ]; // Example C-Major JI cents
-      // const etCents = pitchClass * 100;
-      // Return deviation (example uses pre-calculated approximate values)
-      const adjustmentsApprox = [
-        0, 11.7, 3.9, 15.6, -13.7, -2.0, -9.8, 2.0, 13.7, -15.6, 17.6, -11.7,
-      ]; // Rough C-Major JI vs ET
-      return adjustmentsApprox[pitchClass];
+    pythagorean: {
+      name: "Pythagorean Tuning",
+      description:
+        "Based on stacking pure perfect fifths (3/2 ratio). Cents adjustments calculated relative to 12-TET C=0.",
+      centsAdjustment: (pitchClass: PitchClassIndex): number => {
+        return pythagoreanAdjustments[pitchClass] ?? 0; // Return adjustment or 0 if index out of bounds
+      },
     },
-  },
-  quarterTone: {
-    name: "24-tone Equal Temperament",
-    description: "Quarter-tone system with 24 equal divisions per octave",
-    // Base notes align with 12-TET; microtones are handled by modifier/cents properties
-    centsAdjustment: () => 0,
-  },
-  custom: {
-    name: "Custom Tuning",
-    description: "Placeholder for user-defined tuning systems",
-    // No default adjustment function
-  },
-};
+    justIntonation: {
+      name: "Just Intonation (5-limit, C-Major context)",
+      description:
+        "Uses pure frequency ratios based on primes 2, 3, 5. Cents adjustments calculated relative to 12-TET C=0 using common C-Major derived ratios (WARNING: context-dependent).",
+      centsAdjustment: (pitchClass: PitchClassIndex): number => {
+        return justAdjustments[pitchClass] ?? 0; // Return adjustment or 0 if index out of bounds
+      },
+    },
+    quarterTone: {
+      name: "24-tone Equal Temperament",
+      description: "Quarter-tone system with 24 equal divisions per octave.",
+      // Base notes align with 12-TET; microtones are handled by modifier/cents properties.
+      centsAdjustment: () => 0,
+    },
+    custom: {
+      name: "Custom Tuning",
+      description: "Placeholder for user-defined tuning systems.",
+      // No default adjustment function provided
+    },
+  };
+})(); // Immediately invoke the function to create and assign the object
 
 // Reverse lookup for pitch class index from letter and accidental string
 /**

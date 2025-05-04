@@ -18,7 +18,11 @@ import {
 } from "./constants";
 import { EnharmonicPreference, Note } from "./types";
 // Import necessary calculation functions - note potential dependencies
-import { calculateCentsDeviation, noteToMidi } from "./calculations";
+import {
+  calculateCentsDeviation,
+  getMidiWithCents,
+  noteToMidi,
+} from "./calculations";
 
 // Import necessary creation functions
 import { createNoteFromFrequency } from "./creation";
@@ -26,57 +30,46 @@ import { createNoteFromFrequency } from "./creation";
 /**
  * Calculates the frequency in Hertz (Hz) for a given Note object.
  * Uses A4_FREQUENCY (typically 440Hz) as the standard tuning reference.
- * Accounts for microtonal deviations specified by the `note.cents` property.
+ * Accurately accounts for all microtonal deviations (cents, modifier, tuning system)
+ * by using the note's precise fractional MIDI representation.
  * Uses cached value if available on the Note object.
  *
  * @param note - The Note object for which to calculate the frequency.
  * @returns The calculated frequency in Hz.
  * @throws {Error} If the input note is invalid.
- * @remarks This implementation calculates the base 12-TET frequency from the note's
- * integer MIDI value and then applies a frequency multiplier based on the `note.cents`
- * property, if present. For more complex tuning systems or modifier-based calculations,
- * ensure the Note object is created appropriately or use calculation functions that
- * incorporate those details if needed elsewhere.
  * @example
  * ```ts
- * const a4 = createNote({ midi: 69 });
+ * const a4 = createNote({ midi: 69 }); // A4
  * const freqA4 = noteToFrequency(a4); // 440
  *
- * const c4 = createNote({ midi: 60 });
+ * const c4 = createNote({ midi: 60 }); // C4
  * const freqC4 = noteToFrequency(c4); // ~261.63
  *
- * const c4plus20 = createNote({ midi: 60, cents: 20 });
- * const freqC4plus20 = noteToFrequency(c4plus20); // ~264.66 (20 cents sharp)
+ * const c4plus20 = createNote({ midi: 60, cents: 20 }); // C4 + 20 cents
+ * const freqC4plus20 = noteToFrequency(c4plus20); // ~264.66
+ *
+ * // Note created with modifier mapping to +50 cents
+ * const dPlus4 = createNote({ letter: 'D', octave: 4, microtonalModifier: '+'});
+ * const freqDPlus4 = noteToFrequency(dPlus4); // ~305.5 Hz (Freq for MIDI 62.5)
  * ```
  */
 export function noteToFrequency(note: Note): number {
   if (!note) {
     throw new Error("Invalid note provided to noteToFrequency.");
   }
-  // Return cached value if available (assuming Note object might have it)
-  // Note: This caching depends on the creation functions populating it.
+  // Return cached value if available
   if (note.frequency !== undefined) {
     return note.frequency;
   }
 
-  // Get the base integer MIDI note (ignores cents for this step)
-  const midi = noteToMidi(note);
+  // Get the precise fractional MIDI number, including all adjustments
+  const midiWithCents = getMidiWithCents(note);
 
-  // Calculate the number of semitones away from the reference A4
-  const halfStepsFromA4 = midi - A4_MIDI;
-
-  // Calculate base equal temperament frequency relative to A4_FREQUENCY
-  let frequency =
-    A4_FREQUENCY * Math.pow(2, halfStepsFromA4 / SEMITONES_PER_OCTAVE);
-
-  // Apply cents deviation, if present on the note object, as a frequency ratio
-  if (note.cents !== undefined && note.cents !== 0) {
-    // Ratio = 2^(cents / 1200)
-    const centsRatio = Math.pow(2, note.cents / CENTS_PER_OCTAVE);
-    frequency *= centsRatio;
-  }
-  // Note: This version doesn't explicitly re-apply microtonalModifier or tuningSystem here.
-  // It relies on `note.cents` accurately representing the total deviation for microtonal notes.
+  // Calculate frequency using the standard formula relative to A4
+  // f = A4_freq * 2^((midi_float - A4_midi) / 12)
+  const frequency =
+    A4_FREQUENCY *
+    Math.pow(2, (midiWithCents - A4_MIDI) / SEMITONES_PER_OCTAVE);
 
   return frequency;
 }
@@ -142,21 +135,26 @@ export function frequencyToNote(
 /**
  * Creates a new Note object representing the same relative pitch as the input note,
  * but adjusted for a different tuning standard (i.e., a different frequency for A4).
+ * The resulting note's cents deviation will be calculated relative to the new tuning standard.
  *
  * @param note - The original Note object.
  * @param [newA4Frequency=A4_FREQUENCY] - The new reference frequency for A4 (e.g., 432 Hz). Defaults to the standard 440 Hz.
  * @param [options] - Optional parameters for the new note creation.
  * @param [options.prefer='sharp'] - Preferred spelling for the resulting note.
  * @param [options.includeCachedValues=true] - Whether to include cached values on the returned note.
- * @returns A new Note object with its frequency adjusted for the new tuning standard.
+ * @returns A new Note object with its frequency context adjusted for the new tuning standard.
  * @throws {Error} If the input note is invalid or the new A4 frequency is non-positive.
  * @example
  * ```ts
- * const c4_standard = createNote({ midi: 60 }); // C4 in A4=440Hz tuning
- * const c4_tunedDown = retune(c4_standard, 432); // C4 in A4=432Hz tuning
+ * const c4_standard = createNote({ midi: 60 }); // C4 in A4=440Hz tuning (~261.63 Hz)
+ * const c4_tunedDown = retune(c4_standard, 432); // Retunes C4 identity to A4=432Hz (~256.87 Hz)
  *
- * console.log(noteToFrequency(c4_standard)); // ~261.63 Hz
- * console.log(noteToFrequency(c4_tunedDown)); // ~256.87 Hz (Lower frequency)
+ * // A note slightly sharp in standard tuning
+ * const a4_sharpish = createNote({ midi: 69, cents: 10 }); // A4 + 10 cents (~442.54 Hz)
+ * const a4_sharpish_tuned = retune(a4_sharpish, 432); // Retunes A4+10c identity to A4=432Hz context
+ * // Its new frequency will be ~435.03 Hz. createNoteFromFrequency will find it's nearest to A4 (432 Hz)
+ * // in the new system and assign appropriate cents deviation (~+7.8 cents relative to 432Hz A4).
+ * console.log(a4_sharpish_tuned.letter, a4_sharpish_tuned.octave, a4_sharpish_tuned.cents?.toFixed(1)); // A 4 "7.8"
  * ```
  */
 export function retune(
@@ -179,34 +177,25 @@ export function retune(
   const prefer = options?.prefer ?? "sharp";
   const includeCachedValues = options?.includeCachedValues !== false;
 
-  // Get the note's original frequency based on the *standard* A4=440 tuning.
-  // We use the function from this module for consistency.
+  // Use the now-correct noteToFrequency function to get original frequency
+  // This calculation implicitly uses the STANDARD A4_FREQUENCY context.
   const originalStandardFreq = noteToFrequency(note);
-
-  // If the new reference is the same as the standard, no change needed, but
-  // we still create a new object potentially with different options (prefer/cache).
-  // Let createNoteFromFrequency handle this.
 
   // Calculate the ratio between the new reference A4 and the standard A4
   const referenceRatio = newA4Frequency / A4_FREQUENCY;
 
   // Apply this ratio to the note's frequency (as calculated in standard tuning)
-  // This finds the equivalent frequency in the new tuning system.
   const newFrequency = originalStandardFreq * referenceRatio;
 
   // Create a new note object based on this adjusted frequency.
-  // createNoteFromFrequency will determine the nearest note/cents in the new context.
-  // We pass the original note's cents/modifier info if present, as retuning
-  // primarily affects the base frequency, not necessarily the microtonal offset *relative*
-  // to its base 12-TET note within the *new* system.
+  // Let createNoteFromFrequency determine the nearest note and cents deviation
+  // *relative to the standard A4=440* based on this new absolute frequency.
+  // Do NOT pass the original cents/modifier/tuning info here.
   return createNoteFromFrequency({
     frequency: newFrequency,
     prefer,
     includeCachedValues,
-    // Pass original microtonal info - createNoteFromFrequency will calculate new cents deviation
-    cents: note.cents,
-    microtonalModifier: note.microtonalModifier,
-    tuningSystem: (note as any).tuningSystem, // Pass tuning system if present
+    // Explicitly DO NOT pass: cents, microtonalModifier, tuningSystem from original note
   });
 }
 
@@ -243,57 +232,4 @@ export function getFrequencyRatio(note1: Note, note2: Note): number {
 
   // Return the ratio
   return freq2 / freq1;
-}
-
-/**
- * Creates a new Note that is related to a reference Note by a specific frequency ratio.
- * This version calculates the target frequency and uses `createNoteFromFrequency`.
- * Useful for generating notes in Just Intonation or other ratio-based systems directly
- * from frequency calculations.
- *
- * @param referenceNote - The Note object to use as the starting point (e.g., the tonic or 1/1).
- * @param ratio - The frequency ratio to apply (e.g., 3/2 for a Perfect Fifth). Must be positive.
- * @param [options] - Optional parameters for the new note creation.
- * @param [options.prefer='sharp'] - Preferred enharmonic spelling for the resulting note.
- * @returns A new Note object representing the calculated pitch.
- * @throws {Error} If the reference note is invalid or the ratio is non-positive.
- * @see {@link Note/Creation.createNoteByRatio} for an alternative implementation using cents transposition.
- * @example
- * ```ts
- * const c4 = createNote({ midi: 60 });
- *
- * // Create a Just Perfect Fifth (3/2 ratio) above C4
- * const g4_just = createNoteByRatio(c4, 3/2);
- * // -> G4 with cents slightly sharper than equal temperament (~ +1.96 cents)
- *
- * // Create a Just Major Third (5/4 ratio) above C4
- * const e4_just = createNoteByRatio(c4, 5/4);
- * // -> E4 with cents slightly flatter than equal temperament (~ -13.69 cents)
- * ```
- */
-export function createNoteByRatio(
-  referenceNote: Note,
-  ratio: number,
-  options?: { prefer?: EnharmonicPreference }
-): Note {
-  if (!referenceNote) {
-    throw new Error("Invalid reference note provided to createNoteByRatio.");
-  }
-  if (typeof ratio !== "number" || ratio <= 0) {
-    throw new Error(`Invalid ratio: ${ratio}. Must be a positive number.`);
-  }
-
-  // Calculate the reference frequency using the standard function
-  const refFreq = noteToFrequency(referenceNote);
-
-  // Calculate the target frequency by applying the ratio
-  const newFreq = refFreq * ratio;
-
-  // Create the new note directly from the calculated target frequency
-  // Pass along the preference option.
-  return createNoteFromFrequency({
-    frequency: newFreq,
-    prefer: options?.prefer,
-    // Let createNoteFromFrequency handle calculating cents and includeCachedValues defaults
-  });
 }

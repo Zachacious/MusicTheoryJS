@@ -112,7 +112,7 @@ export interface Note {
   /** Microtonal modifier symbol (e.g., '+', '-') used for notation - may be cached or assigned. */
   readonly microtonalModifier?: MicrotonalModifier;
   // Potential future property:
-  // readonly tuningSystem?: TuningSystem;
+  readonly tuningSystem?: TuningSystem;
 }
 
 /**
@@ -160,11 +160,21 @@ export interface MicrotonalNote extends Note {
 export function isMicrotonalNote(
   note: Note | null | undefined
 ): note is MicrotonalNote {
-  // Check if note exists and has a 'cents' property that is a number and not zero.
-  // Use a small epsilon for zero check due to potential floating point inaccuracies.
-  return (
-    note != null &&
-    typeof note.cents === "number" &&
-    Math.abs(note.cents) > 1e-9
-  );
+  if (note == null) {
+    return false;
+  }
+
+  // Check for non-zero cents (using epsilon for floating point)
+  const hasNonZeroCents =
+    typeof note.cents === "number" && Math.abs(note.cents) > 1e-9;
+
+  // Check for a defined, non-empty microtonal modifier
+  const hasModifier =
+    typeof note.microtonalModifier === "string" &&
+    note.microtonalModifier !== "";
+
+  // Considered microtonal if either condition is true
+  // We still narrow to MicrotonalNote, assuming the presence of a modifier implies microtonal intent,
+  // even if 'cents' isn't explicitly set or is zero. The MicrotonalNote interface allows optional cents.
+  return hasNonZeroCents || hasModifier;
 }

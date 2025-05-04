@@ -23,7 +23,7 @@ import {
   MicrotonalNote,
   Note,
   TuningSystem,
-  isMicrotonalNote
+  isMicrotonalNote,
 } from "./types";
 import {
   calculateMidi,
@@ -32,13 +32,16 @@ import {
   formatNote,
   getCentsBetween,
   getMidiWithCents,
-  noteToMidi
+  noteToMidi,
+  pitchClassIndexToLetterAccidental,
+  transposeByCents,
 } from "./calculations";
 import {
   createNoteFromFrequency,
   createNoteFromMidi,
   createNoteFromParts,
-  createNoteFromQuarterToneIndex
+  createNoteFromQuarterToneIndex,
+  createNoteObject,
 } from "./creation";
 
 // Assuming Interval type is correctly defined and imported from elsewhere
@@ -404,24 +407,6 @@ export function centsBetween(note1: Note, note2: Note): number {
  * Transposes a Note by a specified whole number of octaves.
  * Preserves the note's letter name, accidental, and (optionally) microtonal properties.
  * Only changes the octave number.
- *
- * @param note - The Note object to transpose.
- * @param numOctaves - The number of octaves to transpose by (integer, positive or negative).
- * @param [options] - Optional settings.
- * @param [options.includeCachedValues=true] - Whether to include cached values on the returned note.
- * @param [options.preserveMicrotonalProperties=true] - If true, preserves `cents`, `microtonalModifier`, `tuningSystem`.
- * @returns A new Note object transposed by the specified octaves.
- * @throws {Error} If the input note is invalid or numOctaves is not an integer.
- * @example
- * ```ts
- * const c4 = createNote({ midi: 60 });
- * const c5 = transposeOctave(c4, 1); // C5
- * const c3 = transposeOctave(c4, -1); // C3
- *
- * const gSharp2plus15 = createNote({ letter: 'G', accidental: '#', octave: 2, cents: 15 });
- * const gSharp4plus15 = transposeOctave(gSharp2plus15, 2); // G#4 + 15 cents
- * const gSharp1plus15 = transposeOctave(gSharp2plus15, -1, { preserveMicrotonalProperties: true }); // G#1 + 15 cents
- * ```
  */
 export function transposeOctave(
   note: Note,
@@ -449,92 +434,38 @@ export function transposeOctave(
   // if (newOctave < -1 || newOctave > 9) { console.warn(...) }
   // ---
 
-  // Create the base transposed note object using createNoteFromParts to ensure consistency,
-  // initially potentially without microtonal info or cached values.
-  // We set includeCachedValues to false here if we intend to preserve microtonal properties,
-  // as we'll potentially recalculate frequency/notation based on preserved cents later.
-  const baseTransposedNote = createNoteFromParts({
-    letter: note.letter,
-    accidental: note.accidental,
-    octave: newOctave,
-    // Only include cache initially if NOT preserving microtonal props,
-    // otherwise, we might need to recalculate freq/notation later.
-    includeCachedValues: includeCachedValues && !preserveMicrotonal,
-  });
-
-  // If not preserving microtonal props, or if original wasn't microtonal, return the base transposed note.
-  if (!preserveMicrotonal || !isMicrotonalNote(note)) {
-    // If includeCachedValues was true but we didn't calculate them yet (because preserveMicrotonal was true initially),
-    // we might need to recalculate them now based on the standard base note.
-    // However, createNoteFromParts *might* have already added them if its internal includeCachedValues was true.
-    // This logic gets complex depending on createNoteObject's behavior.
-    // Simplest: Assume createNoteFromParts produced the desired object based on its includeCachedValues.
-    return baseTransposedNote;
-  }
-
-  // --- Preserve microtonal properties ---
-  // Cast original note to access properties safely
-  const microNote = note as MicrotonalNote;
-
-  // Create the final note object, starting with the base transposed properties
-  // and adding the preserved microtonal properties.
-  const finalNoteProps: any = {
-    ...baseTransposedNote, // Includes letter, accidental, octave, pitchClassIndex (and potentially midi/notation/freq if calculated by createNoteFromParts)
-    cents: microNote.cents, // Preserve cents
-    microtonalModifier: microNote.microtonalModifier, // Preserve modifier
-    tuningSystem: (microNote as any).tuningSystem, // Preserve tuning system
-  };
-
-  // If cached values are needed, ensure they are consistent with preserved microtonal info
-  if (includeCachedValues) {
-    // Recalculate notation to include the preserved modifier
-    finalNoteProps.notation = formatNotation(
-      baseTransposedNote.letter,
-      baseTransposedNote.accidental,
-      baseTransposedNote.octave,
-      microNote.microtonalModifier // Use preserved modifier
-    );
-
-    // Recalculate frequency based on the base transposed note's MIDI/freq and preserved cents
-    // Get base frequency (either from cached baseNote.frequency or recalculate)
-    let baseFreq = baseTransposedNote.frequency;
-    if (baseFreq === undefined) {
-      // Need base MIDI to recalculate frequency if not cached
-      const baseMidi =
-        baseTransposedNote.midi ??
-        calculateMidi(
-          baseTransposedNote.pitchClassIndex,
-          baseTransposedNote.octave
-        );
-      if (baseMidi >= 0 && baseMidi <= 127) {
-        baseFreq =
-          A4_FREQUENCY *
-          Math.pow(2, (baseMidi - A4_MIDI) / SEMITONES_PER_OCTAVE);
+  // Determine final microtonal properties
+  let microtonalOptions:
+    | {
+        cents?: number;
+        microtonalModifier?: MicrotonalModifier;
+        tuningSystem?: TuningSystem;
       }
-    }
+    | undefined;
 
-    if (baseFreq !== undefined) {
-      // Apply cents ratio to the base frequency
-      finalNoteProps.frequency = baseFreq * centsToRatio(microNote.cents ?? 0);
-    } else {
-      finalNoteProps.frequency = undefined; // Cannot calculate if base freq unknown
-    }
-
-    // Ensure MIDI is present if caching
-    if (finalNoteProps.midi === undefined) {
-      finalNoteProps.midi = calculateMidi(
-        finalNoteProps.pitchClassIndex,
-        finalNoteProps.octave
-      );
-    }
-  } else {
-    // Explicitly remove potentially cached values if includeCachedValues is false
-    delete finalNoteProps.midi;
-    delete finalNoteProps.notation;
-    delete finalNoteProps.frequency;
+  if (preserveMicrotonal && isMicrotonalNote(note)) {
+    const microNote = note as MicrotonalNote;
+    microtonalOptions = {
+      cents: microNote.cents,
+      microtonalModifier: microNote.microtonalModifier,
+      tuningSystem: (microNote as any).tuningSystem,
+    };
   }
+  // else: microtonalOptions remains undefined
 
-  return Object.freeze(finalNoteProps) as Note; // Cast acknowledges potential extra properties
+  // Delegate to the immutable factory function
+  // Pass original letter/accidental, new octave, and preserved microtonal info
+  // Pitch class index will be recalculated inside createNoteObject or its dependencies if needed,
+  // but passing it might be slightly more direct if available easily. Let's rely on calculation.
+  // NOTE: Need pitchClassIndex for createNoteObject! Get it from original note.
+  return createNoteObject(
+    note.letter,
+    note.accidental,
+    newOctave,
+    note.pitchClassIndex, // Pass original pitch class index
+    includeCachedValues,
+    microtonalOptions
+  );
 }
 
 /**
@@ -597,28 +528,6 @@ export function compareNotes(
 /**
  * Creates a new Note object with the same pitch as the input note, but potentially
  * a different enharmonic spelling (letter/accidental) based on the specified preference.
- * For example, can convert a C#4 to a Db4.
- * Optionally preserves microtonal properties (cents, modifier, tuning system).
- *
- * @param note - The Note object to respell.
- * @param [options] - Optional settings.
- * @param [options.prefer='sharp'] - The desired spelling preference ('sharp' or 'flat') for the new note.
- * @param [options.includeCachedValues=true] - Whether to include cached values on the returned note.
- * @param [options.preserveMicrotonalProperties=true] - If true, carries over `cents`, `microtonalModifier`, `tuningSystem`.
- * @returns A new Note object with the potentially altered spelling but identical pitch.
- * @throws {Error} If the input note is invalid.
- * @example
- * ```ts
- * const cSharp4 = createNote({ letter: 'C', accidental: '#', octave: 4 });
- * const db4 = respellNote(cSharp4, { prefer: 'flat' });
- * console.log(formatNote(db4)); // "Db4"
- * notesAreEqual(cSharp4, db4); // true
- * notesAreStrictlyEqual(cSharp4, db4); // false
- *
- * const fFlat5plus10c = addCentsToNote(createNote({ letter: 'F', accidental: 'b', octave: 5 }), 10);
- * const e5plus10c = respellNote(fFlat5plus10c, { prefer: 'sharp' }); // E is the sharp equivalent of Fb
- * console.log(formatNote(e5plus10c), e5plus10c.cents); // "E5", 10
- * ```
  */
 export function respellNote(
   note: Note,
@@ -637,82 +546,39 @@ export function respellNote(
   const includeCachedValues = options?.includeCachedValues ?? true;
   const preserveMicrotonal = options?.preserveMicrotonalProperties ?? true;
 
-  // Get the integer MIDI number representing the base 12-TET pitch
-  const midi = noteToMidi(note);
+  // Determine the new spelling based on pitch class and preference
+  // Pitch class remains the same, octave remains the same
+  const { letter: newLetter, accidental: newAccidental } =
+    pitchClassIndexToLetterAccidental(note.pitchClassIndex, prefer);
 
-  // Recreate the note from MIDI using the *new* spelling preference.
-  // This generates the correct base letter/accidental/octave/pitchClassIndex.
-  // Create initially without cache if preserving microtonal, as cache needs recalculation.
-  const baseRespelledNote = createNoteFromMidi({
-    midi,
-    prefer, // Apply the new preference
-    includeCachedValues: includeCachedValues && !preserveMicrotonal,
-  });
-
-  // If not preserving microtonal props, or if original wasn't microtonal, return the base respelled note.
-  if (!preserveMicrotonal || !isMicrotonalNote(note)) {
-    // See notes in transposeOctave regarding recalculating cache if needed.
-    // Assume createNoteFromMidi handled caching appropriately based on its flag.
-    return baseRespelledNote;
-  }
-
-  // --- Preserve microtonal properties ---
-  const microNote = note as MicrotonalNote; // Cast original note
-
-  // Create the final note object, starting with the base respelled properties
-  // and adding the preserved microtonal properties from the *original* note.
-  const finalNoteProps: any = {
-    ...baseRespelledNote, // Includes new letter/accidental, octave, pitchClassIndex etc.
-    cents: microNote.cents, // Preserve original cents
-    microtonalModifier: microNote.microtonalModifier, // Preserve original modifier
-    tuningSystem: (microNote as any).tuningSystem, // Preserve original tuning system
-  };
-
-  // If cached values are needed, ensure they are consistent with preserved microtonal info
-  if (includeCachedValues) {
-    // Recalculate notation using the *new* spelling but *preserved* modifier
-    finalNoteProps.notation = formatNotation(
-      baseRespelledNote.letter, // New letter
-      baseRespelledNote.accidental, // New accidental
-      baseRespelledNote.octave, // Same octave
-      microNote.microtonalModifier // Preserved modifier
-    );
-
-    // Recalculate frequency based on the base respelled note's MIDI/freq and preserved cents
-    let baseFreq = baseRespelledNote.frequency;
-    if (baseFreq === undefined) {
-      const baseMidi =
-        baseRespelledNote.midi ??
-        calculateMidi(
-          baseRespelledNote.pitchClassIndex,
-          baseRespelledNote.octave
-        );
-      if (baseMidi >= 0 && baseMidi <= 127) {
-        baseFreq =
-          A4_FREQUENCY *
-          Math.pow(2, (baseMidi - A4_MIDI) / SEMITONES_PER_OCTAVE);
+  // Determine final microtonal properties
+  let microtonalOptions:
+    | {
+        cents?: number;
+        microtonalModifier?: MicrotonalModifier;
+        tuningSystem?: TuningSystem;
       }
-    }
-    if (baseFreq !== undefined) {
-      finalNoteProps.frequency = baseFreq * centsToRatio(microNote.cents ?? 0);
-    } else {
-      finalNoteProps.frequency = undefined;
-    }
-    // Ensure MIDI is present if caching
-    if (finalNoteProps.midi === undefined) {
-      finalNoteProps.midi = calculateMidi(
-        finalNoteProps.pitchClassIndex,
-        finalNoteProps.octave
-      );
-    }
-  } else {
-    // Explicitly remove potentially cached values
-    delete finalNoteProps.midi;
-    delete finalNoteProps.notation;
-    delete finalNoteProps.frequency;
+    | undefined;
+
+  if (preserveMicrotonal && isMicrotonalNote(note)) {
+    const microNote = note as MicrotonalNote;
+    microtonalOptions = {
+      cents: microNote.cents,
+      microtonalModifier: microNote.microtonalModifier,
+      tuningSystem: (microNote as any).tuningSystem,
+    };
   }
 
-  return Object.freeze(finalNoteProps) as Note;
+  // Delegate to the immutable factory function
+  // Pass new letter/accidental, original octave/pitch class index, and preserved microtonal info
+  return createNoteObject(
+    newLetter,
+    newAccidental,
+    note.octave,
+    note.pitchClassIndex,
+    includeCachedValues,
+    microtonalOptions
+  );
 }
 
 /**
@@ -775,135 +641,95 @@ export function addCentsToNote(
   const autoSelectModifier = options?.autoSelectMicrotonalModifier ?? false;
 
   // Get the starting cents value (0 if note is not already microtonal)
-  // Use getMidiWithCents to get a precise starting point if needed? No, add directly to existing cents property.
-  const existingCents = (note as MicrotonalNote).cents ?? 0; // Default to 0 if no cents property
+  const existingCents = (note as MicrotonalNote).cents ?? 0;
 
-  // Calculate the new total cents offset relative to the note's base pitch
+  // Calculate the new total cents offset relative to the note's base 12-TET pitch
   const totalCents = existingCents + cents;
 
-  // --- Normalize Cents & Adjust Base Note ---
-  // Check if the total cents offset requires changing the base semitone/note
-  let normalizedCents = totalCents;
-  let adjustedNote = note; // Start with the original note
+  // --- Normalize Cents & Determine Base Note ---
+  let finalCents = totalCents;
+  let baseNote = note; // Start with the original note as the base
 
-  const CENTS_NORMALIZATION_THRESHOLD = CENTS_PER_SEMITONE - 1e-9; // Avoid issues at exactly +/-100 etc.
+  const CENTS_NORMALIZATION_THRESHOLD = CENTS_PER_SEMITONE - 1e-9;
 
   if (Math.abs(totalCents) >= CENTS_NORMALIZATION_THRESHOLD) {
-    // Calculate how many full semitones to shift the base note
-    // Round towards zero effectively, e.g., 120 -> 1, -170 -> -1
-    // Using round might be better: 70c -> 1, -70c -> -1 ? Let's stick to floor/sign.
-    // No, round is correct: e.g. +70 cents should round to +1 semitone with -30 cents remaining.
     const semitoneShift = Math.round(totalCents / CENTS_PER_SEMITONE);
+    finalCents = totalCents - semitoneShift * CENTS_PER_SEMITONE;
 
-    // Subtract the shifted semitones (in cents) from the total to get the remaining cents offset
-    normalizedCents = totalCents - semitoneShift * CENTS_PER_SEMITONE;
-
-    // Transpose the *base* note (without its original cents) by the calculated semitone shift
-    // We need to temporarily remove existing microtonal info before transposing by semitones.
-    const baseNote = createNoteFromParts({
+    // Create the adjusted base note (without microtones) by transposing
+    const originalBaseNote = createNoteFromParts({
       letter: note.letter,
       accidental: note.accidental,
       octave: note.octave,
-      includeCachedValues: false, // Don't need cache for intermediate step
+      includeCachedValues: false, // Intermediate step
     });
-    adjustedNote = transpose(baseNote, semitoneShift); // Standard semitone transpose
+    // Use standard semitone transpose (path 2 of transpose function)
+    baseNote = transpose(originalBaseNote, semitoneShift, {
+      preserveMicrotonalProperties: false,
+    });
   }
   // --- End Normalization ---
 
+  // Use threshold to treat near-zero cents as exactly zero (or undefined for createNoteObject)
+  const CENTS_ZERO_THRESHOLD = 1e-6;
+  if (Math.abs(finalCents) < CENTS_ZERO_THRESHOLD) {
+    finalCents = 0; // Keep as 0 for modifier selection logic, will be omitted later if 0
+  }
+
   // --- Determine Microtonal Modifier ---
-  let finalMicrotonalModifier: MicrotonalModifier = "";
+  let finalMicrotonalModifier: MicrotonalModifier | undefined = undefined; // Start undefined
 
   if (autoSelectModifier) {
-    // Find the closest standard modifier in MICROTONAL_CENTS_ADJUSTMENT map
-    let closestDiff = Infinity;
-    let closestModifier: MicrotonalModifier = "";
-    // Use Number.EPSILON for near-zero comparison?
-    const ZERO_ISH = 1e-6;
-
-    // Only assign a modifier if normalizedCents is significantly non-zero
-    if (Math.abs(normalizedCents) > ZERO_ISH) {
+    // Only try to select if finalCents is non-zero
+    if (finalCents !== 0) {
+      let closestDiff = Infinity;
+      let closestModifier: MicrotonalModifier = "";
       for (const [modifier, modifierCents] of Object.entries(
         MICROTONAL_CENTS_ADJUSTMENT
       )) {
-        // Skip the 'empty' modifier entry if looking for a non-zero match
-        if (modifier === "") continue;
-
-        const diff = Math.abs(normalizedCents - modifierCents);
+        if (modifier === "") continue; // Skip empty modifier
+        const diff = Math.abs(finalCents - modifierCents);
         if (diff < closestDiff) {
           closestDiff = diff;
           closestModifier = modifier as MicrotonalModifier;
         }
       }
-      // Assign the closest modifier only if it's a reasonably close match (e.g., within 10 cents)
-      const MODIFIER_MATCH_TOLERANCE = 10;
+      // Assign if reasonably close match found
+      const MODIFIER_MATCH_TOLERANCE = 10; // e.g., within 10 cents
       if (closestDiff <= MODIFIER_MATCH_TOLERANCE) {
         finalMicrotonalModifier = closestModifier;
       }
-      // If no close modifier found, keep it empty unless original note had one?
-      // Let's default to empty if no close match found by auto-select.
-      else {
-        finalMicrotonalModifier =
-          (adjustedNote as MicrotonalNote).microtonalModifier ?? ""; // Keep original if specified? No, autoSelect implies finding best fit or none.
-      }
+      // else: leave undefined if no close match
     }
   } else {
-    // If not auto-selecting, preserve the modifier from the (potentially transposed) adjustedNote
-    // This preserves modifier even if cents value changes significantly. Is this desired?
-    // Maybe only preserve if normalizedCents isn't exactly 0?
-    finalMicrotonalModifier =
-      (adjustedNote as MicrotonalNote).microtonalModifier ?? "";
-    // If normalized cents are essentially zero, clear the modifier?
-    if (Math.abs(normalizedCents) < 1e-6 && finalMicrotonalModifier !== "") {
-      // Uncomment below to clear modifier if cents become zero
-      // finalMicrotonalModifier = "";
+    // Preserve original modifier if not auto-selecting, unless cents are now zero
+    if (finalCents !== 0) {
+      finalMicrotonalModifier = (note as MicrotonalNote).microtonalModifier; // Use original note's modifier
     }
+    // else: leave undefined if cents are zero
   }
   // --- End Modifier Determination ---
 
-  // Use a threshold to treat very small cents values as exactly zero
-  const finalCents = Math.abs(normalizedCents) < 1e-6 ? 0 : normalizedCents;
-
-  // Create properties for the new note using the adjusted base note and new microtonal info
-  const newNoteProps: any = {
-    // Properties from the adjusted (potentially transposed) base note
-    letter: adjustedNote.letter,
-    accidental: adjustedNote.accidental,
-    octave: adjustedNote.octave,
-    pitchClassIndex: adjustedNote.pitchClassIndex,
-    // New microtonal properties (only include cents if non-zero)
+  // Prepare final microtonal options for the factory
+  const microtonalOptions = {
+    // Only include cents property if it's non-zero
     ...(finalCents !== 0 && { cents: finalCents }),
-    ...(finalMicrotonalModifier !== "" && {
+    ...(finalMicrotonalModifier && {
       microtonalModifier: finalMicrotonalModifier,
     }),
-    // Preserve tuning system from original note? Or adjustedNote? Let's use original.
+    // Preserve original tuning system
     tuningSystem: (note as any).tuningSystem,
   };
 
-  // Calculate new cached values if requested
-  if (includeCachedValues) {
-    const finalNoteForCalc = newNoteProps as Note; // Temporary cast for calculation
-    // Calculate MIDI based on final pitch class/octave
-    newNoteProps.midi = calculateMidi(
-      finalNoteForCalc.pitchClassIndex,
-      finalNoteForCalc.octave
-    );
-    // Calculate notation based on final properties
-    newNoteProps.notation = formatNotation(
-      finalNoteForCalc.letter,
-      finalNoteForCalc.accidental,
-      finalNoteForCalc.octave,
-      finalNoteForCalc.microtonalModifier
-    );
-    // Calculate frequency based on final properties
-    // Need getMidiWithCents logic applied to the *new* properties
-    const finalMidiWithCents = getMidiWithCents(finalNoteForCalc);
-    newNoteProps.frequency =
-      A4_FREQUENCY *
-      Math.pow(2, (finalMidiWithCents - A4_MIDI) / SEMITONES_PER_OCTAVE);
-  }
-
-  // Freeze and cast to MicrotonalNote (as it potentially has cents/modifier)
-  return Object.freeze(newNoteProps) as MicrotonalNote;
+  // Delegate to the immutable factory function using the adjusted base note props
+  return createNoteObject(
+    baseNote.letter,
+    baseNote.accidental,
+    baseNote.octave,
+    baseNote.pitchClassIndex,
+    includeCachedValues,
+    microtonalOptions
+  ) as MicrotonalNote; // Cast return to MicrotonalNote
 }
 
 /**
@@ -974,122 +800,122 @@ export function createQuarterToneNote(
   return quarterToneNote;
 }
 
-/**
- * Transposes a Note by a precise interval specified in cents.
- * This function handles combining the transposition cents with any existing
- * microtonal offset on the original note. Uses frequency for calculation if available,
- * otherwise uses fractional MIDI + cents.
- *
- * @param note - The starting Note object.
- * @param centsInterval - The interval to transpose by, in cents. Positive transposes up, negative down.
- * @param [options] - Optional parameters for note creation.
- * @param [options.prefer='sharp'] - Preferred spelling for the resulting note's base pitch.
- * @param [options.includeCachedValues=true] - Whether to include cached values on the returned note.
- * @returns A new Note object representing the precisely transposed pitch. The note may have a `cents` property.
- * @throws {Error} If the input note or centsInterval is invalid, or if transposition results in an out-of-range MIDI value.
- * @remarks This implementation prioritizes using the note's `frequency` property if present for highest precision,
- * otherwise falls back to calculating based on `getMidiWithCents`.
- * @example
- * ```ts
- * const c4 = createNote({ midi: 60 });
- *
- * // Transpose up by a Just Major Third (~386.31 cents)
- * const e4_just = transposeByCents(c4, 386.31);
- * // -> E4 with cents ≈ -13.69
- *
- * // Transpose up by 50 cents
- * const cqs = transposeByCents(c4, 50); // Result C4 with cents = 50
- *
- * // Transpose Cqs up by 80 cents (total +130 cents)
- * const cs_plus_30 = transposeByCents(cqs, 80); // Result C#4 with cents = 30
- * ```
- */
-export function transposeByCents(
-  note: Note,
-  centsInterval: number,
-  options?: {
-    prefer?: EnharmonicPreference;
-    includeCachedValues?: boolean;
-  }
-): Note {
-  // Return type is general Note, might become MicrotonalNote
-  // --- Input Validation ---
-  if (!note) {
-    throw new Error("Invalid note provided to transposeByCents.");
-  }
-  if (!Number.isFinite(centsInterval)) {
-    throw new Error(
-      `Invalid centsInterval: ${centsInterval}. Must be a finite number.`
-    );
-  }
-  // --- End Validation ---
+// /**
+//  * Transposes a Note by a precise interval specified in cents.
+//  * This function handles combining the transposition cents with any existing
+//  * microtonal offset on the original note. Uses frequency for calculation if available,
+//  * otherwise uses fractional MIDI + cents.
+//  *
+//  * @param note - The starting Note object.
+//  * @param centsInterval - The interval to transpose by, in cents. Positive transposes up, negative down.
+//  * @param [options] - Optional parameters for note creation.
+//  * @param [options.prefer='sharp'] - Preferred spelling for the resulting note's base pitch.
+//  * @param [options.includeCachedValues=true] - Whether to include cached values on the returned note.
+//  * @returns A new Note object representing the precisely transposed pitch. The note may have a `cents` property.
+//  * @throws {Error} If the input note or centsInterval is invalid, or if transposition results in an out-of-range MIDI value.
+//  * @remarks This implementation prioritizes using the note's `frequency` property if present for highest precision,
+//  * otherwise falls back to calculating based on `getMidiWithCents`.
+//  * @example
+//  * ```ts
+//  * const c4 = createNote({ midi: 60 });
+//  *
+//  * // Transpose up by a Just Major Third (~386.31 cents)
+//  * const e4_just = transposeByCents(c4, 386.31);
+//  * // -> E4 with cents ≈ -13.69
+//  *
+//  * // Transpose up by 50 cents
+//  * const cqs = transposeByCents(c4, 50); // Result C4 with cents = 50
+//  *
+//  * // Transpose Cqs up by 80 cents (total +130 cents)
+//  * const cs_plus_30 = transposeByCents(cqs, 80); // Result C#4 with cents = 30
+//  * ```
+//  */
+// export function transposeByCents(
+//   note: Note,
+//   centsInterval: number,
+//   options?: {
+//     prefer?: EnharmonicPreference;
+//     includeCachedValues?: boolean;
+//   }
+// ): Note {
+//   // Return type is general Note, might become MicrotonalNote
+//   // --- Input Validation ---
+//   if (!note) {
+//     throw new Error("Invalid note provided to transposeByCents.");
+//   }
+//   if (!Number.isFinite(centsInterval)) {
+//     throw new Error(
+//       `Invalid centsInterval: ${centsInterval}. Must be a finite number.`
+//     );
+//   }
+//   // --- End Validation ---
 
-  const prefer = options?.prefer ?? "sharp";
-  // Default true unless explicitly false
-  const includeCachedValues = options?.includeCachedValues !== false;
+//   const prefer = options?.prefer ?? "sharp";
+//   // Default true unless explicitly false
+//   const includeCachedValues = options?.includeCachedValues !== false;
 
-  // --- Path 1: Use Frequency if available (potentially more precise) ---
-  // Check if frequency exists and is valid
-  if (note.frequency !== undefined && note.frequency > 0) {
-    // Calculate new frequency by applying the cents ratio: f2 = f1 * 2^(cents/1200)
-    const ratio = Math.pow(2, centsInterval / CENTS_PER_OCTAVE);
-    const newFrequency = note.frequency * ratio;
+//   // --- Path 1: Use Frequency if available (potentially more precise) ---
+//   // Check if frequency exists and is valid
+//   if (note.frequency !== undefined && note.frequency > 0) {
+//     // Calculate new frequency by applying the cents ratio: f2 = f1 * 2^(cents/1200)
+//     const ratio = Math.pow(2, centsInterval / CENTS_PER_OCTAVE);
+//     const newFrequency = note.frequency * ratio;
 
-    // Create the new note directly from the calculated frequency.
-    // This determines the nearest MIDI, cents deviation, and spelling.
-    return createNoteFromFrequency({
-      frequency: newFrequency,
-      prefer,
-      includeCachedValues,
-      // Preserve original tuning system? Optional.
-      tuningSystem: (note as any).tuningSystem,
-      // Preserve modifier? Optional. createNoteFromFrequency doesn't use it directly.
-      // microtonalModifier: (note as MicrotonalNote).microtonalModifier
-    });
-  }
-  // --- End Path 1 ---
+//     // Create the new note directly from the calculated frequency.
+//     // This determines the nearest MIDI, cents deviation, and spelling.
+//     return createNoteFromFrequency({
+//       frequency: newFrequency,
+//       prefer,
+//       includeCachedValues,
+//       // Preserve original tuning system? Optional.
+//       tuningSystem: (note as any).tuningSystem,
+//       // Preserve modifier? Optional. createNoteFromFrequency doesn't use it directly.
+//       // microtonalModifier: (note as MicrotonalNote).microtonalModifier
+//     });
+//   }
+//   // --- End Path 1 ---
 
-  // --- Path 2: Calculate using MIDI plus cents (if frequency not available) ---
-  // Get the precise starting pitch as fractional MIDI
-  const midiWithCents = getMidiWithCents(note);
+//   // --- Path 2: Calculate using MIDI plus cents (if frequency not available) ---
+//   // Get the precise starting pitch as fractional MIDI
+//   const midiWithCents = getMidiWithCents(note);
 
-  // Convert the transposition interval to fractional semitones
-  const intervalAsSemitones = centsInterval / CENTS_PER_SEMITONE;
+//   // Convert the transposition interval to fractional semitones
+//   const intervalAsSemitones = centsInterval / CENTS_PER_SEMITONE;
 
-  // Calculate the target precise pitch as fractional MIDI
-  const newMidiWithCents = midiWithCents + intervalAsSemitones;
+//   // Calculate the target precise pitch as fractional MIDI
+//   const newMidiWithCents = midiWithCents + intervalAsSemitones;
 
-  // Find the nearest integer MIDI note for the base spelling
-  const newNearestMidi = Math.round(newMidiWithCents);
+//   // Find the nearest integer MIDI note for the base spelling
+//   const newNearestMidi = Math.round(newMidiWithCents);
 
-  // Calculate the remaining cents offset from that nearest integer MIDI note
-  // Use a threshold to avoid near-zero floating point noise.
-  const CENTS_THRESHOLD = 1e-6;
-  const newCents = (newMidiWithCents - newNearestMidi) * CENTS_PER_SEMITONE;
-  const finalCents =
-    Math.abs(newCents) > CENTS_THRESHOLD ? newCents : undefined; // Store as undefined if effectively zero
+//   // Calculate the remaining cents offset from that nearest integer MIDI note
+//   // Use a threshold to avoid near-zero floating point noise.
+//   const CENTS_THRESHOLD = 1e-6;
+//   const newCents = (newMidiWithCents - newNearestMidi) * CENTS_PER_SEMITONE;
+//   const finalCents =
+//     Math.abs(newCents) > CENTS_THRESHOLD ? newCents : undefined; // Store as undefined if effectively zero
 
-  // --- MIDI Range Check ---
-  if (newNearestMidi < 0 || newNearestMidi > 127) {
-    throw new Error(
-      `Transposition by ${centsInterval} cents results in invalid MIDI value: ${newNearestMidi}`
-    );
-  }
-  // --- End Check ---
+//   // --- MIDI Range Check ---
+//   if (newNearestMidi < 0 || newNearestMidi > 127) {
+//     throw new Error(
+//       `Transposition by ${centsInterval} cents results in invalid MIDI value: ${newNearestMidi}`
+//     );
+//   }
+//   // --- End Check ---
 
-  // Create the note from the new base MIDI, applying the calculated cents offset.
-  // Pass along preference and cache options. Preserve tuning system.
-  return createNoteFromMidi({
-    midi: newNearestMidi,
-    prefer,
-    includeCachedValues,
-    cents: finalCents,
-    // Preserve original modifier? Or recalculate? Let's preserve for now.
-    microtonalModifier: (note as MicrotonalNote).microtonalModifier,
-    tuningSystem: (note as any).tuningSystem,
-  });
-  // --- End Path 2 ---
-}
+//   // Create the note from the new base MIDI, applying the calculated cents offset.
+//   // Pass along preference and cache options. Preserve tuning system.
+//   return createNoteFromMidi({
+//     midi: newNearestMidi,
+//     prefer,
+//     includeCachedValues,
+//     cents: finalCents,
+//     // Preserve original modifier? Or recalculate? Let's preserve for now.
+//     microtonalModifier: (note as MicrotonalNote).microtonalModifier,
+//     tuningSystem: (note as any).tuningSystem,
+//   });
+//   // --- End Path 2 ---
+// }
 
 /**
  * Converts a given Note (which may have microtonal deviations) to its closest representation

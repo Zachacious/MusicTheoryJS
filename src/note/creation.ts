@@ -30,11 +30,12 @@ import {
   Note,
   NoteLetter,
   PitchClassIndex,
-  TuningSystem
+  TuningSystem,
 } from "./types";
 import {
   calculateMidi,
   formatNotation,
+  noteToFrequency,
   pitchClassIndexToLetterAccidental,
   quarterToneIndexToLetterAccidental,
   transposeByCents,
@@ -42,24 +43,10 @@ import {
 
 /**
  * @internal
- * An internal factory function to assemble a Note object with its core properties
- * and optionally include calculated/cached values for performance or convenience.
- * Handles the inclusion of microtonal properties.
- *
- * @param letter - The diatonic note letter.
- * @param accidental - The accidental symbol.
- * @param octave - The scientific octave number.
- * @param pitchClassIndex - The calculated pitch class index (0-11).
- * @param [includeCachedValues=true] - If true, calculates and includes midi, notation, and frequency properties.
- * @param [microtonalOptions] - Optional object containing microtonal properties (cents, modifier, tuningSystem).
- * @returns A Note object, potentially augmented with cached properties.
- * @remarks The returned object adheres to the core `Note` interface, but may contain additional
- * `midi`, `notation`, and `frequency` properties if `includeCachedValues` is true.
- * Consumers should primarily rely on the core properties and use calculation functions
- * (`noteToMidi`, `formatNote`, `noteToFrequency`) for derived values if strict adherence
- * to the minimal Note interface is required.
+ * An internal factory function to assemble a Note object immutably with its core properties
+ * and optionally include calculated/cached values.
  */
-function createNoteObject(
+export function createNoteObject(
   letter: NoteLetter,
   accidental: Accidental,
   octave: number,
@@ -69,110 +56,72 @@ function createNoteObject(
     cents?: number;
     microtonalModifier?: MicrotonalModifier;
     tuningSystem?: TuningSystem;
-  }
+  },
+  /** If provided, uses this frequency for the cached value instead of calculating it. */
+  overrideFrequency?: number
 ): Note {
-  // Start with the base note properties defined in the Note interface
-  let noteProperties: Record<string, any> = {
-    // Using 'any' temporarily for flexibility, then casting
+  // --- Prepare Core and Microtonal Properties ---
+  const coreProperties = {
     letter,
     accidental,
     octave,
     pitchClassIndex,
+    ...(microtonalOptions?.cents !== undefined && {
+      cents: microtonalOptions.cents,
+    }),
+    ...(microtonalOptions?.microtonalModifier && {
+      microtonalModifier: microtonalOptions.microtonalModifier,
+    }),
+    ...(microtonalOptions?.tuningSystem && {
+      tuningSystem: microtonalOptions.tuningSystem,
+    }),
   };
 
-  // Add microtonal properties if provided
-  if (microtonalOptions) {
-    if (microtonalOptions.cents !== undefined) {
-      noteProperties.cents = microtonalOptions.cents;
-    }
-    if (microtonalOptions.microtonalModifier) {
-      noteProperties.microtonalModifier = microtonalOptions.microtonalModifier;
-    }
-    if (microtonalOptions.tuningSystem) {
-      noteProperties.tuningSystem = microtonalOptions.tuningSystem;
-    }
-  }
+  // --- Prepare Cached Properties (if requested) ---
+  let cachedProperties = {};
+  if (includeCachedValues) {
+    const midi = calculateMidi(pitchClassIndex, octave);
+    const notation = formatNotation(
+      letter,
+      accidental,
+      octave,
+      coreProperties.microtonalModifier || "" // Use modifier from coreProperties
+    );
 
-  // If cached values are not requested, return the core object now
-  if (!includeCachedValues) {
-    // Freeze the object to encourage immutability
-    return Object.freeze(noteProperties) as Note;
-  }
-
-  // --- Calculate and add cached values ---
-
-  // Calculate midi (integer value for the base 12-TET pitch)
-  noteProperties.midi = calculateMidi(pitchClassIndex, octave);
-
-  // Format notation string - use type-safe access to potentially added microtonalModifier
-  const microtonalModifier =
-    (noteProperties.microtonalModifier as MicrotonalModifier | undefined) || "";
-  noteProperties.notation = formatNotation(
-    letter,
-    accidental,
-    octave,
-    microtonalModifier
-  );
-
-  // Calculate frequency, considering adjustments precisely
-  let frequency: number | undefined;
-  // Use the base MIDI calculated above for standard ET frequency calculation
-  const baseMidiForFreqCalc = noteProperties.midi;
-  if (baseMidiForFreqCalc >= 0 && baseMidiForFreqCalc <= 127) {
-    // Base frequency from equal temperament using the integer MIDI
-    const equalTempFreq =
-      A4_FREQUENCY *
-      Math.pow(2, (baseMidiForFreqCalc - A4_MIDI) / SEMITONES_PER_OCTAVE);
-
-    // Apply cents deviation if present (most precise)
-    if (noteProperties.cents !== undefined) {
-      frequency =
-        equalTempFreq *
-        // Apply ratio based on cents deviation from the integer MIDI note's ET frequency
-        Math.pow(
-          2,
-          noteProperties.cents / CENTS_PER_OCTAVE // CENTS_PER_OCTAVE = 1200
-        );
-    }
-    // Apply microtonal modifier adjustment if present (and no explicit cents)
-    else if (
-      noteProperties.microtonalModifier &&
-      noteProperties.microtonalModifier !== ""
-    ) {
-      const modifier = noteProperties.microtonalModifier as MicrotonalModifier;
-      const centsAdjustment = MICROTONAL_CENTS_ADJUSTMENT[modifier] ?? 0;
-      frequency =
-        equalTempFreq * Math.pow(2, centsAdjustment / CENTS_PER_OCTAVE);
-    }
-    // Apply tuning system adjustments if specified (and no explicit cents/modifier)
-    else if (noteProperties.tuningSystem) {
-      const tuningSystem = noteProperties.tuningSystem as TuningSystem;
-      if (tuningSystem !== "equalTemperament") {
-        const tuning = TUNING_SYSTEMS[tuningSystem];
-        // Check if tuning system provides adjustment function
-        if (tuning?.centsAdjustment) {
-          const centsAdjustment = tuning.centsAdjustment(pitchClassIndex);
-          frequency =
-            equalTempFreq * Math.pow(2, centsAdjustment / CENTS_PER_OCTAVE);
-        } else {
-          // Tuning system defined but no adjustment function, use ET freq
-          frequency = equalTempFreq;
-        }
-      } else {
-        // Explicitly equal temperament
-        frequency = equalTempFreq;
-      }
+    let frequency: number | undefined;
+    if (overrideFrequency !== undefined) {
+      // Use override if provided (typically from createNoteFromFrequency)
+      frequency = overrideFrequency;
     } else {
-      // No cents, modifier, or specific tuning system -> use standard ET frequency
-      frequency = equalTempFreq;
+      // Calculate frequency using the standard function
+      try {
+        // Pass a plain object conforming to Note structure for calculation
+        frequency = noteToFrequency(coreProperties as Note);
+      } catch (error) {
+        console.error(
+          "Error calculating frequency during note creation:",
+          error
+        );
+        frequency = undefined;
+      }
     }
 
-    noteProperties.frequency = frequency;
+    cachedProperties = {
+      midi,
+      notation,
+      ...(frequency !== undefined && { frequency }), // Only add frequency if defined
+    };
   }
-  // else: MIDI is out of range, frequency remains undefined
 
-  // Freeze the final object and cast to Note (acknowledging potential extra properties)
-  return Object.freeze(noteProperties) as Note;
+  // --- Combine and Freeze ---
+  // Create the final object by merging core and cached properties
+  const finalNote = {
+    ...coreProperties,
+    ...cachedProperties,
+  };
+
+  // Freeze the final object and cast to Note
+  return Object.freeze(finalNote) as Note;
 }
 
 /**
@@ -698,28 +647,13 @@ export interface CreateNoteFromFrequencyOptions {
 
 /**
  * Creates a Note object from a given frequency in Hertz (Hz).
- * It calculates the nearest standard 12-TET MIDI note and the cents deviation.
+ * Calculates the nearest standard 12-TET note and the cents deviation.
  * Allows overriding the calculated cents or specifying microtonal modifiers/tuning systems.
+ * The original frequency is cached if `includeCachedValues` is true.
  *
  * @param options - An object containing the frequency and optional settings. See {@link CreateNoteFromFrequencyOptions}.
- * @returns The created Note object, potentially including a `cents` property representing the deviation.
+ * @returns The created Note object.
  * @throws {Error} If the frequency is non-positive or results in an out-of-range MIDI value.
- * @example
- * ```ts
- * // A4
- * const a4_freq = createNoteFromFrequency({ frequency: 440 });
- *
- * // Slightly sharp A4
- * const a4_sharpish = createNoteFromFrequency({ frequency: 442 });
- * // -> A4 with ~ +7.8 cents
- *
- * // Specify spelling preference for ambiguous pitch (~Db4/C#4)
- * const db4_ish = createNoteFromFrequency({ frequency: 270, prefer: 'flat' }); // ~61 MIDI
- * // -> Db4 with some cents value
- *
- * // Override calculated cents
- * const c4_forced_cents = createNoteFromFrequency({ frequency: 262, cents: 0 }); // Approx C4, force cents=0
- * ```
  */
 export function createNoteFromFrequency(
   options: CreateNoteFromFrequencyOptions
@@ -736,70 +670,58 @@ export function createNoteFromFrequency(
   }
   // --- End Validation ---
 
-  // Calculate the equivalent MIDI number, which may be fractional
+  // --- Calculations ---
   const midiFloat =
     SEMITONES_PER_OCTAVE * Math.log2(frequency / A4_FREQUENCY) + A4_MIDI;
-
-  // Find the nearest integer MIDI note number
   const nearestMidi = Math.round(midiFloat);
 
   // --- MIDI Range Validation ---
   if (nearestMidi < 0 || nearestMidi > 127) {
     throw new Error(
-      `Frequency ${frequency}Hz converts to MIDI ${nearestMidi.toFixed(
+      `Frequency ${frequency}Hz converts to MIDI ${midiFloat.toFixed(
         2
       )}, which rounds to ${nearestMidi}. This is out of the standard MIDI range (0-127).`
     );
   }
   // --- End Validation ---
 
-  // Calculate the cents deviation from the nearest integer MIDI pitch, unless overridden
-  const calculatedCents = (midiFloat - nearestMidi) * CENTS_PER_SEMITONE;
-  // Use provided cents if available, otherwise use the calculated deviation
-  // Use a threshold to treat very small calculated deviations as 0
-  const CENTS_THRESHOLD = 1e-6;
-  const cents =
-    options.cents !== undefined
-      ? options.cents
-      : Math.abs(calculatedCents) > CENTS_THRESHOLD
-      ? calculatedCents
-      : undefined;
+  // --- Determine Core Properties ---
+  const pitchClassIndex = (nearestMidi %
+    SEMITONES_PER_OCTAVE) as PitchClassIndex;
+  const octave = Math.floor((nearestMidi - C0_MIDI) / SEMITONES_PER_OCTAVE);
+  const { letter, accidental } = pitchClassIndexToLetterAccidental(
+    pitchClassIndex,
+    prefer
+  );
 
-  // Prepare microtonal options
+  // --- Determine Microtonal Options (especially cents) ---
+  let finalCents: number | undefined = options.cents;
+  if (finalCents === undefined) {
+    const calculatedCents = (midiFloat - nearestMidi) * CENTS_PER_SEMITONE;
+    const CENTS_THRESHOLD = 1e-6;
+    if (Math.abs(calculatedCents) > CENTS_THRESHOLD) {
+      finalCents = calculatedCents;
+    }
+  }
   const microtonalOptions = {
-    cents: cents,
+    cents: finalCents,
     microtonalModifier: options.microtonalModifier,
     tuningSystem: options.tuningSystem,
   };
 
-  // Create the base note object from the nearest MIDI integer
-  // We initially set includeCachedValues to false because we will add the *exact* frequency later.
-  const baseNote = createNoteFromMidi({
-    midi: nearestMidi,
-    prefer,
-    includeCachedValues: false, // Calculate exact frequency below
-    ...microtonalOptions, // Pass cents/modifier/tuningSystem
-  });
+  // --- Delegate to Immutable Factory ---
+  // Pass the original frequency as override only if caching is enabled.
+  const frequencyOverride = includeCachedValues ? frequency : undefined;
 
-  // If including cached values, augment the baseNote with exact frequency and derived properties
-  if (includeCachedValues) {
-    return Object.freeze({
-      ...baseNote, // Spread core properties (letter, acc, oct, pcIndex, microtonalOpts)
-      frequency: frequency, // Store the original exact frequency
-      // Recalculate notation based on final properties (including potential modifier)
-      notation: formatNotation(
-        baseNote.letter,
-        baseNote.accidental,
-        baseNote.octave,
-        baseNote.microtonalModifier // Use modifier determined by createNoteFromMidi/microtonalOptions
-      ),
-      // Include the nearest integer MIDI for reference
-      midi: nearestMidi,
-    }) as Note; // Cast acknowledges potential extra properties
-  } else {
-    // Return only the core properties if cached values are excluded
-    return baseNote;
-  }
+  return createNoteObject(
+    letter,
+    accidental,
+    octave,
+    pitchClassIndex,
+    includeCachedValues,
+    microtonalOptions,
+    frequencyOverride // Pass original frequency for caching if needed
+  );
 }
 
 /**

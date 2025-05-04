@@ -11,18 +11,16 @@
  */
 
 import { CENTS_PER_OCTAVE, JUST_INTONATION_RATIOS } from "./constants";
-import {
-  EnharmonicPreference,
-  MicrotonalNote,
-  Note,
-} from "./types";
+import { EnharmonicPreference, MicrotonalNote, Note } from "./types";
 // Import necessary creation functions
 import { createNoteFromFrequency, createNoteFromParts } from "./creation";
 
 // Import necessary frequency function
 import { noteToFrequency } from "./frequency"; // Note: addCentsToNote() seems unused
+import { transposeByCents } from "./calculations";
+
 // Import necessary operations - transposeByCents is key here
-import { transposeByCents } from "./operations"; // Note: transpose() seems unused
+// import { transposeByCents } from "./operations"; // Note: transpose() seems unused
 
 /**
  * Creates a microtonal Note based on a Just Intonation ratio relative to a reference note.
@@ -450,33 +448,6 @@ export interface MicrotonalScaleOptions {
  * @param options - Configuration object specifying the tuning system, intervals/divisions, reference note, etc. See {@link MicrotonalScaleOptions}.
  * @returns An array of Note objects representing the generated scale. The notes may have `cents` properties depending on the system and creation options. The array is immutable (frozen).
  * @throws {Error} If required options for the specified tuning system are missing or invalid (e.g., invalid divisions, unparsable intervals).
- * @example
- * ```ts
- * // Create a 24-EDO (quarter-tone) scale starting on C4
- * const quarterToneScale = createMicrotonalScale({ tuningSystem: "EDO", divisions: 24 });
- * // -> Returns 25 notes (C4 to C5) including the octave, spaced by 50 cents
- * console.log(quarterToneScale.map(formatNote)); // ["C4", "C+4", "C#4", ..., "B+4", "C5"] (approx)
- *
- * // Create a C major Just Intonation scale (using string ratios)
- * const cMajorJustRatios = ["1/1", "9/8", "5/4", "4/3", "3/2", "5/3", "15/8", "2/1"];
- * const cMajorJustScale = createMicrotonalScale({
- * tuningSystem: "justIntonation",
- * intervals: cMajorJustRatios,
- * referenceNote: createNote({letter: 'C', octave: 4})
- * });
- * // -> Returns 8 notes based on the JI ratios from C4. Notes will have 'cents' property.
- * console.log(cMajorJustScale.map(n => `${formatNote(n)} (${n.cents?.toFixed(1)}c)`));
- *
- * // Create a custom scale using cents offsets relative to A4
- * const customCents = [0, 180, 350, 490, 680, 890, 1050, 1200]; // Example 7-note scale + octave
- * const customScale = createMicrotonalScale({
- * tuningSystem: "custom",
- * intervals: customCents,
- * referenceNote: createNote({letter: 'A', octave: 4})
- * });
- * // -> Returns 8 notes based on the cents offsets from A4.
- * console.log(customScale.map(formatNote));
- * ```
  */
 export function createMicrotonalScale(
   options: MicrotonalScaleOptions
@@ -514,12 +485,12 @@ export function createMicrotonalScale(
       // Use transposeBySteps ensures correct cents calculation for each step.
       notes = Array.from({ length: divisions + 1 }, (_, i) => {
         const note = edo.transposeBySteps(referenceNote, i, { prefer });
-        // Note: Caching behavior depends on transposeByCents -> createNoteFromMidi.
-        // If includeCachedValues is false, ideally the created note shouldn't have them.
-        // For now, assume createNote functions handle this correctly based on their internal logic.
-        return note;
+        // Note: Caching behaviour depends on underlying create functions.
+        // If precise control over caching absence is needed, transposeByCents might need an option.
+        // Currently assuming includeCachedValues flag is respected downstream where possible.
+        return note; // Actual caching depends on how transposeByCents/createNoteObject handle it
       });
-      break; // Add break statement
+      break; // *** ADDED BREAK ***
     }
 
     case "justIntonation": {
@@ -532,30 +503,33 @@ export function createMicrotonalScale(
       // Ensure the first interval represents the root (1/1 or equivalent) if not already present
       const firstRatio = options.intervals[0];
       let useIntervals = options.intervals;
-      // Check if the first element represents the unison (1.0)
+      // Check if the first element represents the unison (1.0) - simplified check
       let isFirstUnison = false;
-      if (typeof firstRatio === "number" && firstRatio === 1) {
-        isFirstUnison = true;
-      } else if (typeof firstRatio === "string") {
-        const trimmedFirst = firstRatio.trim();
-        if (trimmedFirst === "1" || trimmedFirst === "1/1") {
+      try {
+        if (typeof firstRatio === "number" && firstRatio === 1) {
           isFirstUnison = true;
-        } else {
-          // Attempt parse and check if it equals 1
-          try {
-            // Simplified check - rely on createJustIntonationNote's parsing later if needed
+        } else if (typeof firstRatio === "string") {
+          const trimmedFirst = firstRatio.trim();
+          if (trimmedFirst === "1" || trimmedFirst === "1/1") {
+            isFirstUnison = true;
+          } else {
             const parts = trimmedFirst.split("/");
             if (
               parts.length === 2 &&
               parseFloat(parts[0]) / parseFloat(parts[1]) === 1
-            )
+            ) {
               isFirstUnison = true;
-            else if (parseFloat(trimmedFirst) === 1) isFirstUnison = true;
-          } catch {} // Ignore parsing errors here
+            } else if (parseFloat(trimmedFirst) === 1) {
+              isFirstUnison = true;
+            }
+          }
         }
-      }
+      } catch {} // Ignore parsing errors in this simple check
 
       if (!isFirstUnison) {
+        console.warn(
+          "First interval for Just Intonation scale was not '1/1' or 1. Prepending unison."
+        );
         useIntervals = ["1/1", ...options.intervals]; // Prepend unison if not present
       }
 
@@ -566,7 +540,7 @@ export function createMicrotonalScale(
           includeCachedValues, // Pass cache flag
         })
       );
-      break; // Add break statement
+      break; // *** ADDED BREAK ***
     }
 
     case "custom": {
@@ -597,19 +571,29 @@ export function createMicrotonalScale(
             if (parts.length === 2) {
               const num = parseFloat(parts[0]);
               const den = parseFloat(parts[1]);
-              if (!isNaN(num) && !isNaN(den) && den !== 0 && num > 0) {
-                const ratio = num / den;
-                if (ratio <= 0 || !Number.isFinite(ratio))
+              if (!isNaN(num) && !isNaN(den) && den !== 0 && num >= 0) {
+                // Allow num=0 for unison ratio "0/1" etc.
+                const ratio = num === 0 && den !== 0 ? 0 : num / den; // Handle 0 numerator case
+                if (ratio < 0 || !Number.isFinite(ratio))
+                  // Ratio must be non-negative
                   throw new Error(
-                    `Invalid parsed ratio from fraction "${interval}". Must be positive finite.`
+                    `Invalid parsed ratio from fraction "${interval}". Must be non-negative finite.`
                   );
-                parsedCents = CENTS_PER_OCTAVE * Math.log2(ratio);
+                parsedCents =
+                  ratio === 0 ? -Infinity : CENTS_PER_OCTAVE * Math.log2(ratio); // log2(0) is -Infinity, handle appropriately or throw
+                if (parsedCents === -Infinity) {
+                  // Treat 0 ratio as needing specific handling, maybe error or 0 cents? Let's error.
+                  throw new Error(
+                    `Ratio of zero ("${interval}") is invalid for scale interval.`
+                  );
+                }
               }
             } else {
-              // Try parsing as simple number string
+              // Try parsing as simple number string (assumed to be cents)
               const parsedNum = parseFloat(trimmedInterval);
-              if (!isNaN(parsedNum)) {
-                parsedCents = parsedNum; // Assume it's cents if just a number string
+              if (!isNaN(parsedNum) && Number.isFinite(parsedNum)) {
+                // Check isFinite
+                parsedCents = parsedNum;
               }
             }
           }
@@ -627,20 +611,31 @@ export function createMicrotonalScale(
         }
       }
 
-      // Ensure 0 cents (tonic) is included if not already present at the start
-      if (centsValues.length === 0 || centsValues[0] !== 0) {
+      // Ensure 0 cents (tonic) is included if not already present, using a small tolerance
+      const tolerance = 1e-6;
+      if (
+        centsValues.length === 0 ||
+        !centsValues.some((c) => Math.abs(c) < tolerance)
+      ) {
+        console.warn(
+          "Root interval (0 cents) not found in custom scale intervals. Prepending 0."
+        );
         centsValues.unshift(0);
       }
-      // Sort just in case user provided out of order
+      // Sort numerically
       centsValues.sort((a, b) => a - b);
+      // Remove duplicates (optional, but keeps scale clean)
+      const uniqueCentsValues = centsValues.filter(
+        (v, i, a) => i === 0 || Math.abs(v - a[i - 1]) > tolerance
+      );
 
       // Create notes by transposing the reference note by each cents value
-      notes = centsValues.map((centValue) => {
+      notes = uniqueCentsValues.map((centValue) => {
         const note = transposeByCents(referenceNote, centValue, { prefer });
         // Handle includeCachedValues? transposeByCents -> createNoteFromMidi handles it internally.
         return note;
       });
-      break; // Add break statement
+      break; // *** ADDED BREAK ***
     }
 
     default:
