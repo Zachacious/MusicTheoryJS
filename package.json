@@ -74,6 +74,8 @@
   },
   "dependencies": {
     "typedoc": "^0.28.4",
-    "typedoc-plugin-markdown": "^4.6.3"
+    "typedoc-material-theme": "^1.4.0",
+    "typedoc-plugin-markdown": "^4.6.3",
+    "typedoc-unhoax-theme": "^0.5.3"
   }
 }

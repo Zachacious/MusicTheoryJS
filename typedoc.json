@@ -6,7 +6,8 @@
   "excludeExternals": true,
   "excludePrivate": true,
   "excludeInternal": true,
-
+  "plugin": ["typedoc-material-theme"],
+  "themeColor": "#4455ee",
   "theme": "default",
   "readme": "README.md",
   "categorizeByGroup": true,
