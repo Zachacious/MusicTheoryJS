@@ -113,3 +113,30 @@ export function retune(
     includeCachedValues,
   });
 }
+
+/**
+ * Calculate the frequency ratio between two notes
+ */
+export function getFrequencyRatio(note1: Note, note2: Note): number {
+  const freq1 = noteToFrequency(note1);
+  const freq2 = noteToFrequency(note2);
+
+  return freq2 / freq1;
+}
+
+/**
+ * Create a note with a specific frequency ratio from a reference note
+ */
+export function createNoteByRatio(
+  referenceNote: Note,
+  ratio: number,
+  options?: { prefer?: EnharmonicPreference }
+): Note {
+  const refFreq = noteToFrequency(referenceNote);
+  const newFreq = refFreq * ratio;
+
+  return createNoteFromFrequency({
+    frequency: newFreq,
+    prefer: options?.prefer,
+  });
+}

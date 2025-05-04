@@ -2,10 +2,11 @@
  * Functions for detecting scales from a set of notes
  */
 
+import { Note, noteToFrequency } from "../note";
 import { ScaleName, ScalePattern } from "./types";
 
-import { Note } from "../note";
 import { SCALE_PATTERNS } from "./constants";
+import { intervalInCents } from "../note/calculations";
 
 /**
  * Result of a scale detection operation
@@ -151,4 +152,232 @@ export function detectKey(
     mode: bestMatch.name === "major" ? "major" : "minor",
     confidence: bestMatch.confidence,
   };
+}
+
+/**
+ * Detect if a set of notes forms a known microtonal scale
+ */
+export function detectMicrotonalScale(notes: Note[]): {
+  name: string;
+  system: string;
+  rootIndex: number;
+  confidence: number;
+}[] {
+  const results: {
+    name: string;
+    system: string;
+    rootIndex: number;
+    confidence: number;
+  }[] = [];
+
+  // Get intervals between adjacent notes in cents
+  const intervalsCents: number[] = [];
+  for (let i = 0; i < notes.length - 1; i++) {
+    intervalsCents.push(intervalInCents(notes[i], notes[i + 1]));
+  }
+
+  // Check for common EDO patterns
+  const edoResults = detectEDOpattern(intervalsCents);
+  results.push(...edoResults);
+
+  // Check for just intonation patterns
+  const justResults = detectJustIntonation(notes);
+  results.push(...justResults);
+
+  return results.sort((a, b) => b.confidence - a.confidence);
+}
+
+// Helper functions
+/**
+ * Try to detect if a set of interval patterns matches a known EDO system
+ * @param intervals - Array of intervals in cents
+ */
+function detectEDOpattern(
+  intervals: number[]
+): { name: string; system: string; rootIndex: number; confidence: number }[] {
+  const results: {
+    name: string;
+    system: string;
+    rootIndex: number;
+    confidence: number;
+  }[] = [];
+
+  // Common EDO systems to check
+  const edoSystems = [24, 19, 31, 22, 17, 53];
+
+  for (const edo of edoSystems) {
+    // Calculate the step size in cents for this EDO
+    const stepSize = 1200 / edo;
+
+    // Count how many intervals are close to EDO steps
+    let matchingIntervals = 0;
+    const tolerance = stepSize * 0.2; // 20% tolerance
+
+    for (const interval of intervals) {
+      // Find the closest step in this EDO
+      const closestStep = Math.round(interval / stepSize);
+      const closestCents = closestStep * stepSize;
+
+      // Check if close enough
+      if (Math.abs(interval - closestCents) <= tolerance) {
+        matchingIntervals++;
+      }
+    }
+
+    // Calculate confidence
+    const confidence = matchingIntervals / intervals.length;
+
+    // If enough intervals match this EDO, add to results
+    if (confidence >= 0.7) {
+      // Try to identify common scales within this EDO
+      const edoScale = identifyEDOscale(intervals, edo);
+
+      results.push({
+        name: edoScale || `Unknown ${edo}-EDO scale`,
+        system: `${edo}-EDO`,
+        rootIndex: 0, // Assuming first note is root
+        confidence: confidence,
+      });
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Identify specific scale types within an EDO system
+ */
+function identifyEDOscale(intervals: number[], edo: number): string | null {
+  // Step size in cents
+  const stepSize = 1200 / edo;
+
+  // Convert intervals to step counts
+  const steps = intervals.map((cents) => Math.round(cents / stepSize));
+
+  // Look up common scales in this EDO
+  switch (edo) {
+    case 24: // Quarter-tone system
+      if (
+        arrayEquals(
+          steps,
+          [2, 2, 1, 2, 2, 2, 1].map((s) => s * 2)
+        )
+      ) {
+        return "Quarter-tone Major";
+      }
+      if (
+        arrayEquals(
+          steps,
+          [2, 1, 2, 2, 1, 2, 2].map((s) => s * 2)
+        )
+      ) {
+        return "Quarter-tone Minor";
+      }
+      break;
+
+    case 19:
+      if (arrayEquals(steps, [3, 1, 3, 3, 3, 3, 3])) {
+        return "19-EDO Major";
+      }
+      if (arrayEquals(steps, [3, 3, 1, 3, 3, 3, 3])) {
+        return "19-EDO Minor";
+      }
+      break;
+
+    case 31:
+      if (arrayEquals(steps, [5, 5, 3, 5, 5, 5, 3])) {
+        return "31-EDO Major";
+      }
+      if (arrayEquals(steps, [5, 3, 5, 5, 3, 5, 5])) {
+        return "31-EDO Minor";
+      }
+      break;
+  }
+
+  return null;
+}
+
+/**
+ * Helper to check array equality
+ */
+function arrayEquals(a: number[], b: number[]): boolean {
+  return a.length === b.length && a.every((val, idx) => val === b[idx]);
+}
+
+/**
+ * Detect if notes form a just intonation pattern
+ */
+function detectJustIntonation(
+  notes: Note[]
+): { name: string; system: string; rootIndex: number; confidence: number }[] {
+  const results: {
+    name: string;
+    system: string;
+    rootIndex: number;
+    confidence: number;
+  }[] = [];
+
+  // For each potential root note
+  for (let rootIndex = 0; rootIndex < notes.length; rootIndex++) {
+    const rootNote = notes[rootIndex];
+    const rootFreq = noteToFrequency(rootNote);
+
+    // Calculate frequency ratios from root
+    const ratios = notes.map((note) => noteToFrequency(note) / rootFreq);
+
+    // Just intonation tolerance (in ratio space)
+    const tolerance = 0.015;
+
+    // Check against common just intonation patterns
+    const majorJustRatios = [1, 9 / 8, 5 / 4, 4 / 3, 3 / 2, 5 / 3, 15 / 8, 2];
+    const minorJustRatios = [1, 9 / 8, 6 / 5, 4 / 3, 3 / 2, 8 / 5, 9 / 5, 2];
+
+    // Check for major scale in just intonation
+    let majorMatches = 0;
+    for (const ratio of ratios) {
+      if (
+        majorJustRatios.some(
+          (justRatio) => Math.abs(ratio - justRatio) < tolerance
+        )
+      ) {
+        majorMatches++;
+      }
+    }
+
+    // Check for minor scale in just intonation
+    let minorMatches = 0;
+    for (const ratio of ratios) {
+      if (
+        minorJustRatios.some(
+          (justRatio) => Math.abs(ratio - justRatio) < tolerance
+        )
+      ) {
+        minorMatches++;
+      }
+    }
+
+    // Calculate confidence for major
+    const majorConfidence = majorMatches / ratios.length;
+    if (majorConfidence > 0.75) {
+      results.push({
+        name: "Just Intonation Major",
+        system: "Just Intonation",
+        rootIndex,
+        confidence: majorConfidence,
+      });
+    }
+
+    // Calculate confidence for minor
+    const minorConfidence = minorMatches / ratios.length;
+    if (minorConfidence > 0.75) {
+      results.push({
+        name: "Just Intonation Minor",
+        system: "Just Intonation",
+        rootIndex,
+        confidence: minorConfidence,
+      });
+    }
+  }
+
+  return results;
 }

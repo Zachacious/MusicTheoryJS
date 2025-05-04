@@ -19,6 +19,9 @@ export * from "./interval";
 // Add top-level constants and types if needed
 export const VERSION = "3.0.0";
 
+// Tuning system utilities
+export { TUNING_SYSTEMS, registerTuningSystem } from "./tuning";
+
 /**
  * Library info
  */

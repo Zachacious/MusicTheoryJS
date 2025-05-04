@@ -6,14 +6,25 @@ import {
   EnharmonicPreference,
   Note,
   TuningSystem,
+  addCentsToNote,
   createNote,
   createNoteFromParts,
+  intervalBetween,
   notesAreEqual,
   transpose,
+  transposeByCents,
 } from "../note";
-import { Scale, ScaleName, ScaleOptions, ScalePattern } from "./types";
+import {
+  ModeName,
+  Scale,
+  ScaleName,
+  ScaleOptions,
+  ScalePattern,
+} from "./types";
 
 import { SCALE_PATTERNS } from "./constants";
+import { applyTuningSystem } from "../tuning";
+import { createNoteByRatio } from "../note/frequency";
 
 /**
  * Default scale options
@@ -200,26 +211,59 @@ function findScaleNameByPattern(pattern: ScalePattern): ScaleName | undefined {
 /**
  * Create a chromatic scale from the given root
  */
-export function createChromaticScale(
-  root: Note,
-  options: Partial<ScaleOptions> = {}
-): Scale {
-  return createScale(root, "chromatic", options);
-}
-
-/**
- * Create a custom scale with specific intervals
- */
 export function createCustomScale(
   root: Note,
   intervals: number[],
-  options: Partial<ScaleOptions> = {}
+  options: Partial<
+    ScaleOptions & {
+      isCentsInterval?: boolean;
+    }
+  > = {}
 ): Scale {
-  // Ensure the pattern starts with 0 (the root)
-  const pattern = intervals[0] === 0 ? intervals : [0, ...intervals];
+  // Determine if intervals are specified in cents
+  const isCentsInterval = options.isCentsInterval ?? false;
 
-  // Create the scale
-  return createScale(root, pattern, options);
+  // Generate notes based on the intervals
+  const notes: Note[] = [];
+
+  // Add root note
+  notes.push(root);
+
+  // Add remaining notes
+  for (let i = 0; i < intervals.length; i++) {
+    const interval = intervals[i];
+    let nextNote: Note;
+
+    if (isCentsInterval) {
+      // Interpret interval as cents
+      nextNote = transposeByCents(root, interval, {
+        prefer: options.prefer,
+      });
+    } else {
+      // Interpret interval as semitones (possibly with fraction)
+      const semitones = Math.floor(interval);
+      const cents = (interval - semitones) * 100;
+
+      nextNote = transpose(root, semitones, {
+        prefer: options.prefer,
+      });
+
+      if (cents !== 0) {
+        nextNote = addCentsToNote(nextNote, cents);
+      }
+    }
+
+    notes.push(nextNote);
+  }
+
+  // Create scale object
+  return {
+    root,
+    notes: Object.freeze(notes),
+    pattern: Object.freeze(intervals),
+    name: findScaleNameByPattern(intervals),
+    tuningSystem: options.tuningSystem,
+  };
 }
 
 /**
@@ -290,4 +334,118 @@ export function createScaleFromSteps(
  */
 function formatNoteSimple(note: Note): string {
   return `${note.letter}${note.accidental}${note.octave}`;
+}
+
+/**
+ * Create a scale using a specific tuning system
+ */
+export function createTunedScale(
+  root: Note,
+  scaleName: ScaleName,
+  tuningSystem: TuningSystem,
+  options: Partial<ScaleOptions> = {}
+): Scale {
+  // First create the standard scale
+  const equalTemperedScale = createScale(root, scaleName, options);
+
+  // Then apply the tuning system
+  const tunedNotes = applyTuningSystem(
+    equalTemperedScale.notes,
+    tuningSystem,
+    root
+  );
+
+  // Return a new scale with the tuned notes
+  return {
+    ...equalTemperedScale,
+    notes: Object.freeze(tunedNotes),
+    tuningSystem,
+  };
+}
+
+/**
+ * Create a Just Intonation scale
+ */
+export function createJustIntonationScale(
+  root: Note,
+  options: Partial<
+    ScaleOptions & {
+      mode?: "major" | "minor" | ModeName;
+    }
+  > = {}
+): Scale {
+  const mode = options.mode || "major";
+
+  // Just intonation ratios for major scale
+  const majorRatios = [1, 9 / 8, 5 / 4, 4 / 3, 3 / 2, 5 / 3, 15 / 8, 2];
+
+  // Just intonation ratios for natural minor
+  const minorRatios = [1, 9 / 8, 6 / 5, 4 / 3, 3 / 2, 8 / 5, 9 / 5, 2];
+
+  // Select the appropriate ratios
+  const ratios = mode === "major" ? majorRatios : minorRatios;
+
+  // Generate notes using the ratios
+  const notes: Note[] = ratios.map((ratio) =>
+    createNoteByRatio(root, ratio, {
+      prefer: options.prefer,
+    })
+  );
+
+  // Calculate the pattern
+  const pattern = notes.map((note) => intervalBetween(root, note));
+
+  // Create the scale
+  return {
+    root,
+    notes: Object.freeze(notes),
+    pattern: Object.freeze(pattern),
+    name: mode === "major" ? "major" : "minor",
+    tuningSystem: "justIntonation",
+  };
+}
+
+/**
+ * Create a scale with equal divisions of the octave (EDO)
+ */
+export function createEDOScale(
+  root: Note,
+  divisions: number,
+  options: Partial<
+    ScaleOptions & {
+      steps?: number[]; // Which steps of the EDO to include
+    }
+  > = {}
+): Scale {
+  // Default to including all steps
+  const steps = options.steps || Array.from({ length: divisions }, (_, i) => i);
+
+  // Calculate step size in cents
+  const centsPerStep = 1200 / divisions;
+
+  // Generate notes
+  const notes: Note[] = [];
+
+  for (const step of steps) {
+    const cents = step * centsPerStep;
+    const note = transposeByCents(root, cents, {
+      prefer: options.prefer,
+    });
+    notes.push(note);
+  }
+
+  // Create the scale
+  return {
+    root,
+    notes: Object.freeze(notes),
+    pattern: Object.freeze(steps.map((step) => (step * centsPerStep) / 100)), // Convert to semitones
+    tuningSystem: `${divisions}-EDO` as any,
+  };
+}
+
+export function createChromaticScale(
+  root: Note,
+  options: Partial<ScaleOptions> = {}
+): Scale {
+  return createScale(root, "chromatic", options);
 }

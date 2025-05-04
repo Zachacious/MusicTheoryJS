@@ -20,6 +20,7 @@ import {
   TuningSystem,
   isMicrotonalNote,
 } from "./types";
+import { addCentsToNote, transpose } from "./operations";
 
 /**
  * Calculates MIDI number from pitch class and octave
@@ -234,4 +235,86 @@ export function calculateCentsDeviation(
  */
 export function centsToRatio(cents: number): number {
   return Math.pow(2, cents / 1200); // 1200 cents per octave
+}
+
+/**
+ * Calculate the precise interval between two notes in cents
+ * Accounts for microtonal adjustments
+ */
+export function intervalInCents(note1: Note, note2: Note): number {
+  // Calculate the basic interval in semitones
+  const octaveDifference = note2.octave - note1.octave;
+  const semitones = (note2.pitchClassIndex - note1.pitchClassIndex + 12) % 12;
+  const totalSemitones = semitones + octaveDifference * 12;
+
+  // Convert to cents (1 semitone = 100 cents)
+  let cents = totalSemitones * 100;
+
+  // Add any microtonal adjustments
+  // Add cents from note2
+  if (isMicrotonalNote(note2)) {
+    cents += note2.cents;
+  } else if (note2.microtonalModifier) {
+    cents += MICROTONAL_CENTS_ADJUSTMENT[note2.microtonalModifier] || 0;
+  }
+
+  // Subtract cents from note1
+  if (isMicrotonalNote(note1)) {
+    cents -= note1.cents;
+  } else if (note1.microtonalModifier) {
+    cents -= MICROTONAL_CENTS_ADJUSTMENT[note1.microtonalModifier] || 0;
+  }
+
+  return cents;
+}
+
+/**
+ * Transpose a note by a precise cents value
+ */
+export function transposeByCents(
+  note: Note,
+  cents: number,
+  options?: { prefer?: EnharmonicPreference }
+): Note {
+  // Calculate the semitone and cents components
+  // There are 100 cents per semitone
+  const semitones = Math.floor(Math.abs(cents) / 100) * Math.sign(cents);
+  const remainingCents = cents - semitones * 100;
+
+  // First transpose by whole semitones
+  const transposed = transpose(note, semitones, options);
+
+  // If there are remaining cents, add them
+  if (remainingCents !== 0) {
+    // Check if the note already has cents or a microtonal modifier
+    if (isMicrotonalNote(transposed)) {
+      // Add the remaining cents to the existing cents
+      const totalCents = (transposed.cents || 0) + remainingCents;
+
+      // Normalize cents if they exceed a semitone range
+      const normalizedCents = totalCents % 100;
+      const additionalSemitones = Math.floor(totalCents / 100);
+
+      // Apply the additional semitones if needed
+      const finalNote =
+        additionalSemitones !== 0
+          ? transpose(transposed, additionalSemitones, options)
+          : transposed;
+
+      // Return a new note with normalized cents
+      return {
+        ...finalNote,
+        cents: normalizedCents,
+        // Update the frequency if it exists
+        frequency: finalNote.frequency
+          ? finalNote.frequency * Math.pow(2, normalizedCents / 1200)
+          : undefined,
+      };
+    } else {
+      // Simply add the cents to a normal note
+      return addCentsToNote(transposed, remainingCents);
+    }
+  }
+
+  return transposed;
 }

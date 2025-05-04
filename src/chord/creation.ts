@@ -21,12 +21,16 @@ import {
   EnharmonicPreference,
   Note,
   TuningSystem,
+  addCentsToNote,
   createNote,
   createNoteFromParts,
   notesAreEqual,
   transpose,
+  transposeByCents,
 } from "../note";
 import { getChordInversion, sortChordNotes } from "./voicing";
+
+import { createNoteByRatio } from "../note/frequency";
 
 /**
  * Default chord options
@@ -536,4 +540,114 @@ export function createChordFromIntervals(
       tuningSystem: options.tuningSystem,
     });
   }
+}
+
+export function createMicrotonalChord(
+  root: Note,
+  intervals: number[],
+  options: Partial<
+    ChordOptions & {
+      isCents?: boolean;
+      microtonalAdjustments?: Record<number, number>; // degree to cents adjustment
+    }
+  > = {}
+): Chord {
+  const isCents = options.isCents ?? false;
+  const notes: Note[] = [root];
+
+  // Add chord tones based on intervals
+  for (const interval of intervals) {
+    let note: Note;
+
+    if (isCents) {
+      // Interpret interval as cents
+      note = transposeByCents(root, interval, {
+        prefer: options.prefer,
+      });
+    } else {
+      // Interpret as semitones with possible fraction
+      const semitones = Math.floor(interval);
+      const cents = (interval - semitones) * 100;
+
+      note = transpose(root, semitones, {
+        prefer: options.prefer,
+      });
+
+      if (cents !== 0) {
+        note = addCentsToNote(note, cents);
+      }
+    }
+
+    notes.push(note);
+  }
+
+  // Apply additional microtonal adjustments if provided
+  if (options.microtonalAdjustments) {
+    for (const [degree, adjustment] of Object.entries(
+      options.microtonalAdjustments
+    )) {
+      const degreeIndex = parseInt(degree, 10);
+      if (degreeIndex < notes.length) {
+        notes[degreeIndex] = addCentsToNote(notes[degreeIndex], adjustment);
+      }
+    }
+  }
+
+  // Create a custom chord (normal createChord won't handle microtonal properly)
+  return {
+    root,
+    notes: Object.freeze(notes),
+    quality: "custom" as ChordQuality, // We don't have standard names for microtonal chords
+    formula: {}, // Would need custom formula representation
+    bass: notes[0],
+    inversion: 0,
+    category: "special",
+    tuningSystem: options.tuningSystem,
+  };
+}
+
+/**
+ * Create just intonation chord
+ */
+export function createJustChord(
+  root: Note,
+  quality: "major" | "minor" | "dominant7" | "diminished",
+  options: Partial<ChordOptions> = {}
+): Chord {
+  // Define frequency ratios for common chord types in just intonation
+  const ratioMaps = {
+    major: [1, 5 / 4, 3 / 2], // perfect harmonics for major triad
+    minor: [1, 6 / 5, 3 / 2], // minor third with perfect fifth
+    dominant7: [1, 5 / 4, 3 / 2, 9 / 5], // major triad with minor seventh
+    diminished: [1, 6 / 5, 7 / 5], // minor third with diminished fifth
+  };
+
+  const ratios = ratioMaps[quality];
+
+  // Generate notes using the ratios
+  const notes: Note[] = ratios.map((ratio) =>
+    createNoteByRatio(root, ratio, {
+      prefer: options.prefer,
+    })
+  );
+
+  // Map just intonation quality to standard quality
+  const qualityMap: Record<string, ChordQuality> = {
+    major: "major",
+    minor: "minor",
+    dominant7: "7",
+    diminished: "diminished",
+  };
+
+  // Create the chord
+  return {
+    root,
+    notes: Object.freeze(notes),
+    quality: qualityMap[quality],
+    formula: {}, // This would need a custom formula that accounts for just intonation
+    bass: notes[0],
+    inversion: 0,
+    category: "special",
+    tuningSystem: "justIntonation",
+  };
 }

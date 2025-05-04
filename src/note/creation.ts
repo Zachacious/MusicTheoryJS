@@ -22,8 +22,10 @@ import {
   calculateCentsDeviation,
   calculateMidi,
   formatNotation,
+  noteToFrequency,
   pitchClassIndexToLetterAccidental,
   quarterToneIndexToLetterAccidental,
+  transposeByCents,
 } from "./calculations";
 
 // Fix the circular dependency reference
@@ -575,4 +577,23 @@ export function createNoteFromFrequency(
   }
 
   return note;
+}
+
+/**
+ * Create a note with a specific frequency ratio from a reference note
+ */
+export function createNoteByRatio(
+  referenceNote: Note,
+  ratio: number,
+  options?: { prefer?: EnharmonicPreference }
+): Note {
+  const refFreq = noteToFrequency(referenceNote);
+  const newFreq = refFreq * ratio;
+
+  // Convert the ratio to cents
+  // The formula for ratio to cents is: 1200 * log2(ratio)
+  const cents = 1200 * Math.log2(ratio);
+
+  // Use the cents value to transpose from the reference
+  return transposeByCents(referenceNote, cents, options);
 }

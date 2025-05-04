@@ -8,6 +8,7 @@ import { Note, intervalBetween, notesAreEqual } from "../note";
 import { Scale, getScaleDegree } from "../scale";
 
 import { identifyChord } from "./creation";
+import { intervalInCents } from "../note/calculations";
 
 /**
  * Result of chord analysis
@@ -466,4 +467,102 @@ export function analyzeChordConnection(
     parallelFifths,
     directFifths,
   };
+}
+
+/**
+ * Analyze a set of notes to identify potential microtonal chord types
+ */
+export function analyzeMicrotonalChord(
+  notes: Note[],
+  options: {
+    toleranceCents?: number;
+  } = {}
+): {
+  type: string;
+  root: Note;
+  description: string;
+  intervals: number[];
+  confidence: number;
+}[] {
+  const results: {
+    type: string;
+    root: Note;
+    description: string;
+    intervals: number[];
+    confidence: number;
+  }[] = [];
+
+  // Set tolerance for interval matching
+  const toleranceCents = options.toleranceCents ?? 10;
+
+  // Try each note as potential root
+  for (const potentialRoot of notes) {
+    // Calculate intervals from this root in cents
+    const intervals = notes
+      .filter((note) => note !== potentialRoot)
+      .map((note) => intervalInCents(potentialRoot, note));
+
+    // Sort intervals
+    intervals.sort((a, b) => a - b);
+
+    // Check against known microtonal chord types
+
+    // Just intonation major (frequency ratio 4:5:6)
+    const justMajorIntervals = [386, 702]; // Just major third and perfect fifth
+    if (intervalsMatch(intervals, justMajorIntervals, toleranceCents)) {
+      results.push({
+        type: "just-major",
+        root: potentialRoot,
+        description: "Just intonation major triad (4:5:6)",
+        intervals,
+        confidence: 0.9,
+      });
+    }
+
+    // Just intonation minor (frequency ratio 10:12:15)
+    const justMinorIntervals = [316, 702]; // Just minor third and perfect fifth
+    if (intervalsMatch(intervals, justMinorIntervals, toleranceCents)) {
+      results.push({
+        type: "just-minor",
+        root: potentialRoot,
+        description: "Just intonation minor triad (10:12:15)",
+        intervals,
+        confidence: 0.9,
+      });
+    }
+
+    // Quarter-tone diminished
+    const quarterToneDimIntervals = [250, 600]; // Quarter-flat third, quarter-flat fifth
+    if (intervalsMatch(intervals, quarterToneDimIntervals, toleranceCents)) {
+      results.push({
+        type: "quarter-dim",
+        root: potentialRoot,
+        description: "Quarter-tone diminished triad",
+        intervals,
+        confidence: 0.8,
+      });
+    }
+
+    // Add more microtonal chord types as needed
+  }
+
+  // Sort by confidence
+  results.sort((a, b) => b.confidence - a.confidence);
+
+  return results;
+}
+
+// Helper function to check if intervals match a pattern within tolerance
+function intervalsMatch(
+  actual: number[],
+  expected: number[],
+  toleranceCents: number
+): boolean {
+  if (actual.length !== expected.length) {
+    return false;
+  }
+
+  return actual.every(
+    (interval, i) => Math.abs(interval - expected[i]) <= toleranceCents
+  );
 }

@@ -9,6 +9,7 @@ import {
 } from "./types";
 import {
   centsToRatio,
+  formatNotation,
   formatNote,
   getCentsBetween,
   getMidiWithCents,
@@ -396,7 +397,7 @@ export function respellNote(
 }
 
 /**
- * Creates a microtonal note from a standard note by adding cents deviation.
+ * Creates a microtonal note from a standard note by adding cents deviation
  */
 export function addCentsToNote(
   note: Note,
@@ -409,6 +410,24 @@ export function addCentsToNote(
   const includeCachedValues = options?.includeCachedValues ?? true;
   const autoSelectModifier = options?.autoSelectMicrotonalModifier ?? false;
 
+  // If the note already has cents, add them together
+  const existingCents = (note as any).cents || 0;
+  const totalCents = existingCents + cents;
+
+  // Check if we need to normalize (if total exceeds +/- 50 cents)
+  let normalizedCents = totalCents;
+  let adjustedNote = note;
+
+  if (Math.abs(totalCents) >= 100) {
+    // Calculate the semitone shift needed
+    const semitoneShift =
+      Math.floor(Math.abs(totalCents) / 100) * Math.sign(totalCents);
+    normalizedCents = totalCents - semitoneShift * 100;
+
+    // Transpose the base note by the required semitones
+    adjustedNote = transpose(note, semitoneShift);
+  }
+
   // Determine the best microtonal modifier based on cents
   let microtonalModifier: MicrotonalModifier = "";
 
@@ -420,7 +439,7 @@ export function addCentsToNote(
     for (const [modifier, modifierCents] of Object.entries(
       MICROTONAL_CENTS_ADJUSTMENT
     )) {
-      const diff = Math.abs(cents - modifierCents);
+      const diff = Math.abs(normalizedCents - modifierCents);
       if (diff < closestDiff) {
         closestDiff = diff;
         closestModifier = modifier as MicrotonalModifier;
@@ -431,30 +450,37 @@ export function addCentsToNote(
     if (closestDiff <= 10) {
       microtonalModifier = closestModifier;
     }
+  } else if (note.microtonalModifier) {
+    // Keep existing modifier unless cents have changed dramatically
+    microtonalModifier = note.microtonalModifier;
   }
 
-  // Start with the original note
-  const baseNote = { ...note };
-
-  // Create a new note with cents added
-  return Object.freeze({
-    ...baseNote,
-    cents,
+  // Create properties for the new note
+  const newNoteProps: any = {
+    ...adjustedNote,
+    cents: normalizedCents,
     microtonalModifier,
-    // Recalculate cached values if needed
-    ...(includeCachedValues
-      ? {
-          notation: formatNote({
-            ...baseNote,
-            microtonalModifier,
-          }),
-          frequency:
-            baseNote.frequency !== undefined
-              ? (baseNote.frequency as number) * centsToRatio(cents)
-              : undefined,
-        }
-      : {}),
-  }) as MicrotonalNote;
+  };
+
+  // Calculate new values if requested
+  if (includeCachedValues) {
+    // Update notation to include microtonal information
+    newNoteProps.notation = formatNotation(
+      adjustedNote.letter,
+      adjustedNote.accidental,
+      adjustedNote.octave,
+      microtonalModifier
+    );
+
+    // Update frequency if we have a base frequency
+    if (adjustedNote.frequency) {
+      // Apply cents deviation: f' = f * 2^(cents/1200)
+      newNoteProps.frequency =
+        adjustedNote.frequency * Math.pow(2, normalizedCents / 1200);
+    }
+  }
+
+  return Object.freeze(newNoteProps) as MicrotonalNote;
 }
 
 /**
