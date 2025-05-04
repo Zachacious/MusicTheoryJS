@@ -305,11 +305,11 @@ export const TUNING_SYSTEMS: Record<
     // Calculated based on powers of 3/2 ratio, modulo octave
     centsAdjustment: (pitchClass) => {
       // Example calculation relative to C=0 (can be more precise)
-      const pythagoreanCents = [
-        0, 113.69, 203.91, 317.6, 407.82, 521.51, 611.73, 701.96, 815.64,
-        905.87, 1019.55, 1109.78,
-      ];
-      const etCents = pitchClass * 100;
+      // const pythagoreanCents = [
+      //   0, 113.69, 203.91, 317.6, 407.82, 521.51, 611.73, 701.96, 815.64,
+      //   905.87, 1019.55, 1109.78,
+      // ];
+      // const etCents = pitchClass * 100;
       // Return deviation (example uses pre-calculated approximate values)
       const adjustmentsApprox = [
         0, -6.3, 3.9, -10.4, -0.2, -14.5, -4.3, 2.0, -8.4, 5.9, -12.5, -0.2,
@@ -322,11 +322,11 @@ export const TUNING_SYSTEMS: Record<
     description: "Uses pure frequency ratios based on primes 2, 3, 5",
     // These adjustments are approximate relative to 12-TET C=0, using common C major ratios
     centsAdjustment: (pitchClass) => {
-      const justCents = [
-        0, 111.73, 203.91, 315.64, 386.31, 498.04, 590.22, 701.96, 813.69,
-        884.36, 1017.59, 1088.27,
-      ]; // Example C-Major JI cents
-      const etCents = pitchClass * 100;
+      // const justCents = [
+      //   0, 111.73, 203.91, 315.64, 386.31, 498.04, 590.22, 701.96, 813.69,
+      //   884.36, 1017.59, 1088.27,
+      // ]; // Example C-Major JI cents
+      // const etCents = pitchClass * 100;
       // Return deviation (example uses pre-calculated approximate values)
       const adjustmentsApprox = [
         0, 11.7, 3.9, 15.6, -13.7, -2.0, -9.8, 2.0, 13.7, -15.6, 17.6, -11.7,

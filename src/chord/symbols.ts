@@ -9,11 +9,11 @@
 // Import chord constants (symbol map, regex) and types
 import { CHORD_SYMBOL_MAP, CHORD_SYMBOL_REGEX } from "./constants";
 import { Chord, ChordQuality } from "./types";
-// Import necessary Note types and functions
-import { Note, notesAreEqual } from "../note";
 
 // Import chord creation function used by formatChordSymbol if input is string
 import { createChordFromSymbol } from "./creation"; // Used by formatChordSymbol
+// Import necessary Note types and functions
+import { notesAreEqual } from "../note";
 
 /**
  * Generates a standard chord symbol string (e.g., "Cm7", "G7/B", "F#dim")

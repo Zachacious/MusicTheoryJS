@@ -18,7 +18,6 @@ import {
   compareNotes,
   createNoteFromParts,
   intervalBetween,
-  notesAreEqual,
   transpose,
   transposeByCents,
 } from "../note";
@@ -315,6 +314,7 @@ function parseNoteString(
   noteStr: string,
   prefer: EnharmonicPreference = "sharp" // Parameter present in original signature
 ): Note {
+  prefer; // Avoid unused parameter warning for now
   // Regex from original code: Letter, Optional Accidental group, Octave digits (signed?)
   const match = noteStr.trim().match(/^([A-G])([#bxb]*|)(-?\d+)$/i);
   if (!match) {
@@ -587,11 +587,11 @@ export function createScaleFromString(
   }
 
   // Get root note formatted simply for comparison or reference (present in original code)
-  const rootName = formatNoteSimple(root); // Uses internal helper
+  // const rootName = formatNoteSimple(root); // Uses internal helper
 
   // Extract just the letter+accidental part, ignore octave (present in original code)
   // This seems unused in the rest of the function logic as provided.
-  const rootBase = rootName.replace(/\d+$/, "");
+  // const rootBase = rootName.replace(/\d+$/, "");
 
   const notes: Note[] = [];
   for (const noteName of validNoteNames) {
@@ -688,24 +688,6 @@ export function createScaleFromSteps(
   // Original code passed the full pattern including octave to createScale. Let's adhere to that.
   // If createScale needs adjustment, that's separate. Assuming createScale handles it.
   return createScale(root, pattern as ScalePattern, options); // Cast needed as pattern includes octave here
-}
-
-/**
- * @internal
- * Creates a simple string representation of a note (Letter + Accidental + Octave).
- * Used internally for basic comparisons or logging where full formatting isn't needed.
- *
- * @param note - The Note object.
- * @returns A simplified string representation (e.g., "C#4"). Returns empty string if note is invalid.
- */
-function formatNoteSimple(note: Note): string {
-  // Basic check from original code
-  if (!note || !note.letter || typeof note.octave !== "number") {
-    // Maybe return something more informative or throw? Original returned string.
-    return `INVALID_NOTE[${typeof note}]`; // Modified slightly to indicate error source
-  }
-  // Use empty string for natural accidental if missing/nullish
-  return `${note.letter}${note.accidental ?? ""}${note.octave}`;
 }
 
 /**

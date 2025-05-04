@@ -6,7 +6,7 @@
   "excludeExternals": true,
   "excludePrivate": true,
   "excludeInternal": true,
-  "plugin": ["typedoc-plugin-markdown"],
+
   "theme": "default",
   "readme": "README.md",
   "categorizeByGroup": true,
@@ -14,5 +14,6 @@
   "navigation": {
     "includeCategories": true,
     "includeGroups": true
-  }
+  },
+  "treatValidationWarningsAsErrors": false
 }

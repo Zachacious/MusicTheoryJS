@@ -18,33 +18,29 @@ import {
 } from "./constants";
 import {
   Chord,
-  ChordCategory,
   ChordFormula,
   ChordInversion,
   ChordOptions,
-  ChordQuality
+  ChordQuality,
 } from "./types";
 // Import necessary Note types and functions
 import {
-  EnharmonicPreference,
   Note,
-  TuningSystem,
   addCentsToNote,
   createNoteFromParts,
   formatNote,
-  intervalBetween,
   notesAreEqual,
   transpose,
-  transposeByCents
+  transposeByCents,
 } from "../note";
 // Import voicing helper functions
 import { getChordInversion, sortChordNotes } from "./voicing"; // Assuming these exist
 
-import { ScalePattern } from "../scale";
+// import { ScalePattern } from "../scale";
 // Import specific creation function from note module's frequency file
 import { createNoteByRatio } from "../note/frequency"; // Used by createJustChord
-// Assuming note module exports these
 
+// Assuming note module exports these
 
 /**
  * Default options used when creating chords if not otherwise specified.
@@ -790,9 +786,9 @@ export function identifyChord(
       // Original check: formulaIntervals.length >= intervals.length * 0.75
       // This seems backwards. Should be matchedInputIntervals >= threshold?
       // Let's try: a significant portion of the INPUT intervals must match the formula.
-      const inputMatchThreshold = 0.75; // Example threshold
-      const sufficientInputIntervalsMatch =
-        matchedInputIntervals / intervals.length >= inputMatchThreshold;
+      // const inputMatchThreshold = 0.75; // Example threshold
+      // const sufficientInputIntervalsMatch =
+      //   matchedInputIntervals / intervals.length >= inputMatchThreshold;
 
       // If all formula intervals are present AND most input intervals match the formula
       // Original logic used formula length vs intervals length - sticking to that:
@@ -941,9 +937,9 @@ export function createChordFromIntervals(
 
     // Create a placeholder Chord object
     // Freeze notes and pattern (original code froze intervals, pattern derived here)
-    const derivedPattern = Object.freeze(
-      notes.map((n) => intervalBetween(root, n, true)).sort((a, b) => a - b)
-    ) as ScalePattern;
+    // const derivedPattern = Object.freeze(
+    //   notes.map((n) => intervalBetween(root, n, true)).sort((a, b) => a - b)
+    // ) as ScalePattern;
 
     return Object.freeze({
       root,
@@ -1081,12 +1077,12 @@ export function createMicrotonalChord(
 
   // Sort final notes? Usually desired for chord representation.
   const finalNotes = sortChordNotes(notes); // Use helper for consistent sorting
-  const finalRoot = finalNotes[0]; // Root might change if sorting affects order significantly with microtones? No, use original root.
+  // const finalRoot = finalNotes[0]; // Root might change if sorting affects order significantly with microtones? No, use original root.
 
   // Derive pattern from final notes relative to original root
-  const finalPattern = Object.freeze(
-    finalNotes.map((n) => intervalBetween(root, n, true)).sort((a, b) => a - b)
-  ) as ScalePattern;
+  // const finalPattern = Object.freeze(
+  //   finalNotes.map((n) => intervalBetween(root, n, true)).sort((a, b) => a - b)
+  // ) as ScalePattern;
 
   // Create a custom chord object - standard quality/formula don't apply
   return Object.freeze({
@@ -1180,9 +1176,9 @@ export function createJustChord(
   const mappedQuality = qualityMap[quality];
 
   // Calculate pattern from generated notes
-  const pattern = Object.freeze(
-    notes.map((n) => intervalBetween(root, n, true)).sort((a, b) => a - b)
-  ) as ScalePattern;
+  // const pattern = Object.freeze(
+  //   notes.map((n) => intervalBetween(root, n, true)).sort((a, b) => a - b)
+  // ) as ScalePattern;
   // Sort notes
   const sortedNotes = sortChordNotes(notes);
 

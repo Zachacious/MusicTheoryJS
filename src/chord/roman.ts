@@ -14,20 +14,17 @@ import {
   ChordOptions,
   ChordQuality,
   RomanAnalysis,
-  RomanNumeral
+  RomanNumeral,
 } from "./types";
-// Import Note types and functions
-import { Note, createNoteFromParts, notesAreEqual, transpose } from "../note"; // transpose unused here
 // Import chord constants (ROMAN_NUMERALS, SCALE_DEGREES_TO_ROMAN) and types
-import {
-  ROMAN_NUMERALS,
-  SCALE_DEGREES_TO_ROMAN
-} from "./constants";
+import { ROMAN_NUMERALS, SCALE_DEGREES_TO_ROMAN } from "./constants";
 // Import Scale types and functions
 import { Scale, getDegree, getScaleDegree } from "../scale";
 
 // Import chord creation function
 import { createChord } from "./creation";
+// Import Note types and functions
+import { notesAreEqual } from "../note"; // transpose unused here
 
 // Note: createChordFromRomanNumeral and parseRomanNumeral are defined HERE, not imported.
 

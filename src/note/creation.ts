@@ -27,21 +27,17 @@ import {
   Accidental,
   EnharmonicPreference,
   MicrotonalModifier,
-  MicrotonalNote,
   Note,
   NoteLetter,
   PitchClassIndex,
-  TuningSystem,
-  isMicrotonalNote
+  TuningSystem
 } from "./types";
 import {
-  calculateCentsDeviation,
   calculateMidi,
   formatNotation,
-  noteToFrequency,
   pitchClassIndexToLetterAccidental,
   quarterToneIndexToLetterAccidental,
-  transposeByCents
+  transposeByCents,
 } from "./calculations";
 
 /**

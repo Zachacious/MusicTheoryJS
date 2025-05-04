@@ -12,14 +12,12 @@
 import {
   CHORD_FORMULAS,
   COMMON_VOICINGS,
-  SCALE_DEGREE_SEMITONES
+  SCALE_DEGREE_SEMITONES,
 } from "./constants";
 import {
   Chord,
   ChordCategory,
   ChordFormula,
-  ChordInversion,
-  ChordOptions,
   ChordQuality,
 } from "./types";
 // Import necessary Note types and functions

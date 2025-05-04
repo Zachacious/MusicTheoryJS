@@ -10,9 +10,8 @@
 
 // Import chord constants and types
 import {
-  CHORD_FORMULAS,
   COMMON_PROGRESSIONS,
-  ROMAN_NUMERALS
+  ROMAN_NUMERALS,
 } from "./constants";
 import { Chord, ChordOptions, ChordProgression, ChordQuality } from "./types";
 // Import necessary Note types and functions
@@ -20,7 +19,6 @@ import {
   Note,
   createNoteFromParts,
   formatNote,
-  notesAreEqual,
   transpose,
 } from "../note";
 // Import necessary Scale types and functions
@@ -413,7 +411,7 @@ export function createDiatonicProgression(
     if (options.romanNumerals === true) {
       // --- Format Roman Numeral ---
       // Get base Roman numeral (I-VII)
-      const baseRoman = ROMAN_NUMERALS[degree] ?? `deg${degree}`; // Fallback if degree > 7? No, use map lookup.
+      // const baseRoman = ROMAN_NUMERALS[degree] ?? `deg${degree}`; // Fallback if degree > 7? No, use map lookup.
       let romanNumeral = "?";
       // Need mapping from number to Roman string, handling case. Original used find + map.
       const romanMapEntry = Object.entries(ROMAN_NUMERALS).find(
@@ -1085,13 +1083,13 @@ export function analyzeHarmonicRhythm(
   // Or assume one chord per beat? No, that's too dense.
   // Let's stick to the original calculation flow and document its assumption:
   // It calculates an "average" number of chords per measure based on total chords / total measures needed.
-  const estimatedMeasures = Math.ceil(numChords / beatsPerMeasure); // How many measures are needed at minimum 1 chord/measure? No, this isn't right either.
+  // const estimatedMeasures = Math.ceil(numChords / beatsPerMeasure); // How many measures are needed at minimum 1 chord/measure? No, this isn't right either.
   // Let's assume the simplest case: the progression fills an integer number of measures OR represents a typical loop.
   // Assume each chord gets equal time division within the meter.
   // This means if there are 2 chords in 4/4, each gets 2 beats. If 3 chords, 4/3 beats each?
 
   // Sticking to original flawed logic for adherence:
-  const chordsPerMeasure = numChords / Math.ceil(numChords / beatsPerMeasure); // This gives strange results, e.g., 3 chords in 4/4 -> 3 / ceil(3/4) = 3/1 = 3 chords/measure?
+  // const chordsPerMeasure = numChords / Math.ceil(numChords / beatsPerMeasure); // This gives strange results, e.g., 3 chords in 4/4 -> 3 / ceil(3/4) = 3/1 = 3 chords/measure?
   // Let's recalculate assuming equal duration across ONE measure pattern if possible, or simple division.
   // Simpler assumption: Average beats per chord.
   // This requires knowing the *total duration* the progression covers. Let's assume it covers `ceil(numChords / beatsPerMeasure)` full measures for simplicity.

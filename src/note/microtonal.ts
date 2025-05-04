@@ -10,23 +10,19 @@
  * specific to non-12-TET contexts.
  */
 
-import {
-  CENTS_PER_OCTAVE,
-  JUST_INTONATION_RATIOS
-} from "./constants";
+import { CENTS_PER_OCTAVE, JUST_INTONATION_RATIOS } from "./constants";
 import {
   EnharmonicPreference,
-  MicrotonalModifier,
   MicrotonalNote,
-  Note
+  Note,
 } from "./types";
-// Import necessary operations - transposeByCents is key here
-import { addCentsToNote, transpose, transposeByCents } from "./operations"; // Note: transpose() seems unused
 // Import necessary creation functions
 import { createNoteFromFrequency, createNoteFromParts } from "./creation";
 
 // Import necessary frequency function
 import { noteToFrequency } from "./frequency"; // Note: addCentsToNote() seems unused
+// Import necessary operations - transposeByCents is key here
+import { transposeByCents } from "./operations"; // Note: transpose() seems unused
 
 /**
  * Creates a microtonal Note based on a Just Intonation ratio relative to a reference note.

@@ -29,6 +29,7 @@ import { createScale, createScaleByName } from "./creation";
 
 // Import getMode operation function from this module's operations file
 import { getMode } from "./operations";
+
 // ScalePattern seems unused here
 
 // Added notesAreEqual used in createModeFromMajor logic
@@ -216,27 +217,27 @@ export function createModeFromMajor(
   // 7. Calculate the interval pattern *for the mode* relative to its own root.
   // This pattern is needed for the final Scale object.
   // The pattern should be [0, intervalTo2nd, intervalTo3rd, ...]
-  const modePattern: ScalePattern = modeNotes.map(
-    (modeNote) =>
-      // Calculate interval from the mode's *actual* root note
-      intervalBetween(root, modeNote, true) // Use precise interval (fractional semitones)
-  );
+  // const modePattern: ScalePattern = modeNotes.map(
+  //   (modeNote) =>
+  //     // Calculate interval from the mode's *actual* root note
+  //     intervalBetween(root, modeNote, true) // Use precise interval (fractional semitones)
+  // );
   // Normalize pattern relative to octave? Ensure it's semitones, not fractional.
   // Let's recalculate from the known mode structure relative to major scale root.
   // Example: Dorian (degree 2). Parent Major pattern: [0, 2, 4, 5, 7, 9, 11]
   // Dorian starts on 2nd degree (interval 2). Intervals relative to Dorian root (2):
   // (4-2)=2, (5-2)=3, (7-2)=5, (9-2)=7, (11-2)=9, (12+0-2)=10
   // Dorian pattern relative to its root: [0, 2, 3, 5, 7, 9, 10]
-  const derivedModePattern: ScalePattern = Object.freeze(
-    // Freeze pattern
-    majorScalePattern
-      .map(
-        (interval) =>
-          // Shift interval relative to the mode's start interval, wrap around 12
-          (interval - majorScalePattern[degree - 1] + 12) % 12
-      )
-      .sort((a, b) => a - b) // Sort numerically
-  ) as ScalePattern;
+  // const derivedModePattern: ScalePattern = Object.freeze(
+  //   // Freeze pattern
+  //   majorScalePattern
+  //     .map(
+  //       (interval) =>
+  //         // Shift interval relative to the mode's start interval, wrap around 12
+  //         (interval - majorScalePattern[degree - 1] + 12) % 12
+  //     )
+  //     .sort((a, b) => a - b) // Sort numerically
+  // ) as ScalePattern;
 
   // Get the correct mode name from the degree index (1-based)
   const modeName = MODE_NAMES[degree - 1] as ModeName; // ModeName includes 'major'/'minor' implicitly? Check types.

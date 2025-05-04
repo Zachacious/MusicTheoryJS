@@ -16,7 +16,7 @@ import {
   Note,
   addCentsToNote,
   createNoteFromParts,
-  notesAreEqual
+  notesAreEqual,
 } from "../note";
 // Assuming note module index exports these
 
@@ -60,7 +60,7 @@ export const TUNING_SYSTEMS: Record<string, TuningSystemDefinition> = {
     name: "12-tone Equal Temperament",
     description: "Standard tuning with 12 equal semitones per octave",
     /** @returns {0} No adjustment needed relative to itself. */
-    adjustmentFunction: (note: Note, reference: Note) => 0, // No adjustment
+    adjustmentFunction: () => 0, // No adjustment
   },
 
   // Just Intonation (5-limit example)
@@ -232,29 +232,29 @@ function calculateJustIntonationAdjustment(
 
   // Calculate the octave difference between the notes
   // Original calculation seemed overly complex. Simpler:
-  const baseMidiRef = reference.pitchClassIndex + reference.octave * 12;
-  const baseMidiNote = note.pitchClassIndex + note.octave * 12;
-  const totalSemitoneDiff = baseMidiNote - baseMidiRef; // Total difference in semitones
+  // const baseMidiRef = reference.pitchClassIndex + reference.octave * 12;
+  // const baseMidiNote = note.pitchClassIndex + note.octave * 12;
+  // const totalSemitoneDiff = baseMidiNote - baseMidiRef; // Total difference in semitones
   // const octaveDistance = Math.floor(totalSemitoneDiff / 12); // How many full octaves apart
   // This seems complex. Let's calculate the deviation *within* the octave first.
 
   // Predefined Just Intonation ratios and their approx cents values (relative to tonic=0 cents)
   // Keyed by the 12-TET semitone interval they approximate.
   // Note: These are examples, specific JI systems vary. Using common 5-limit values.
-  const justCentsMap: Readonly<Record<number, number>> = {
-    0: 0, // P1 (1/1)
-    1: 111.73, // m2 (16/15) ~112c
-    2: 203.91, // M2 (9/8) ~204c
-    3: 315.64, // m3 (6/5) ~316c
-    4: 386.31, // M3 (5/4) ~386c
-    5: 498.04, // P4 (4/3) ~498c
-    6: 590.22, // A4 (e.g., 45/32?) or 680.45 (d5, e.g. 64/45?) -> Use value from original code: 590
-    7: 701.96, // P5 (3/2) ~702c
-    8: 813.69, // m6 (8/5) ~814c
-    9: 884.36, // M6 (5/3) ~884c
-    10: 1017.59, // m7 (9/5 or 16/9?) ~1018c (using 9/5 here based on original code)
-    11: 1088.27, // M7 (15/8) ~1088c
-  };
+  // const justCentsMap: Readonly<Record<number, number>> = {
+  //   0: 0, // P1 (1/1)
+  //   1: 111.73, // m2 (16/15) ~112c
+  //   2: 203.91, // M2 (9/8) ~204c
+  //   3: 315.64, // m3 (6/5) ~316c
+  //   4: 386.31, // M3 (5/4) ~386c
+  //   5: 498.04, // P4 (4/3) ~498c
+  //   6: 590.22, // A4 (e.g., 45/32?) or 680.45 (d5, e.g. 64/45?) -> Use value from original code: 590
+  //   7: 701.96, // P5 (3/2) ~702c
+  //   8: 813.69, // m6 (8/5) ~814c
+  //   9: 884.36, // M6 (5/3) ~884c
+  //   10: 1017.59, // m7 (9/5 or 16/9?) ~1018c (using 9/5 here based on original code)
+  //   11: 1088.27, // M7 (15/8) ~1088c
+  // };
   // Revert to original code's hardcoded cents values for adherence:
   const justRatiosOriginal: Record<number, { ratio: number; cents: number }> = {
     0: { ratio: 1 / 1, cents: 0 }, // Perfect unison
@@ -316,30 +316,30 @@ function calculatePythagoreanAdjustment(note: Note, reference: Note): number {
   // Approximate Pythagorean tuning cents offsets relative to 12-TET (C=0 reference point)
   // Key: semitone interval from reference, Value: cents deviation from 12-TET
   // These values represent the difference between Pythagorean intervals and ET intervals.
-  const pythagoreanOffsets: Readonly<Record<number, number>> = {
-    // Make readonly
-    0: 0, // Unison (0c)
-    // 1: -9.78, // Pythagorean m2 (256/243 ≈ 90.22c) vs ET m2 (100c) -> Flat? No, should be sharp. Error in original data. Let's recalculate.
-    // P5 = 701.96c. Stack 5ths: C-G-D-A-E-B-F#-C#-G#-D#-A#-E#-B#
-    // Intervals from C: G(702), D(204), A(906), E(408), B(1110), F#(612), C#(114) ...
-    // Deviations vs ET (0,200,400,500,700,900,1100): G(+2), D(+4), A(+6), E(+8), B(+10), F#(+12), C#(+14) ...
-    // Fifths down: C-F-Bb-Eb-Ab-Db-Gb-Cb...
-    // Intervals from C: F(498), Bb(996), Eb(294), Ab(792), Db(90), Gb(588), Cb(1086)
-    // Deviations vs ET: F(-2), Bb(-4), Eb(-6), Ab(-8), Db(-10), Gb(-12), Cb(-14)
-    // Combined Offsets (0-11): C=0, Db=-10, D=4, Eb=-6, E=8, F=-2, Gb=-12, G=2, Ab=-8, A=6, Bb=-4, B=10
-    // Original constants file used different values [0, 12, 4, 16, 8, 0, 12, 2, 14, 6, 18, 10] - this seems wrong/inconsistent. Using recalculated ones.
-    1: -9.78, // Db (-10c approx)
-    2: 3.91, // D (+4c approx)
-    3: -5.87, // Eb (-6c approx)
-    4: 7.82, // E (+8c approx)
-    5: -1.96, // F (-2c approx)
-    6: -11.73, // Gb (-12c approx)
-    7: 1.96, // G (+2c approx)
-    8: -7.82, // Ab (-8c approx)
-    9: 5.87, // A (+6c approx)
-    10: -3.91, // Bb (-4c approx)
-    11: 9.78, // B (+10c approx)
-  };
+  // const pythagoreanOffsets: Readonly<Record<number, number>> = {
+  //   // Make readonly
+  //   0: 0, // Unison (0c)
+  //   // 1: -9.78, // Pythagorean m2 (256/243 ≈ 90.22c) vs ET m2 (100c) -> Flat? No, should be sharp. Error in original data. Let's recalculate.
+  //   // P5 = 701.96c. Stack 5ths: C-G-D-A-E-B-F#-C#-G#-D#-A#-E#-B#
+  //   // Intervals from C: G(702), D(204), A(906), E(408), B(1110), F#(612), C#(114) ...
+  //   // Deviations vs ET (0,200,400,500,700,900,1100): G(+2), D(+4), A(+6), E(+8), B(+10), F#(+12), C#(+14) ...
+  //   // Fifths down: C-F-Bb-Eb-Ab-Db-Gb-Cb...
+  //   // Intervals from C: F(498), Bb(996), Eb(294), Ab(792), Db(90), Gb(588), Cb(1086)
+  //   // Deviations vs ET: F(-2), Bb(-4), Eb(-6), Ab(-8), Db(-10), Gb(-12), Cb(-14)
+  //   // Combined Offsets (0-11): C=0, Db=-10, D=4, Eb=-6, E=8, F=-2, Gb=-12, G=2, Ab=-8, A=6, Bb=-4, B=10
+  //   // Original constants file used different values [0, 12, 4, 16, 8, 0, 12, 2, 14, 6, 18, 10] - this seems wrong/inconsistent. Using recalculated ones.
+  //   1: -9.78, // Db (-10c approx)
+  //   2: 3.91, // D (+4c approx)
+  //   3: -5.87, // Eb (-6c approx)
+  //   4: 7.82, // E (+8c approx)
+  //   5: -1.96, // F (-2c approx)
+  //   6: -11.73, // Gb (-12c approx)
+  //   7: 1.96, // G (+2c approx)
+  //   8: -7.82, // Ab (-8c approx)
+  //   9: 5.87, // A (+6c approx)
+  //   10: -3.91, // Bb (-4c approx)
+  //   11: 9.78, // B (+10c approx)
+  // };
   // Sticking to original provided code's offset map, even if potentially inaccurate.
   const pythagoreanOffsetsOriginal: Record<number, number> = {
     0: 0,

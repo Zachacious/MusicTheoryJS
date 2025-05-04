@@ -14,7 +14,6 @@ import {
   A4_FREQUENCY,
   A4_MIDI,
   CENTS_PER_OCTAVE,
-  CENTS_PER_SEMITONE,
   SEMITONES_PER_OCTAVE,
 } from "./constants";
 import { EnharmonicPreference, Note } from "./types";

@@ -7,16 +7,15 @@
  * merging or segmenting scales, generating modes, filtering degrees, and inverting scales.
  */
 
-// Import Scale types used in functions
-import { ModeName, Scale, ScaleOptions, ScalePattern } from "./types"; // Added ModeName used in getMode
 // Import Note types and operations needed
 import {
   Note,
   createNoteFromParts,
   isMicrotonalNote,
-  notesAreEqual,
   transpose,
 } from "../note";
+// Import Scale types used in functions
+import { Scale, ScaleOptions, ScalePattern } from "./types"; // Added ModeName used in getMode
 // Import Scale creation functions used by operations
 import { createScale, createScaleFromNotes } from "./creation";
 

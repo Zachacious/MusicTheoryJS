@@ -32,10 +32,10 @@ import {
   TuningSystem,
   isMicrotonalNote,
 } from "./types";
+
 // Note: These imports might cause circular dependencies if ./operations imports from ./calculations.
 // Consider refactoring if that's the case. For now, assuming imports are valid.
-import { addCentsToNote, transpose } from "./operations";
-
+import { addCentsToNote } from "./operations";
 import { createNoteFromMidi } from "./creation";
 
 /**

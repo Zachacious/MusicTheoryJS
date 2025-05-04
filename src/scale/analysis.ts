@@ -15,11 +15,11 @@
 import { Note, intervalBetween, notesAreEqual, transpose } from "../note";
 // Import Scale types from the current module
 import { Scale, ScaleName } from "./types";
-// Import Scale operations used within analysis functions
-import { getDegree, getScaleDegree, isNoteInScale } from "./operations"; // Note: getScaleDegree, isNoteInScale seem unused here
 
 // Import Scale constants (patterns) used for comparison
 import { SCALE_PATTERNS } from "./constants";
+// Import Scale operations used within analysis functions
+import { getDegree } from "./operations"; // Note: getScaleDegree, isNoteInScale seem unused here
 
 // Import Scale detection (unused in provided code, but might be relevant contextually)
 // import { detectScales } from "./detection"; // Commented out as unused in this specific file
@@ -191,7 +191,7 @@ export function analyzeScaleIntervals(scale: Scale): ScaleIntervalAnalysis {
   const pattern = scale.pattern; // Intervals from root: [0, i2, i3...]
 
   if (pattern && pattern.length > 1) {
-    const numDegrees = pattern.length;
+    // const numDegrees = pattern.length;
     // Consider the interval structure relative to the octave (12 semitones)
     const stepsBetween = adjacentIntervals; // Use previously calculated adjacent steps
 
@@ -409,7 +409,7 @@ export function analyzeScaleStructure(scale: Scale): ScaleStructureAnalysis {
     };
   }
 
-  const notes = scale.notes;
+  // const notes = scale.notes;
   // Use pattern (intervals from root) primarily, but check notes length too
   const pattern = scale.pattern; // e.g., [0, 2, 4, 5, 7, 9, 11]
   const numNotes = pattern.length; // Number of unique notes per octave
@@ -439,7 +439,7 @@ export function analyzeScaleStructure(scale: Scale): ScaleStructureAnalysis {
   // Check for symmetry in the interval-from-root pattern
   let isSymmetrical = false;
   if (numNotes > 1) {
-    const uniqueIntervals = pattern.slice(); // Copy pattern
+    // const uniqueIntervals = pattern.slice(); // Copy pattern
     // Invert the pattern around the octave: complement = 12 - interval
     // Then shift it so the original root (0) maps to the highest interval after inversion,
     // and compare with the original pattern shifted appropriately.
@@ -468,13 +468,13 @@ export function analyzeScaleStructure(scale: Scale): ScaleStructureAnalysis {
     // A truly symmetrical scale pattern would be something like Whole Tone [0,2,4,6,8,10] -> Complements are [12,10,8,6,4,2]. Matches.
     // Or Diminished [0,2,3,5,6,8,9,11] -> Complements are [12,10,9,7,6,4,3,1]. Does NOT match (7 is missing).
     // Let's use the original code's comparison logic:
-    const maxInterval = 12; // Octave span
+    // const maxInterval = 12; // Octave span
     // Reverse the pattern, calculate complements relative to maxInterval, compare element-wise
     // This checks for palindromic structure *after inversion*
-    const reversedComplements = pattern
-      .slice()
-      .reverse()
-      .map((i) => (maxInterval - i + 12) % 12);
+    // const reversedComplements = pattern
+    //   .slice()
+    //   .reverse()
+    //   .map((i) => (maxInterval - i + 12) % 12);
     // This doesn't seem right either.
     // Let's stick to the definition: is interval `i` present iff `12-i` is present? (excluding 0, 6)
     // The previous symmetryCheck logic implements this.

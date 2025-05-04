@@ -9,7 +9,7 @@
 
 // Import chord constants and types
 import { CHORD_FORMULAS, SCALE_DEGREE_SEMITONES } from "./constants";
-import { Chord, ChordFormula, ChordQuality } from "./types"; // ChordFormula seems unused here
+import { Chord, ChordQuality } from "./types"; // ChordFormula seems unused here
 // Import necessary Note types and functions
 import { Note, compareNotes, intervalBetween, notesAreEqual } from "../note";
 // Import necessary Scale types and functions
