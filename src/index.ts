@@ -10,8 +10,14 @@ export * from "./note";
 // Re-export everything from the scale module
 export * from "./scale";
 
+// Re-export everything from the chord module
+export * from "./chord";
+
+// Re-export everything from the interval module
+export * from "./interval";
+
 // Add top-level constants and types if needed
-export const VERSION = "1.0.0";
+export const VERSION = "3.0.0";
 
 /**
  * Library info

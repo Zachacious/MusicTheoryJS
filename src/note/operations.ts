@@ -21,7 +21,7 @@ import {
   createNoteFromQuarterToneIndex,
 } from "./creation";
 
-import { Interval } from "../Interval"; // Assumed to be imported from your interval module
+import { Interval } from "../interval"; // Assumed to be imported from your interval module
 
 /**
  * Checks if two Note objects represent the same pitch (enharmonically equivalent).
