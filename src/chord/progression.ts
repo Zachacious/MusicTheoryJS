@@ -8,19 +8,18 @@
  * utilities are also included.
  */
 
-// Import chord constants and types
-import {
-  COMMON_PROGRESSIONS,
-  ROMAN_NUMERALS,
-} from "./constants";
-import { Chord, ChordOptions, ChordProgression, ChordQuality } from "./types";
 // Import necessary Note types and functions
 import {
+  Accidental,
   Note,
+  NoteLetter,
   createNoteFromParts,
   formatNote,
   transpose,
 } from "../note";
+// Import chord constants and types
+import { COMMON_PROGRESSIONS, ROMAN_NUMERALS } from "./constants";
+import { Chord, ChordOptions, ChordProgression, ChordQuality } from "./types";
 // Import necessary Scale types and functions
 import { Scale, createScale, getDegree, getScaleDegree } from "../scale";
 // Import chord creation functions used here
@@ -92,15 +91,11 @@ export function createCommonProgression(
   key: Note | string, // Root note of the key
   options: Partial<
     ChordOptions & {
-      // Include standard ChordOptions
-      /** The type of scale (major or minor) defining the key */
       scaleType?: "major" | "minor";
-      /** If true, return Roman numeral strings instead of Chord objects */
-      romanNumerals?: boolean; // Option specific to progression creation
+      romanNumerals?: boolean;
     }
   > = {}
 ): ChordProgression {
-  // Return type is ChordProgression (Chord[] or string[])
   // --- Input Validation ---
   if (!progressionName || !COMMON_PROGRESSIONS[progressionName]) {
     throw new Error(`Unknown common progression name: ${progressionName}`);
@@ -110,40 +105,55 @@ export function createCommonProgression(
   }
   // --- End Validation ---
 
-  // Get the Roman numeral pattern for the named progression
   const progressionPattern = COMMON_PROGRESSIONS[progressionName];
+  const scaleType = options.scaleType || "major";
 
-  // Determine the scale type for the key context
-  const scaleType = options.scaleType || "major"; // Default to major key
+  let keyNote: Note;
+  if (typeof key === "string") {
+    // Basic parse for key string: Letter + Optional Accidental
+    const match = key.trim().match(/^([A-G])([#bxb]*|)/i);
+    if (!match) throw new Error(`Invalid key string format: ${key}`);
+    const [, letterStr, accidentalStr = ""] = match;
+    const letter = letterStr.toUpperCase();
+    const accidental = accidentalStr;
 
-  // If key is provided as a string, parse it into a Note object
-  // Defaulting octave to 4 if only pitch class is given.
-  // The 'as any' casts were present in the original code.
-  const keyNote =
-    typeof key === "string"
-      ? createNoteFromParts({
-          letter: key.charAt(0).toUpperCase() as any, // Ensure uppercase letter
-          accidental: key.substring(1) as any, // Extract accidental
-          octave: 4, // Default octave if not specified in key string
-          // Pass down cache option? createNoteFromParts handles its own default.
-          includeCachedValues: options.includeCachedValues,
-        })
-      : key;
+    // Validate parts before type assertion
+    if (!/^[A-G]$/.test(letter))
+      throw new Error(`Invalid key letter parsed: "${letter}"`);
+    const validAccidentals = ["", "#", "b", "##", "x", "bb"];
+    if (!validAccidentals.includes(accidental))
+      throw new Error(`Invalid key accidental parsed: "${accidental}"`);
 
-  // Validate the created keyNote
+    try {
+      keyNote = createNoteFromParts({
+        letter: letter as NoteLetter, // Assert type after validation
+        accidental: accidental as Accidental, // Assert type after validation
+        octave: 4, // Default octave for key context
+        includeCachedValues: options.includeCachedValues,
+      });
+    } catch (e) {
+      throw new Error(
+        `Failed to create key note from string "${key}": ${
+          (e as Error).message
+        }`
+      );
+    }
+  } else {
+    keyNote = key;
+  }
+
   if (!keyNote) {
+    // Double check after potential parsing
     throw new Error(`Failed to parse or use provided key: ${key}`);
   }
 
-  // Create the scale object representing the key
-  // This scale provides the context for interpreting Roman numerals.
-  // Pass down preference for note spelling within the scale.
   const scale = createScale(keyNote, scaleType, { prefer: options.prefer });
   if (!scale) {
-    throw new Error(`Failed to create ${scaleType} scale for key ${key}`);
+    throw new Error(
+      `Failed to create ${scaleType} scale for key ${formatNote(keyNote)}`
+    );
   }
 
-  // Delegate to the function that creates progressions from Roman numerals within a scale context
   return createProgressionFromRomanNumerals(progressionPattern, scale, options);
 }
 
@@ -749,11 +759,11 @@ export function isProgressionDiatonic(
 export function transformProgression(
   progression: ChordProgression,
   transformation:
-    | "substitute" // Example: Replace V with vii°
-    | "extend" // Example: Triads to 7ths
-    | "secondary-dominant" // Example: Add V7/ii before ii
-    | "modal-interchange", // Example: Borrow iv from minor in Major key
-  options: Partial<ChordOptions & { scale?: Scale }> = {} // Scale needed for some transforms
+    | "substitute"
+    | "extend"
+    | "secondary-dominant"
+    | "modal-interchange",
+  options: Partial<ChordOptions & { scale?: Scale }> = {}
 ): ChordProgression {
   // --- Input Validation ---
   if (!Array.isArray(progression)) {
@@ -768,11 +778,11 @@ export function transformProgression(
   if (!validTransformations.includes(transformation)) {
     throw new Error(`Invalid transformation type: ${transformation}`);
   }
-  // Check for scale if required by transformation
+  const scale = options.scale; // Optional scale context
   if (
     (transformation === "secondary-dominant" ||
       transformation === "modal-interchange") &&
-    !options.scale
+    !scale
   ) {
     throw new Error(
       `Scale option is required for transformation type: ${transformation}`
@@ -780,260 +790,174 @@ export function transformProgression(
   }
   // --- End Validation ---
 
-  // Create a mutable copy to work with
-  const transformed: ChordProgression = [...progression];
-  const scale = options.scale; // Optional scale context
+  // Process transformations - most return a new array directly or modify a copy
+  const processedProgression = progression.map(
+    (
+      item // Ensure all items are processed if needed
+    ) =>
+      typeof item === "string" ? createChordFromSymbol(item, options) : item
+  );
 
   switch (transformation) {
-    case "substitute":
-      // Example: Replace dominant 7th (V7) with leading tone diminished 7th (vii°7)
-      // This requires scale context to identify V7 and vii°7 correctly.
-      // Simple placeholder logic from original code:
-      for (let i = 0; i < transformed.length; i++) {
-        const chordItem = transformed[i];
-        const chord =
-          typeof chordItem === "string"
-            ? createChordFromSymbol(chordItem, options)
-            : chordItem;
-        if (!chord) continue; // Skip if parsing failed
+    case "substitute": {
+      const result: ChordProgression = [];
+      for (const chord of processedProgression) {
+        if (!chord || typeof chord === "string") {
+          result.push(chord || "");
+          continue;
+        } // Handle null/string pass-through
 
-        // Example substitution: If it's a dominant 7th chord...
-        if (chord.quality === "7" || chord.quality === "dom7") {
-          // ...replace it with a diminished 7th chord built on the leading tone (Maj 7th degree)
-          // This requires scale context. Let's refine using scale if available.
-          if (scale) {
-            const leadingToneNote = getDegree(scale, 7);
-            if (leadingToneNote) {
-              // Check if original chord root was actually the dominant degree
-              if (getScaleDegree(scale, chord.root) === 5) {
-                try {
-                  // Create vii°7 based on scale's leading tone
-                  // Need to ensure createChord handles 'dim7' correctly
-                  transformed[i] = createChord(
-                    leadingToneNote,
-                    "dim7",
-                    options
-                  );
-                } catch (e) {
-                  console.warn(
-                    `Substitution failed for ${chord.symbol}: ${
-                      (e as Error).message
-                    }`
-                  );
-                }
-              }
-            }
-          } else {
-            // Original simpler logic: build dim7 a semitone below original root? No, used same root...
-            // Let's build dim7 on original root as a different substitution example if no scale.
-            // transformed[i] = createChord(chord.root, "dim7", options); // Example substitute V7 -> I dim7? Unlikely.
-            // Revert to original code's example: V7 -> VII dim7? Needs root change.
-            // Original code built dim7 on root `createNoteFromParts` based on V7 root - this seems wrong.
-            // Let's skip substitution if scale context is missing.
-            console.warn(
-              "Cannot perform V7->vii°7 substitution without scale context."
-            );
-          }
-        }
-        // Add more substitution rules (e.g., ii for IV, iii for I, etc.)
-      }
-      break;
-
-    case "extend":
-      // Extend basic triads to their corresponding seventh chords
-      for (let i = 0; i < transformed.length; i++) {
-        const chordItem = transformed[i];
-        // Ensure it's a Chord object to check category/quality
-        const chord =
-          typeof chordItem === "string"
-            ? createChordFromSymbol(chordItem, options)
-            : chordItem;
-        if (!chord || !chord.category) continue; // Skip if not valid chord object
-
-        // If it's identified as a basic triad...
-        if (chord.category === "triad") {
-          let newQuality: ChordQuality | null = null;
-
-          // ...map it to a common corresponding seventh quality
-          if (chord.quality === "major") newQuality = "maj7";
-          else if (chord.quality === "minor") newQuality = "min7";
-          else if (chord.quality === "diminished") newQuality = "half-dim7";
-          // Common extension for diatonic dim triad (vii°) is m7b5
-          else if (chord.quality === "augmented")
-            newQuality = "aug7"; // Aug triad often becomes Aug7
-          // Skip sus chords or unknown triads
-          else {
-            continue;
-          }
-
-          try {
-            // Create the extended chord with the same root
-            transformed[i] = createChord(chord.root, newQuality, options);
-          } catch (e) {
-            console.warn(
-              `Could not extend chord ${chord.symbol}: ${(e as Error).message}`
-            );
-          }
-        }
-      }
-      break;
-
-    case "secondary-dominant":
-      // Add secondary dominants (V7/x) before target chords (x)
-      if (scale) {
-        // Requires scale context
-        const secondaryDominantsAdded: ChordProgression = []; // Build new array
-        for (let i = 0; i < transformed.length; i++) {
-          const chordItem = transformed[i];
-          const chord =
-            typeof chordItem === "string"
-              ? createChordFromSymbol(chordItem, options)
-              : chordItem;
-          if (!chord) {
-            // Handle potential invalid item
-            secondaryDominantsAdded.push(chordItem); // Keep original invalid item
-            continue;
-          }
-
-          // Check if this chord is a potential target for a secondary dominant
-          // Typically targets are diatonic chords other than the tonic (I) and sometimes vii°
-          const targetDegree = getScaleDegree(scale, chord.root);
-          // Common targets: ii, iii, IV, V, vi (Degrees 2, 3, 4, 5, 6)
-          const isPotentialTarget =
-            targetDegree !== null && targetDegree !== 1 && targetDegree !== 7; // Avoid V7/I (is just V7) and V7/vii° (less common)
-
-          if (isPotentialTarget && secondaryDominantsAdded.length > 0) {
-            // Can only add V7/x *before* x
-            // Calculate the root of the secondary dominant (V of the target chord's root)
-            // Transpose the target chord's root UP by a Perfect Fifth (7 semitones)
-            const secondaryDominantRoot = transpose(chord.root, 7, {
-              prefer: options.prefer,
-            });
-
-            // Create the V7/x chord (dominant 7th quality)
+        let transformedChord: Chord | string = chord; // Default to original
+        // Example: Replace V7 with vii°7 if scale context allows
+        if (
+          scale &&
+          (chord.quality === "7" || chord.quality === "dom7") &&
+          getScaleDegree(scale, chord.root) === 5
+        ) {
+          const leadingToneNote = getDegree(scale, 7);
+          if (leadingToneNote) {
             try {
-              const secondaryDominantChord = createChord(
-                secondaryDominantRoot,
-                "7",
-                options
-              ); // Use '7' for dom7
-              // Add the secondary dominant *before* the target chord in the new array
-              secondaryDominantsAdded.push(secondaryDominantChord);
+              transformedChord = createChord(leadingToneNote, "dim7", options);
             } catch (e) {
               console.warn(
-                `Could not create secondary dominant for ${chord.symbol}: ${
+                `Substitution failed for ${chord.symbol}: ${
                   (e as Error).message
                 }`
               );
             }
           }
-          // Always add the original chord (or the target chord)
-          secondaryDominantsAdded.push(chordItem);
         }
-        // Replace original progression with the new one including secondary dominants
-        // This modifies the length and content.
-        // Original code modified in place using splice, which is complex with iteration.
-        // Returning a new array is safer.
-        return secondaryDominantsAdded; // Return the new progression
-      } else {
-        console.warn(
-          "Scale context is required for 'secondary-dominant' transformation."
-        );
+        // Add other substitution rules here...
+        result.push(transformedChord);
       }
-      break; // End secondary-dominant case
+      return result;
+    }
 
-    case "modal-interchange":
-      // Example: Borrow chords from the parallel major/minor key
-      if (scale) {
-        // Requires scale context
-        const isScaleMajor = scale.name === "major" || scale.name === "ionian";
-        const parallelScaleType = isScaleMajor ? "minor" : "major";
+    case "extend": {
+      return processedProgression.map((chord) => {
+        if (!chord || typeof chord === "string" || chord.category !== "triad") {
+          return chord || ""; // Pass through non-triads or invalid items
+        }
+        let newQuality: ChordQuality | null = null;
+        if (chord.quality === "major") newQuality = "maj7";
+        else if (chord.quality === "minor") newQuality = "min7";
+        else if (chord.quality === "diminished") newQuality = "half-dim7";
+        else if (chord.quality === "augmented") newQuality = "aug7";
+        else return chord; // Return original if triad type cannot be extended simply
 
-        // Create the parallel scale (same root, opposite mode)
-        let parallelScale: Scale | null = null;
         try {
-          parallelScale = createScale(scale.root, parallelScaleType);
+          return createChord(chord.root, newQuality, options);
         } catch (e) {
-          throw new Error(
-            `Could not create parallel ${parallelScaleType} scale for modal interchange: ${
-              (e as Error).message
-            }`
+          console.warn(
+            `Could not extend chord ${chord.symbol}: ${(e as Error).message}`
           );
+          return chord; // Return original on failure
+        }
+      });
+    }
+
+    case "secondary-dominant": {
+      if (!scale) return progression; // Should be caught by validation, but safety check
+      const result: ChordProgression = [];
+      for (const chord of processedProgression) {
+        if (!chord || typeof chord === "string") {
+          result.push(chord || "");
+          continue;
         }
 
-        for (let i = 0; i < transformed.length; i++) {
-          const chordItem = transformed[i];
-          const chord =
-            typeof chordItem === "string"
-              ? createChordFromSymbol(chordItem, options)
-              : chordItem;
-          if (!chord || !chord.root) continue; // Skip invalid chords
+        const targetDegree = getScaleDegree(scale, chord.root);
+        const isPotentialTarget =
+          targetDegree !== null && targetDegree !== 1 && targetDegree !== 7;
 
-          // Get the scale degree of the current chord's root in the original scale
-          const degree = getScaleDegree(scale, chord.root);
+        if (isPotentialTarget) {
+          // Add V7/x *before* x
+          try {
+            const secondaryDominantRoot = transpose(chord.root, 7, {
+              prefer: options.prefer,
+            });
+            const secondaryDominantChord = createChord(
+              secondaryDominantRoot,
+              "7",
+              options
+            );
+            result.push(secondaryDominantChord);
+          } catch (e) {
+            console.warn(
+              `Could not create secondary dominant for ${chord.symbol}: ${
+                (e as Error).message
+              }`
+            );
+          }
+        }
+        result.push(chord); // Add the original/target chord
+      }
+      return result;
+    }
 
-          if (degree) {
-            // --- Example Rule: Replace specific chords ---
-            // In Major key, replace IV and ii with iv and ii° from minor? Or IVm, iim7b5?
-            // In Minor key, replace i and v with I and V from major?
-            let substitute = false;
-            if (
-              isScaleMajor &&
-              (degree === 4 || degree === 2 || degree === 6)
-            ) {
-              // Common targets: IV, ii, vi? Original code checked IV, VI. Let's use IV, ii.
-              substitute = true;
-            } else if (
-              !isScaleMajor &&
-              (degree === 1 || degree === 4 || degree === 5)
-            ) {
-              // Common targets in minor: i, iv, v? Original code checked i, iv. Let's use i, iv, v.
-              substitute = true;
-            }
-            // --- End Example Rule ---
-
-            if (substitute) {
-              // Get the corresponding diatonic chord from the parallel scale
-              try {
-                // Determine chord type (triad/seventh) based on original chord
-                const chordType =
-                  chord.category === "seventh" ||
-                  chord.category === "extended" ||
-                  chord.category === "altered"
-                    ? "seventh"
-                    : "triad";
-                // Use createDiatonicProgression to get the chord from the parallel scale
-                const borrowedChord = createDiatonicProgression(
-                  parallelScale,
-                  [degree], // Get chord for the same degree number
-                  { chordType } // Use same basic type (triad/seventh)
-                )[0] as Chord; // Extract the single chord
-
-                if (borrowedChord) {
-                  // Replace the original chord with the borrowed one
-                  transformed[i] = borrowedChord;
-                }
-              } catch (error) {
-                // Skip if we can't create the borrowed chord for this degree
-                console.warn(
-                  `Could not create borrowed chord for degree ${degree} from parallel ${parallelScaleType} scale: ${
-                    (error as Error).message
-                  }`
-                );
-              }
-            } // end if(substitute)
-          } // end if(degree)
-        } // end for loop
-      } else {
-        console.warn(
-          "Scale context is required for 'modal-interchange' transformation."
+    case "modal-interchange": {
+      if (!scale) return progression; // Should be caught by validation
+      const isScaleMajor = scale.name === "major" || scale.name === "ionian";
+      const parallelScaleType = isScaleMajor ? "minor" : "major";
+      let parallelScale: Scale | null = null;
+      try {
+        parallelScale = createScale(scale.root, parallelScaleType);
+      } catch (e) {
+        throw new Error(
+          `Could not create parallel ${parallelScaleType} scale: ${
+            (e as Error).message
+          }`
         );
       }
-      break; // End modal-interchange case
-  } // End switch statement
 
-  // Return the modified progression array (or a new one if secondary dominants added)
-  return transformed; // Return the array (original code didn't freeze)
+      // Build new array immutably
+      return processedProgression.map((chord) => {
+        if (!chord || typeof chord === "string" || !chord.root) {
+          return chord || "";
+        }
+
+        const degree = getScaleDegree(scale, chord.root);
+        if (degree) {
+          let substitute = false;
+          if (isScaleMajor && (degree === 4 || degree === 2)) {
+            substitute = true;
+          } // Borrow iv, ii°/iim7b5 ?
+          else if (
+            !isScaleMajor &&
+            (degree === 1 || degree === 4 || degree === 5)
+          ) {
+            substitute = true;
+          } // Borrow I, IV, V?
+
+          if (substitute) {
+            try {
+              const chordType =
+                chord.category === "seventh" ||
+                chord.category === "extended" ||
+                chord.category === "altered"
+                  ? "seventh"
+                  : "triad";
+              const borrowedChord = createDiatonicProgression(
+                parallelScale,
+                [degree],
+                { chordType }
+              )[0] as Chord;
+              if (borrowedChord) return borrowedChord; // Return borrowed chord
+            } catch (error) {
+              console.warn(
+                `Could not create borrowed chord for degree ${degree}: ${
+                  (error as Error).message
+                }`
+              );
+            }
+          }
+        }
+        return chord; // Return original chord if no substitution applies or fails
+      });
+    }
+
+    default: // Should not be reachable due to validation
+      return [...progression]; // Return a copy
+  }
 }
 
 /**
@@ -1053,11 +977,12 @@ export function transformProgression(
  */
 export function analyzeHarmonicRhythm(
   progression: ChordProgression,
-  beatsPerMeasure: number = 4 // Assume 4/4 time by default
+  beatsPerMeasure: number = 4
 ): {
-  pattern: string; // e.g., "1,3,1,3" for changes on beats 1 and 3 in 4/4
-  density: "high" | "medium" | "low"; // Qualitative density
-  changesToBeatsRatio: number; // Changes per beat (avg)
+  // pattern: string; // Removed pattern as it was misleading without timing
+  density: "high" | "medium" | "low";
+  averageChordsPerMeasure: number;
+  // changesToBeatsRatio: number; // Removed as it depended on flawed calculation
 } {
   // --- Input Validation ---
   if (!Array.isArray(progression) || progression.length === 0) {
@@ -1070,97 +995,36 @@ export function analyzeHarmonicRhythm(
   }
   // --- End Validation ---
 
-  // --- Simple analysis assuming equal duration for each chord ---
-  // Calculate average number of chords per measure (can be fractional)
-  // Original logic seems reversed - should be chords / measures.
-  // Let's estimate measures first.
   const numChords = progression.length;
-  // If we assume each chord gets *at least* one beat (simplification):
-  // Estimated number of measures based on chords / beatsPerMeasure? No, let's use original logic's implied calculation.
 
-  // Original calculation for chordsPerMeasure seems flawed.
-  // Let's calculate beats per chord assuming the progression fits neatly into measures?
-  // Or assume one chord per beat? No, that's too dense.
-  // Let's stick to the original calculation flow and document its assumption:
-  // It calculates an "average" number of chords per measure based on total chords / total measures needed.
-  // const estimatedMeasures = Math.ceil(numChords / beatsPerMeasure); // How many measures are needed at minimum 1 chord/measure? No, this isn't right either.
-  // Let's assume the simplest case: the progression fills an integer number of measures OR represents a typical loop.
-  // Assume each chord gets equal time division within the meter.
-  // This means if there are 2 chords in 4/4, each gets 2 beats. If 3 chords, 4/3 beats each?
+  // Simple density calculation: Average chords per measure (heuristic)
+  // Assume common time for density thresholding unless specified otherwise
+  const averageChordsPerMeasure =
+    numChords / Math.ceil(numChords / beatsPerMeasure); // Keep original calculation for average metric
 
-  // Sticking to original flawed logic for adherence:
-  // const chordsPerMeasure = numChords / Math.ceil(numChords / beatsPerMeasure); // This gives strange results, e.g., 3 chords in 4/4 -> 3 / ceil(3/4) = 3/1 = 3 chords/measure?
-  // Let's recalculate assuming equal duration across ONE measure pattern if possible, or simple division.
-  // Simpler assumption: Average beats per chord.
-  // This requires knowing the *total duration* the progression covers. Let's assume it covers `ceil(numChords / beatsPerMeasure)` full measures for simplicity.
-  // No, let's follow original code structure even if calculation seems odd.
-  // const chordsPerMeasure = numChords / Math.ceil(numChords / beatsPerMeasure); // Original calculation
-  // If chordsPerMeasure is 0 or NaN, calculation fails.
-  // Let's simplify: calculate beatsPerChord based on number of chords likely intended for ONE measure, if possible.
-  // E.g. if length is 2 or 4, assume they fit in one 4/4 measure. If length 3, maybe 1 measure too?
-  // This is too ambiguous. Revert to original calculation attempt but validate result.
-  let chordsPerMeasureCalc = numChords / Math.ceil(numChords / beatsPerMeasure);
-  if (!Number.isFinite(chordsPerMeasureCalc) || chordsPerMeasureCalc <= 0) {
-    chordsPerMeasureCalc = 1; // Fallback to 1 chord per measure if calculation failed
-  }
-  // Calculate average beats per chord based on this potentially flawed chordsPerMeasure
-  const beatsPerChord = beatsPerMeasure / chordsPerMeasureCalc;
-  if (!Number.isFinite(beatsPerChord) || beatsPerChord <= 0) {
-    throw new Error(
-      "Could not determine valid average beats per chord for harmonic rhythm analysis."
-    );
-  }
+  // Use a simpler metric for density category: chords per beat (avg over the measure)
+  // This assumes chords are somewhat evenly distributed.
+  const chordsPerBeatAvg = averageChordsPerMeasure / beatsPerMeasure;
 
-  // Generate a pattern string indicating start beat of each chord (1-based)
-  let beatPattern = [];
-  let currentBeat = 1.0; // Start on beat 1
-
-  for (let i = 0; i < numChords; i++) {
-    // Round beat to reasonable precision? Or keep float? Let's round for pattern string.
-    // Rounding might make pattern less accurate if beatsPerChord is fractional.
-    // Keep float internally, maybe round for display string? Original code implies integer pattern.
-    beatPattern.push(Math.round(currentBeat)); // Round to nearest beat number
-    // Increment beat by the calculated average duration
-    currentBeat += beatsPerChord;
-    // Wrap beat within the measure? Original logic wraps modulo beatsPerMeasure.
-    // currentBeat = ((currentBeat - 1 + beatsPerMeasure) % beatsPerMeasure) + 1; // This seems wrong, should just track beat #
-    // Let's reinterpret the pattern generation: indicate on which beat (1 to beatsPerMeasure) the change occurs.
-  }
-  // Recalculate pattern assuming changes happen ON beats based on average duration:
-  beatPattern = []; // Reset
-  currentBeat = 1.0;
-  for (let i = 0; i < numChords; i++) {
-    // Beat number for this chord change (1-based)
-    const changeBeat =
-      (((Math.round(currentBeat - 1) % beatsPerMeasure) + beatsPerMeasure) %
-        beatsPerMeasure) +
-      1;
-    beatPattern.push(changeBeat);
-    currentBeat += beatsPerChord;
-  }
-
-  // Calculate changes-to-beats ratio (average changes per beat)
-  // Original logic: numChords / totalBeats where totalBeats = numChords * beatsPerChord? -> numChords / (numChords * beatsPerChord) = 1 / beatsPerChord
-  const changesToBeatsRatio = 1 / beatsPerChord; // Chords per beat (on average)
-
-  // Categorize the density based on the ratio (changes per beat)
+  // Categorize the density based on chords per beat
   let density: "high" | "medium" | "low";
-  // Density thresholds from original code
-  if (changesToBeatsRatio > 0.5) {
-    // More than 1 chord every 2 beats
+  if (chordsPerBeatAvg > 0.9) {
+    // Close to or more than 1 chord per beat
     density = "high";
-  } else if (changesToBeatsRatio > 0.25) {
-    // More than 1 chord every 4 beats
+  } else if (chordsPerBeatAvg > 0.4) {
+    // Roughly 1 chord every 2 beats or more
     density = "medium";
   } else {
-    // 1 chord every 4 beats or slower
+    // Slower than 1 chord every 2 beats
     density = "low";
   }
 
-  // Return analysis results
   return {
-    pattern: beatPattern.join(","), // Comma-separated string of beat numbers
-    density, // Qualitative density category
-    changesToBeatsRatio, // Average chord changes per beat
-  }; // Original code didn't freeze
+    // pattern: `(${numChords} chords)`, // Simplified pattern description
+    density,
+    averageChordsPerMeasure: isNaN(averageChordsPerMeasure)
+      ? numChords
+      : averageChordsPerMeasure, // Return numChords if calculation failed
+    // changesToBeatsRatio: chordsPerBeatAvg, // Can report this if desired
+  };
 }

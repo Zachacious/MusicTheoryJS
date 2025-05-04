@@ -11,14 +11,22 @@
 import { CHORD_FORMULAS, SCALE_DEGREE_SEMITONES } from "./constants";
 import { Chord, ChordQuality } from "./types"; // ChordFormula seems unused here
 // Import necessary Note types and functions
-import { Note, compareNotes, intervalBetween, notesAreEqual } from "../note";
+import {
+  Note,
+  PitchClassIndex,
+  compareNotes,
+  getCentsBetween,
+  intervalBetween,
+  notesAreEqual,
+} from "../note";
 // Import necessary Scale types and functions
 import { Scale, getScaleDegree } from "../scale";
 
 // Import chord identification function from creation module
 import { identifyChord } from "./creation";
+
 // Import calculation function needed for microtonal detection
-import { intervalInCents } from "../note/calculations"; // Note: Assumes correct relative path
+// import { intervalInCents } from "../note/calculations"; // Note: Assumes correct relative path
 
 /**
  * Defines the structure for the detailed analysis results of a chord.
@@ -86,126 +94,98 @@ export interface ChordAnalysisResult {
  */
 export function analyzeChord(notes: Note[]): ChordAnalysisResult | null {
   // Need at least 2 notes
-  if (notes.length < 2) {
+  if (!Array.isArray(notes) || notes.length < 2) {
+    return null;
+  }
+  const validNotes = notes.filter((n) => n != null);
+  if (validNotes.length < 2) {
     return null;
   }
 
   // Identify the basic chord using the imported function
-  const identified = identifyChord(notes);
+  const identified = identifyChord(validNotes);
   if (!identified) {
-    // If identification fails, cannot analyze further
     return null;
   }
-
-  // Destructure results from identification
   const { root, quality } = identified;
-
-  // Get the expected chord formula based on the identified quality
   const formula = CHORD_FORMULAS[quality];
-  // If no formula exists for this quality, analysis is limited
+
   if (!formula) {
     console.warn(
       `Analysis limited: No standard formula found for chord quality "${quality}".`
     );
-    // Provide basic info based on identification?
-    const sortedNotes = [...notes].sort((a, b) => compareNotes(a, b, false)); // Simple sort
-    return {
+    const sortedNotes = [...validNotes].sort((a, b) =>
+      compareNotes(a, b, true)
+    ); // Correct sort
+    return Object.freeze({
+      // Freeze result
       root,
       quality,
       isStandardChord: false,
       bass: sortedNotes[0],
-      inversion: 0,
+      inversion: 0, // Cannot determine without formula
       tensions: [],
       missingNotes: ["formula_unknown"],
       extraNotes: [],
-    };
+    });
   }
 
-  // Determine which pitch classes are actually present in the input notes (unique)
   const actualPitchClasses = [
-    ...new Set(notes.map((note) => note.pitchClassIndex)),
-  ]; // Ensure unique PCs
-
-  // Calculate the expected pitch classes based on the formula relative to the root
+    ...new Set(validNotes.map((note) => note.pitchClassIndex)),
+  ];
   const expectedPitchClasses: number[] = [];
-  // Get the degrees defined in the formula (e.g., [1, 3, 5, 7] for maj7)
-  // Note: Original code used Object.keys then parseInt.
-  const scaleDegrees = Object.keys(formula).map((d) => parseInt(d, 10)); // Degrees (1, 3, 5, 7...)
+  const scaleDegrees = Object.keys(formula)
+    .map((d) => parseInt(d, 10))
+    .sort((a, b) => a - b); // Ensure sorted degrees
 
-  // Calculate expected pitch class for each degree in the formula
-  for (const [degreeStr, alteration] of Object.entries(formula)) {
-    const degree = parseInt(degreeStr, 10);
+  if (!scaleDegrees.includes(1)) scaleDegrees.unshift(1); // Ensure root degree exists
 
-    // Get the base semitones for this scale degree (relative to root=1)
+  for (const degree of scaleDegrees) {
     let semitones = SCALE_DEGREE_SEMITONES[degree];
-    if (semitones === undefined) {
-      console.warn(
-        `Skipping unknown degree ${degree} in formula for ${quality}.`
-      );
-      continue; // Skip if degree definition is missing
-    }
-
-    // Apply alteration specified in the formula (e.g., -1 for b3)
+    if (semitones === undefined) continue;
+    const alteration = formula[degree] ?? 0; // Default alteration to 0 if missing
     semitones += alteration;
-
-    // Calculate the expected pitch class relative to the root's pitch class
-    const expectedPC = (root.pitchClassIndex + semitones + 12) % 12; // Ensure positive modulo
+    const expectedPC = (root.pitchClassIndex + semitones + 12) % 12;
     expectedPitchClasses.push(expectedPC);
   }
-  // Ensure root PC is included if formula somehow omits degree 1
-  if (!expectedPitchClasses.includes(root.pitchClassIndex)) {
-    expectedPitchClasses.push(root.pitchClassIndex);
-    if (!scaleDegrees.includes(1)) scaleDegrees.push(1); // Add degree 1 if missing
-    scaleDegrees.sort((a, b) => a - b); // Keep sorted
-  }
-  const uniqueExpectedPCs = [...new Set(expectedPitchClasses)]; // Unique expected PCs
+  const uniqueExpectedPCs = [...new Set(expectedPitchClasses)];
 
-  // Determine tensions (formula degrees beyond the basic triad or 7th structure)
+  // Determine tensions (degrees > standard structure)
   const tensions: string[] = [];
-  // Define standard structure based on quality name (simple check)
-  const standardDegrees =
+  const standardDegreesMax =
     quality.includes("7") ||
     quality.includes("9") ||
     quality.includes("11") ||
     quality.includes("13")
-      ? [1, 3, 5, 7]
-      : [1, 3, 5]; // Basic triad/7th degrees
-
-  // Check each degree defined in the formula
+      ? 7
+      : 5;
   for (const degree of scaleDegrees) {
-    // If the degree is higher than the standard structure considered
-    if (
-      !standardDegrees.includes(degree) &&
-      degree > Math.max(...standardDegrees)
-    ) {
-      // This is potentially an extension/tension
-      const alteration = formula[degree]; // Get alteration (b/#)
-      // Format tension name (e.g., "9", "b9", "#11")
+    if (degree > standardDegreesMax) {
+      const alteration = formula[degree] ?? 0;
       const degreeName =
         alteration < 0
           ? `b${degree}`
           : alteration > 0
           ? `#${degree}`
-          : `${degree}`; // Natural tension
+          : `${degree}`;
       tensions.push(degreeName);
     }
   }
 
-  // Find missing notes (expected based on formula, but not in actual input PCs)
+  // Find missing notes
   const missingNotes: string[] = [];
-  // Iterate through the formula's defined degrees again
+  const actualPCSet = new Set(actualPitchClasses); // Use Set for faster lookup
   for (let i = 0; i < scaleDegrees.length; i++) {
     const degree = scaleDegrees[i];
-    // Calculate the expected PC for this formula degree
+    // Only check for missing essential tones (<= standardDegreesMax), not tensions themselves
+    if (degree > standardDegreesMax) continue;
+
     let semitones = SCALE_DEGREE_SEMITONES[degree];
     if (semitones === undefined) continue;
-    const alteration = formula[degree];
+    const alteration = formula[degree] ?? 0;
     semitones += alteration;
     const expectedPC = (root.pitchClassIndex + semitones + 12) % 12;
-
-    // Check if this expected pitch class is present in the input notes' pitch classes
-    if (!actualPitchClasses.some((pc) => pc === expectedPC)) {
-      // Format the name of the missing degree (e.g., "5", "b3", "#5")
+    if (!actualPCSet.has(expectedPC as PitchClassIndex)) {
       const degreeName =
         alteration < 0
           ? `b${degree}`
@@ -216,110 +196,102 @@ export function analyzeChord(notes: Note[]): ChordAnalysisResult | null {
     }
   }
 
-  // Find extra notes (present in input PCs, but not in expected formula PCs)
+  // Find extra notes and attempt to name them more robustly
   const extraNotes: string[] = [];
-  // Iterate through the actual unique pitch classes found in the input
+  const expectedPCSet = new Set(uniqueExpectedPCs); // Use Set for faster lookup
   for (const actualPC of actualPitchClasses) {
-    // Check if this PC is part of the expected set based on the formula
-    if (!uniqueExpectedPCs.includes(actualPC)) {
-      // This pitch class is not expected in the standard formula. Try to name it.
-      let bestDegree = "?"; // Default if identification fails
-      let smallestDiff = 6; // Max difference before wrapping
+    if (!expectedPCSet.has(actualPC)) {
+      let bestDegreeName = "?";
+      let smallestDiff = 6;
+      let exactInterval = (actualPC - root.pitchClassIndex + 12) % 12; // Interval from root
 
-      // Compare against standard intervals to find the closest degree name
-      for (const [degreeStr, semitones] of Object.entries(
+      for (const [degreeStr, baseSemitones] of Object.entries(
         SCALE_DEGREE_SEMITONES
       )) {
-        const degree = parseInt(degreeStr, 10); // Degree number (1-13 usually)
-
-        // Calculate the pitch class for this standard degree relative to the root
-        const degreePC = (root.pitchClassIndex + semitones + 12) % 12;
-        // Calculate shortest distance (0-6 semitones)
+        const degreePC = (root.pitchClassIndex + baseSemitones + 12) % 12;
         const diff = Math.min(
           (actualPC - degreePC + 12) % 12,
           (degreePC - actualPC + 12) % 12
         );
 
-        // If this degree is closer than previous best match
         if (diff < smallestDiff) {
           smallestDiff = diff;
-          // Simple naming based on difference (0=natural, 1=sharp/flat)
-          // This logic seems potentially flawed in original code (e.g., # vs b direction).
-          // Sticking to original logic:
-          if (diff === 0) {
-            // Exact match to a standard degree
-            bestDegree = `${degree}`;
-          } else if (diff === 1) {
-            // Semitone away, determine sharp/flat crudely
-            // Check if degreePC is below actualPC (implies sharp)
-            bestDegree =
-              (degreePC - actualPC + 12) % 12 > 6 ? `#${degree}` : `b${degree}`;
+          // Naming based on comparison to the closest standard degree interval
+          const intervalDiff = exactInterval - baseSemitones;
+          if (
+            Math.abs(intervalDiff) < 1e-6 ||
+            Math.abs(intervalDiff - 12) < 1e-6 ||
+            Math.abs(intervalDiff + 12) < 1e-6
+          ) {
+            // Roughly equal
+            bestDegreeName = degreeStr; // Natural
+          } else if (intervalDiff === 1 || intervalDiff === -11) {
+            // One semitone sharp
+            bestDegreeName = `#${degreeStr}`;
+          } else if (intervalDiff === -1 || intervalDiff === 11) {
+            // One semitone flat
+            bestDegreeName = `b${degreeStr}`;
           } else {
-            // Larger difference, naming is ambiguous, use "?" or more complex logic
-            bestDegree = `?(${degreeStr})`; // Indicate closest degree found
+            // Could add double sharp/flat or just indicate difference
+            bestDegreeName = `~${degreeStr}`; // Indicate it's near this degree but altered more
           }
         }
-        // Original code didn't handle ties explicitly
       }
-      extraNotes.push(bestDegree); // Add identified extra note name
+      extraNotes.push(bestDegreeName);
     }
   }
 
-  // Sort the input notes by pitch to find the bass note
-  // Use a copy to avoid modifying original array
-  const sortedNotes = [...notes].sort((a, b) => {
-    // Primary sort by octave
-    if (a.octave !== b.octave) {
-      return a.octave - b.octave;
-    }
-    // Secondary sort by pitch class index
-    return a.pitchClassIndex - b.pitchClassIndex;
-    // Note: Microtonal sorting would need compareNotes(a,b, true)
-  });
-  const bass = sortedNotes[0]; // Lowest note is the bass
+  // Sort the input notes by pitch correctly to find the bass note
+  const sortedNotes = [...validNotes].sort((a, b) => compareNotes(a, b, true)); // Use precise compare
+  const bass = sortedNotes[0];
 
-  // Determine inversion based on which chord tone (from formula) matches the bass note's pitch class
-  let inversion = 0; // Default to root position (0)
-  // Check only if bass note is not the root (pitch class check)
+  // Determine inversion
+  let inversion = 0;
+  const bassPC = bass.pitchClassIndex;
   if (!notesAreEqual(bass, root)) {
-    // Using pitch equality check
-    const bassPC = bass.pitchClassIndex;
-    // Iterate through the *ordered* degrees of the formula (1, 3, 5, 7...)
+    // Check pitch equality
     for (let i = 0; i < scaleDegrees.length; i++) {
-      // Use scaleDegrees derived earlier
       const degree = scaleDegrees[i];
       let semitones = SCALE_DEGREE_SEMITONES[degree];
       if (semitones === undefined) continue;
-      const alteration = formula[degree];
+      const alteration = formula[degree] ?? 0;
       semitones += alteration;
       const expectedPC = (root.pitchClassIndex + semitones + 12) % 12;
-
-      // If the bass note's pitch class matches this chord tone
       if (expectedPC === bassPC) {
-        // The inversion number is the 0-based index of this degree in the formula sequence
-        // (0=Root, 1=Third, 2=Fifth, 3=Seventh...)
         inversion = i;
-        break; // Found the inversion, stop searching
+        break;
       }
     }
-    // If bass note's pitch class didn't match any formula tone (e.g., altered chord), inversion remains 0.
   }
 
-  // Determine if it's a standard chord voicing (no missing essential notes, no extra notes)
-  // Original code defined this simply as no missing AND no extra notes.
-  const isStandardChord = missingNotes.length === 0 && extraNotes.length === 0;
+  // Determine if standard chord voicing (essential notes present, no extra notes)
+  // Only check for missing essential degrees (<= standardDegreesMax)
+  const essentialDegrees = scaleDegrees.filter((d) => d <= standardDegreesMax);
+  let hasMissingEssential = false;
+  for (const degree of essentialDegrees) {
+    let semitones = SCALE_DEGREE_SEMITONES[degree];
+    if (semitones === undefined) continue;
+    const alteration = formula[degree] ?? 0;
+    semitones += alteration;
+    const expectedPC = (root.pitchClassIndex + semitones + 12) % 12;
+    if (!actualPCSet.has(expectedPC as PitchClassIndex)) {
+      hasMissingEssential = true;
+      break;
+    }
+  }
+  const isStandardChord = !hasMissingEssential && extraNotes.length === 0;
 
-  // Return the analysis results
-  return {
+  // Return the analysis results, frozen
+  return Object.freeze({
     root,
     quality,
     isStandardChord,
     bass,
     inversion,
-    tensions, // Array of identified tensions
-    missingNotes, // Array of missing formula degrees
-    extraNotes, // Array of identified extra notes
-  }; // Original code didn't freeze here
+    tensions,
+    missingNotes, // List of missing essential and non-essential degrees based on formula
+    extraNotes,
+  });
 }
 
 /**
@@ -845,7 +817,7 @@ export function analyzeMicrotonalChord(
     // Use intervalInCents as per original code
     const intervals = validNotes
       .filter((note) => note !== potentialRoot) // Exclude the root itself
-      .map((note) => intervalInCents(potentialRoot, note)); // Precise cents calculation
+      .map((note) => getCentsBetween(potentialRoot, note)); // Precise cents calculation
 
     // Sort the calculated intervals numerically for consistent comparison
     intervals.sort((a, b) => a - b);

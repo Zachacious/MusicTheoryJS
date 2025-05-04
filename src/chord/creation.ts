@@ -8,6 +8,19 @@
  * inversions, and basic voicing.
  */
 
+// Import necessary Note types and functions
+import {
+  Accidental,
+  Note,
+  NoteLetter,
+  addCentsToNote,
+  createNoteByRatio,
+  createNoteFromParts,
+  formatNote,
+  notesAreEqual,
+  transpose,
+  transposeByCents,
+} from "../note";
 // Import chord constants and types used in creation
 import {
   CHORD_CATEGORIES,
@@ -23,22 +36,12 @@ import {
   ChordOptions,
   ChordQuality,
 } from "./types";
-// Import necessary Note types and functions
-import {
-  Note,
-  addCentsToNote,
-  createNoteFromParts,
-  formatNote,
-  notesAreEqual,
-  transpose,
-  transposeByCents,
-} from "../note";
 // Import voicing helper functions
 import { getChordInversion, sortChordNotes } from "./voicing"; // Assuming these exist
 
 // import { ScalePattern } from "../scale";
 // Import specific creation function from note module's frequency file
-import { createNoteByRatio } from "../note/frequency"; // Used by createJustChord
+// import { createNoteByRatio } from "../note/frequency"; // Used by createJustChord
 
 // Assuming note module exports these
 
@@ -197,44 +200,45 @@ export function createChord(
  */
 export function createChordFromSymbol(
   symbol: string,
-  options: Partial<ChordOptions> = {} // Allow ChordOptions like rootOctave
+  options: Partial<ChordOptions> = {}
 ): Chord {
-  // Parse the chord symbol string using the internal helper
   const parsed = parseChordSymbol(symbol);
   if (!parsed) {
-    // Throw error if parsing failed
     throw new Error(`Invalid chord symbol: ${symbol}`);
   }
 
   // Create the root note using parsed components and options
-  // The `as any` casts were present in the original code.
   const rootNote = createNoteFromParts({
-    letter: parsed.root.toUpperCase() as any, // Ensure uppercase letter
-    accidental: parsed.accidental as any, // Parsed accidental (or "")
-    // Use specified octave or default from options/constants
-    octave: options.rootOctave ?? DEFAULT_CHORD_OPTIONS.rootOctave!,
-    includeCachedValues: options.includeCachedValues, // Pass cache flag
+    letter: parsed.root.toUpperCase() as NoteLetter, // Assert type after uppercase
+    accidental: parsed.accidental as Accidental, // Assert type
+    octave: options.rootOctave ?? (DEFAULT_CHORD_OPTIONS.rootOctave || 4), // Default to 4 if not specified
+    includeCachedValues: options.includeCachedValues,
   });
 
-  // Create the explicit bass note if provided in the symbol (slash chord)
+  // Create the explicit bass note if provided
   let bassNote: Note | undefined;
   if (parsed.bass) {
-    // Determine octave for bass note - typically close to root octave.
-    // Defaulting to root's octave here is a simplification.
-    // More sophisticated logic might place it below the root if appropriate.
+    const bassLetter = parsed.bass.letter.toUpperCase();
+    const bassAccidental = parsed.bass.accidental;
+    // Validate bass parts before asserting type
+    if (!/^[A-G]$/.test(bassLetter))
+      throw new Error(`Invalid bass note letter parsed: "${bassLetter}"`);
+    const validAccidentals = ["", "#", "b"]; // Bass regex only captures single #/b
+    if (!validAccidentals.includes(bassAccidental))
+      throw new Error(
+        `Invalid bass note accidental parsed: "${bassAccidental}"`
+      );
+
+    // Determine octave for bass note - default to root's octave (simplification)
     let bassOctave = rootNote.octave;
-    // Basic heuristic: if bass letter is alphabetically "before" root, assume lower octave?
-    // Example: Cmaj7/E -> E is above C. G7/B -> B is above G. C/Bb -> Bb likely below C.
-    // This needs proper interval calculation relative to root.
-    // Sticking to original simple logic: bass defaults to root's octave.
+    // TODO: Refine bass note octave placement relative to root note?
     try {
       bassNote = createNoteFromParts({
-        letter: parsed.bass.letter.toUpperCase() as any, // Ensure uppercase
-        accidental: parsed.bass.accidental as any,
-        octave: bassOctave, // Simple octave assumption
+        letter: bassLetter as NoteLetter, // Assert type after validation
+        accidental: bassAccidental as Accidental, // Assert type after validation
+        octave: bassOctave,
         includeCachedValues: options.includeCachedValues,
       });
-      // TODO: Refine bass note octave placement relative to root note?
     } catch (e) {
       console.warn(
         `Could not parse bass note "${parsed.bass.letter}${parsed.bass.accidental}" for chord ${symbol}. Ignoring slash bass.`
@@ -243,7 +247,6 @@ export function createChordFromSymbol(
   }
 
   // Create the final chord object using the main createChord function
-  // Pass the parsed root, quality, and options (including the potential bass note)
   return createChord(rootNote, parsed.quality, {
     ...options,
     bass: bassNote, // Pass the explicitly parsed bass note
@@ -335,12 +338,10 @@ function applyInversion(
   notes: Note[], // Assumes notes are sorted in root position initially
   inversion: ChordInversion // number (0, 1, 2...) or string ("root", "1st"...)
 ): { notes: Note[]; bass: Note; inversion: number } {
-  // Convert string inversions ("1st", "2nd", etc.) to numbers (0, 1, 2...)
-  let inversionNum = 0; // Default to root position
+  let inversionNum = 0;
   if (typeof inversion === "number") {
     inversionNum = inversion;
   } else {
-    // Map string names to numbers
     switch (inversion) {
       case "root":
         inversionNum = 0;
@@ -354,53 +355,45 @@ function applyInversion(
       case "3rd":
         inversionNum = 3;
         break;
-      default: // Treat unrecognized string as root position? Or throw?
+      default:
         console.warn(
-          `Unrecognized inversion string: "${inversion}". Defaulting to root position.`
+          `Unrecognized inversion string: "${inversion}". Defaulting to root.`
         );
         inversionNum = 0;
     }
   }
 
-  // Validate inversion number against the number of notes in the chord
   if (
     !Number.isInteger(inversionNum) ||
     inversionNum < 0 ||
-    inversionNum >= notes.length
+    (notes.length > 0 && inversionNum >= notes.length) // Check only if notes exist
   ) {
     throw new Error(
-      `Invalid inversion number: ${inversionNum}. Must be an integer between 0 and ${
+      `Invalid inversion number: ${inversionNum}. Must be 0 to ${
         notes.length - 1
-      } for a chord with ${notes.length} notes.`
+      } for ${notes.length} notes.`
     );
   }
 
-  // If requested inversion is root position, no changes needed to the input notes array
-  if (inversionNum === 0) {
-    // Assume input `notes` are already sorted, bass is notes[0]
-    return { notes, bass: notes[0], inversion: 0 };
+  if (inversionNum === 0 || notes.length === 0) {
+    // Handle root position or empty array
+    return { notes, bass: notes[0] ?? undefined, inversion: 0 }; // Use notes[0] or undefined if empty
   }
 
-  // Apply the inversion by moving the lowest `inversionNum` notes up an octave
-  const result = [...notes]; // Create a mutable copy
+  // Apply inversion immutably by creating new transposed notes
+  const invertedNotes: Note[] = [...notes]; // Start with a copy
 
-  // Move the first `inversionNum` notes up by one octave
   for (let i = 0; i < inversionNum; i++) {
-    const originalNote = result[i];
-    // Check if originalNote is valid before proceeding
-    if (!originalNote) continue;
+    const originalNote = invertedNotes[i];
+    if (!originalNote) continue; // Should not happen if length check passed
 
     try {
-      // Create a note one octave higher using createNoteFromParts
-      const octaveUp = createNoteFromParts({
-        letter: originalNote.letter,
-        accidental: originalNote.accidental,
-        octave: originalNote.octave + 1,
-        // Preserve cache status based on original note? Original used !!originalNote.midi
-        includeCachedValues: !!originalNote.midi, // Keep original logic
+      // Use transpose to shift octave UP, preserving microtones
+      invertedNotes[i] = transpose(originalNote, 12, {
+        // Ensure microtones are preserved (transpose default is usually true)
+        preserveMicrotonalProperties: true,
+        // Caching should ideally be handled by transpose's internal call to creation
       });
-      // Replace the note in the result array
-      result[i] = octaveUp;
     } catch (e) {
       console.error(
         `Error applying inversion: Could not transpose note ${formatNote(
@@ -408,12 +401,17 @@ function applyInversion(
         )} up an octave.`,
         e
       );
-      // Keep original note if transposition fails? Or throw? Keeping original note.
+      // Keep original note if transposition fails? Or throw? Re-throwing might be better.
+      throw new Error(
+        `Failed to apply inversion to note ${formatNote(originalNote)}: ${
+          (e as Error).message
+        }`
+      );
     }
   }
 
   // Re-sort the notes array by pitch after octave adjustments
-  const sortedNotes = sortChordNotes(result); // Use voicing helper
+  const sortedNotes = sortChordNotes(invertedNotes);
 
   // The bass note is now the first element of the sorted, inverted array
   const bassNote = sortedNotes[0];
@@ -716,97 +714,91 @@ export function createChordFromNotes(
 export function identifyChord(
   notes: Note[]
 ): { root: Note; quality: ChordQuality } | null {
-  // Need at least 3 notes for standard triad/seventh identification
-  if (!Array.isArray(notes) || notes.length < 3) {
-    return null; // Cannot reliably identify chord type with fewer than 3 notes
+  // Require at least 2 notes for basic ID (e.g., dyad), 3 for triads/sevenths
+  if (!Array.isArray(notes) || notes.length < 2) {
+    // Changed minimum to 2
+    return null;
   }
 
-  // Sort notes by pitch to normalize the input and easily find bass
-  const sortedNotes = sortChordNotes([...notes]); // Use helper, creates copy
-
-  // Try each unique note as a potential root
-  // Using Set to avoid re-testing enharmonics with same pitch class as root
+  const sortedNotes = sortChordNotes([...notes]);
   const testedRootPCs = new Set<number>();
 
   for (const potentialRoot of sortedNotes) {
-    if (testedRootPCs.has(potentialRoot.pitchClassIndex)) continue; // Skip if PC already tested as root
+    if (testedRootPCs.has(potentialRoot.pitchClassIndex)) continue;
     testedRootPCs.add(potentialRoot.pitchClassIndex);
 
-    // Calculate intervals (pitch classes relative to root) from this potential root to all other notes
-    const intervals: number[] = []; // Intervals in semitones mod 12
-    const presentPCsRelativeToRoot = new Set<number>([0]); // Root is always present (interval 0)
+    const presentPCsRelativeToRoot = new Set<number>([0]); // Includes root interval
+    const inputIntervals: number[] = []; // Intervals relative to root, excluding root
 
     for (const note of sortedNotes) {
-      // Skip the potential root itself when calculating intervals to other notes
-      if (notesAreEqual(note, potentialRoot)) continue; // Pitch equality check
-
-      // Calculate interval from potential root to this note, modulo 12
+      if (notesAreEqual(note, potentialRoot)) continue;
       const interval =
         (note.pitchClassIndex - potentialRoot.pitchClassIndex + 12) % 12;
-      intervals.push(interval);
-      presentPCsRelativeToRoot.add(interval); // Add interval (relative PC) to the set
+      presentPCsRelativeToRoot.add(interval);
+      // Only add non-root intervals to the list for matching against formula parts
+      if (interval !== 0) {
+        inputIntervals.push(interval);
+      }
     }
-
-    // Sort the calculated intervals (relative pitch classes excluding root)
-    intervals.sort((a, b) => a - b);
+    // Sort intervals relative to root for consistent comparison potential (optional here)
+    inputIntervals.sort((a, b) => a - b);
 
     // --- Check against known chord structures (CHORD_FORMULAS) ---
-    // Iterate through predefined chord qualities and their formulas
     for (const [quality, formula] of Object.entries(CHORD_FORMULAS)) {
-      // Convert the formula {degree: alteration} into expected intervals (semitones from root mod 12)
       const formulaIntervals = Object.entries(formula)
-        // Filter out the root degree (1) itself as we compare other intervals
-        .filter(([degree]) => degree !== "1")
-        // Map degree+alteration to semitone interval
+        .filter(([degree]) => degree !== "1") // Exclude root degree itself
         .map(([degreeStr, alteration]) => {
           const degree = parseInt(degreeStr, 10);
           let semitones = SCALE_DEGREE_SEMITONES[degree];
-          if (semitones === undefined) return -1; // Invalid degree in formula?
-          return (semitones + alteration + 12) % 12; // Calculate interval mod 12
+          if (semitones === undefined) return -1; // Invalid degree
+          // Important: Calculate interval from ROOT, not relative to major scale here
+          // SCALE_DEGREE_SEMITONES already provides this relative to root
+          return (semitones + alteration + 12) % 12;
         })
-        .filter((interval) => interval !== -1) // Remove invalid degrees
-        .sort((a, b) => a - b); // Sort for comparison
+        .filter((interval) => interval !== -1)
+        .sort((a, b) => a - b);
 
-      // --- Matching Logic (from original code) ---
-      // Check if all intervals defined in the formula are present in the input notes' intervals
+      // If the formula itself is empty (e.g., hypothetical power chord formula?), skip
+      if (formulaIntervals.length === 0 && inputIntervals.length > 0) continue;
+
+      // --- Matching Logic ---
+      // 1. All essential intervals defined in the formula MUST be present in the input notes.
       const allFormulaIntervalsPresent = formulaIntervals.every((interval) =>
-        // Check against the Set of present intervals relative to root
         presentPCsRelativeToRoot.has(interval)
       );
 
-      // Heuristic check: most of the input intervals should be explained by the formula
-      // Calculate how many *input* intervals match the formula intervals
+      // 2. Most (or all?) input intervals MUST be explained by the formula.
+      // Calculate how many input intervals match the formula.
       let matchedInputIntervals = 0;
-      for (const inputInterval of intervals) {
-        // Use calculated intervals from input notes
-        if (formulaIntervals.includes(inputInterval)) {
+      const formulaIntervalSet = new Set(formulaIntervals); // Use set for faster lookup
+      for (const inputInterval of inputIntervals) {
+        if (formulaIntervalSet.has(inputInterval)) {
           matchedInputIntervals++;
         }
       }
-      // Original check: formulaIntervals.length >= intervals.length * 0.75
-      // This seems backwards. Should be matchedInputIntervals >= threshold?
-      // Let's try: a significant portion of the INPUT intervals must match the formula.
-      // const inputMatchThreshold = 0.75; // Example threshold
-      // const sufficientInputIntervalsMatch =
-      //   matchedInputIntervals / intervals.length >= inputMatchThreshold;
 
-      // If all formula intervals are present AND most input intervals match the formula
-      // Original logic used formula length vs intervals length - sticking to that:
-      const originalHeuristicCheck =
-        formulaIntervals.length >= intervals.length * 0.75;
+      // Corrected Heuristic: Check if all formula intervals are present
+      // AND if the number of matched input intervals equals the number of input intervals
+      // (meaning no "extra" intervals in the input compared to the formula).
+      // This is a stricter match than the original heuristic.
+      // Allow for chords smaller than formula (e.g., identify C E as Major if G missing?) No, require all formula intervals.
+      // Final check: All formula intervals must be present, and all input intervals must belong to the formula.
+      const allInputIntervalsMatch =
+        matchedInputIntervals === inputIntervals.length;
 
-      if (allFormulaIntervalsPresent && originalHeuristicCheck) {
-        // Found a plausible match, return this root and quality
+      if (allFormulaIntervalsPresent && allInputIntervalsMatch) {
+        // Strict match found
         return {
           root: potentialRoot,
-          quality: quality as ChordQuality, // Cast string key to ChordQuality
+          quality: quality as ChordQuality,
         };
       }
       // --- End Matching Logic ---
     } // End loop through CHORD_FORMULAS
   } // End loop through potential roots
 
-  // No suitable match found after trying all notes as root
+  // Relaxed Match (Optional): Could add logic here to find "closest" match if no strict match found.
+  // For now, return null if no strict match based on the criteria above.
   return null;
 }
 

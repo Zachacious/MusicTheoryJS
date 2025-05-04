@@ -9,15 +9,19 @@
  */
 
 import {
+  Accidental,
   CENTS_PER_OCTAVE,
   CENTS_PER_SEMITONE,
   EnharmonicPreference,
   Note,
+  NoteLetter,
   TuningSystem,
   addCentsToNote,
   compareNotes,
+  createNoteByRatio,
   createNoteFromParts,
   intervalBetween,
+  notesAreEqual,
   transpose,
   transposeByCents,
 } from "../note";
@@ -33,8 +37,9 @@ import {
 import { SCALE_PATTERNS } from "./constants";
 // Import tuning application function (dependency for createTunedScale)
 import { applyTuningSystem } from "../tuning/tuning"; // Assuming tuning module exists and exports this
+
 // Import specific creation function from note module's frequency file
-import { createNoteByRatio } from "../note/frequency"; // Used by createJustIntonationScale
+// import { createNoteByRatio } from "../note/frequency"; // Used by createJustIntonationScale
 
 // Assuming note module exports these from their respective files
 
@@ -59,13 +64,15 @@ const DEFAULT_SCALE_OPTIONS: ScaleOptions = {
  * Creates a Scale object from a root note and a specified pattern.
  * The pattern can be either a predefined scale name (e.g., "major", "dorian")
  * or an array of numbers representing intervals in semitones from the root (e.g., [0, 2, 4, 5, 7, 9, 11]).
+ * This function primarily generates standard 12-TET scales based on patterns. Use `createTunedScale` for other tuning systems.
  *
  * @param root - The root Note object of the scale.
  * @param pattern - The scale pattern, either a known `ScaleName` string or a `ScalePattern` array (intervals in semitones from root, starting with 0).
  * @param [options={}] - Optional settings to override defaults. See {@link ScaleOptions}.
- * @returns A frozen Scale object containing the root note, the array of generated notes, the pattern used, the scale name (if identified or provided), and the tuning system (if specified).
+ * @returns A frozen Scale object containing the root note, the array of generated notes, the pattern used, and the scale name (if identified or provided).
  * @throws {Error} If an unknown scale name is provided.
  * @throws {Error} If the root note is invalid.
+ * @throws {Error} If a custom pattern array is invalid (not array, empty, doesn't start with 0, non-finite numbers).
  * @example
  * ```ts
  * const c4 = createNoteFromParts({ letter: 'C', octave: 4 });
@@ -83,7 +90,7 @@ const DEFAULT_SCALE_OPTIONS: ScaleOptions = {
  *
  * // Create a two-octave C Major scale, including the final octave note
  * const cMajor2Oct = createScale(c4, 'major', { octaves: 2, includeOctave: true });
- * // Note: The generated notes array will contain notes across two octaves plus the final C6.
+ * // cMajor2Oct.notes will contain 15 notes: C4...B4, C5...B5, C6
  * ```
  */
 export function createScale(
@@ -92,8 +99,15 @@ export function createScale(
   options: Partial<ScaleOptions> = {}
 ): Scale {
   // Merge default options with provided options
-  // The non-null assertion operator `!` was present in the original code for mergedOptions.octaves
   const mergedOptions = { ...DEFAULT_SCALE_OPTIONS, ...options };
+  // Ensure numOctaves is explicitly typed as number, using default if needed
+  const numOctaves: number =
+    mergedOptions.octaves ?? (DEFAULT_SCALE_OPTIONS.octaves || 1);
+
+  // Validate root note
+  if (!root) {
+    throw new Error("Invalid root note provided to createScale.");
+  }
 
   // Handle pattern input - could be a pattern array or a scale name
   let scalePattern: ScalePattern;
@@ -101,80 +115,74 @@ export function createScale(
 
   if (Array.isArray(pattern)) {
     // Pattern is an array of intervals
-    scalePattern = pattern; // Direct assignment, assuming input array structure is correct
-    // Try to identify the scale if it's a known pattern
+    if (
+      pattern.length === 0 ||
+      pattern[0] !== 0 ||
+      pattern.some((i) => typeof i !== "number" || !Number.isFinite(i))
+    ) {
+      throw new Error(
+        "Invalid custom scale pattern provided. Must be an array of finite numbers starting with 0."
+      );
+    }
+    scalePattern = pattern as ScalePattern;
     scaleName = findScaleNameByPattern(pattern);
   } else {
     // Pattern is a scale name string
-    // The type cast `as ScaleName` was present in the original code
-    const scaleNameStr = pattern as ScaleName; // Explicitly cast
-    // Check if the name exists as a key in the predefined SCALE_PATTERNS
+    const scaleNameStr = pattern as ScaleName;
     if (!Object.prototype.hasOwnProperty.call(SCALE_PATTERNS, scaleNameStr)) {
       throw new Error(`Unknown scale name: ${scaleNameStr}`);
     }
     scaleName = scaleNameStr;
-    scalePattern = SCALE_PATTERNS[scaleNameStr]; // Retrieve the pattern
+    scalePattern = SCALE_PATTERNS[scaleNameStr];
   }
 
   // --- Generate scale notes ---
   let notes: Note[] = [];
 
-  // Loop through the number of octaves specified
-  // The non-null assertion operator `!` was present in the original code for mergedOptions.octaves
-  for (let octave = 0; octave < mergedOptions.octaves!; octave++) {
-    // For each interval in the pattern, transpose the root note
+  // Loop through the number of octaves specified (numOctaves is now guaranteed number)
+  for (let octave = 0; octave < numOctaves; octave++) {
     const octaveNotes = scalePattern.map((interval) => {
-      // Calculate total semitone offset including octave shift
       const semitones = interval + octave * 12;
-      // Perform transposition using the note operations module
       return transpose(root, semitones, {
-        prefer: mergedOptions.prefer, // Pass enharmonic preference
-        includeCachedValues: mergedOptions.includeCachedValues, // Pass cache flag
-        // Pass tuning system? Original code didn't here, relying on transpose's internal creation.
+        prefer: mergedOptions.prefer,
+        includeCachedValues: mergedOptions.includeCachedValues,
+        preserveMicrotonalProperties: false,
       });
     });
-    // Add notes for this octave to the list
     notes = notes.concat(octaveNotes);
   }
 
-  // Add the final octave note if requested AND only generating one base octave
-  // The condition `mergedOptions.octaves === 1` was present in original code
-  if (mergedOptions.includeOctave && mergedOptions.octaves === 1) {
-    const octaveNote = transpose(root, 12, {
-      // Transpose by exactly 12 for the octave
+  // Add the final octave note if requested
+  if (mergedOptions.includeOctave) {
+    // Use the guaranteed numOctaves
+    const finalOctaveNote = transpose(root, 12 * numOctaves, {
       prefer: mergedOptions.prefer,
       includeCachedValues: mergedOptions.includeCachedValues,
-      // tuningSystem: mergedOptions.tuningSystem // Not passed in original code
+      preserveMicrotonalProperties: false,
     });
-    notes.push(octaveNote); // Add the octave note
+    if (
+      notes.length === 0 ||
+      !notesAreEqual(notes[notes.length - 1], finalOctaveNote)
+    ) {
+      notes.push(finalOctaveNote);
+    }
   }
 
   // Sort notes by pitch if requested
   if (mergedOptions.sort) {
-    notes.sort((a, b) => {
-      // Primary sort by MIDI if available (most reliable for pitch order)
-      // The undefined checks were present in the original code
-      if (a.midi !== undefined && b.midi !== undefined) {
-        return a.midi - b.midi;
-      }
-      // Fallback sort logic if MIDI is missing
-      if (a.octave !== b.octave) return a.octave - b.octave;
-      return a.pitchClassIndex - b.pitchClassIndex;
-      // Note: Microtonal sorting would require compareNotes(a, b, true)
-    });
+    notes.sort((a, b) => compareNotes(a, b, true));
   }
 
-  // Freeze the notes array to encourage immutability (present in original code)
-  // The type cast `as ReadonlyArray<Note>` was present in the original code
+  // Freeze the notes array
   const immutableNotes = Object.freeze(notes) as ReadonlyArray<Note>;
 
-  // Create and return the final scale object, freezing it (present in original code)
+  // Create and return the final scale object, freezing it
   return Object.freeze({
     root,
     notes: immutableNotes,
-    pattern: scalePattern, // Store the pattern used
-    name: scaleName, // Store identified or provided name
-    tuningSystem: mergedOptions.tuningSystem, // Store specified tuning system
+    pattern: scalePattern,
+    name: scaleName,
+    // tuningSystem is intentionally omitted here
   });
 }
 
@@ -203,8 +211,8 @@ export function createScaleByName(
   options: Partial<ScaleOptions> = {}
 ): Scale {
   // Handle string root input by parsing it first using the internal helper
-  const rootNote =
-    typeof root === "string" ? parseNoteString(root, options.prefer) : root;
+  // Corrected call: Pass only one argument to parseNoteString
+  const rootNote = typeof root === "string" ? parseNoteString(root) : root;
 
   // Add validation for the potentially parsed rootNote
   if (!rootNote) {
@@ -310,19 +318,15 @@ export function createScaleFromNotes(
  * @returns The parsed Note object.
  * @throws {Error} If the string format is not recognized or underlying `createNoteFromParts` fails.
  */
-function parseNoteString(
-  noteStr: string,
-  prefer: EnharmonicPreference = "sharp" // Parameter present in original signature
-): Note {
-  prefer; // Avoid unused parameter warning for now
-  // Regex from original code: Letter, Optional Accidental group, Octave digits (signed?)
+function parseNoteString(noteStr: string): Note {
+  // Regex: Letter, Optional Accidental group, Octave digits (signed?)
   const match = noteStr.trim().match(/^([A-G])([#bxb]*|)(-?\d+)$/i);
   if (!match) {
     throw new Error(`Invalid note string format: "${noteStr}"`);
   }
 
   // Extract parts
-  const [, letter, accidental, octaveStr] = match;
+  const [, letterStr, accidentalStr, octaveStr] = match;
   const octave = parseInt(octaveStr, 10);
 
   // Basic validation on parsed octave
@@ -330,11 +334,22 @@ function parseNoteString(
     throw new Error(`Invalid octave number in note string: "${noteStr}"`);
   }
 
-  // Use createNoteFromParts for consistency, keeping original `as any` casts
+  // Validate extracted parts against types
+  const letter = letterStr.toUpperCase();
+  if (!/^[A-G]$/.test(letter)) {
+    throw new Error(`Invalid note letter parsed: "${letter}"`);
+  }
+  const accidental = accidentalStr || "";
+  const validAccidentals = ["", "#", "b", "##", "x", "bb"];
+  if (!validAccidentals.includes(accidental)) {
+    throw new Error(`Invalid accidental parsed: "${accidental}"`);
+  }
+
+  // Use createNoteFromParts for consistency
   try {
     return createNoteFromParts({
-      letter: letter.toUpperCase() as any, // Original cast
-      accidental: (accidental || "") as any, // Original cast
+      letter: letter as NoteLetter, // Cast is safe after validation
+      accidental: accidental as Accidental, // Cast is safe after validation
       octave: octave,
     });
   } catch (err) {
@@ -568,44 +583,33 @@ export function createScaleFromString(
 
   const trimmedStr = scaleStr.trim();
 
-  // Check if it looks like a step-based definition (only W, w, H, h characters)
-  // Regex from original code
+  // Check if it looks like a step-based definition
   if (/^[WwHh]+$/.test(trimmedStr)) {
     // Delegate to the step pattern creation function
     return createScaleFromSteps(root, trimmedStr, options);
   }
 
   // Otherwise, assume it's a comma or space-separated list of note names
-  // Split by one or more whitespace or comma characters
   const noteNames = trimmedStr.split(/[\s,]+/);
-  // Filter out empty strings potentially created by multiple separators
   const validNoteNames = noteNames.filter((name) => name.length > 0);
 
   if (validNoteNames.length < 2) {
-    // Need at least root + one other note usually
     throw new Error("Scale string parsed into fewer than 2 valid note names.");
   }
-
-  // Get root note formatted simply for comparison or reference (present in original code)
-  // const rootName = formatNoteSimple(root); // Uses internal helper
-
-  // Extract just the letter+accidental part, ignore octave (present in original code)
-  // This seems unused in the rest of the function logic as provided.
-  // const rootBase = rootName.replace(/\d+$/, "");
 
   const notes: Note[] = [];
   for (const noteName of validNoteNames) {
     // Add the root's octave to any note name that doesn't explicitly have one
-    // Check if the name ends with digits (potentially signed) - Regex from original code
     const fullNoteName = noteName.match(/-?\d+$/)
       ? noteName // Already has octave/number at end
       : `${noteName}${root.octave}`; // Append root's octave
 
     try {
       // Use the internal helper to parse the string
-      notes.push(parseNoteString(fullNoteName, options.prefer));
+      // Corrected call: Pass only one argument to parseNoteString
+      notes.push(parseNoteString(fullNoteName));
     } catch (err) {
-      // Warn about invalid notes but continue parsing others (present in original code)
+      // Warn about invalid notes but continue parsing others
       console.warn(
         `Skipping invalid note name "${noteName}" in scale string: ${
           (err as Error).message
@@ -622,7 +626,6 @@ export function createScaleFromString(
   }
 
   // Delegate to create scale from the array of parsed notes
-  // Pass the original root and options along
   return createScaleFromNotes(notes, root, options);
 }
 

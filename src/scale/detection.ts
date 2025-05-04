@@ -16,10 +16,16 @@ import { CENTS_PER_OCTAVE, Note, noteToFrequency } from "../note";
 // Import Scale types from the current module
 import { ScaleName, ScalePattern } from "./types";
 // Import calculation function needed for microtonal detection
-import { formatNote, intervalInCents } from "../note/calculations"; // Note: Assumes correct relative path
+import {
+  formatNote,
+  getCentsBetween,
+  intervalInCents,
+} from "../note/calculations";
 
 // Import predefined scale patterns for comparison
 import { SCALE_PATTERNS } from "./constants";
+// Note: Assumes correct relative path
+
 
 /**
  * Represents a potential scale match found during detection.
@@ -299,7 +305,7 @@ export function detectMicrotonalScale(
   const intervalsCents: number[] = [];
   for (let i = 0; i < notes.length - 1; i++) {
     // Use precise cents calculation
-    intervalsCents.push(intervalInCents(notes[i], notes[i + 1]));
+    intervalsCents.push(getCentsBetween(notes[i], notes[i + 1]));
   }
   // Note: Doesn't include wrap-around interval from last to first note's octave.
   // This might limit detection of patterns relying on that closure.

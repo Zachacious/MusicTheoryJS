@@ -91,6 +91,15 @@ export {
   type ChordAnalysisResult,
 } from "./analysis";
 
+// Export Roman numeral functions from chord/roman.ts
+export {
+  parseRomanNumeral,
+  createChordFromRomanNumeral,
+  analyzeChordAsRomanNumeral,
+  // RomanAnalysis type is already exported from analysis.ts, no need to repeat
+  type ParsedRomanNumeral, // Export the ParsedRomanNumeral interface if defined in roman.ts
+} from "./roman";
+
 // Export progression functions from chord/progression.ts
 export {
   createProgression, // Generic progression creation (if exists)

@@ -350,12 +350,13 @@ export const CHORD_SYMBOL_REGEX = new RegExp(
     "(#|b|##|bb)?" +
     // 3. Quality/Extension/Alteration string (complex, many options) - Capture Group 3 (Optional)
     // This large group tries to match known quality/extension symbols from CHORD_SYMBOL_MAP and formulas
-    "(M|maj|min|m|-|aug|\\+|dim|o|Δ|sus2|sus4|sus|7|9|11|13|6|7b5|7\\+5|7#5|7b9|7#9|7#11|7b13|maj7|Δ7|M7|m7|min7|-7|mM7|minMaj7|-Δ7|dim7|o7|\\+7|m7b5|ø|ø7|" +
+    // Ensure symbols with shared prefixes are ordered carefully (e.g., 'maj7' before 'maj') if needed, though optional group helps.
+    // Corrected 'sus' part at the end.
+    "(M|maj|min|m|-|aug|\\+|dim|o|Δ|sus2|sus4|sus|7|9|11|13|6|7b5|7\\+5|7#5|7b9|7#9|7#11|7b13|maj7|Δ7|M7|m7|min7|-7|mM7|minMaj7|-Δ7|dim7|o7|\\+7|m7b5|ø|ø7|" + // Note: \+ for literal +, ø for half-dim
     "maj9|Δ9|M9|m9|min9|-9|maj11|Δ11|M11|m11|min11|-11|maj13|Δ13|M13|m13|min13|-13|add9|add11|add13|6/9|m6/9|min6/9|-6/9|" +
-    "7sus4?|9sus4?)?" + // Added '?' to make this group optional
+    "7sus4|9sus4)?" + // Corrected: removed '?' after sus4. Make the whole group optional.
     // 4. Optional Slash Bass note (e.g., "/C#") - Capture Group 4 (Root+Acc of bass)
-    // Uses non-capturing group `(?:...)` for the slash itself
-    "(?:\\/([A-Ga-g][#b]?))?" + // Capture Group 4 only contains the Bass Note + Accidental part
+    "(?:\\/([A-Ga-g][#b]?))?" + // Capture Group 4 only contains the Bass Note + optional single Accidental part
     // End of string anchor
     "$"
 );

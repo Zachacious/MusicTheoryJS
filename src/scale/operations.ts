@@ -120,11 +120,9 @@ export function getDegree(scale: Scale, degree: number): Note | undefined {
   const index = degree - 1;
   const scaleLength = scale.notes.length;
 
-  // Handle degrees outside the base scale length (positive or negative)
   // Calculate how many octaves away the target degree is
   const octaveOffset = Math.floor(index / scaleLength);
   // Calculate the equivalent index within the base scale (0 to scaleLength-1)
-  // Ensure positive result for negative indices using the modulo trick
   const wrappedIndex = ((index % scaleLength) + scaleLength) % scaleLength;
 
   // Get the base note from the scale at the wrapped index
@@ -135,36 +133,24 @@ export function getDegree(scale: Scale, degree: number): Note | undefined {
     return undefined;
   }
 
-  // If no octave offset is needed (degree was within the first octave 1..scaleLength)
+  // If no octave offset is needed, return the note directly from the scale array
   if (octaveOffset === 0) {
-    return baseNote; // Return the note directly from the scale array
+    return baseNote;
   }
 
-  // If an octave offset is needed, create a new Note object with the adjusted octave.
-  // Preserve the original note's spelling (letter, accidental) and microtonal properties.
-  // Use createNoteFromParts to set the core properties correctly.
+  // If an octave offset is needed, transpose the base note by the required number of semitones.
+  // The transpose function should handle preserving microtonal properties correctly by default.
   try {
-    const transposedNote = createNoteFromParts({
-      letter: baseNote.letter,
-      accidental: baseNote.accidental,
-      octave: baseNote.octave + octaveOffset, // Apply octave shift
-      // Does not automatically preserve microtonal info
+    // Transpose by full octaves (12 semitones per octave)
+    return transpose(baseNote, octaveOffset * 12, {
+      // Options for transpose:
+      // prefer spelling? Use baseNote's spelling implicitly via transpose.
+      // includeCachedValues? Let transpose handle based on its defaults/options passed down? Assume true default.
+      preserveMicrotonalProperties: true, // Ensure microtones are carried over
     });
-    // Manually add microtonal properties if they existed on the baseNote
-    if (isMicrotonalNote(baseNote)) {
-      return Object.freeze({
-        ...transposedNote,
-        cents: baseNote.cents,
-        microtonalModifier: baseNote.microtonalModifier,
-        tuningSystem: (baseNote as any).tuningSystem,
-        // Add potentially cached values? Needs recalculation for new octave.
-      }) as Note;
-    } else {
-      return transposedNote; // Return standard note
-    }
   } catch (e) {
     console.error(`Error adjusting octave for degree ${degree}:`, e);
-    return undefined; // Return undefined if octave adjustment fails
+    return undefined; // Return undefined if octave transposition fails
   }
 }
 

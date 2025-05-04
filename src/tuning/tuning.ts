@@ -309,56 +309,81 @@ function calculateJustIntonationAdjustment(
  * derived from the Pythagorean system. Assumes reference note is the base (0 offset).
  */
 function calculatePythagoreanAdjustment(note: Note, reference: Note): number {
-  // Calculate the interval (in semitones, 0-11) from reference pitch class to note pitch class
+  // Calculate the interval in 12-TET semitones (0-11)
   const semitonesFromRef =
     (note.pitchClassIndex - reference.pitchClassIndex + 12) % 12;
 
-  // Approximate Pythagorean tuning cents offsets relative to 12-TET (C=0 reference point)
-  // Key: semitone interval from reference, Value: cents deviation from 12-TET
-  // These values represent the difference between Pythagorean intervals and ET intervals.
-  // const pythagoreanOffsets: Readonly<Record<number, number>> = {
-  //   // Make readonly
-  //   0: 0, // Unison (0c)
-  //   // 1: -9.78, // Pythagorean m2 (256/243 ≈ 90.22c) vs ET m2 (100c) -> Flat? No, should be sharp. Error in original data. Let's recalculate.
-  //   // P5 = 701.96c. Stack 5ths: C-G-D-A-E-B-F#-C#-G#-D#-A#-E#-B#
-  //   // Intervals from C: G(702), D(204), A(906), E(408), B(1110), F#(612), C#(114) ...
-  //   // Deviations vs ET (0,200,400,500,700,900,1100): G(+2), D(+4), A(+6), E(+8), B(+10), F#(+12), C#(+14) ...
-  //   // Fifths down: C-F-Bb-Eb-Ab-Db-Gb-Cb...
-  //   // Intervals from C: F(498), Bb(996), Eb(294), Ab(792), Db(90), Gb(588), Cb(1086)
-  //   // Deviations vs ET: F(-2), Bb(-4), Eb(-6), Ab(-8), Db(-10), Gb(-12), Cb(-14)
-  //   // Combined Offsets (0-11): C=0, Db=-10, D=4, Eb=-6, E=8, F=-2, Gb=-12, G=2, Ab=-8, A=6, Bb=-4, B=10
-  //   // Original constants file used different values [0, 12, 4, 16, 8, 0, 12, 2, 14, 6, 18, 10] - this seems wrong/inconsistent. Using recalculated ones.
-  //   1: -9.78, // Db (-10c approx)
-  //   2: 3.91, // D (+4c approx)
-  //   3: -5.87, // Eb (-6c approx)
-  //   4: 7.82, // E (+8c approx)
-  //   5: -1.96, // F (-2c approx)
-  //   6: -11.73, // Gb (-12c approx)
-  //   7: 1.96, // G (+2c approx)
-  //   8: -7.82, // Ab (-8c approx)
-  //   9: 5.87, // A (+6c approx)
-  //   10: -3.91, // Bb (-4c approx)
-  //   11: 9.78, // B (+10c approx)
-  // };
-  // Sticking to original provided code's offset map, even if potentially inaccurate.
-  const pythagoreanOffsetsOriginal: Record<number, number> = {
-    0: 0,
-    1: 14,
-    2: 4,
-    3: 18,
-    4: 8,
-    5: -2,
-    6: 12,
-    7: 2,
-    8: 16,
-    9: 6,
-    10: 20,
-    11: 10,
+  // Calculate the number of perfect fifth steps needed to reach this interval from the root (0)
+  // This corresponds to the position on the circle of fifths (C=0, G=1, D=2 ... F= -1 or 11)
+  // Formula: index = (semitones * 7) % 12 (where 7 is inverse of 5 mod 12, no wait, that's diatonic steps)
+  // Simpler: Find which power of 3/2 (mod octave) lands closest to the target interval.
+  // Or use the standard circle of fifths mapping:
+  const fifthStepsMap: Record<number, number> = {
+    // semitone -> fifth steps away from C
+    0: 0, // C
+    7: 1, // G
+    2: 2, // D
+    9: 3, // A
+    4: 4, // E
+    11: 5, // B
+    6: 6, // F#
+    1: 7, // C# (enharmonic Db usually derived differently, but standard Pythagorean uses this)
+    8: 8, // G#
+    3: 9, // D#
+    10: 10, // A#
+    5: -1, // F (or 11 steps up)
+    // Alternative representation for flats derived downwards? No, standard pythagorean is based on 12 fifths.
   };
 
-  // Return the offset for the calculated interval, default to 0 if not found (shouldn't happen for 0-11)
-  return pythagoreanOffsetsOriginal[semitonesFromRef] ?? 0;
+  const fifthSteps = fifthStepsMap[semitonesFromRef];
+  if (fifthSteps === undefined) {
+    console.warn(
+      `Could not determine circle of fifths steps for interval ${semitonesFromRef}`
+    );
+    return 0; // Should not happen for 0-11
+  }
+
+  // Calculate the precise Pythagorean cents value for that number of fifths
+  // Cents = (steps * CentsPerFifth) mod 1200
+  const centsPerPythagoreanFifth = 1200 * Math.log2(3 / 2); // ~701.955
+  const pythagoreanCents =
+    (((fifthSteps * centsPerPythagoreanFifth) % 1200) + 1200) % 1200;
+
+  // Calculate the standard 12-TET cents value
+  const equalTemperedCents = semitonesFromRef * CENTS_PER_SEMITONE;
+
+  // Adjustment is the difference
+  const adjustment = pythagoreanCents - equalTemperedCents;
+
+  // Handle the Pythagorean comma issue where stacking 12 fifths slightly overshoots
+  // This simple model might place enharmonics slightly differently than historical practice.
+  // Return adjustment, potentially rounding slightly for practical use? No, return precise.
+  return adjustment;
 }
+
+/**
+ * @internal
+ * Pre-calculated cents adjustments for 1/4-comma meantone relative to 12-TET.
+ * Derived from stacking meantone fifths (~696.578 cents) and prioritizing pure M3 (386.31 cents).
+ * Assumes standard enharmonic spellings (e.g., using C#, Eb, F#, Ab, Bb).
+ */
+const QC_MEANTONE_ADJUSTMENTS: Readonly<Record<number, number>> = Object.freeze(
+  {
+    // semitone_interval_from_ref: cents_deviation_from_12TET
+    0: 0.0, // C -> C (Unison)
+    1: -23.95, // Db/C# -> C# (7 * P5') = 76.05c vs 100c
+    2: -6.84, // D -> D (2 * P5') = 193.16c vs 200c
+    3: 9.74, // Eb/D# -> Eb (-3 * P5') = 309.74c vs 300c
+    4: -13.69, // E -> E (4 * P5', Pure M3) = 386.31c vs 400c
+    5: 3.42, // F -> F (-1 * P5') = 503.42c vs 500c
+    6: -20.53, // F#/Gb -> F# (6 * P5') = 579.47c vs 600c
+    7: -3.42, // G -> G (1 * P5') = 696.58c vs 700c
+    8: 13.16, // Ab/G# -> Ab (-4 * P5') = 813.16c vs 800c
+    9: -10.26, // A -> A (3 * P5') = 889.74c vs 900c
+    10: 6.84, // Bb/A# -> Bb (-2 * P5') = 1006.84c vs 1000c
+    11: -17.11, // B -> B (5 * P5') = 1082.89c vs 1100c
+  }
+);
 
 /**
  * @internal
@@ -376,31 +401,8 @@ function calculateQCMeantoneAdjustment(note: Note, reference: Note): number {
   const semitonesFromRef =
     (note.pitchClassIndex - reference.pitchClassIndex + 12) % 12;
 
-  // Approximate Quarter-comma meantone cents offsets relative to 12-TET (C=0 reference point)
-  // Values represent the difference between 1/4-comma meantone intervals and ET intervals.
-  const meantoneOffsets: Readonly<Record<number, number>> = {
-    // Make readonly
-    0: 0, // Unison (0c)
-    // 1: 31.28, // m2 (sharper) - Original had -24, recalculate based on M3=386.31. 4*P5-2*Oct = M3. P5 = (386.31+2400)/4 = 696.58c. Wolf fifth is large.
-    // C-G-D-A-E. G=697, D=193, A=890, E=386. F=C-P5 = 503. Bb=999. Eb=303. G#=A-m3 = 890-310=580? No, stack fifths.
-    // Offsets vs ET (0, 100..1100): G(-3), D(-7), A(-10), E(-14). F(+3), Bb(+0), Eb(+3), Ab(+7). C#=G-d5 = 697-600?=97. G#=D#-P5=193+697=890? No. C-G-D-A-E-B-F#-C# ... B=E+P5=386+697=1083(-17). F#=1083+697-1200=580(-20). C#=580+697-1200=77(-23).
-    // Offsets: C=0, C#=-23, D=-7, Eb=+17?, E=-14, F=+3, F#=-20, G=-3, G#=+1?, A=-10, Bb=+0?, B=-17
-    // Let's use the offsets provided in the original code block for adherence.
-    1: -24, // Original value
-    2: -7, // Original value
-    3: 10, // Original value
-    4: -14, // Original value (Pure M3 is ~386, ET M3 is 400)
-    5: 3, // Original value
-    6: -21, // Original value
-    7: -3, // Original value (Meantone 5th is slightly flat)
-    8: 14, // Original value
-    9: -10, // Original value
-    10: 7, // Original value
-    11: -17, // Original value
-  };
-
-  // Return the offset for the calculated interval, default to 0 if not found
-  return meantoneOffsets[semitonesFromRef] ?? 0;
+  // Return the pre-calculated offset for the interval, default to 0 if somehow not found
+  return QC_MEANTONE_ADJUSTMENTS[semitonesFromRef] ?? 0;
 }
 
 /**
@@ -500,99 +502,99 @@ export function registerTuningSystem(
   TUNING_SYSTEMS[name] = properties;
 }
 
-/**
- * Calculates the frequency ratio between two Note objects.
- * It prioritizes using cached `frequency` properties if available on both notes,
- * otherwise falls back to calculating the ratio based on the 12-TET semitone difference.
- *
- * @param note1 - The first Note object (denominator).
- * @param note2 - The second Note object (numerator).
- * @returns The frequency ratio (frequency of note2 / frequency of note1).
- * @throws {Error} If either note is invalid or if note1's frequency is zero or undefined when needed for fallback.
- * @remarks This function may provide approximate results if notes lack cached frequencies,
- * as it falls back to assuming 12-TET intervals. For precise ratios including microtones
- * when frequencies aren't cached, calculate frequencies first using `noteToFrequency`.
- * Note: Potential duplicate of function in `frequency.ts`. This implementation differs slightly.
- */
-export function getFrequencyRatio(note1: Note, note2: Note): number {
-  // --- Input Validation ---
-  if (!note1 || !note2) {
-    throw new Error("Invalid Note object(s) provided to getFrequencyRatio.");
-  }
-  // --- End Validation ---
+// /**
+//  * Calculates the frequency ratio between two Note objects.
+//  * It prioritizes using cached `frequency` properties if available on both notes,
+//  * otherwise falls back to calculating the ratio based on the 12-TET semitone difference.
+//  *
+//  * @param note1 - The first Note object (denominator).
+//  * @param note2 - The second Note object (numerator).
+//  * @returns The frequency ratio (frequency of note2 / frequency of note1).
+//  * @throws {Error} If either note is invalid or if note1's frequency is zero or undefined when needed for fallback.
+//  * @remarks This function may provide approximate results if notes lack cached frequencies,
+//  * as it falls back to assuming 12-TET intervals. For precise ratios including microtones
+//  * when frequencies aren't cached, calculate frequencies first using `noteToFrequency`.
+//  * Note: Potential duplicate of function in `frequency.ts`. This implementation differs slightly.
+//  */
+// export function getFrequencyRatio(note1: Note, note2: Note): number {
+//   // --- Input Validation ---
+//   if (!note1 || !note2) {
+//     throw new Error("Invalid Note object(s) provided to getFrequencyRatio.");
+//   }
+//   // --- End Validation ---
 
-  // Prioritize using cached frequency values if available and valid
-  if (note1.frequency && note2.frequency && note1.frequency > 0) {
-    return note2.frequency / note1.frequency;
-  }
+//   // Prioritize using cached frequency values if available and valid
+//   if (note1.frequency && note2.frequency && note1.frequency > 0) {
+//     return note2.frequency / note1.frequency;
+//   }
 
-  // Fallback: Calculate ratio based on semitone difference (assumes 12-TET)
-  // This ignores microtonal cents property if frequency isn't cached.
-  // Calculate total semitone difference including octaves
-  const semitones =
-    ((note2.pitchClassIndex - note1.pitchClassIndex + 12) % 12) + // Difference within octave
-    (note2.octave - note1.octave) * 12; // Difference from octaves
+//   // Fallback: Calculate ratio based on semitone difference (assumes 12-TET)
+//   // This ignores microtonal cents property if frequency isn't cached.
+//   // Calculate total semitone difference including octaves
+//   const semitones =
+//     ((note2.pitchClassIndex - note1.pitchClassIndex + 12) % 12) + // Difference within octave
+//     (note2.octave - note1.octave) * 12; // Difference from octaves
 
-  // Ratio = 2^(semitones / 12)
-  return Math.pow(2, semitones / 12);
-}
+//   // Ratio = 2^(semitones / 12)
+//   return Math.pow(2, semitones / 12);
+// }
 
-/**
- * Converts a frequency ratio to its equivalent interval size in cents.
- * Formula: cents = 1200 * log2(ratio)
- *
- * @param ratio - The frequency ratio (e.g., 1.5 for a perfect fifth). Must be positive.
- * @returns The interval size in cents.
- * @throws {Error} If the ratio is non-positive or not a finite number.
- * @remarks Note: Potential duplicate of function in `calculations.ts`.
- * @example
- * ```ts
- * ratioToCents(2); // 1200 (Octave)
- * ratioToCents(3/2); // ~701.955 (Perfect Fifth)
- * ratioToCents(5/4); // ~386.31 (Major Third)
- * ```
- */
-export function ratioToCents(ratio: number): number {
-  // --- Input Validation ---
-  if (typeof ratio !== "number" || !(ratio > 0) || !Number.isFinite(ratio)) {
-    // Check > 0 and finite
-    throw new Error(
-      `Invalid frequency ratio: ${ratio}. Must be a positive finite number.`
-    );
-  }
-  // --- End Validation ---
+// /**
+//  * Converts a frequency ratio to its equivalent interval size in cents.
+//  * Formula: cents = 1200 * log2(ratio)
+//  *
+//  * @param ratio - The frequency ratio (e.g., 1.5 for a perfect fifth). Must be positive.
+//  * @returns The interval size in cents.
+//  * @throws {Error} If the ratio is non-positive or not a finite number.
+//  * @remarks Note: Potential duplicate of function in `calculations.ts`.
+//  * @example
+//  * ```ts
+//  * ratioToCents(2); // 1200 (Octave)
+//  * ratioToCents(3/2); // ~701.955 (Perfect Fifth)
+//  * ratioToCents(5/4); // ~386.31 (Major Third)
+//  * ```
+//  */
+// export function ratioToCents(ratio: number): number {
+//   // --- Input Validation ---
+//   if (typeof ratio !== "number" || !(ratio > 0) || !Number.isFinite(ratio)) {
+//     // Check > 0 and finite
+//     throw new Error(
+//       `Invalid frequency ratio: ${ratio}. Must be a positive finite number.`
+//     );
+//   }
+//   // --- End Validation ---
 
-  // Standard formula for ratio to cents conversion
-  return CENTS_PER_OCTAVE * Math.log2(ratio); // 1200 * log2(ratio)
-}
+//   // Standard formula for ratio to cents conversion
+//   return CENTS_PER_OCTAVE * Math.log2(ratio); // 1200 * log2(ratio)
+// }
 
-/**
- * Converts an interval size in cents to its equivalent frequency ratio.
- * Formula: ratio = 2^(cents / 1200)
- *
- * @param cents - The interval size in cents.
- * @returns The corresponding frequency ratio multiplier.
- * @throws {Error} If cents is not a finite number.
- * @remarks Note: Potential duplicate of function in `calculations.ts`.
- * @example
- * ```ts
- * centsToRatio(1200); // 2.0 (Octave)
- * centsToRatio(701.955); // ~1.5 (Perfect Fifth)
- * centsToRatio(386.31); // ~1.25 (Major Third)
- * centsToRatio(100); // ~1.059 (Semitone)
- * ```
- */
-export function centsToRatio(cents: number): number {
-  // --- Input Validation ---
-  if (typeof cents !== "number" || !Number.isFinite(cents)) {
-    throw new Error(`Invalid cents value: ${cents}. Must be a finite number.`);
-  }
-  // --- End Validation ---
+// /**
+//  * Converts an interval size in cents to its equivalent frequency ratio.
+//  * Formula: ratio = 2^(cents / 1200)
+//  *
+//  * @param cents - The interval size in cents.
+//  * @returns The corresponding frequency ratio multiplier.
+//  * @throws {Error} If cents is not a finite number.
+//  * @remarks Note: Potential duplicate of function in `calculations.ts`.
+//  * @example
+//  * ```ts
+//  * centsToRatio(1200); // 2.0 (Octave)
+//  * centsToRatio(701.955); // ~1.5 (Perfect Fifth)
+//  * centsToRatio(386.31); // ~1.25 (Major Third)
+//  * centsToRatio(100); // ~1.059 (Semitone)
+//  * ```
+//  */
+// export function centsToRatio(cents: number): number {
+//   // --- Input Validation ---
+//   if (typeof cents !== "number" || !Number.isFinite(cents)) {
+//     throw new Error(`Invalid cents value: ${cents}. Must be a finite number.`);
+//   }
+//   // --- End Validation ---
 
-  // Standard formula for cents to ratio conversion
-  // 1200 cents per octave (CENTS_PER_OCTAVE)
-  return Math.pow(2, cents / CENTS_PER_OCTAVE);
-}
+//   // Standard formula for cents to ratio conversion
+//   // 1200 cents per octave (CENTS_PER_OCTAVE)
+//   return Math.pow(2, cents / CENTS_PER_OCTAVE);
+// }
 
 /**
  * Calculates the interval difference between two frequencies in cents.
