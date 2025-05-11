@@ -10,19 +10,10 @@
  * Assumes standard A4=440Hz tuning unless otherwise specified (e.g., in `retune`).
  */
 
-import {
-  A4_FREQUENCY,
-  A4_MIDI,
-  CENTS_PER_OCTAVE,
-  SEMITONES_PER_OCTAVE,
-} from "./constants";
+import { A4_FREQUENCY, A4_MIDI, SEMITONES_PER_OCTAVE } from "./constants";
 import { EnharmonicPreference, Note } from "./types";
 // Import necessary calculation functions - note potential dependencies
-import {
-  calculateCentsDeviation,
-  getMidiWithCents,
-  noteToMidi,
-} from "./calculations";
+import { calculateCentsDeviation, getMidiWithCents } from "./calculations";
 
 // Import necessary creation functions
 import { createNoteFromFrequency } from "./creation";

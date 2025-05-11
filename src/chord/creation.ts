@@ -19,7 +19,6 @@ import {
   formatNote,
   notesAreEqual,
   transpose,
-  transposeByCents,
 } from "../note";
 // Import chord constants and types used in creation
 import {
@@ -38,6 +37,8 @@ import {
 } from "./types";
 // Import voicing helper functions
 import { getChordInversion, sortChordNotes } from "./voicing"; // Assuming these exist
+
+import { transposeByCents } from "../note/calculations";
 
 // import { ScalePattern } from "../scale";
 // Import specific creation function from note module's frequency file
@@ -1017,7 +1018,7 @@ export function createMicrotonalChord(
       // Interpret interval as cents, transpose precisely
       note = transposeByCents(root, interval, {
         prefer: options.prefer,
-        includeCachedValues: options.includeCachedValues,
+        // includeCachedValues: options.includeCachedValues,
       });
     } else {
       // Interpret as semitones (possibly with fraction)

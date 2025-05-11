@@ -113,7 +113,7 @@ export {
   respellNote, // Change enharmonic spelling
   addCentsToNote, // Add cents offset, returns MicrotonalNote
   createQuarterToneNote, // Convenience for +/- 50 cents
-  transposeByCents, // Transpose precisely by cents
+  // transposeByCents, // Transpose precisely by cents
   convertToQuarterTone, // Convert note to nearest 24-TET representation
   // Export Option types alongside their functions
   type TransposeOptions,

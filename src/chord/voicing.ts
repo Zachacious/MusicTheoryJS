@@ -14,14 +14,7 @@ import {
   COMMON_VOICINGS,
   SCALE_DEGREE_SEMITONES,
 } from "./constants";
-import {
-  Chord,
-  ChordCategory,
-  ChordFormula,
-  ChordInversion,
-  ChordOptions,
-  ChordQuality,
-} from "./types";
+import { Chord, ChordCategory, ChordFormula, ChordQuality } from "./types";
 // Import necessary Note types and functions
 import {
   Note,
@@ -29,8 +22,7 @@ import {
   createNoteFromParts,
   formatNote,
   intervalBetween,
-  notesAreEqual,
-  transpose
+  transpose,
 } from "../note";
 
 /**

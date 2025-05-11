@@ -21,7 +21,6 @@ import {
   MICROTONAL_CENTS_ADJUSTMENT,
   NOTE_LETTER_BASE_INDEX,
   SEMITONES_PER_OCTAVE,
-  TUNING_SYSTEMS,
 } from "./constants";
 import {
   Accidental,

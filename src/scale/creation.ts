@@ -12,7 +12,6 @@ import {
   Accidental,
   CENTS_PER_OCTAVE,
   CENTS_PER_SEMITONE,
-  EnharmonicPreference,
   Note,
   NoteLetter,
   TuningSystem,
@@ -23,7 +22,6 @@ import {
   intervalBetween,
   notesAreEqual,
   transpose,
-  transposeByCents,
 } from "../note";
 import {
   ModeName,
@@ -37,6 +35,7 @@ import {
 import { SCALE_PATTERNS } from "./constants";
 // Import tuning application function (dependency for createTunedScale)
 import { applyTuningSystem } from "../tuning/tuning"; // Assuming tuning module exists and exports this
+import { transposeByCents } from "../note/calculations";
 
 // Import specific creation function from note module's frequency file
 // import { createNoteByRatio } from "../note/frequency"; // Used by createJustIntonationScale
@@ -481,7 +480,7 @@ export function createCustomScale(
       // Interpret interval as cents, transpose precisely
       nextNote = transposeByCents(root, interval, {
         prefer: options.prefer, // Pass preference
-        includeCachedValues: options.includeCachedValues, // Pass cache flag
+        // includeCachedValues: options.includeCachedValues, // Pass cache flag
       });
     } else {
       // Interpret interval as semitones (possibly with fraction)
@@ -906,7 +905,7 @@ export function createEDOScale(
     // Use transposeByCents for accuracy
     return transposeByCents(root, cents, {
       prefer: options.prefer ?? "sharp",
-      includeCachedValues: options.includeCachedValues ?? true,
+      // includeCachedValues: options.includeCachedValues ?? true,
       // Let createNote handle potential tuningSystem tag if relevant
     });
   });

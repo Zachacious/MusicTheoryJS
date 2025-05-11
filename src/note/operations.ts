@@ -9,13 +9,9 @@
  */
 
 import {
-  A4_FREQUENCY,
-  A4_MIDI,
   C0_MIDI,
-  CENTS_PER_OCTAVE,
   CENTS_PER_SEMITONE,
   MICROTONAL_CENTS_ADJUSTMENT,
-  SEMITONES_PER_OCTAVE,
 } from "./constants";
 import {
   EnharmonicPreference,
@@ -26,8 +22,12 @@ import {
   isMicrotonalNote,
 } from "./types";
 import {
-  calculateMidi,
-  centsToRatio,
+  createNoteFromMidi,
+  createNoteFromParts,
+  createNoteFromQuarterToneIndex,
+  createNoteObject,
+} from "./creation";
+import {
   formatNotation,
   formatNote,
   getCentsBetween,
@@ -36,13 +36,6 @@ import {
   pitchClassIndexToLetterAccidental,
   transposeByCents,
 } from "./calculations";
-import {
-  createNoteFromFrequency,
-  createNoteFromMidi,
-  createNoteFromParts,
-  createNoteFromQuarterToneIndex,
-  createNoteObject,
-} from "./creation";
 
 // Assuming Interval type is correctly defined and imported from elsewhere
 import { Interval } from "../interval";

@@ -8,12 +8,7 @@
  */
 
 // Import Note types and operations needed
-import {
-  Note,
-  createNoteFromParts,
-  isMicrotonalNote,
-  transpose,
-} from "../note";
+import { Note, createNoteFromParts, transpose } from "../note";
 // Import Scale types used in functions
 import { Scale, ScaleOptions, ScalePattern } from "./types"; // Added ModeName used in getMode
 // Import Scale creation functions used by operations
