@@ -1,7 +1,8 @@
 {
   "$schema": "https://typedoc.org/schema.json",
   "entryPoints": ["src/index.ts"],
-  "out": "docs/public/api",
+  "out": "docs/.vitepress/dist/api",
+  "readme": "none",
   "excludeInternal": true,
   "excludePrivate": true,
   "categorizeByGroup": true,

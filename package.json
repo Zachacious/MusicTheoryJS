@@ -101,7 +101,7 @@
     "format": "biome format --write .",
     "docs:api": "typedoc",
     "docs:dev": "vitepress dev docs",
-    "docs:build": "bun run docs:api && vitepress build docs",
+    "docs:build": "vitepress build docs && bun run docs:api",
     "docs:preview": "vitepress preview docs",
     "changeset": "changeset",
     "version": "changeset version",
