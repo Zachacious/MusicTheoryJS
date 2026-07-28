@@ -31,9 +31,7 @@
     "bun": ">=1.1.0",
     "node": ">=18"
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -105,7 +103,7 @@
     "docs:build": "cd docs && bun install && bun run build",
     "docs:preview": "cd docs && bun run preview",
     "changeset": "changeset",
-    "version": "changeset version",
+    "version": "changeset version && biome check --write .",
     "release": "bun run build && changeset publish",
     "prepublishOnly": "bun run lint && bun run typecheck && bun test && bun run build && node scripts/e2e.mjs && node scripts/e2e.cjs"
   },

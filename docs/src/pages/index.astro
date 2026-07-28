@@ -1,0 +1,319 @@
+---
+import { Code } from "astro:components";
+import Landing from "../layouts/Landing.astro";
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+const docs = `${base}guides/getting-started/`;
+const concepts = `${base}guides/concepts/`;
+const api = `${base}api/`;
+
+const CODE_THEME = "night-owl";
+
+const heroSnippet = `import { Note, Scale, Chord } from "musictheoryjs";
+
+new Note("E#4").equals("F4");        // false — different notes
+new Note("E#4").isEnharmonic("F4");  // true  — same pitch
+
+Scale.from("C4", "major").noteNames();
+// ["C4", "D4", "E4", "F4", "G4", "A4", "B4"]
+
+Chord.from("Bdim7").noteNames();
+// ["B4", "D5", "F5", "Ab5"]   ← Ab, spelled correctly`;
+
+const spellingBad = `// A note stored as a number 0–11
+const pitchClass = 5;   // is this F? or E#? or Gbb?
+// You can't tell. The spelling is gone.`;
+
+const spellingGood = `const eSharp = new Note("E#4");
+eSharp.letter;             // "E"
+eSharp.pitchClass;         // 5
+eSharp.transpose(interval(3, "M")).toString(); // "G##4", not "A4"`;
+
+const tuningSnippet = `import { equalTemperament, centsTuning, justIntonation,
+         scaleFromTuning, frequencyOfNote, Note } from "musictheoryjs";
+
+frequencyOfNote(new Note("A4"));                 // 440   (12-TET default)
+frequencyOfNote(new Note("E4"), justIntonation()); // pure third above C
+
+// 24 equal divisions of the octave — quarter tones
+scaleFromTuning(equalTemperament(24));
+
+// A maqam Rast defined in cents, anchored to a real frequency
+const rast = centsTuning([0, 204, 355, 498, 702, 906, 1057], { name: "Rast" });
+scaleFromTuning(rast, { frequency: 264 }, true);`;
+
+const analysisSnippet = `import { detectKey, analyzeHarmony } from "musictheoryjs";
+
+detectKey(["C4", "E4", "G4"])[0].key.toString();   // "C major"
+
+// From a stream of timed notes (MIDI, a sequencer, a transcriber you supply):
+const { key, timeline, cadences } = analyzeHarmony(noteStream);
+// key: C major
+// timeline: [{ …, roman: "ii" }, { …, roman: "V" }, { …, roman: "I" }]
+// cadences: [{ type: "authentic", index: 1 }]`;
+
+const ioSnippet = `import { parseMidi, midiToNoteStream, writeMidi,
+         noteStreamToMidi, detectNote } from "musictheoryjs";
+
+// Read a MIDI file, spell its notes, analyze it, write one back
+const stream = midiToNoteStream(parseMidi(midiBytes));
+const bytes  = writeMidi(noteStreamToMidi(stream, { tempo: 500000 }));
+
+// Detect a pitch from audio samples you already have
+detectNote(float32Samples, 44100)?.toString();   // "A4"  (monophonic, YIN)`;
+
+const examples = [
+  {
+    title: "Roman numerals, both ways",
+    code: `Key.major("C").romanNumeral(Chord.from("G7")); // "V7"
+Key.major("C").chordFromRoman("bVII");           // Bb
+Key.major("C").progression("ii7 V7 Imaj7");      // [Dm7, G7, Cmaj7]`,
+  },
+  {
+    title: "Detect the chord from notes",
+    code: `detectChord(["G4", "B4", "D5", "F5"])?.toString(); // "G7"
+detectChord(["C4", "Eb4", "Gb4", "A4"])?.toString(); // "Cdim7"`,
+  },
+  {
+    title: "Scales, modes, and detection",
+    code: `Scale.from("D4", "dorian").noteNames();
+mode(Scale.from("C4", "major"), 6).tonic.toString(); // "A4"
+detectScales(["C4","D4","E4","G4","A4"]); // major pentatonic, …`,
+  },
+  {
+    title: "Voicings",
+    code: `drop2(Chord.from("Cmaj7")).map(String);
+// ["G3", "C4", "E4", "B4"]`,
+  },
+  {
+    title: "Intervals keep their spelling",
+    code: `new Note("C4").intervalTo("Fb4");   // diminished fourth
+intervalName(interval(4, "d"));      // "d4"  (not "M3")`,
+  },
+  {
+    title: "Import a Scala tuning file",
+    code: `const tuning = scalaTuning(sclFileText);
+tuning.size;               // number of notes in the scale
+tuning.centsForDegree(4);  // cents above the tonic`,
+  },
+];
+
+const stats = [
+  { n: "0", label: "runtime dependencies" },
+  { n: "46", label: "scale templates" },
+  { n: "32", label: "chord qualities" },
+  { n: "ESM + CJS", label: "with full types" },
+];
+---
+
+<Landing>
+  <!-- Hero -->
+  <section class="relative overflow-hidden">
+    <div
+      class="pointer-events-none absolute inset-x-0 -top-40 h-[30rem] bg-[radial-gradient(60%_60%_at_50%_0%,rgba(124,92,255,0.20),transparent_70%)]"
+    >
+    </div>
+    <div class="relative mx-auto max-w-6xl px-5 pt-16 pb-14 sm:pt-24">
+      <div class="grid items-center gap-12 lg:grid-cols-[1.05fr_1fr]">
+        <div>
+          <span
+            class="inline-flex items-center gap-2 rounded-full border border-violet-500/25 bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-700 dark:text-violet-300"
+          >
+            v3 · zero dependencies · ESM + CJS
+          </span>
+          <h1
+            class="mt-5 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl dark:text-white"
+          >
+            Music theory that keeps its
+            <span
+              class="bg-gradient-to-r from-violet-500 to-pink-500 bg-clip-text text-transparent"
+              >spelling</span
+            >.
+          </h1>
+          <p class="mt-5 max-w-xl text-lg leading-relaxed text-slate-600 dark:text-slate-400">
+            A JavaScript and TypeScript library for notes, scales, chords, and
+            keys that come out the way you'd write them by hand. It also does
+            microtonal tunings, MIDI files, and audio analysis, and it has no
+            runtime dependencies.
+          </p>
+          <div class="mt-8 flex flex-wrap items-center gap-3">
+            <a
+              href={docs}
+              class="rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-500"
+              >Get started</a
+            >
+            <a
+              href={concepts}
+              class="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-white/15 dark:text-slate-200 dark:hover:bg-white/5"
+              >Core concepts</a
+            >
+          </div>
+          <div
+            class="mt-6 inline-flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 font-mono text-sm text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-300"
+          >
+            <span class="text-violet-500">$</span>
+            <span>bun add musictheoryjs</span>
+          </div>
+        </div>
+
+        <div class="overflow-hidden rounded-2xl border border-slate-200 shadow-xl dark:border-white/10">
+          <div class="flex items-center gap-1.5 border-b border-slate-200 bg-slate-100 px-4 py-3 dark:border-white/10 dark:bg-white/5">
+            <span class="h-3 w-3 rounded-full bg-red-400/80"></span>
+            <span class="h-3 w-3 rounded-full bg-yellow-400/80"></span>
+            <span class="h-3 w-3 rounded-full bg-green-400/80"></span>
+          </div>
+          <div class="bg-[#011627] text-sm [&_pre]:!m-0 [&_pre]:!bg-transparent [&_pre]:p-5">
+            <Code code={heroSnippet} lang="ts" theme={CODE_THEME} />
+          </div>
+        </div>
+      </div>
+
+      <dl class="mt-16 grid grid-cols-2 gap-6 border-t border-slate-200 pt-10 sm:grid-cols-4 dark:border-white/10">
+        {stats.map((s) => (
+          <div>
+            <dt class="text-2xl font-bold text-slate-900 dark:text-white">{s.n}</dt>
+            <dd class="mt-1 text-sm text-slate-500 dark:text-slate-400">{s.label}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+
+  <!-- The problem -->
+  <section class="mx-auto max-w-6xl px-5 py-16">
+    <div class="mx-auto max-w-2xl text-center">
+      <h2 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+        The spelling is the point
+      </h2>
+      <p class="mt-4 text-slate-600 dark:text-slate-400">
+        Most small libraries reduce a note to a number from 0 to 11. That's
+        enough to sound the right pitch, but it loses whether you're looking at
+        an E♯ or an F. A lot of theory lives in that distinction: it decides
+        which scale a note belongs to, which interval it forms, and how a chord
+        is named.
+      </p>
+    </div>
+    <div class="mt-10 grid gap-5 md:grid-cols-2">
+      <div class="rounded-2xl border border-slate-200 p-1 dark:border-white/10">
+        <div class="rounded-xl bg-[#011627] p-1 [&_pre]:!m-0 [&_pre]:!bg-transparent [&_pre]:p-4 [&_pre]:text-sm">
+          <Code code={spellingBad} lang="ts" theme={CODE_THEME} />
+        </div>
+        <p class="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
+          A bare pitch class throws the spelling away.
+        </p>
+      </div>
+      <div class="rounded-2xl border border-violet-500/30 p-1">
+        <div class="rounded-xl bg-[#011627] p-1 [&_pre]:!m-0 [&_pre]:!bg-transparent [&_pre]:p-4 [&_pre]:text-sm">
+          <Code code={spellingGood} lang="ts" theme={CODE_THEME} />
+        </div>
+        <p class="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
+          Here the letter and the accidental are kept apart, so transposition
+          and naming stay correct.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature sections -->
+  <section class="border-y border-slate-200/70 bg-slate-50/60 dark:border-white/10 dark:bg-white/[0.02]">
+    <div class="mx-auto max-w-6xl space-y-20 px-5 py-20">
+
+      <div class="grid items-center gap-10 lg:grid-cols-2">
+        <div>
+          <h3 class="text-2xl font-bold text-slate-900 dark:text-white">
+            12-TET is a default, not a rule
+          </h3>
+          <p class="mt-4 text-slate-600 dark:text-slate-400">
+            Frequency comes from a tuning, and the tuning is something you pass
+            in. Twelve-tone equal temperament is the default because that's what
+            most people want, but it isn't wired into the core. Equal
+            temperaments of any size, Pythagorean, meantone, Just Intonation, a
+            maqam defined in cents, or a Scala file are all ordinary tunings.
+          </p>
+        </div>
+        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-[#011627] shadow-lg dark:border-white/10 [&_pre]:!m-0 [&_pre]:!bg-transparent [&_pre]:p-5 [&_pre]:text-sm">
+          <Code code={tuningSnippet} lang="ts" theme={CODE_THEME} />
+        </div>
+      </div>
+
+      <div class="grid items-center gap-10 lg:grid-cols-2">
+        <div class="order-2 overflow-hidden rounded-2xl border border-slate-200 bg-[#011627] shadow-lg lg:order-1 dark:border-white/10 [&_pre]:!m-0 [&_pre]:!bg-transparent [&_pre]:p-5 [&_pre]:text-sm">
+          <Code code={analysisSnippet} lang="ts" theme={CODE_THEME} />
+        </div>
+        <div class="order-1 lg:order-2">
+          <h3 class="text-2xl font-bold text-slate-900 dark:text-white">
+            Analysis, not just construction
+          </h3>
+          <p class="mt-4 text-slate-600 dark:text-slate-400">
+            Point it at a set of notes or a timed stream and it works backwards:
+            it detects the key with the Krumhansl–Schmuckler algorithm, segments
+            the music into a chord timeline, labels each chord with a Roman
+            numeral in the detected key, and marks the cadences.
+          </p>
+        </div>
+      </div>
+
+      <div class="grid items-center gap-10 lg:grid-cols-2">
+        <div>
+          <h3 class="text-2xl font-bold text-slate-900 dark:text-white">
+            MIDI and audio, without the extra packages
+          </h3>
+          <p class="mt-4 text-slate-600 dark:text-slate-400">
+            Read and write Standard MIDI Files with a small byte codec, and pull
+            pitch, chroma, and onsets out of audio samples with a
+            dependency-free DSP layer. Capturing audio and transcribing
+            polyphony need a platform API or a model, so those stay in your app;
+            the library takes the notes and gives back the theory.
+          </p>
+        </div>
+        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-[#011627] shadow-lg dark:border-white/10 [&_pre]:!m-0 [&_pre]:!bg-transparent [&_pre]:p-5 [&_pre]:text-sm">
+          <Code code={ioSnippet} lang="ts" theme={CODE_THEME} />
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Examples grid -->
+  <section class="mx-auto max-w-6xl px-5 py-20">
+    <div class="max-w-2xl">
+      <h2 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+        A few more things it does
+      </h2>
+      <p class="mt-4 text-slate-600 dark:text-slate-400">
+        Real snippets, with the results in the comments. The
+        <a href={docs} class="text-violet-600 underline-offset-2 hover:underline dark:text-violet-400">guides</a>
+        cover each area in depth.
+      </p>
+    </div>
+    <div class="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+      {examples.map((ex) => (
+        <div class="flex flex-col overflow-hidden rounded-2xl border border-slate-200 dark:border-white/10">
+          <div class="border-b border-slate-200 px-4 py-3 text-sm font-semibold text-slate-800 dark:border-white/10 dark:text-slate-100">
+            {ex.title}
+          </div>
+          <div class="flex-1 bg-[#011627] [&_pre]:!m-0 [&_pre]:!bg-transparent [&_pre]:p-4 [&_pre]:text-[13px]">
+            <Code code={ex.code} lang="ts" theme={CODE_THEME} />
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="border-t border-slate-200/70 dark:border-white/10">
+    <div class="mx-auto max-w-6xl px-5 py-20 text-center">
+      <h2 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+        Read the docs
+      </h2>
+      <p class="mx-auto mt-4 max-w-xl text-slate-600 dark:text-slate-400">
+        Start with the concepts, then work through the guides. Every function is
+        in the API reference.
+      </p>
+      <div class="mt-8 flex flex-wrap justify-center gap-3">
+        <a href={docs} class="rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-violet-500">Get started</a>
+        <a href={api} class="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-white/15 dark:text-slate-200 dark:hover:bg-white/5">API reference</a>
+      </div>
+    </div>
+  </section>
+</Landing>
