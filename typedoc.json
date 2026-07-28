@@ -1,6 +1,13 @@
 {
-   "entryPoints": ["./src/index.ts"],
-    "out": "docs",
-    "excludeInternal": true,
-    "excludeProtected": true
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["src/index.ts"],
+  "out": "docs/public/api",
+  "excludeInternal": true,
+  "excludePrivate": true,
+  "categorizeByGroup": true,
+  "githubPages": false,
+  "navigationLinks": {
+    "Guide": "https://zachacious.github.io/MusicTheoryJS/",
+    "GitHub": "https://github.com/Zachacious/MusicTheoryJS"
+  }
 }

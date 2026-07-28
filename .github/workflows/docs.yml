@@ -1,0 +1,48 @@
+name: Docs
+
+# Builds the VitePress documentation site (guides + examples) together with the
+# TypeDoc API reference, and deploys it to GitHub Pages on every push to the
+# default branch. Enable Pages for the repo (Settings → Pages → Source:
+# GitHub Actions) for the deploy step to succeed.
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build docs (TypeDoc API + VitePress site)
+        run: bun run docs:build
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/.vitepress/dist
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

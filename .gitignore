@@ -1,12 +1,12 @@
-# Visual Studio 2015 cache/options directory
-.vs/
-bower_components/
 node_modules/
+dist/
+coverage/
+*.log
+.DS_Store
+.idea/
+.vscode/
 
-/dist
-/coverage
-/demo
-
-#Exclude tsc generated files
-js/*.map
-js/ts.js
+# Docs build artifacts (VitePress output, cache, generated API reference)
+docs/.vitepress/dist/
+docs/.vitepress/cache/
+docs/public/api/
