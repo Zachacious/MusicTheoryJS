@@ -63,6 +63,11 @@
       "import": "./dist/key/index.js",
       "require": "./dist/key/index.cjs"
     },
+    "./analysis": {
+      "types": "./dist/analysis/index.d.ts",
+      "import": "./dist/analysis/index.js",
+      "require": "./dist/analysis/index.cjs"
+    },
     "./tuning": {
       "types": "./dist/tuning/index.d.ts",
       "import": "./dist/tuning/index.js",

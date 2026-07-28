@@ -85,6 +85,42 @@ detectScales(["C4","D4","E4","F4","G4","A4","B4"]); // C major, A minor, D doria
 drop2(Chord.from("Cmaj7")).map(String); // ["G3","C4","E4","B4"]
 ```
 
+## Analyzing note streams
+
+The library is purely symbolic — it never touches audio. A client app supplies
+timed `NoteEvent`s (from MIDI, a transcriber, a sequencer, live input, …) and
+gets music theory back.
+
+```ts
+import {
+  detectKey, segmentChords, onsetTimes, intervalClassVector, Note,
+} from "musictheoryjs";
+
+// Turn a detected pitch or MIDI number into a note
+Note.fromFrequency(442);  // A4  (snapped to nearest 12-TET)
+Note.fromMidi(60);        // C4
+
+// Key detection (Krumhansl-Schmuckler) — ranked, best first
+detectKey(["C4","E4","G4","A4","D5","F5"])[0].key.toString(); // "C major"
+
+// Set-theory fingerprint (transposition/inversion-invariant)
+intervalClassVector(["C4","Eb4","Gb4","A4"]); // [0,0,4,0,0,2]  (dim7)
+
+// Chord timeline from a timed stream
+const stream = [
+  { pitch: new Note("D4"), start: 0, duration: 4 },
+  { pitch: new Note("F4"), start: 0, duration: 4 },
+  { pitch: new Note("A4"), start: 0, duration: 4 },
+  { pitch: new Note("G4"), start: 4, duration: 4 },
+  /* … */
+];
+segmentChords(stream, [...onsetTimes(stream), 12]);
+// [{ start:0, end:4, chord: Dm }, { start:4, end:8, chord: G }, …]
+```
+
+Feed the detected chords into a `Key` for Roman-numeral analysis, or the
+duration-weighted histogram (`pitchClassWeightsFromStream`) into `detectKey`.
+
 ## Microtonal & non-Western music
 
 Microtonal pitches are not "deviations" from the Western grid — they are ordinary
@@ -129,6 +165,7 @@ Every area is also a subpath, so you can pull in exactly one concern:
 import { Note } from "musictheoryjs/note";
 import { Chord } from "musictheoryjs/chord";
 import { Key } from "musictheoryjs/key";
+import { detectKey } from "musictheoryjs/analysis";
 import { equalTemperament } from "musictheoryjs/tuning";
 ```
 
@@ -141,6 +178,7 @@ import { equalTemperament } from "musictheoryjs/tuning";
 | `scale` | `Scale.from(tonic, name)`, `.notes`/`.degree`/`.contains`, `mode`/`modes`, `detectScales`, `scaleFromTuning` |
 | `chord` | `Chord.from(symbol)`, `Chord.of(root, quality)`, `.invert`, quality tests, `detectChord`, `closeVoicing`/`drop2`/`drop3`/`spread` |
 | `key` | `Key.major`/`Key.minor`, `.signature`, `.chord(degree)`, `.romanNumeral`/`.chordFromRoman`, `.progression`, `.relative`/`.parallel` |
+| `analysis` | `NoteEvent`/`NoteStream`, `detectKey`, `detectChordAt`/`segmentChords`/`onsetTimes`, `pitchClasses`/`intervalClassVector`; `Note.fromMidi`/`fromFrequency` |
 | `tuning` | `Tuning` interface, `equalTemperament`/`edo`, `pythagorean`, `quarterCommaMeantone`, `justIntonation`, `centsTuning`, `ratioTuning`, `scalaTuning`, `frequencyOfNote`, `frequencyOfDegree` |
 | `pitch` | Low-level `SpelledPitch` and `PitchPoint` primitives, parsing/formatting |
 

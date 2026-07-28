@@ -13,6 +13,7 @@ const entrypoints = [
   "src/scale/index.ts",
   "src/chord/index.ts",
   "src/key/index.ts",
+  "src/analysis/index.ts",
   "src/tuning/index.ts",
 ];
 

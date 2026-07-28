@@ -16,9 +16,15 @@ import {
   intervalBetween,
   transpose,
 } from "../interval/interval";
+import { mod } from "../math/index";
 import { type FormatOptions, formatNote } from "../pitch/format";
 import { parseNote } from "../pitch/parse";
-import { type PitchPoint, point } from "../pitch/point";
+import {
+  type PitchPoint,
+  type PitchReference,
+  point,
+  fromFrequency as pointFromFrequency,
+} from "../pitch/point";
 import {
   type Letter,
   STEP_SEMITONES,
@@ -73,6 +79,23 @@ const FLAT_SPELLING: ReadonlyArray<readonly [Step, number]> = [
   [6, 0], // B
 ];
 
+/**
+ * Spell an absolute chromatic position (semitones above C0) as a note, using
+ * the sharp or flat default for the black keys. Shared by `fromMidi` and
+ * `enharmonic`.
+ */
+function spellChroma(
+  chromaValue: number,
+  prefer: EnharmonicPreference
+): NoteLike {
+  const pc = mod(chromaValue, 12);
+  const table = prefer === "flat" ? FLAT_SPELLING : SHARP_SPELLING;
+  const [step, alteration] = table[pc] as readonly [Step, number];
+  const octave =
+    (chromaValue - (STEP_SEMITONES[step] as number) - alteration) / 12;
+  return { step, alteration, octave };
+}
+
 export class Note implements SpelledPitch {
   readonly step: Step;
   readonly alteration: number;
@@ -101,6 +124,28 @@ export class Note implements SpelledPitch {
   /** Wrap an existing {@link SpelledPitch} as a `Note`. */
   static of(pitch: SpelledPitch): Note {
     return new Note(pitch);
+  }
+
+  /**
+   * The note for a MIDI number (middle C = 60), spelled with sharps by default.
+   * Non-integer input is rounded to the nearest semitone.
+   */
+  static fromMidi(midi: number, prefer: EnharmonicPreference = "sharp"): Note {
+    return new Note(spellChroma(Math.round(midi) - 12, prefer));
+  }
+
+  /**
+   * The nearest 12-TET note to a frequency in Hz (A4 = 440 by default). Useful
+   * for turning a detected pitch into a note; the input is snapped to the
+   * closest equal-tempered semitone.
+   */
+  static fromFrequency(
+    frequency: number,
+    options: { reference?: PitchReference; prefer?: EnharmonicPreference } = {}
+  ): Note {
+    const p = pointFromFrequency(frequency, options.reference);
+    const midi = Math.round(p.cents / 100) + 12;
+    return Note.fromMidi(midi, options.prefer);
   }
 
   /** The letter name (A–G). */
@@ -158,13 +203,7 @@ export class Note implements SpelledPitch {
    * → `C#4`. The sounding pitch is preserved.
    */
   enharmonic(prefer: EnharmonicPreference = "sharp"): Note {
-    const table = prefer === "flat" ? FLAT_SPELLING : SHARP_SPELLING;
-    const entry = table[this.pitchClass];
-    // biome-ignore lint/style/noNonNullAssertion: pitchClass is always 0-11.
-    const [step, alteration] = entry!;
-    const octave =
-      (chroma(this) - (STEP_SEMITONES[step] as number) - alteration) / 12;
-    return new Note({ step, alteration, octave });
+    return new Note(spellChroma(chroma(this), prefer));
   }
 
   /** The spelled interval from this note up to `other`. */

@@ -34,6 +34,7 @@ export * from "./tuning/index";
 export * from "./scale/index";
 export * from "./chord/index";
 export * from "./key/index";
+export * from "./analysis/index";
 
 /** The library version. */
 export const VERSION = "3.0.0";
