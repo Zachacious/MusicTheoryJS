@@ -21,15 +21,17 @@ export default [
         sourcemap: true,
       },
       {
-        file: "dist/musictheory.cjs.js",
+        file: "dist/musictheory.cjs",
         format: "cjs",
         sourcemap: true,
       },
     ],
     plugins: [
       typescript({
+        tsconfig: "tsconfig.build.json",
         useTsconfigDeclarationDir: true,
         tsconfigOverride: {
+          compilerOptions: { emitDeclarationOnly: false },
           exclude: ["**/*.test.ts", "**/*.spec.ts"],
         },
       }),
@@ -56,8 +58,10 @@ export default [
     ],
     plugins: [
       typescript({
+        tsconfig: "tsconfig.build.json",
         useTsconfigDeclarationDir: true,
         tsconfigOverride: {
+          compilerOptions: { emitDeclarationOnly: false },
           exclude: ["**/*.test.ts", "**/*.spec.ts"],
         },
       }),

@@ -420,42 +420,6 @@ function analyzeChordWithDegree(
 
   // --- Format the quality suffix ---
   let qualitySuffix = "";
-  // Diminished symbols
-  if (
-    chord.quality === "diminished" ||
-    chord.quality === "dim7" ||
-    chord.quality === "half-dim7"
-  ) {
-    qualitySuffix = "°"; // Use degree symbol for diminished quality base
-    if (chord.quality === "dim7")
-      qualitySuffix += "7"; // Add 7 for fully diminished
-    else if (chord.quality === "half-dim7") qualitySuffix = "ø7"; // Use ø7 for half-diminished
-  }
-  // Augmented symbol
-  else if (chord.quality === "augmented" || chord.quality === "aug7") {
-    qualitySuffix = "+"; // Use plus for augmented quality base
-    if (chord.quality === "aug7") qualitySuffix += "7"; // Add 7 for augmented seventh
-  }
-  // Seventh chord symbols (excluding dim/aug handled above)
-  else if (chord.quality === "maj7") {
-    qualitySuffix = "maj7"; // Or M7 / Δ7 ? Use maj7 for clarity.
-  } else if (chord.quality === "7") {
-    // Dominant 7th
-    qualitySuffix = "7";
-  } else if (chord.quality === "min7") {
-    // No suffix needed usually, lowercase numeral 'ii7' implies minor 7th. Add 'm7' if uppercase?
-    // Let's be explicit for clarity, though standard notation varies.
-    // qualitySuffix = "m7"; // Or just "" if numeral is lowercase? Stick to explicit for now.
-    // Reverting to original logic: just '7' suffix is common, case implies quality.
-    qualitySuffix = "7";
-  } else if (chord.quality === "minMaj7") {
-    qualitySuffix = "mM7"; // Explicit suffix
-  }
-  // Add suffixes for extensions? Usually implied by numeral context or complex.
-  // Add suffixes for alterations? Common: V7b9. Requires parsing chord formula/notes.
-  // Current logic only adds basic quality/seventh indicators.
-  // Revert to simpler original logic for quality suffix:
-  qualitySuffix = ""; // Reset
   if (chord.quality === "diminished" || chord.quality.includes("dim")) {
     // Check includes for dim7 etc.
     qualitySuffix = "°";

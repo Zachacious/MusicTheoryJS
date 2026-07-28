@@ -672,30 +672,15 @@ export function createChordFromNotes(
     inversion = getChordInversion(root, quality, bassNote); // Can return 0 if bass note not in formula
   }
 
-  // Create the final chord object using the determined root and quality
-  // Pass other options down.
-  // Pass explicit inversion calculated above.
-  // Pass explicit bass note *only if* it dictates an inversion different from root position.
-  // If root IS the bass, bass option should be undefined.
+  // Create the final chord object using the determined root and quality.
   return createChord(root, quality, {
     ...options,
-    inversion: inversion as ChordInversion, // Cast number to type
-    // Pass bass explicitly ONLY if it resulted in a non-root inversion.
-    // Or always pass the actual bass? Let createChord decide inversion if bass is passed?
-    // Original logic seemed to pass bass only if it wasn't root AND inversion was non-zero?
-    // Let's simplify: Pass the calculated inversion. createChord uses that if bass isn't provided.
-    // If we force root=bass (identifyRoot:false), bass option is redundant.
-    // If identifyRoot:true, we pass identified root and calculated inversion. Bass option not needed.
-    // Keep it simple: createChord handles bass/inversion logic based on inputs.
-    // We provide root, quality, and options. Let createChord figure out bass/inversion.
-    // Revert to simpler call:
-    // return createChord(root, quality, options); // This might lose inversion info if bass isn't passed.
-    // Restore original logic: pass bass/inversion explicitly if needed.
+    inversion: inversion as ChordInversion,
+    // Pass bass only if the root was forced or the bass differs from the identified root.
     bass:
       options.identifyRoot === false || !notesAreEqual(root, bassNote)
         ? bassNote
-        : undefined, // Pass bass only if forced root or if bass != identified root
-    // inversion: inversion as ChordInversion, // Pass calculated inversion
+        : undefined,
   });
 }
 

@@ -82,6 +82,6 @@ export const LIBRARY_INFO = {
   version: VERSION,
   description: "A comprehensive music theory library for JavaScript/TypeScript",
   author: "Zachacious", // Updated based on repository URL
-  license: "MIT", // Check actual license
+  license: "ISC",
   repository: "https://github.com/Zachacious/musictheoryjs",
 }; // Original code didn't freeze this, so not freezing here.

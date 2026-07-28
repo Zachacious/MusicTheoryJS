@@ -3,19 +3,8 @@
     "target": "es2018",
     "module": "esnext",
     "lib": ["dom", "esnext"],
-    "moduleResolution": "node",
-    "jsx": "react",
-    "declaration": true,
-    "declarationDir": "dist",
-    "sourceMap": true,
-    "outDir": "dist",
+    "moduleResolution": "bundler",
     "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictPropertyInitialization": true,
-    "noImplicitThis": true,
-    "alwaysStrict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
@@ -24,9 +13,8 @@
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "declarationMap": true,
-    "rootDir": "./src"
+    "noEmit": true
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+  "include": ["src", "__tests__", "vitest.config.ts"],
+  "exclude": ["node_modules", "dist", "v2"]
 }

@@ -150,7 +150,9 @@ export function isSimpleInterval(interval: Interval): boolean {
  */
 export function simplifyInterval(interval: Interval): Interval {
   // The modulo operator gives the remainder when divided by 12.
-  return interval % 12; // Note: JS % behavior for negative numbers.
+  // Normalize -0 (e.g. -12 % 12) to 0; other negative remainders are preserved.
+  const remainder = interval % 12;
+  return remainder === 0 ? 0 : remainder;
 }
 
 /**
