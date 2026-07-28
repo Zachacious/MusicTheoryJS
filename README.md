@@ -30,7 +30,7 @@ Key.major("C").progression("ii7 V7 Imaj7");   // [Dm7, G7, Cmaj7]
 new Note("C4").transpose(interval(5, "P")).toString(); // "G4"
 ```
 
-**Docs:** https://zachacious.github.io/MusicTheoryJS/
+**Docs:** https://musictheoryjs.com
 
 > v3 is a rewrite and is not API-compatible with v2. On v2, pin it or read the
 > migration notes before upgrading.
@@ -162,8 +162,8 @@ bundlers can split on the boundaries.
 | `musictheoryjs/midi` | Standard MIDI File read/write |
 | `musictheoryjs/audio` | FFT, pitch, chroma, onset detection |
 
-The [docs](https://zachacious.github.io/MusicTheoryJS/) have a guide for each
-plus a full API reference.
+The [docs](https://musictheoryjs.com) have a guide for each plus a full API
+reference.
 
 ## Development
 
