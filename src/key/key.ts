@@ -186,9 +186,13 @@ export class Key {
   }
 }
 
-interface ParsedRoman {
+/** A Roman numeral broken into its scale degree, accidental, and chord quality. */
+export interface ParsedRoman {
+  /** 1-based scale degree (I = 1 … VII = 7). */
   degree: number;
+  /** Accidental applied to the degree: positive = sharps, negative = flats. */
   alteration: number;
+  /** The chord quality implied by the numeral's case and suffix. */
   quality: ChordQuality;
 }
 
