@@ -14,6 +14,8 @@ const entrypoints = [
   "src/chord/index.ts",
   "src/key/index.ts",
   "src/analysis/index.ts",
+  "src/midi/index.ts",
+  "src/audio/index.ts",
   "src/tuning/index.ts",
 ];
 
@@ -21,6 +23,9 @@ async function buildFormat(format: "esm" | "cjs") {
   const result = await Bun.build({
     entrypoints,
     outdir: "dist",
+    // Pin the root to `src` so outputs land at dist/<subpath>/index.js — matching
+    // the exports map and the tsc-emitted .d.ts layout — rather than dist/src/…
+    root: "src",
     target: "node",
     format,
     splitting: format === "esm",
@@ -39,9 +44,7 @@ async function buildFormat(format: "esm" | "cjs") {
   return result;
 }
 
-// `dir` naming keeps the `src/` prefix off the output; Bun strips the common
-// root of the entrypoints automatically, so outputs land at dist/index.js,
-// dist/note/index.js, etc.
+// With `root: "src"`, outputs land at dist/index.js, dist/note/index.js, etc.
 await buildFormat("esm");
 await buildFormat("cjs");
 

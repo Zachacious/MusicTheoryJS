@@ -118,8 +118,35 @@ segmentChords(stream, [...onsetTimes(stream), 12]);
 // [{ start:0, end:4, chord: Dm }, { start:4, end:8, chord: G }, …]
 ```
 
-Feed the detected chords into a `Key` for Roman-numeral analysis, or the
-duration-weighted histogram (`pitchClassWeightsFromStream`) into `detectKey`.
+Full harmonic analysis in one call — key detection, chord timeline, Roman
+numerals, and cadences:
+
+```ts
+import { analyzeHarmony } from "musictheoryjs";
+const { key, timeline, cadences } = analyzeHarmony(stream);
+// key: C major; timeline: [{ …, roman: "ii" }, …]; cadences: [{ type: "authentic", index: 1 }]
+```
+
+## MIDI files & audio
+
+Both are pure and dependency-free. The library reads/writes Standard MIDI Files
+and does DSP on **sample buffers you pass in** — it never captures audio itself
+(that, and polyphonic transcription, belong to the client app).
+
+```ts
+import { writeMidi, parseMidi, noteStreamToMidi, midiToNoteStream } from "musictheoryjs";
+
+// Notes -> .mid bytes -> notes
+const bytes = writeMidi(noteStreamToMidi(stream, { tempo: 500000 }));
+midiToNoteStream(parseMidi(bytes)); // NoteStream in seconds, spelled
+
+import { detectNote, chromagram, detectOnsets } from "musictheoryjs";
+
+// samples: a Float32Array a client got from the Web Audio API
+detectNote(samples, 44100);          // nearest Note (monophonic, YIN)
+chromagram(samples, 44100);          // 12-bin pitch-class profile
+detectOnsets(samples, 44100);        // onset times in seconds
+```
 
 ## Microtonal & non-Western music
 
@@ -166,6 +193,8 @@ import { Note } from "musictheoryjs/note";
 import { Chord } from "musictheoryjs/chord";
 import { Key } from "musictheoryjs/key";
 import { detectKey } from "musictheoryjs/analysis";
+import { parseMidi } from "musictheoryjs/midi";
+import { detectPitch } from "musictheoryjs/audio";
 import { equalTemperament } from "musictheoryjs/tuning";
 ```
 
@@ -178,7 +207,9 @@ import { equalTemperament } from "musictheoryjs/tuning";
 | `scale` | `Scale.from(tonic, name)`, `.notes`/`.degree`/`.contains`, `mode`/`modes`, `detectScales`, `scaleFromTuning` |
 | `chord` | `Chord.from(symbol)`, `Chord.of(root, quality)`, `.invert`, quality tests, `detectChord`, `closeVoicing`/`drop2`/`drop3`/`spread` |
 | `key` | `Key.major`/`Key.minor`, `.signature`, `.chord(degree)`, `.romanNumeral`/`.chordFromRoman`, `.progression`, `.relative`/`.parallel` |
-| `analysis` | `NoteEvent`/`NoteStream`, `detectKey`, `detectChordAt`/`segmentChords`/`onsetTimes`, `pitchClasses`/`intervalClassVector`; `Note.fromMidi`/`fromFrequency` |
+| `analysis` | `NoteEvent`/`NoteStream`, `detectKey`, `detectChordAt`/`segmentChords`, `analyzeHarmony` (romans + cadences), `intervalClassVector`; `Note.fromMidi`/`fromFrequency` |
+| `midi` | `parseMidi`/`writeMidi` (Standard MIDI Files), `midiToNoteStream`/`noteStreamToMidi`, `bpmToTempo` |
+| `audio` | `detectPitch`/`detectNote` (YIN), `chromagram`, `detectOnsets`, `fft`/`magnitudeSpectrum` — all on caller-supplied samples |
 | `tuning` | `Tuning` interface, `equalTemperament`/`edo`, `pythagorean`, `quarterCommaMeantone`, `justIntonation`, `centsTuning`, `ratioTuning`, `scalaTuning`, `frequencyOfNote`, `frequencyOfDegree` |
 | `pitch` | Low-level `SpelledPitch` and `PitchPoint` primitives, parsing/formatting |
 

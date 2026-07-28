@@ -9,3 +9,4 @@ export * from "./types";
 export * from "./pcset";
 export * from "./key";
 export * from "./chords";
+export * from "./harmony";

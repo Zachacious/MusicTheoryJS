@@ -68,6 +68,16 @@
       "import": "./dist/analysis/index.js",
       "require": "./dist/analysis/index.cjs"
     },
+    "./midi": {
+      "types": "./dist/midi/index.d.ts",
+      "import": "./dist/midi/index.js",
+      "require": "./dist/midi/index.cjs"
+    },
+    "./audio": {
+      "types": "./dist/audio/index.d.ts",
+      "import": "./dist/audio/index.js",
+      "require": "./dist/audio/index.cjs"
+    },
     "./tuning": {
       "types": "./dist/tuning/index.d.ts",
       "import": "./dist/tuning/index.js",

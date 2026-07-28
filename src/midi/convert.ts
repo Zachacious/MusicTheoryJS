@@ -1,0 +1,85 @@
+/**
+ * Bridging MIDI (ticks) and the symbolic analysis layer (seconds).
+ *
+ * A {@link MidiFile} times notes in ticks; the analysis {@link NoteStream} times
+ * them in seconds. These converters translate between the two using the file's
+ * PPQ and tempo, and map MIDI note numbers to spelled {@link Note}s.
+ */
+
+import type { NoteEvent, NoteStream } from "../analysis/types";
+import { type EnharmonicPreference, Note } from "../note/note";
+import type { MidiFile, MidiNote } from "./types";
+
+/** Default MIDI tempo: 500000 µs/quarter = 120 BPM. */
+export const DEFAULT_TEMPO = 500000;
+/** Default ticks-per-quarter used when writing if none is given. */
+export const DEFAULT_PPQ = 480;
+
+/** Seconds per tick for a given PPQ and tempo (µs per quarter note). */
+export function secondsPerTick(ppq: number, tempo = DEFAULT_TEMPO): number {
+  return tempo / 1e6 / ppq;
+}
+
+/** Convert beats-per-minute to a MIDI tempo (µs per quarter note). */
+export function bpmToTempo(bpm: number): number {
+  return Math.round(60_000_000 / bpm);
+}
+
+/** Convert a MIDI tempo (µs per quarter note) to beats-per-minute. */
+export function tempoToBpm(tempo: number): number {
+  return 60_000_000 / tempo;
+}
+
+/**
+ * Convert a parsed MIDI file to a {@link NoteStream} in seconds, spelling each
+ * note. By default all tracks are merged; pass `track` to take just one.
+ */
+export function midiToNoteStream(
+  file: MidiFile,
+  options: { track?: number; prefer?: EnharmonicPreference } = {}
+): NoteStream {
+  const spt = secondsPerTick(file.ppq, file.tempo ?? DEFAULT_TEMPO);
+  const tracks =
+    options.track !== undefined
+      ? [file.tracks[options.track]].filter(Boolean)
+      : file.tracks;
+
+  const events: NoteEvent[] = [];
+  for (const track of tracks) {
+    for (const n of (track as { notes: MidiNote[] }).notes) {
+      events.push({
+        pitch: Note.fromMidi(n.note, options.prefer ?? "sharp"),
+        start: n.start * spt,
+        duration: n.duration * spt,
+        velocity: n.velocity,
+      });
+    }
+  }
+  events.sort((a, b) => a.start - b.start);
+  return events;
+}
+
+/**
+ * Convert a {@link NoteStream} (seconds) to a single-track {@link MidiFile}.
+ * Times are quantised to ticks at the chosen PPQ; every note lasts at least one
+ * tick.
+ */
+export function noteStreamToMidi(
+  stream: NoteStream,
+  options: { ppq?: number; tempo?: number; channel?: number } = {}
+): MidiFile {
+  const ppq = options.ppq ?? DEFAULT_PPQ;
+  const tempo = options.tempo ?? DEFAULT_TEMPO;
+  const channel = options.channel ?? 0;
+  const spt = secondsPerTick(ppq, tempo);
+
+  const notes: MidiNote[] = stream.map((e) => ({
+    note: e.pitch.midi,
+    start: Math.round(e.start / spt),
+    duration: Math.max(1, Math.round(e.duration / spt)),
+    velocity: e.velocity ?? 80,
+    channel,
+  }));
+
+  return { format: 0, ppq, tempo, tracks: [{ notes }] };
+}

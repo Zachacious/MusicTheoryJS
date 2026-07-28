@@ -35,6 +35,8 @@ export * from "./scale/index";
 export * from "./chord/index";
 export * from "./key/index";
 export * from "./analysis/index";
+export * from "./midi/index";
+export * from "./audio/index";
 
 /** The library version. */
 export const VERSION = "3.0.0";
