@@ -34,22 +34,34 @@ To add more changes before release, run `bun run changeset` and commit the file.
 
 ## One-time setup (required before the first publish)
 
-### 1. Create an npm token and add it as `NPM_TOKEN`
+### 1. Let CI authenticate to npm
 
-1. Log in at <https://www.npmjs.com> as a user with publish rights to
-   `musictheoryjs` (the package owner/maintainer).
-2. Avatar menu → **Access Tokens** → **Generate New Token** →
-   **Granular Access Token** (recommended) — or a classic **Automation** token.
-   - Granular: set **Packages and scopes → Read and write**, limited to
-     `musictheoryjs`; pick an expiry; leave IP allowlist empty for CI.
-   - Classic: choose **Automation** (bypasses 2FA in CI).
-3. Copy the token (shown once).
-4. In GitHub: repo **Settings → Secrets and variables → Actions → New repository
-   secret**. Name it exactly **`NPM_TOKEN`**, paste the value.
+If your npm account has two-factor auth on (it does by default), a plain publish
+from CI fails with `EOTP` because it can't enter a one-time password. Pick one of
+these so it doesn't need to:
 
-The workflow reads it as `NODE_AUTH_TOKEN` for the publish step. Provenance
-itself needs **no** secret — it uses the workflow's OIDC `id-token` permission,
-already configured.
+**Option A — automation token (simplest).** An npm *automation* token skips 2FA
+in CI.
+
+1. npmjs.com → avatar → **Access Tokens → Generate New Token**. Choose a classic
+   **Automation** token, or a **Granular** token with read/write scoped to
+   `musictheoryjs`.
+2. Copy it (shown once).
+3. GitHub repo → **Settings → Secrets and variables → Actions → New repository
+   secret**, name it **`NPM_TOKEN`**, paste the value.
+
+The workflow reads it as `NODE_AUTH_TOKEN`. Done.
+
+**Option B — trusted publishing (no token).** npm can authenticate the workflow
+directly through GitHub's OIDC, with no secret at all.
+
+1. npmjs.com → the **`musictheoryjs`** package → **Settings → Trusted Publisher**.
+2. Add a **GitHub Actions** publisher: organization/user `Zachacious`, repository
+   `MusicTheoryJS`, workflow file `release.yml` (leave the environment blank).
+3. Save, then re-run the release. The workflow already has `id-token: write` and
+   upgrades npm to a version that supports OIDC.
+
+Either way, provenance is signed automatically.
 
 ### 2. Enable GitHub Pages (for docs)
 

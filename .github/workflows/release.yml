@@ -4,8 +4,14 @@ name: Release
 # either opens/updates a "Version Packages" PR (accumulating changesets) or, when
 # that PR is merged, builds and publishes the new version to npm with provenance.
 #
-# Requires a repository secret `NPM_TOKEN` (an npm automation token with publish
-# rights). Provenance additionally needs the `id-token: write` permission below.
+# Authentication to npm works one of two ways; pick one:
+#   1. Automation token — add a repo secret NPM_TOKEN (npm Access Tokens →
+#      Automation). Automation tokens skip 2FA in CI. Simplest and most reliable.
+#   2. Trusted publishing (token-less) — configure a Trusted Publisher for this
+#      package on npmjs.com (package Settings → Trusted Publisher → GitHub
+#      Actions: repo Zachacious/MusicTheoryJS, workflow release.yml). Then no
+#      secret is needed; the OIDC id-token permission below is used.
+# Without either, npm falls back to your account's 2FA and the publish fails EOTP.
 
 on:
   push:
@@ -32,8 +38,12 @@ jobs:
       # authenticated registry and provenance.
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           registry-url: "https://registry.npmjs.org"
+
+      # Trusted publishing (OIDC) needs a recent npm CLI (>= 11.5.1).
+      - name: Use a current npm
+        run: npm install -g npm@latest
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
