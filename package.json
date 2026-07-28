@@ -1,6 +1,6 @@
 {
   "name": "musictheoryjs",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "A modern, tree-shakable music theory library with first-class support for non-standard tunings and microtonal music.",
   "type": "module",
   "sideEffects": false,
