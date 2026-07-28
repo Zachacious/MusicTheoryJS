@@ -61,8 +61,36 @@ export const SCALE_TEMPLATES = {
   phrygianDominant: [P1, m2, M3, P4, P5, m6, m7],
   lydianDominant: [P1, M2, M3, A4, P5, M6, m7],
   // A2 appears here as the augmented-second step characteristic of these scales.
-  gypsyMinor: [P1, M2, m3, A4, P5, m6, M7],
-  hungarianMajor: [P1, A2, M3, A4, P5, M6, m7],
+  gypsyMinor: [P1, M2, m3, A4, P5, m6, M7], // 0 2 3 6 7 8 11
+  hungarianMajor: [P1, A2, M3, A4, P5, M6, m7], // 0 3 4 6 7 9 10
+
+  // Bebop (8-note)
+  bebopDominant: [P1, M2, M3, P4, P5, M6, m7, M7], // 0 2 4 5 7 9 10 11
+  bebopMajor: [P1, M2, M3, P4, P5, m6, M6, M7], // 0 2 4 5 7 8 9 11
+  // Octatonic half-whole (complements `diminished`, which is whole-half)
+  dominantDiminished: [P1, m2, m3, M3, A4, P5, M6, m7], // 0 1 3 4 6 7 9 10
+
+  // Symmetric / exotic
+  enigmatic: [P1, m2, M3, A4, A5, A6, M7], // 0 1 4 6 8 10 11
+  prometheus: [P1, M2, M3, A4, M6, m7], // 0 2 4 6 9 10 (mystic chord)
+  acoustic: [P1, M2, M3, A4, P5, M6, m7], // 0 2 4 6 7 9 10 (lydian dominant / overtone)
+
+  // Seven-note relatives
+  halfDiminished: [P1, M2, m3, P4, d5, m6, m7], // 0 2 3 5 6 8 10 (locrian ♮2)
+  romanian: [P1, M2, m3, A4, P5, M6, m7], // 0 2 3 6 7 9 10 (ukrainian dorian)
+  persian: [P1, m2, M3, P4, d5, m6, M7], // 0 1 4 5 6 8 11
+  arabian: [P1, M2, M3, P4, d5, m6, m7], // 0 2 4 5 6 8 10 (major locrian)
+  oriental: [P1, m2, M3, P4, d5, M6, m7], // 0 1 4 5 6 9 10
+
+  // Pentatonic / world (5-note)
+  egyptian: [P1, M2, P4, P5, m7], // 0 2 5 7 10 (suspended pentatonic)
+  yo: [P1, M2, P4, P5, M6], // 0 2 5 7 9
+  hirajoshi: [P1, M2, m3, P5, m6], // 0 2 3 7 8
+  insen: [P1, m2, P4, P5, m7], // 0 1 5 7 10
+  iwato: [P1, m2, P4, d5, m7], // 0 1 5 6 10
+  kumoi: [P1, M2, m3, P5, M6], // 0 2 3 7 9
+  chinese: [P1, M3, A4, P5, M7], // 0 4 6 7 11
+  pelog: [P1, m2, m3, P5, m6], // 0 1 3 7 8
 } satisfies Record<string, ScaleTemplate>;
 
 /** Names of all built-in scale templates. */
