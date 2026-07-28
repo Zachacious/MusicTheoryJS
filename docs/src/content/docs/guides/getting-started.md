@@ -1,70 +1,52 @@
 ---
-title: Getting Started
+title: Getting started
+description: Install MusicTheoryJS and make your first notes, scales, and chords.
 ---
 
 MusicTheoryJS is a music theory toolkit for JavaScript and TypeScript. It models
-notes, intervals, scales, chords, and keys the way theory actually works —
-keeping the *spelling* of every pitch — and extends cleanly to non-standard
-tunings, microtonal music, MIDI files, and audio analysis.
+notes, intervals, scales, chords, and keys the way theory actually works, which
+mostly comes down to one thing: it remembers how each note is spelled. From
+there it also handles non-standard tunings, MIDI files, and some audio analysis.
 
-## Installation
+## Install
 
-::: code-group
-
-```bash [bun]
-bun add musictheoryjs
+```bash
+bun add musictheoryjs   # npm i musictheoryjs · pnpm add musictheoryjs · yarn add musictheoryjs
 ```
 
-```bash [npm]
-npm install musictheoryjs
-```
-
-```bash [pnpm]
-pnpm add musictheoryjs
-```
-
-```bash [yarn]
-yarn add musictheoryjs
-```
-
-:::
-
-The package ships both **ESM** and **CommonJS** with full TypeScript types and
-zero runtime dependencies.
+The package has no runtime dependencies and ships both ESM and CommonJS with
+TypeScript types.
 
 ```ts
-// ESM
-import { Note, Scale, Chord } from "musictheoryjs";
+import { Note, Scale, Chord } from "musictheoryjs";   // ESM
+const { Note, Scale, Chord } = require("musictheoryjs"); // CommonJS
 ```
 
-```js
-// CommonJS
-const { Note, Scale, Chord } = require("musictheoryjs");
-```
-
-## Your first notes, scales, and chords
+## A first look
 
 ```ts
 import { Note, Scale, Chord } from "musictheoryjs";
 
-// A note knows its letter, accidental, octave — and its MIDI/frequency.
-const c = new Note("C4");
-c.midi;          // 60
-c.transpose;     // (see the Intervals guide)
+// Notes know their letter, accidental, octave, MIDI number, and frequency.
+new Note("C4").midi;   // 60
 
-// Scales spell correctly.
+// Scales come out spelled correctly.
 Scale.from("C4", "major").noteNames();
 // ["C4", "D4", "E4", "F4", "G4", "A4", "B4"]
 
-// Chords parse from symbols.
+// Chords parse from the symbols you'd actually type.
 Chord.from("Cmaj7").noteNames();
 // ["C4", "E4", "G4", "B4"]
 ```
 
-## Tree-shaking with subpaths
+If you read one more page, make it [Core concepts](/MusicTheoryJS/guides/concepts/).
+Two ideas there (spelled pitch, and tuning as something separate from spelling)
+explain why the rest of the API behaves the way it does.
 
-Everything is exported from the package root, but each area is also its own
-subpath. Importing from a subpath keeps unrelated code out of your bundle:
+## Importing only what you need
+
+Everything is available from the package root. Each area also has its own import
+path, so a bundler can leave out the parts you don't touch.
 
 ```ts
 import { Note } from "musictheoryjs/note";
@@ -76,25 +58,27 @@ import { parseMidi } from "musictheoryjs/midi";
 import { detectPitch } from "musictheoryjs/audio";
 ```
 
-| Subpath | What's inside |
+| Import path | What's in it |
 | --- | --- |
-| `musictheoryjs/note` | The `Note` value object |
-| `musictheoryjs/interval` | Spelled intervals, transposition, constants |
-| `musictheoryjs/scale` | Scales, modes, detection |
-| `musictheoryjs/chord` | Chords, symbol parsing, detection, voicings |
-| `musictheoryjs/key` | Keys, signatures, Roman numerals, progressions |
-| `musictheoryjs/tuning` | Tuning systems (EDO, JI, historical, custom, Scala) |
-| `musictheoryjs/analysis` | Key detection, chord-over-time, set theory |
-| `musictheoryjs/midi` | Standard MIDI File read/write |
-| `musictheoryjs/audio` | Dependency-free DSP (FFT, pitch, chroma, onset) |
+| `musictheoryjs/note` | the `Note` value object |
+| `musictheoryjs/interval` | spelled intervals, transposition, constants |
+| `musictheoryjs/scale` | scales, modes, scale detection |
+| `musictheoryjs/chord` | chords, symbol parsing, detection, voicings |
+| `musictheoryjs/key` | keys, signatures, Roman numerals, progressions |
+| `musictheoryjs/tuning` | tuning systems (EDO, JI, historical, custom, Scala) |
+| `musictheoryjs/analysis` | key detection, chord timelines, set theory |
+| `musictheoryjs/midi` | Standard MIDI File read and write |
+| `musictheoryjs/audio` | FFT, pitch, chroma, onset detection |
 
-## Where to next
+## Where to go next
 
-- **[Core Concepts](/MusicTheoryJS/guides/concepts/)** — the two ideas that make everything else
-  click: spelled pitch and tuning-agnostic pitch.
-- **[Notes](/MusicTheoryJS/guides/notes/)**, **[Intervals](/MusicTheoryJS/guides/intervals/)**,
-  **[Scales](/MusicTheoryJS/guides/scales/)**, **[Chords](/MusicTheoryJS/guides/chords/)**,
-  **[Keys & Harmony](/MusicTheoryJS/guides/keys/)** — the Western essentials.
-- **[Tuning & Microtonal](/MusicTheoryJS/guides/tuning/)** — go beyond 12 equal divisions.
-- **[Analysis](/MusicTheoryJS/guides/analysis/)**, **[MIDI](/MusicTheoryJS/guides/midi/)**,
-  **[Audio](/MusicTheoryJS/guides/audio/)** — turn performances and signals into theory.
+Read [Core concepts](/MusicTheoryJS/guides/concepts/), then pick whichever topic
+guide matches what you're building. [Notes](/MusicTheoryJS/guides/notes/),
+[Intervals](/MusicTheoryJS/guides/intervals/),
+[Scales](/MusicTheoryJS/guides/scales/),
+[Chords](/MusicTheoryJS/guides/chords/), and
+[Keys](/MusicTheoryJS/guides/keys/) cover the Western essentials.
+[Tuning](/MusicTheoryJS/guides/tuning/) is where microtonal and non-Western
+music comes in. [Analysis](/MusicTheoryJS/guides/analysis/),
+[MIDI](/MusicTheoryJS/guides/midi/), and [Audio](/MusicTheoryJS/guides/audio/)
+go the other direction, turning performances and signals back into theory.
