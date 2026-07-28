@@ -1,6 +1,6 @@
 {
   "name": "musictheoryjs",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "description": "A modern, tree-shakable music theory library with first-class support for non-standard tunings and microtonal music.",
   "type": "module",
   "sideEffects": false,
@@ -31,7 +31,9 @@
     "bun": ">=1.1.0",
     "node": ">=18"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
