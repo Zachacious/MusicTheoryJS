@@ -1,8 +1,12 @@
 node_modules/
 dist/
-docs/
 coverage/
 *.log
 .DS_Store
 .idea/
 .vscode/
+
+# Docs build artifacts (VitePress output, cache, generated API reference)
+docs/.vitepress/dist/
+docs/.vitepress/cache/
+docs/public/api/
