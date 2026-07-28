@@ -96,4 +96,4 @@ a.romanNumeral(Chord.from("C")); // "III"
 ```
 
 For full harmonic analysis of a performance — detecting the key, labelling a
-chord timeline, and finding cadences — see [Analysis](/MusicTheoryJS/guides/analysis/).
+chord timeline, and finding cadences — see [Analysis](/guides/analysis/).

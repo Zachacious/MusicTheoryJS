@@ -4,7 +4,7 @@ title: MIDI Files
 
 MusicTheoryJS reads and writes **Standard MIDI Files** with a pure, dependency-free
 byte codec, and converts between MIDI ticks and the symbolic
-[`NoteStream`](/MusicTheoryJS/guides/analysis/) (in seconds). This is the bridge between the
+[`NoteStream`](/guides/analysis/) (in seconds). This is the bridge between the
 theory engine and sequencers, DAWs, and `.mid` files.
 
 ## Reading a MIDI file

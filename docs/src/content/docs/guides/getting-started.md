@@ -41,7 +41,7 @@ Chord.from("Cmaj7").noteNames();
 // ["C4", "E4", "G4", "B4"]
 ```
 
-If you read one more page, make it [Core concepts](/MusicTheoryJS/guides/concepts/).
+If you read one more page, make it [Core concepts](/guides/concepts/).
 Two ideas there (spelled pitch, and tuning as something separate from spelling)
 explain why the rest of the API behaves the way it does.
 
@@ -74,13 +74,13 @@ import { detectPitch } from "musictheoryjs/audio";
 
 ## Where to go next
 
-Read [Core concepts](/MusicTheoryJS/guides/concepts/), then pick whichever topic
-guide matches what you're building. [Notes](/MusicTheoryJS/guides/notes/),
-[Intervals](/MusicTheoryJS/guides/intervals/),
-[Scales](/MusicTheoryJS/guides/scales/),
-[Chords](/MusicTheoryJS/guides/chords/), and
-[Keys](/MusicTheoryJS/guides/keys/) cover the Western essentials.
-[Tuning](/MusicTheoryJS/guides/tuning/) is where microtonal and non-Western
-music comes in. [Analysis](/MusicTheoryJS/guides/analysis/),
-[MIDI](/MusicTheoryJS/guides/midi/), and [Audio](/MusicTheoryJS/guides/audio/)
+Read [Core concepts](/guides/concepts/), then pick whichever topic
+guide matches what you're building. [Notes](/guides/notes/),
+[Intervals](/guides/intervals/),
+[Scales](/guides/scales/),
+[Chords](/guides/chords/), and
+[Keys](/guides/keys/) cover the Western essentials.
+[Tuning](/guides/tuning/) is where microtonal and non-Western
+music comes in. [Analysis](/guides/analysis/),
+[MIDI](/guides/midi/), and [Audio](/guides/audio/)
 go the other direction, turning performances and signals back into theory.

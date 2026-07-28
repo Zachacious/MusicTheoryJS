@@ -101,7 +101,7 @@ new Note("E#4").compareTo("F4"); // 0 (same height)
 ## Frequencies
 
 Frequency depends on a tuning (default 12-TET, A4 = 440 Hz). See
-[Tuning & Microtonal](/MusicTheoryJS/guides/tuning/) for the details.
+[Tuning & Microtonal](/guides/tuning/) for the details.
 
 ```ts
 import { Note, frequencyOfNote } from "musictheoryjs";

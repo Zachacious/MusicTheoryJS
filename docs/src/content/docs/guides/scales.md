@@ -102,7 +102,7 @@ detectScales(["C4", "D4", "E4", "G4", "A4"]);
 
 Pass your own intervals to build any Western scale, or source a scale from a
 **tuning** for microtonal and non-Western material — see
-[Tuning & Microtonal](/MusicTheoryJS/guides/tuning/).
+[Tuning & Microtonal](/guides/tuning/).
 
 ```ts
 import { Scale, interval } from "musictheoryjs";

@@ -20,6 +20,22 @@ The [Release workflow](.github/workflows/release.yml) runs on every push to
 So the human decisions are only: *(a)* land changes (each with a changeset) on
 `master`, and *(b)* merge the Version PR when you want to cut the release.
 
+## The short way: `bun run release:cut`
+
+One command authors the changeset and commits your pending work, so you don't
+step through the interactive `changeset` prompts by hand:
+
+```bash
+bun run release:cut patch "Rewrite README for a JS-developer audience"
+# then: git push   → CI opens the Version Packages PR; merge it to publish
+```
+
+Add `--push` to push in the same step. Add `--dry-run` to see every action
+without touching anything. For a docs-only fix that has to hit npm immediately,
+`--publish` runs the whole thing locally — version bump, build, verify,
+`changeset publish`, tag push — but needs `npm login` first and skips the
+provenance you get from CI. Prefer the CI path unless you need it live now.
+
 ## The v3.0.0 release (this one is a major)
 
 - npm currently has `latest = 2.0.2`. `package.json` is intentionally set to
@@ -81,7 +97,8 @@ bun run release   # build + verify + changeset publish (add --provenance manuall
 
 | Script | Purpose |
 | --- | --- |
-| `bun run changeset` | Author a changeset for your change |
+| `bun run release:cut <bump> "<summary>"` | Author a changeset + commit in one step (`--push`, `--publish`, `--dry-run`) |
+| `bun run changeset` | Author a changeset interactively |
 | `bun run version` | Consume changesets: bump version + changelog |
 | `bun run release` | `build` then `changeset publish` |
 | `bun run e2e` | Build, then run the ESM + CJS end-to-end checks |

@@ -11,7 +11,7 @@ It operates on **sample buffers you pass in** — typically a `Float32Array` you
 obtained from the Web Audio API (`AnalyserNode`/`AudioBuffer`), a decoded file,
 or a recording. Audio capture and **polyphonic** transcription (which needs a
 trained model) are the client app's job; feed the results in as
-[`NoteEvent`s](/MusicTheoryJS/guides/analysis/).
+[`NoteEvent`s](/guides/analysis/).
 :::
 
 ## Pitch detection (monophonic, YIN)
@@ -99,4 +99,4 @@ analyzeHarmony(events);
 ```
 
 For polyphonic material, run a dedicated model in your app and pass its notes to
-[`analyzeHarmony`](/MusicTheoryJS/guides/analysis/) — the theory side stays the same.
+[`analyzeHarmony`](/guides/analysis/) — the theory side stays the same.

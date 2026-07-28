@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/Zachacious/MusicTheoryJS.git"
   },
-  "homepage": "https://github.com/Zachacious/MusicTheoryJS#readme",
+  "homepage": "https://musictheoryjs.com",
   "bugs": {
     "url": "https://github.com/Zachacious/MusicTheoryJS/issues"
   },
@@ -103,6 +103,7 @@
     "docs:build": "cd docs && bun install && bun run build",
     "docs:preview": "cd docs && bun run preview",
     "changeset": "changeset",
+    "release:cut": "bun run scripts/release.ts",
     "version": "changeset version && biome check --write .",
     "release": "bun run build && changeset publish",
     "prepublishOnly": "bun run lint && bun run typecheck && bun test && bun run build && node scripts/e2e.mjs && node scripts/e2e.cjs"

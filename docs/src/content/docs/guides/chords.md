@@ -101,6 +101,6 @@ detectChord(["G4", "B4", "D5", "F5"])?.toString();  // "G7"
 detectChord(["E4", "G#4", "C5"])?.root.letter;      // "C" (aug, roots on bass)
 ```
 
-Feed a detected chord into a [`Key`](/MusicTheoryJS/guides/keys/) to get its Roman numeral, or
+Feed a detected chord into a [`Key`](/guides/keys/) to get its Roman numeral, or
 segment a whole performance into a chord timeline — see
-[Analysis](/MusicTheoryJS/guides/analysis/).
+[Analysis](/guides/analysis/).

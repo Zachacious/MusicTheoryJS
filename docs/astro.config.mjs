@@ -4,8 +4,8 @@ import starlight from "@astrojs/starlight";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  site: "https://zachacious.github.io",
-  base: "/MusicTheoryJS",
+  site: "https://musictheoryjs.com",
+  base: "/",
   // Skip sharp-based image optimization (not needed for a docs site, and it
   // avoids native-binary issues in some build environments).
   image: { service: passthroughImageService() },
@@ -63,7 +63,7 @@ export default defineConfig({
           items: [
             {
               label: "API reference",
-              link: "/MusicTheoryJS/api/",
+              link: "/api/",
               attrs: { target: "_blank" },
             },
           ],

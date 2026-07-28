@@ -65,7 +65,7 @@ frequencyOfNote(new Note("G4"), pythagorean());    // a pure fifth, 701.955 cent
 
 When you leave twelve notes per octave behind entirely (quarter tones, a maqam,
 a gamelan scale), you address a tuning's scale degrees directly instead of
-spelling notes. That's covered in [Tuning & microtonal](/MusicTheoryJS/guides/tuning/).
+spelling notes. That's covered in [Tuning & microtonal](/guides/tuning/).
 
 ## Nothing mutates
 

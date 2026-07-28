@@ -109,5 +109,5 @@ the Scala format.
 ## Turning frequencies back into notes
 
 To go the other way — from a detected/desired frequency to the nearest Western
-note — use `Note.fromFrequency` (see [Notes](/MusicTheoryJS/guides/notes/)) or the lower-level
+note — use `Note.fromFrequency` (see [Notes](/guides/notes/)) or the lower-level
 `PitchPoint` helpers.
