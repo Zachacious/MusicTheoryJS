@@ -1,4 +1,6 @@
-# Notes
+---
+title: Notes
+---
 
 A `Note` is an immutable, correctly-spelled pitch: a **letter** (A–G), an
 **alteration** (sharps/flats as a signed integer), and an **octave** (scientific
@@ -99,7 +101,7 @@ new Note("E#4").compareTo("F4"); // 0 (same height)
 ## Frequencies
 
 Frequency depends on a tuning (default 12-TET, A4 = 440 Hz). See
-[Tuning & Microtonal](/guide/tuning) for the details.
+[Tuning & Microtonal](/MusicTheoryJS/guides/tuning/) for the details.
 
 ```ts
 import { Note, frequencyOfNote } from "musictheoryjs";

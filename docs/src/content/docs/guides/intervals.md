@@ -1,4 +1,6 @@
-# Intervals & Transposition
+---
+title: Intervals & Transposition
+---
 
 An interval is the distance between two pitches. MusicTheoryJS models it with
 **two independent facts**: how many *diatonic steps* it spans (which letters it

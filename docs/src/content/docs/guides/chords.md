@@ -1,4 +1,6 @@
-# Chords
+---
+title: Chords
+---
 
 A `Chord` is a root plus a set of spelled intervals. Chords can be built from a
 symbol, from a root and a quality, or from arbitrary intervals — and their tones
@@ -99,6 +101,6 @@ detectChord(["G4", "B4", "D5", "F5"])?.toString();  // "G7"
 detectChord(["E4", "G#4", "C5"])?.root.letter;      // "C" (aug, roots on bass)
 ```
 
-Feed a detected chord into a [`Key`](/guide/keys) to get its Roman numeral, or
+Feed a detected chord into a [`Key`](/MusicTheoryJS/guides/keys/) to get its Roman numeral, or
 segment a whole performance into a chord timeline — see
-[Analysis](/guide/analysis).
+[Analysis](/MusicTheoryJS/guides/analysis/).

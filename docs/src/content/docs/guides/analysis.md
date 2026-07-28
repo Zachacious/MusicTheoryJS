@@ -1,4 +1,6 @@
-# Symbolic Analysis
+---
+title: Symbolic Analysis
+---
 
 The analysis module turns notes and note streams into music theory: it detects
 keys, identifies chords over time, labels progressions with Roman numerals,
@@ -104,6 +106,6 @@ intervalClassVector(["C4", "Eb4", "Gb4", "A4"]); // [0, 0, 4, 0, 0, 2]  (dim7)
 ## From MIDI and audio
 
 The pieces that produce a `NoteStream` — reading a MIDI file, or detecting a
-pitch from audio samples — live in the [MIDI](/guide/midi) and
-[Audio](/guide/audio) modules. `Note.fromMidi` and `Note.fromFrequency` bridge
+pitch from audio samples — live in the [MIDI](/MusicTheoryJS/guides/midi/) and
+[Audio](/MusicTheoryJS/guides/audio/) modules. `Note.fromMidi` and `Note.fromFrequency` bridge
 raw numbers into spelled notes.

@@ -6,7 +6,4 @@ coverage/
 .idea/
 .vscode/
 
-# Docs build artifacts (VitePress output, cache, generated API reference)
-docs/.vitepress/dist/
-docs/.vitepress/cache/
-docs/public/api/
+# The docs/ Astro project manages its own build artifacts via docs/.gitignore.

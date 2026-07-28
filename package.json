@@ -101,10 +101,9 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
-    "docs:api": "typedoc",
-    "docs:dev": "vitepress dev docs",
-    "docs:build": "vitepress build docs && bun run docs:api",
-    "docs:preview": "vitepress preview docs",
+    "docs:dev": "cd docs && bun run dev",
+    "docs:build": "cd docs && bun install && bun run build",
+    "docs:preview": "cd docs && bun run preview",
     "changeset": "changeset",
     "version": "changeset version",
     "release": "bun run build && changeset publish",
@@ -114,8 +113,6 @@
     "@biomejs/biome": "^1.9.4",
     "@changesets/cli": "^2.27.0",
     "@types/bun": "latest",
-    "typedoc": "^0.27.0",
-    "typescript": "^5.7.0",
-    "vitepress": "^1.6.4"
+    "typescript": "^5.7.0"
   }
 }

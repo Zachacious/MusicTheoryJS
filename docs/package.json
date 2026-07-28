@@ -1,0 +1,22 @@
+{
+  "name": "musictheoryjs-docs",
+  "type": "module",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "typedoc && astro build",
+    "build:site": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.34.0",
+    "@tailwindcss/vite": "^4.0.0",
+    "astro": "^5.5.0",
+    "tailwindcss": "^4.0.0",
+    "typedoc": "^0.28.0"
+  },
+  "overrides": {
+    "rollup": "npm:@rollup/wasm-node@^4"
+  }
+}

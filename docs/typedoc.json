@@ -1,0 +1,16 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["../src/index.ts"],
+  "tsconfig": "../tsconfig.json",
+  "out": "public/api",
+  "readme": "none",
+  "excludeInternal": true,
+  "excludePrivate": true,
+  "skipErrorChecking": true,
+  "githubPages": false,
+  "categorizeByGroup": true,
+  "navigationLinks": {
+    "← Docs": "https://zachacious.github.io/MusicTheoryJS/",
+    "GitHub": "https://github.com/Zachacious/MusicTheoryJS"
+  }
+}

@@ -1,4 +1,6 @@
-# Tuning & Microtonal
+---
+title: Tuning & Microtonal
+---
 
 This is where MusicTheoryJS goes beyond most theory libraries. 12-tone equal
 temperament is the **default**, not an assumption baked into the core. A
@@ -107,5 +109,5 @@ the Scala format.
 ## Turning frequencies back into notes
 
 To go the other way — from a detected/desired frequency to the nearest Western
-note — use `Note.fromFrequency` (see [Notes](/guide/notes)) or the lower-level
+note — use `Note.fromFrequency` (see [Notes](/MusicTheoryJS/guides/notes/)) or the lower-level
 `PitchPoint` helpers.

@@ -1,0 +1,65 @@
+---
+title: MusicTheoryJS
+description: A music theory library for JavaScript and TypeScript that keeps every note's spelling — plus tunings, MIDI, and audio analysis.
+template: splash
+hero:
+  tagline: Notes, scales, chords, and keys that come out the way you'd write them by hand. Plus microtonal tunings, MIDI files, and audio analysis — with no runtime dependencies.
+  image:
+    file: ../../assets/logo.svg
+  actions:
+    - text: Get started
+      link: /MusicTheoryJS/guides/getting-started/
+      icon: right-arrow
+    - text: Core concepts
+      link: /MusicTheoryJS/guides/concepts/
+      variant: minimal
+    - text: GitHub
+      link: https://github.com/Zachacious/MusicTheoryJS
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+```ts
+import { Scale, Chord, Key, Note } from "musictheoryjs";
+
+Scale.from("C4", "major").noteNames();   // ["C4","D4","E4","F4","G4","A4","B4"]
+Chord.from("Bdim7").noteNames();          // ["B4","D5","F5","Ab5"]   — Ab, not G#
+Key.major("C").progression("ii7 V7 Imaj7"); // [Dm7, G7, Cmaj7]
+
+new Note("E#4").equals("F4");             // false — different notes
+new Note("E#4").isEnharmonic("F4");       // true  — same pitch
+```
+
+<CardGrid>
+  <Card title="It keeps the spelling" icon="pencil">
+    Most libraries reduce a note to a number and lose whether it's an `E#` or an
+    `F`. Here the letter and the accidental are kept apart, so scales, intervals,
+    and chords are named the way a musician writes them.
+  </Card>
+  <Card title="12-TET is a default, not a rule" icon="setting">
+    Frequency comes from a tuning you can swap. Equal temperaments of any size,
+    Pythagorean, meantone, Just Intonation, a maqam cents table, or a Scala file
+    are all ordinary tunings.
+  </Card>
+  <Card title="Immutable, zero dependencies" icon="approve-check">
+    Every operation returns a new value; nothing mutates. No runtime
+    dependencies, dual ESM/CJS, full types, and nine tree-shakable entry points.
+  </Card>
+  <Card title="Analysis, MIDI, and audio" icon="random">
+    Detect the key of a passage, label a chord timeline with Roman numerals,
+    read and write MIDI files, and pull pitch, chroma, and onsets out of audio
+    samples — all without leaving the library.
+  </Card>
+</CardGrid>
+
+## Install
+
+```bash
+bun add musictheoryjs   # or npm / pnpm / yarn
+```
+
+Then head to [Getting started](/MusicTheoryJS/guides/getting-started/), or read
+[Core concepts](/MusicTheoryJS/guides/concepts/) first if you want the two ideas
+that make the rest of the API predictable.

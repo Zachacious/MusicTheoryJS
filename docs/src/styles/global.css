@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+/* Violet brand accent for Starlight (dark defaults, light overrides). */
+:root {
+  --sl-color-accent-low: #241a4d;
+  --sl-color-accent: #7c5cff;
+  --sl-color-accent-high: #d9d0ff;
+}
+:root[data-theme="light"] {
+  --sl-color-accent-low: #e7dfff;
+  --sl-color-accent: #6d28d9;
+  --sl-color-accent-high: #2a1958;
+}
+
+/* A little extra polish on the hero + cards used by the landing page. */
+.hero-gradient {
+  background: radial-gradient(
+    60% 60% at 50% 0%,
+    color-mix(in oklab, var(--sl-color-accent) 22%, transparent),
+    transparent 70%
+  );
+}

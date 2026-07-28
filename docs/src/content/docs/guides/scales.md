@@ -1,4 +1,6 @@
-# Scales
+---
+title: Scales
+---
 
 A `Scale` is a tonic plus an ordered set of intervals. Because those intervals
 are *spelled*, the generated notes come out with the right letters and
@@ -100,7 +102,7 @@ detectScales(["C4", "D4", "E4", "G4", "A4"]);
 
 Pass your own intervals to build any Western scale, or source a scale from a
 **tuning** for microtonal and non-Western material — see
-[Tuning & Microtonal](/guide/tuning).
+[Tuning & Microtonal](/MusicTheoryJS/guides/tuning/).
 
 ```ts
 import { Scale, interval } from "musictheoryjs";

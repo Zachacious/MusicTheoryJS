@@ -1,9 +1,8 @@
 name: Docs
 
-# Builds the VitePress documentation site (guides + examples) together with the
-# TypeDoc API reference, and deploys it to GitHub Pages on every push to the
-# default branch. Enable Pages for the repo (Settings → Pages → Source:
-# GitHub Actions) for the deploy step to succeed.
+# Builds the Astro + Starlight documentation site (guides + landing) together
+# with the TypeDoc API reference, and deploys it to GitHub Pages on every push
+# to the default branch. Requires Settings → Pages → Source = "GitHub Actions".
 
 on:
   push:
@@ -32,17 +31,19 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Install dependencies
+      - name: Install docs dependencies
         run: bun install --frozen-lockfile
+        working-directory: docs
 
-      - name: Build docs (TypeDoc API + VitePress site)
-        run: bun run docs:build
+      - name: Build docs (TypeDoc API + Astro site)
+        run: bun run build
+        working-directory: docs
 
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: docs/.vitepress/dist
+          path: docs/dist
 
       - id: deployment
         uses: actions/deploy-pages@v4

@@ -1,4 +1,6 @@
-# Getting Started
+---
+title: Getting Started
+---
 
 MusicTheoryJS is a music theory toolkit for JavaScript and TypeScript. It models
 notes, intervals, scales, chords, and keys the way theory actually works —
@@ -88,11 +90,11 @@ import { detectPitch } from "musictheoryjs/audio";
 
 ## Where to next
 
-- **[Core Concepts](/guide/concepts)** — the two ideas that make everything else
+- **[Core Concepts](/MusicTheoryJS/guides/concepts/)** — the two ideas that make everything else
   click: spelled pitch and tuning-agnostic pitch.
-- **[Notes](/guide/notes)**, **[Intervals](/guide/intervals)**,
-  **[Scales](/guide/scales)**, **[Chords](/guide/chords)**,
-  **[Keys & Harmony](/guide/keys)** — the Western essentials.
-- **[Tuning & Microtonal](/guide/tuning)** — go beyond 12 equal divisions.
-- **[Analysis](/guide/analysis)**, **[MIDI](/guide/midi)**,
-  **[Audio](/guide/audio)** — turn performances and signals into theory.
+- **[Notes](/MusicTheoryJS/guides/notes/)**, **[Intervals](/MusicTheoryJS/guides/intervals/)**,
+  **[Scales](/MusicTheoryJS/guides/scales/)**, **[Chords](/MusicTheoryJS/guides/chords/)**,
+  **[Keys & Harmony](/MusicTheoryJS/guides/keys/)** — the Western essentials.
+- **[Tuning & Microtonal](/MusicTheoryJS/guides/tuning/)** — go beyond 12 equal divisions.
+- **[Analysis](/MusicTheoryJS/guides/analysis/)**, **[MIDI](/MusicTheoryJS/guides/midi/)**,
+  **[Audio](/MusicTheoryJS/guides/audio/)** — turn performances and signals into theory.

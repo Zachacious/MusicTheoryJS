@@ -1,4 +1,6 @@
-# Core Concepts
+---
+title: Core Concepts
+---
 
 Two design ideas run through the whole library. Understanding them makes every
 API predictable.
@@ -56,7 +58,7 @@ frequencyOfNote(new Note("G4"), pythagorean());    // pure fifth (701.955¢)
 ```
 
 For genuinely non-12 systems (quarter tones, maqam, gamelan), you work with a
-tuning's **scale degrees** directly — see [Tuning & Microtonal](/guide/tuning).
+tuning's **scale degrees** directly — see [Tuning & Microtonal](/MusicTheoryJS/guides/tuning/).
 
 ## Everything is immutable
 
