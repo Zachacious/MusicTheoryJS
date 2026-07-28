@@ -44,6 +44,8 @@ jobs:
           bun run typecheck
           bun test
           bun run build
+          node scripts/e2e.mjs
+          node scripts/e2e.cjs
 
       - name: Create release PR or publish
         uses: changesets/action@v1

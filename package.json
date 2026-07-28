@@ -1,6 +1,6 @@
 {
   "name": "musictheoryjs",
-  "version": "3.0.0",
+  "version": "2.0.2",
   "description": "A modern, tree-shakable music theory library with first-class support for non-standard tunings and microtonal music.",
   "type": "module",
   "sideEffects": false,
@@ -94,6 +94,7 @@
     "clean": "rm -rf dist",
     "test": "bun test",
     "test:cov": "bun test --coverage",
+    "e2e": "bun run build && node scripts/e2e.mjs && node scripts/e2e.cjs",
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
@@ -102,7 +103,7 @@
     "changeset": "changeset",
     "version": "changeset version",
     "release": "bun run build && changeset publish",
-    "prepublishOnly": "bun run lint && bun run typecheck && bun test && bun run build"
+    "prepublishOnly": "bun run lint && bun run typecheck && bun test && bun run build && node scripts/e2e.mjs && node scripts/e2e.cjs"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",

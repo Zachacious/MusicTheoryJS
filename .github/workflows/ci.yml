@@ -29,3 +29,8 @@ jobs:
 
       - name: Build
         run: bun run build
+
+      - name: End-to-end (built package, ESM + CJS)
+        run: |
+          node scripts/e2e.mjs
+          node scripts/e2e.cjs

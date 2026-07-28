@@ -25,7 +25,7 @@ describe("fft", () => {
     const im = new Float64Array(4);
     fft(re, im);
     for (let i = 0; i < 4; i++)
-      expect(Math.hypot(re[i]!, im[i]!)).toBeCloseTo(1, 9);
+      expect(Math.hypot(re[i] as number, im[i] as number)).toBeCloseTo(1, 9);
   });
 
   test("rejects non-power-of-two lengths", () => {

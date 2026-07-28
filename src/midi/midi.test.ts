@@ -41,7 +41,7 @@ describe("write -> read round-trip", () => {
     const got = [...(parsed.tracks[0]?.notes ?? [])].sort(
       (a, b) => a.start - b.start || a.note - b.note
     );
-    const want = [...sampleFile.tracks[0]!.notes].sort(
+    const want = [...(sampleFile.tracks[0]?.notes ?? [])].sort(
       (a, b) => a.start - b.start || a.note - b.note
     );
     expect(got).toEqual(want);
