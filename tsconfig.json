@@ -1,24 +1,27 @@
 {
-    "compilerOptions": {
-       "esModuleInterop": true,
-      "isolatedModules": true,
-      "noImplicitAny": true,
-      "strictNullChecks": true,
-      "strictPropertyInitialization": true,
-      "noImplicitThis": true,
-      "alwaysStrict": true,
-      // "strict": true,
-      "experimentalDecorators": true,
-      "declaration": true,
-      "target": "ESNext",
-      "module": "esnext",
-      "moduleResolution": "node",
-      "resolveJsonModule": true,
-    },
-    "include": [
-      "src/**/*"
-    ],
-    "exclude": [
-      "src/**/*.test.ts"
-    ]
-  }
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022"],
+    "types": ["bun"],
+
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "exactOptionalPropertyTypes": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "noEmit": true,
+
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src", "scripts", "examples"],
+  "exclude": ["dist", "node_modules"]
+}

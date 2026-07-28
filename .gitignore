@@ -1,12 +1,8 @@
-# Visual Studio 2015 cache/options directory
-.vs/
-bower_components/
 node_modules/
-
-/dist
-/coverage
-/demo
-
-#Exclude tsc generated files
-js/*.map
-js/ts.js
+dist/
+docs/
+coverage/
+*.log
+.DS_Store
+.idea/
+.vscode/

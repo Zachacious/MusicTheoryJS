@@ -1,382 +1,161 @@
-# MusicTheoryJS v2
+# MusicTheoryJS
 
-<strong>[Documentation](https://zachacious.github.io/MusicTheoryJS/)</strong> |
-<strong>[License(ISC)](LICENSE.txt)</strong>
+A modern, tree-shakable music theory library for JavaScript and TypeScript.
 
----
+Primarily Western and ergonomic — correct enharmonic spelling, spelled intervals,
+scales, and chords — with **first-class support for non-standard tunings and
+microtonal / non-Western music** through a pluggable tuning system.
 
-Music Theory Abstractions for analysis, synthesis, and real-time music composition. Designed for use with MIDI.
-
-Includes nearly 70 pre-defined scale templates and over 40 pre-defined chords templates.
-
-Designed to be an enterprise grade library that's easy to use and extend.
-
-Examples:
-
-```javascript
-import { Scale, Chord, Note, Instrument, buildTables } from "musictheoryjs";
-
-// build the string tables
-buildTables();
-
-// create a note
-const note = new Note("D4");
-
-// create a scale
-const scale = new Scale("C5(major)");
-console.log(scale.getNoteNames()); // --> ["C5", "D5", "E5", "F5", "G5", "A5", "B5"]
-
-// create a chord
-const chord = new Chord("(Ab3)maj7");
-console.log(chord.notes); // --> array of notes in the chord
-
-// get the frequency of the scales 3rd degree
-const instrument = new Instrument();
-const freq = instrument.getFrequency(scale.degree(3)); // --> 659.26
-
-// get the midi key for the scales 3rd degree
-const midiKey = instrument.getMidiKey(scale.degree(3)); // --> 76
-```
-
----
-
-## A Note On Performance
-
-The most performant and efficient way to create entities in MusicTheoryJS is to use Initializer objects e.g. {root: 5, octave: 3}. Using strings e.g. "C5(major)" is also fast when used the right way.
-
-Each entity that accepts a string initializer uses an ideal format specified in the documentation. Using a format other what is prescribed will bypass the lookup table and the resulting performance will be much slower.
-
-If you intend to use string initializers, you should probably use the `buildTables` function to create the lookup tables. Probably soon after the library loads.
-
-```javascript
-import { buildTables } from "musictheoryjs";
-
-buildTables();
-```
-
-This can be great for client side
-if you run buildTables in an async function and you present a spinner and/or prevent the user from creating new entities until the tables are built.
-This way you have control over the performance of your application.
-
-Note:
-buildTables should only(optionally) be called once soon after your app loads and only if you intend to use string initialization.
-
----
-
-## Installation
-
-npm:<br>
+- **Correct by construction.** Notes carry their spelling (letter + accidental),
+  so `E#` and `F` are distinct, a C‑major scale spells `C D E F G A B`, and a
+  diminished-seventh chord spells its seventh as `A♭`, not `G#`.
+- **Immutable.** Every operation returns a new value; nothing mutates in place.
+- **Tuning-agnostic core.** 12‑TET is just the default. `n`‑EDO, Pythagorean,
+  meantone, Just Intonation, maqam/gamelan cents tables, and Scala `.scl` files
+  are all ordinary tunings — none is privileged.
+- **Tree-shakable, zero runtime dependencies.** Import only what you use.
+- **Dual ESM + CJS**, fully typed.
 
 ```bash
-npm i musictheoryjs@latest
+bun add musictheoryjs   # or: npm i musictheoryjs / pnpm add musictheoryjs
 ```
 
-yarn:<br>
+## Western quick start
 
-```bash
-yarn add musictheoryjs
+```ts
+import { Note, Scale, Chord, interval, PERFECT_FIFTH } from "musictheoryjs";
+
+// Notes are immutable and spelled
+const c4 = new Note("C4");
+c4.transpose(PERFECT_FIFTH).toString();  // "G4"
+c4.transpose(interval(4, "d")).toString(); // "Fb4"  (diminished 4th, not E)
+new Note("E#4").isEnharmonic("F4");        // true
+new Note("E#4").equals("F4");              // false (different spelling)
+
+// Scales spell correctly
+Scale.from("C4", "major").noteNames();
+// ["C4","D4","E4","F4","G4","A4","B4"]
+Scale.from("C4", "lydian").noteNames();    // contains "F#4", never "Gb4"
+Scale.from("D4", "dorian").degree(3).toString(); // "F4"
+
+// Chords from symbols
+Chord.from("Cmaj7").noteNames();  // ["C4","E4","G4","B4"]
+Chord.from("Bdim7").noteNames();  // ["B4","D5","F5","Ab5"]
+Chord.from("C").invert().noteNames(); // ["E4","G4","C5"]
 ```
 
----
+## Frequencies & tunings
 
-## Usage
+```ts
+import { Note, frequencyOfNote, pythagorean, justIntonation } from "musictheoryjs";
 
-```javascript
-import * as mt from "musictheoryjs";
-// or
+frequencyOfNote(new Note("A4"));               // 440
+frequencyOfNote(new Note("C4"));               // 261.6256…
+frequencyOfNote(new Note("A4"), undefined, { frequency: 432 }); // 432
+
+// The same note under a different tuning
+frequencyOfNote(new Note("E4"), justIntonation()); // pure major third above C
+frequencyOfNote(new Note("G4"), pythagorean());    // pure fifth (701.955¢)
+```
+
+## Keys, Roman numerals & analysis
+
+```ts
+import { Key, detectChord, detectScales, drop2, Chord } from "musictheoryjs";
+
+const c = Key.major("C");
+c.signature.count;                 // 0  (positive = sharps, negative = flats)
+c.chord(2).toString();             // "Dm"   (ii)
+c.chord(5, { seventh: true }).toString(); // "G7"  (V7)
+
+// Roman numerals, both directions
+c.romanNumeral(Chord.from("G7"));  // "V7"
+c.romanNumeral(Chord.from("Bb"));  // "bVII"
+c.chordFromRoman("ii7").toString(); // "Dm7"
+c.progression("I V vi IV").map(String); // [C, G, Am, F]
+
+c.relative().toString();           // "A minor"
+c.parallel().toString();           // "C minor"
+
+// Detection (the inverse of building from a symbol)
+detectChord(["G4", "B4", "D5", "F5"])?.toString(); // "G7"
+detectScales(["C4","D4","E4","F4","G4","A4","B4"]); // C major, A minor, D dorian, …
+
+// Voicings
+drop2(Chord.from("Cmaj7")).map(String); // ["G3","C4","E4","B4"]
+```
+
+## Microtonal & non-Western music
+
+Microtonal pitches are not "deviations" from the Western grid — they are ordinary
+pitches in a tuning that happens not to have 12 equal steps.
+
+```ts
 import {
-   Chord,
-   Scale,
-   Note,
-   Instrument,
-   Semitone,
-   Modifier,
+  equalTemperament,
+  centsTuning,
+  ratioTuning,
+  scalaTuning,
+  scaleFromTuning,
 } from "musictheoryjs";
+
+// 24-EDO (quarter tones)
+scaleFromTuning(equalTemperament(24));
+// [{ degree: 0, cents: 0, frequency: 440 }, { degree: 1, cents: 50, … }, …]
+
+// A maqam Rast, as a cents table, anchored so its tonic sounds at 264 Hz
+const rast = centsTuning([0, 204, 355, 498, 702, 906, 1057], { name: "Rast" });
+scaleFromTuning(rast, { frequency: 264 }, true); // includes the closing octave
+
+// Just-intonation major scale from ratios
+ratioTuning(["1/1", "9/8", "5/4", "4/3", "3/2", "5/3", "15/8"]);
+
+// Import a Scala .scl tuning file
+scalaTuning(fs.readFileSync("bohlen-pierce.scl", "utf8"));
 ```
 
----
+Non-octave periods work too — e.g. a Bohlen–Pierce-style tuning that repeats at a
+3/1 "tritave":
 
----
+```ts
+centsTuning([0, 500, 1000], { period: 1901.955 });
+```
 
-## Semitones
+## Subpath imports (smaller bundles)
 
-Semitones are simple numbers that represent notes<br>
-There are 12 in total ranging from 0(C) to 11(B)<br>
-0 -> C<br>
-1 -> C#<br>
-2 -> D<br>
-3 -> D#<br>
-4 -> E<br>
-5 -> F<br>
-6 -> F#<br>
-7 -> G<br>
-8 -> G#<br>
-9 -> A<br>
-10 -> A#<br>
-11 -> B<br>
+Every area is also a subpath, so you can pull in exactly one concern:
 
----
+```ts
+import { Note } from "musictheoryjs/note";
+import { Chord } from "musictheoryjs/chord";
+import { Key } from "musictheoryjs/key";
+import { equalTemperament } from "musictheoryjs/tuning";
+```
 
-## Modifiers
+## API overview
 
-Modifiers are this library's way of representing alterations.<br>
-Think of modifiers as the mathematical form.<br>
-Flat is represented as -1,<br>
-Sharp is represented as 1,<br>
-Natural is represented as 0.<br>
+| Module | Highlights |
+| --- | --- |
+| `note` | `Note` — `transpose`, `sharpen`/`flatten`, `enharmonic`, `intervalTo`, `isEnharmonic`, `midi`, `pitchClass` |
+| `interval` | `interval(n, quality)`, `intervalBetween`, `transpose`, `intervalName`, named constants (`PERFECT_FIFTH`, …) |
+| `scale` | `Scale.from(tonic, name)`, `.notes`/`.degree`/`.contains`, `mode`/`modes`, `detectScales`, `scaleFromTuning` |
+| `chord` | `Chord.from(symbol)`, `Chord.of(root, quality)`, `.invert`, quality tests, `detectChord`, `closeVoicing`/`drop2`/`drop3`/`spread` |
+| `key` | `Key.major`/`Key.minor`, `.signature`, `.chord(degree)`, `.romanNumeral`/`.chordFromRoman`, `.progression`, `.relative`/`.parallel` |
+| `tuning` | `Tuning` interface, `equalTemperament`/`edo`, `pythagorean`, `quarterCommaMeantone`, `justIntonation`, `centsTuning`, `ratioTuning`, `scalaTuning`, `frequencyOfNote`, `frequencyOfDegree` |
+| `pitch` | Low-level `SpelledPitch` and `PitchPoint` primitives, parsing/formatting |
 
-You can import the Modifier enum or just create your own constants when needed.<br>
-
----
-
-## Instruments
-
-Instruments encapsulate tuning and methods for calculating the frequency and midi key notes.
-
-the tuning is specified as the A4 frequency in Hertz. The default tuning is 440Hz.
-
----
-
-## Notes
-
-Notes encapsulate the semitone and octave of a musical note.
-
----
-
-## Chords
-
-Chords are made from a root semitone, octave, template(containing ChordIntervals), and a base scale(default is the Major scale).
-
-The following Pre-defined templates are available:
-
-  <table>
-  <tr>
-  <td>maj</td>
-  <td>maj4</td>
-  <td>maj6</td>
-  <td>maj69</td>
-  </tr><tr>
-  <td>maj7</td>
-  <td>maj9</td>
-  <td>maj11</td>
-  <td>maj13</td>
-  </tr><tr>
-  <td>maj7s11</td>
-  <td>majb5</td>
-  <td>min</td>
-  <td>min4</td>
-  </tr><tr>
-  <td>min6</td>
-  <td>min7</td>
-  <td>minAdd9</td>
-  <td>min69</td>
-  </tr><tr>
-  <td>min9</td>
-  <td>min11</td>
-  <td>min13</td>
-  <td>min7b5</td>
-  </tr><tr>
-  <td>dom7</td>
-  <td>dom9</td>
-  <td>dom11</td>
-  <td>dom13</td>
-  </tr><tr>
-  <td>dom7s5</td>
-  <td>dom7b5</td>
-  <td>dom7s9</td>
-  <td>dom7b9</td>
-  </tr><tr>
-  <td>dom9b5</td>
-  <td>dom9s5</td>
-  <td>dom7s11</td>
-  <td>dom7s5s9</td>
-  </tr><tr>
-  <td>dom7s5b9</td>
-  <td>dim</td>
-  <td>dim7</td>
-  <td>aug</td>
-  </tr><tr>
-  <td>sus2</td>
-  <td>sus4</td>
-  <td>fifth</td>
-  <td>b5</td>
-  </tr><tr>
-  <td>s11</td>
-  </tr>
-  </table>
-
----
-
-## Scales
-
-Scales are made from a key semitone, octave, template(a list of intervals).
-
-The following Pre-defined templates are available:
-
-  <table>
-  <tr>
-  <td>major</td>
-  <td>minor</td>
-  <td>ionian</td>
-  <td>dorian</td>
-  </tr><tr>
-  <td>phrygian</td>
-  <td>lydian</td>
-  <td>mixolydian</td>
-  <td>aeolian</td>
-  </tr><tr>
-  <td>locrian</td>
-  <td>enigmaticMajor</td>
-  <td>enigmaticMinor</td>
-  <td>minor7b5</td>
-  </tr><tr>
-  <td>major7s4s5</td>
-  <td>harmonicMajor</td>
-  <td>harmonicMinor</td>
-  <td>doubleHarmonic</td>
-  </tr><tr>
-  <td>melodicMinorAscending</td>
-  <td>melodicMinorDescending</td>
-  <td>majorPentatonic</td>
-  <td>majorPentatonicBlues</td>
-  </tr><tr>
-  <td>minorPentatonic</td>
-  <td>minorPentatonicBlues</td>
-  <td>b5Pentatonic</td>
-  <td>minor6Pentatonic</td>
-  </tr><tr>
-  <td>dim8Tone</td>
-  <td>dom8Tone</td>
-  <td>neopolitanMajor</td>
-  <td>neopolitanMinor</td>
-  </tr><tr>
-  <td>hungarianMajor</td>
-  <td>hungarianMinor</td>
-  <td>hungarianGypsy</td>
-  <td>spanish</td>
-  </tr><tr>
-  <td>spanish8Tone</td>
-  <td>spanishGypsy</td>
-  <td>augmented</td>
-  <td>dominantSuspended</td>
-  </tr><tr>
-  <td>bebopMajor</td>
-  <td>bebopDominant</td>
-  <td>mystic</td>
-  <td>overtone</td>
-  </tr><tr>
-  <td>leadingTone</td>
-  <td>hirojoshi</td>
-  <td>japaneseA</td>
-  <td>japaneseB</td>
-  </tr><tr>
-  <td>oriental</td>
-  <td>arabian</td>
-  <td>persian</td>
-  <td>balinese</td>
-  </tr><tr>
-  <td>kumoi</td>
-  <td>pelog</td>
-  <td>algerian</td>
-  <td>chinese</td>
-  </tr><tr>
-  <td>mongolian</td>
-  <td>egyptian</td>
-  <td>hindu</td>
-  <td>romanian</td>
-  </tr><tr>
-  <td>hindu</td>
-  <td>insen</td>
-  <td>iwato</td>
-  <td>scottish</td>
-  </tr><tr>
-  <td>yo</td>
-  <td>istrian</td>
-  <td>ukranianDorian</td>
-  <td>petrushka</td>
-  </tr><tr>
-  <td>ahavaraba</td>
-  <td>halfDiminished</td>
-  <td>jewish</td>
-  <td>byzantine</td>
-  </tr><tr>
-  <td>acoustic</td>
-  </table>
-
----
+See [`examples/`](examples) for runnable scripts.
 
 ## Development
 
-Step 1:<br>
-Fork the project
-
-Step 2:<br>
-Create a new branch - Name it based on the work/feature your working on
-
-Step 3:<br>
-From the project root(after you checkout your branch), run:<br>
-
 ```bash
-npm install
+bun install
+bun test          # run the test suite
+bun run typecheck # tsc --noEmit
+bun run lint      # biome check
+bun run build     # ESM + CJS + .d.ts into dist/
 ```
 
-or
+## License
 
-```bash
-yarn install
-```
-
-Step 4:<br>
-Submit a pull request
-
----
-
-## Scripts:
-
-### Build:
-
-```bash
-npm run build
-```
-
-or
-
-```bash
-yarn build
-```
-
-### Test:
-
-```bash
-npm run test
-```
-
-or
-
-```bash
-yarn test
-```
-
-### Lint:
-
-```bash
-npm run lint
-```
-
-or
-
-```bash
-yarn lint
-```
-
-### Build Docs:
-
-```bash
-npm run build-docs
-```
-
-or
-
-```bash
-yarn build-docs
-```
+ISC © Zach Moore
