@@ -9,16 +9,16 @@ const api = `${base}api/`;
 
 const CODE_THEME = "night-owl";
 
-const heroSnippet = `import { Note, Scale, Chord } from "musictheoryjs";
-
-new Note("E#4").equals("F4");        // false — different notes
-new Note("E#4").isEnharmonic("F4");  // true  — same pitch
+const heroSnippet = `import { Note, Scale, Chord, Key } from "musictheoryjs";
 
 Scale.from("C4", "major").noteNames();
 // ["C4", "D4", "E4", "F4", "G4", "A4", "B4"]
 
-Chord.from("Bdim7").noteNames();
-// ["B4", "D5", "F5", "Ab5"]   ← Ab, spelled correctly`;
+Chord.from("Cmaj7").noteNames();
+// ["C4", "E4", "G4", "B4"]
+
+Key.major("C").progression("ii7 V7 Imaj7").map(String);
+// ["Dm7", "G7", "Cmaj7"]`;
 
 const spellingBad = `// A note stored as a number 0–11
 const pitchClass = 5;   // is this F? or E#? or Gbb?
@@ -100,8 +100,8 @@ tuning.centsForDegree(4);  // cents above the tonic`,
 
 const stats = [
   { n: "0", label: "runtime dependencies" },
-  { n: "46", label: "scale templates" },
-  { n: "32", label: "chord qualities" },
+  { n: "~1.5 KB", label: "gzipped for one class" },
+  { n: "~11 KB", label: "gzipped, whole library" },
   { n: "ESM + CJS", label: "with full types" },
 ];
 ---
@@ -119,22 +119,23 @@ const stats = [
           <span
             class="inline-flex items-center gap-2 rounded-full border border-violet-500/25 bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-700 dark:text-violet-300"
           >
-            v3 · zero dependencies · ESM + CJS
+            v3 · zero dependencies · ESM + CJS · ~11 KB
           </span>
           <h1
             class="mt-5 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl dark:text-white"
           >
-            Music theory that keeps its
+            Music theory for
             <span
               class="bg-gradient-to-r from-violet-500 to-pink-500 bg-clip-text text-transparent"
-              >spelling</span
+              >JavaScript</span
             >.
           </h1>
           <p class="mt-5 max-w-xl text-lg leading-relaxed text-slate-600 dark:text-slate-400">
-            A JavaScript and TypeScript library for notes, scales, chords, and
-            keys that come out the way you'd write them by hand. It also does
-            microtonal tunings, MIDI files, and audio analysis, and it has no
-            runtime dependencies.
+            A TypeScript library for notes, scales, chords, and keys — parse a
+            chord, spell a scale, name a Roman numeral, detect the key of a
+            melody. Zero dependencies, typed to the edges, and tree-shakable down
+            to ~1.5 KB for a single class. Microtonal tunings, MIDI, and audio
+            analysis come in the same package.
           </p>
           <div class="mt-8 flex flex-wrap items-center gap-3">
             <a
@@ -179,18 +180,69 @@ const stats = [
     </div>
   </section>
 
-  <!-- The problem -->
+  <!-- Dev credentials -->
+  <section class="mx-auto max-w-6xl px-5 py-16">
+    <div class="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-center">
+      <div>
+        <h2 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+          You pay for what you import
+        </h2>
+        <p class="mt-4 text-slate-600 dark:text-slate-400">
+          The package is marked <code class="rounded bg-slate-100 px-1.5 py-0.5 text-sm dark:bg-white/10">sideEffects: false</code>
+          and every area has its own entry point, so a bundler keeps only the
+          code you reach. Import one class and you ship about a kilobyte and a
+          half. Numbers below come from bundling a real import with
+          <code class="rounded bg-slate-100 px-1.5 py-0.5 text-sm dark:bg-white/10">bun build --minify</code> and gzipping it.
+        </p>
+        <ul class="mt-6 space-y-2 text-sm text-slate-600 dark:text-slate-400">
+          <li>· No runtime dependencies — nothing transitive in your tree.</li>
+          <li>· TypeScript types in the package, no <code class="rounded bg-slate-100 px-1 py-0.5 dark:bg-white/10">@types</code> to install.</li>
+          <li>· ESM and CommonJS builds, each with its own declarations.</li>
+          <li>· Immutable values — safe to share, compare, and memoize.</li>
+        </ul>
+      </div>
+      <div class="overflow-hidden rounded-2xl border border-slate-200 dark:border-white/10">
+        <table class="w-full text-left text-sm">
+          <thead class="border-b border-slate-200 bg-slate-50 text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-400">
+            <tr>
+              <th class="px-5 py-3 font-medium">You import</th>
+              <th class="px-5 py-3 text-right font-medium">Minified</th>
+              <th class="px-5 py-3 text-right font-medium">Gzipped</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-white/5">
+            {[
+              ["Note", "3.2 KB", "1.5 KB"],
+              ["Note, Scale, Chord", "9.6 KB", "3.6 KB"],
+              ["Key + progressions", "12.3 KB", "4.6 KB"],
+              ["MIDI read", "5.6 KB", "2.5 KB"],
+              ["Everything", "29.5 KB", "11.1 KB"],
+            ].map(([what, min, gz]) => (
+              <tr>
+                <td class="px-5 py-3 font-mono text-slate-700 dark:text-slate-200">{what}</td>
+                <td class="px-5 py-3 text-right text-slate-500 dark:text-slate-400">{min}</td>
+                <td class="px-5 py-3 text-right font-semibold text-violet-600 dark:text-violet-400">{gz}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- The spelling feature -->
   <section class="mx-auto max-w-6xl px-5 py-16">
     <div class="mx-auto max-w-2xl text-center">
       <h2 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-        The spelling is the point
+        Notes keep their spelling
       </h2>
       <p class="mt-4 text-slate-600 dark:text-slate-400">
         Most small libraries reduce a note to a number from 0 to 11. That's
         enough to sound the right pitch, but it loses whether you're looking at
         an E♯ or an F. A lot of theory lives in that distinction: it decides
         which scale a note belongs to, which interval it forms, and how a chord
-        is named.
+        is named. Keep the letter and the accidental apart and the output matches
+        what you'd write by hand.
       </p>
     </div>
     <div class="mt-10 grid gap-5 md:grid-cols-2">

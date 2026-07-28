@@ -3,10 +3,12 @@ title: Getting started
 description: Install MusicTheoryJS and make your first notes, scales, and chords.
 ---
 
-MusicTheoryJS is a music theory toolkit for JavaScript and TypeScript. It models
-notes, intervals, scales, chords, and keys the way theory actually works, which
-mostly comes down to one thing: it remembers how each note is spelled. From
-there it also handles non-standard tunings, MIDI files, and some audio analysis.
+MusicTheoryJS is a music theory library for JavaScript and TypeScript. It models
+notes, intervals, scales, chords, and keys — parse a chord symbol, spell a scale,
+name a Roman numeral, detect the key of a melody. It's written in TypeScript,
+has no runtime dependencies, ships ESM and CommonJS, and tree-shakes down to
+about 1.5 KB gzipped if all you import is `Note`. Non-standard tunings, MIDI
+files, and audio analysis are in the same package.
 
 ## Install
 
