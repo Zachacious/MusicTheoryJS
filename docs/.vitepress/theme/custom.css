@@ -1,0 +1,63 @@
+/**
+ * MusicTheoryJS docs theme — a violet→pink brand identity on top of the
+ * VitePress default theme.
+ */
+
+:root {
+  --vp-c-brand-1: #7c3aed;
+  --vp-c-brand-2: #8b5cf6;
+  --vp-c-brand-3: #a78bfa;
+  --vp-c-brand-soft: rgba(139, 92, 246, 0.14);
+
+  /* Buttons */
+  --vp-button-brand-bg: var(--vp-c-brand-1);
+  --vp-button-brand-hover-bg: var(--vp-c-brand-2);
+  --vp-button-brand-active-bg: var(--vp-c-brand-1);
+  --vp-button-brand-border: transparent;
+  --vp-button-brand-hover-border: transparent;
+
+  /* Home hero: gradient wordmark + glowing logo backdrop */
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: -webkit-linear-gradient(
+    120deg,
+    #8b5cf6 30%,
+    #ec4899
+  );
+  --vp-home-hero-image-background-image: linear-gradient(
+    -45deg,
+    #8b5cf6 40%,
+    #ec4899 60%
+  );
+  --vp-home-hero-image-filter: blur(48px);
+
+  /* Inline code + links tint */
+  --vp-c-brand-lighter: #c4b5fd;
+}
+
+.dark {
+  --vp-c-brand-1: #a78bfa;
+  --vp-c-brand-2: #8b5cf6;
+  --vp-c-brand-3: #7c3aed;
+  --vp-c-brand-soft: rgba(167, 139, 250, 0.16);
+}
+
+@media (min-width: 640px) {
+  :root {
+    --vp-home-hero-image-filter: blur(56px);
+  }
+}
+@media (min-width: 960px) {
+  :root {
+    --vp-home-hero-image-filter: blur(68px);
+  }
+}
+
+/* Slightly larger, friendlier feature icons on the home page */
+.VPFeature .icon {
+  font-size: 24px;
+}
+
+/* Subtle brand accent on the active sidebar item */
+.VPSidebarItem.is-active > .item .text {
+  color: var(--vp-c-brand-1);
+}

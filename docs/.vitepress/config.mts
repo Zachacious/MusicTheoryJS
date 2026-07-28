@@ -15,10 +15,25 @@ export default defineConfig({
   ignoreDeadLinks: [/^\/api\//],
 
   head: [
+    ["link", { rel: "icon", type: "image/svg+xml", href: "/MusicTheoryJS/favicon.svg" }],
     ["meta", { name: "theme-color", content: "#8b5cf6" }],
+    ["meta", { property: "og:type", content: "website" }],
+    ["meta", { property: "og:title", content: "MusicTheoryJS" }],
+    [
+      "meta",
+      {
+        property: "og:description",
+        content:
+          "A modern, immutable, tree-shakable music theory library with first-class microtonal, MIDI, and audio-analysis support.",
+      },
+    ],
+    ["meta", { property: "og:image", content: "/MusicTheoryJS/favicon.svg" }],
+    ["meta", { name: "twitter:card", content: "summary" }],
   ],
 
   themeConfig: {
+    logo: "/favicon.svg",
+
     nav: [
       { text: "Guide", link: "/guide/getting-started" },
       { text: "API Reference", link: "/api/" },

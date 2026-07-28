@@ -1,230 +1,155 @@
+<div align="center">
+
 # MusicTheoryJS
 
-A modern, tree-shakable music theory library for JavaScript and TypeScript.
+**Music theory, done right.**
 
-Primarily Western and ergonomic — correct enharmonic spelling, spelled intervals,
-scales, and chords — with **first-class support for non-standard tunings and
-microtonal / non-Western music** through a pluggable tuning system.
+A modern, immutable, tree-shakable library for notes, scales, chords, keys,
+tunings, MIDI, and audio analysis — with first-class microtonal and non-Western
+support.
 
-- **Correct by construction.** Notes carry their spelling (letter + accidental),
-  so `E#` and `F` are distinct, a C‑major scale spells `C D E F G A B`, and a
-  diminished-seventh chord spells its seventh as `A♭`, not `G#`.
-- **Immutable.** Every operation returns a new value; nothing mutates in place.
-- **Tuning-agnostic core.** 12‑TET is just the default. `n`‑EDO, Pythagorean,
-  meantone, Just Intonation, maqam/gamelan cents tables, and Scala `.scl` files
-  are all ordinary tunings — none is privileged.
-- **Tree-shakable, zero runtime dependencies.** Import only what you use.
-- **Dual ESM + CJS**, fully typed.
+[![npm version](https://img.shields.io/npm/v/musictheoryjs.svg?color=8b5cf6)](https://www.npmjs.com/package/musictheoryjs)
+[![CI](https://github.com/Zachacious/MusicTheoryJS/actions/workflows/ci.yml/badge.svg)](https://github.com/Zachacious/MusicTheoryJS/actions/workflows/ci.yml)
+[![types](https://img.shields.io/npm/types/musictheoryjs.svg?color=8b5cf6)](https://www.npmjs.com/package/musictheoryjs)
+[![zero dependencies](https://img.shields.io/badge/dependencies-0-8b5cf6.svg)](package.json)
+[![license](https://img.shields.io/npm/l/musictheoryjs.svg?color=8b5cf6)](LICENSE.txt)
+
+### 📖 [Documentation & Guides](https://zachacious.github.io/MusicTheoryJS/) &nbsp;·&nbsp; [API Reference](https://zachacious.github.io/MusicTheoryJS/api/) &nbsp;·&nbsp; [Getting Started](https://zachacious.github.io/MusicTheoryJS/guide/getting-started)
+
+</div>
+
+---
+
+> **v3 is a ground-up rewrite.** It is not API-compatible with v2. See the
+> [documentation](https://zachacious.github.io/MusicTheoryJS/) to get started.
+
+## Why
+
+Most theory libraries collapse a note to a number 0–11 and lose its **spelling**
+— so `E♯` and `F` become indistinguishable, and everything downstream (interval
+naming, key signatures, chord spelling) gets it subtly wrong. MusicTheoryJS keeps
+the spelling, models frequency through a **pluggable tuning system**, and stays
+**immutable** and **dependency-free** throughout.
+
+- **♯ Correct by construction** — `E♯ ≠ F`; a C-major scale spells `C D E F G A B`;
+  `Bdim7` spells its seventh as `A♭`, not `G♯`.
+- **🌍 Microtonal & non-Western** — 12-TET is just the default. n-EDO,
+  Pythagorean, meantone, Just Intonation, maqam cents tables, and Scala files are
+  all first-class tunings.
+- **🧊 Immutable & tree-shakable** — every operation returns a new value; import
+  only what you use across **9 subpaths**; **zero runtime dependencies**.
+- **🎹 Analysis, MIDI & audio** — key detection, chord-over-time, Roman numerals,
+  cadences, Standard MIDI File read/write, and dependency-free DSP (FFT, pitch,
+  chroma, onset).
+- **🧩 Dual ESM + CJS**, fully typed, published with provenance.
+
+## Install
 
 ```bash
-bun add musictheoryjs   # or: npm i musictheoryjs / pnpm add musictheoryjs
+bun add musictheoryjs     # or: npm i musictheoryjs · pnpm add musictheoryjs · yarn add musictheoryjs
 ```
 
-## Western quick start
-
 ```ts
-import { Note, Scale, Chord, interval, PERFECT_FIFTH } from "musictheoryjs";
-
-// Notes are immutable and spelled
-const c4 = new Note("C4");
-c4.transpose(PERFECT_FIFTH).toString();  // "G4"
-c4.transpose(interval(4, "d")).toString(); // "Fb4"  (diminished 4th, not E)
-new Note("E#4").isEnharmonic("F4");        // true
-new Note("E#4").equals("F4");              // false (different spelling)
-
-// Scales spell correctly
-Scale.from("C4", "major").noteNames();
-// ["C4","D4","E4","F4","G4","A4","B4"]
-Scale.from("C4", "lydian").noteNames();    // contains "F#4", never "Gb4"
-Scale.from("D4", "dorian").degree(3).toString(); // "F4"
-
-// Chords from symbols
-Chord.from("Cmaj7").noteNames();  // ["C4","E4","G4","B4"]
-Chord.from("Bdim7").noteNames();  // ["B4","D5","F5","Ab5"]
-Chord.from("C").invert().noteNames(); // ["E4","G4","C5"]
+import { Note, Scale, Chord, Key } from "musictheoryjs";   // ESM
+const { Note, Scale, Chord, Key } = require("musictheoryjs"); // CJS
 ```
 
-## Frequencies & tunings
+## Quick start
 
 ```ts
-import { Note, frequencyOfNote, pythagorean, justIntonation } from "musictheoryjs";
+import { Scale, Chord, Note, Key, detectKey } from "musictheoryjs";
 
-frequencyOfNote(new Note("A4"));               // 440
-frequencyOfNote(new Note("C4"));               // 261.6256…
-frequencyOfNote(new Note("A4"), undefined, { frequency: 432 }); // 432
+// Scales and chords spell correctly
+Scale.from("C4", "major").noteNames();  // ["C4","D4","E4","F4","G4","A4","B4"]
+Chord.from("Cmaj7").noteNames();         // ["C4","E4","G4","B4"]
+Chord.from("Bdim7").noteNames();         // ["B4","D5","F5","Ab5"]
 
-// The same note under a different tuning
-frequencyOfNote(new Note("E4"), justIntonation()); // pure major third above C
-frequencyOfNote(new Note("G4"), pythagorean());    // pure fifth (701.955¢)
+// Spelling is preserved, so enharmonics are distinguished
+new Note("E#4").isEnharmonic("F4");      // true  (same pitch)
+new Note("E#4").equals("F4");            // false (different spelling)
+
+// Keys, Roman numerals, and progressions
+Key.major("C").progression("ii7 V7 Imaj7").map(String); // ["Dm7","G7","Cmaj7"]
+detectKey(["C4", "E4", "G4"])[0].key.toString();        // "C major"
 ```
 
-## Keys, Roman numerals & analysis
+### Beyond 12-TET
 
 ```ts
-import { Key, detectChord, detectScales, drop2, Chord } from "musictheoryjs";
+import { equalTemperament, centsTuning, scaleFromTuning, justIntonation } from "musictheoryjs";
 
-const c = Key.major("C");
-c.signature.count;                 // 0  (positive = sharps, negative = flats)
-c.chord(2).toString();             // "Dm"   (ii)
-c.chord(5, { seventh: true }).toString(); // "G7"  (V7)
+scaleFromTuning(equalTemperament(24));   // 24-EDO quarter-tone scale
+justIntonation().centsForDegree(4);      // 386.31  (pure major third, 5/4)
 
-// Roman numerals, both directions
-c.romanNumeral(Chord.from("G7"));  // "V7"
-c.romanNumeral(Chord.from("Bb"));  // "bVII"
-c.chordFromRoman("ii7").toString(); // "Dm7"
-c.progression("I V vi IV").map(String); // [C, G, Am, F]
-
-c.relative().toString();           // "A minor"
-c.parallel().toString();           // "C minor"
-
-// Detection (the inverse of building from a symbol)
-detectChord(["G4", "B4", "D5", "F5"])?.toString(); // "G7"
-detectScales(["C4","D4","E4","F4","G4","A4","B4"]); // C major, A minor, D dorian, …
-
-// Voicings
-drop2(Chord.from("Cmaj7")).map(String); // ["G3","C4","E4","B4"]
-```
-
-## Analyzing note streams
-
-The library is purely symbolic — it never touches audio. A client app supplies
-timed `NoteEvent`s (from MIDI, a transcriber, a sequencer, live input, …) and
-gets music theory back.
-
-```ts
-import {
-  detectKey, segmentChords, onsetTimes, intervalClassVector, Note,
-} from "musictheoryjs";
-
-// Turn a detected pitch or MIDI number into a note
-Note.fromFrequency(442);  // A4  (snapped to nearest 12-TET)
-Note.fromMidi(60);        // C4
-
-// Key detection (Krumhansl-Schmuckler) — ranked, best first
-detectKey(["C4","E4","G4","A4","D5","F5"])[0].key.toString(); // "C major"
-
-// Set-theory fingerprint (transposition/inversion-invariant)
-intervalClassVector(["C4","Eb4","Gb4","A4"]); // [0,0,4,0,0,2]  (dim7)
-
-// Chord timeline from a timed stream
-const stream = [
-  { pitch: new Note("D4"), start: 0, duration: 4 },
-  { pitch: new Note("F4"), start: 0, duration: 4 },
-  { pitch: new Note("A4"), start: 0, duration: 4 },
-  { pitch: new Note("G4"), start: 4, duration: 4 },
-  /* … */
-];
-segmentChords(stream, [...onsetTimes(stream), 12]);
-// [{ start:0, end:4, chord: Dm }, { start:4, end:8, chord: G }, …]
-```
-
-Full harmonic analysis in one call — key detection, chord timeline, Roman
-numerals, and cadences:
-
-```ts
-import { analyzeHarmony } from "musictheoryjs";
-const { key, timeline, cadences } = analyzeHarmony(stream);
-// key: C major; timeline: [{ …, roman: "ii" }, …]; cadences: [{ type: "authentic", index: 1 }]
-```
-
-## MIDI files & audio
-
-Both are pure and dependency-free. The library reads/writes Standard MIDI Files
-and does DSP on **sample buffers you pass in** — it never captures audio itself
-(that, and polyphonic transcription, belong to the client app).
-
-```ts
-import { writeMidi, parseMidi, noteStreamToMidi, midiToNoteStream } from "musictheoryjs";
-
-// Notes -> .mid bytes -> notes
-const bytes = writeMidi(noteStreamToMidi(stream, { tempo: 500000 }));
-midiToNoteStream(parseMidi(bytes)); // NoteStream in seconds, spelled
-
-import { detectNote, chromagram, detectOnsets } from "musictheoryjs";
-
-// samples: a Float32Array a client got from the Web Audio API
-detectNote(samples, 44100);          // nearest Note (monophonic, YIN)
-chromagram(samples, 44100);          // 12-bin pitch-class profile
-detectOnsets(samples, 44100);        // onset times in seconds
-```
-
-## Microtonal & non-Western music
-
-Microtonal pitches are not "deviations" from the Western grid — they are ordinary
-pitches in a tuning that happens not to have 12 equal steps.
-
-```ts
-import {
-  equalTemperament,
-  centsTuning,
-  ratioTuning,
-  scalaTuning,
-  scaleFromTuning,
-} from "musictheoryjs";
-
-// 24-EDO (quarter tones)
-scaleFromTuning(equalTemperament(24));
-// [{ degree: 0, cents: 0, frequency: 440 }, { degree: 1, cents: 50, … }, …]
-
-// A maqam Rast, as a cents table, anchored so its tonic sounds at 264 Hz
+// A maqam Rast as a cents table, anchored so its tonic sounds at 264 Hz
 const rast = centsTuning([0, 204, 355, 498, 702, 906, 1057], { name: "Rast" });
-scaleFromTuning(rast, { frequency: 264 }, true); // includes the closing octave
-
-// Just-intonation major scale from ratios
-ratioTuning(["1/1", "9/8", "5/4", "4/3", "3/2", "5/3", "15/8"]);
-
-// Import a Scala .scl tuning file
-scalaTuning(fs.readFileSync("bohlen-pierce.scl", "utf8"));
+scaleFromTuning(rast, { frequency: 264 }, true);
 ```
 
-Non-octave periods work too — e.g. a Bohlen–Pierce-style tuning that repeats at a
-3/1 "tritave":
+### Analysis, MIDI & audio
 
 ```ts
-centsTuning([0, 500, 1000], { period: 1901.955 });
+import { analyzeHarmony, parseMidi, midiToNoteStream, detectNote } from "musictheoryjs";
+
+// Full harmonic analysis of a timed note stream
+const { key, timeline, cadences } = analyzeHarmony(noteStream);
+
+// Read a MIDI file → symbolic notes → theory
+analyzeHarmony(midiToNoteStream(parseMidi(midiBytes)));
+
+// Detect a note from audio samples the client supplies (monophonic, YIN)
+detectNote(float32Samples, 44100)?.toString(); // "A4"
 ```
 
-## Subpath imports (smaller bundles)
+## Subpaths
 
-Every area is also a subpath, so you can pull in exactly one concern:
+Everything is exported from the root, but each area is its own subpath for
+minimal bundles:
 
 ```ts
 import { Note } from "musictheoryjs/note";
-import { Chord } from "musictheoryjs/chord";
-import { Key } from "musictheoryjs/key";
 import { detectKey } from "musictheoryjs/analysis";
 import { parseMidi } from "musictheoryjs/midi";
 import { detectPitch } from "musictheoryjs/audio";
-import { equalTemperament } from "musictheoryjs/tuning";
 ```
 
-## API overview
-
-| Module | Highlights |
+| Subpath | Contents |
 | --- | --- |
-| `note` | `Note` — `transpose`, `sharpen`/`flatten`, `enharmonic`, `intervalTo`, `isEnharmonic`, `midi`, `pitchClass` |
-| `interval` | `interval(n, quality)`, `intervalBetween`, `transpose`, `intervalName`, named constants (`PERFECT_FIFTH`, …) |
-| `scale` | `Scale.from(tonic, name)`, `.notes`/`.degree`/`.contains`, `mode`/`modes`, `detectScales`, `scaleFromTuning` |
-| `chord` | `Chord.from(symbol)`, `Chord.of(root, quality)`, `.invert`, quality tests, `detectChord`, `closeVoicing`/`drop2`/`drop3`/`spread` |
-| `key` | `Key.major`/`Key.minor`, `.signature`, `.chord(degree)`, `.romanNumeral`/`.chordFromRoman`, `.progression`, `.relative`/`.parallel` |
-| `analysis` | `NoteEvent`/`NoteStream`, `detectKey`, `detectChordAt`/`segmentChords`, `analyzeHarmony` (romans + cadences), `intervalClassVector`; `Note.fromMidi`/`fromFrequency` |
-| `midi` | `parseMidi`/`writeMidi` (Standard MIDI Files), `midiToNoteStream`/`noteStreamToMidi`, `bpmToTempo` |
-| `audio` | `detectPitch`/`detectNote` (YIN), `chromagram`, `detectOnsets`, `fft`/`magnitudeSpectrum` — all on caller-supplied samples |
-| `tuning` | `Tuning` interface, `equalTemperament`/`edo`, `pythagorean`, `quarterCommaMeantone`, `justIntonation`, `centsTuning`, `ratioTuning`, `scalaTuning`, `frequencyOfNote`, `frequencyOfDegree` |
-| `pitch` | Low-level `SpelledPitch` and `PitchPoint` primitives, parsing/formatting |
+| [`/note`](https://zachacious.github.io/MusicTheoryJS/guide/notes) | The `Note` value object |
+| [`/interval`](https://zachacious.github.io/MusicTheoryJS/guide/intervals) | Spelled intervals, transposition, constants |
+| [`/scale`](https://zachacious.github.io/MusicTheoryJS/guide/scales) | Scales (46 templates), modes, detection |
+| [`/chord`](https://zachacious.github.io/MusicTheoryJS/guide/chords) | Chords (32 qualities), symbol parsing, detection, voicings |
+| [`/key`](https://zachacious.github.io/MusicTheoryJS/guide/keys) | Keys, signatures, Roman numerals, progressions |
+| [`/tuning`](https://zachacious.github.io/MusicTheoryJS/guide/tuning) | Tuning systems (EDO, JI, historical, custom, Scala) |
+| [`/analysis`](https://zachacious.github.io/MusicTheoryJS/guide/analysis) | Key detection, chord-over-time, set theory |
+| [`/midi`](https://zachacious.github.io/MusicTheoryJS/guide/midi) | Standard MIDI File read/write |
+| [`/audio`](https://zachacious.github.io/MusicTheoryJS/guide/audio) | Dependency-free DSP (FFT, pitch, chroma, onset) |
 
-See [`examples/`](examples) for runnable scripts.
+> **Scope:** the library is purely symbolic + dependency-free DSP. Audio capture
+> and **polyphonic** transcription (which need a model) are the client app's job —
+> feed the resulting notes in and get theory back.
+
+## Documentation
+
+The full documentation site has narrative guides with runnable examples for every
+module, plus a complete API reference:
+
+**→ https://zachacious.github.io/MusicTheoryJS/**
 
 ## Development
 
 ```bash
 bun install
-bun test          # run the test suite
+bun test          # 238 tests
 bun run typecheck # tsc --noEmit
-bun run lint      # biome check
-bun run build     # ESM + CJS + .d.ts into dist/
+bun run lint      # biome
+bun run build     # ESM + CJS + .d.ts
+bun run e2e       # end-to-end checks against the built package
+bun run docs:dev  # docs site locally
 ```
+
+Releases are automated with Changesets — see [RELEASING.md](RELEASING.md).
 
 ## License
 
-ISC © Zach Moore
+[ISC](LICENSE.txt) © 2021-2026 Zach Moore

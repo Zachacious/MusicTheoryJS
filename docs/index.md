@@ -5,6 +5,9 @@ hero:
   name: MusicTheoryJS
   text: Music theory, done right
   tagline: A modern, immutable, tree-shakable library for notes, scales, chords, keys, tunings, MIDI, and audio analysis — with first-class microtonal and non-Western support.
+  image:
+    src: /favicon.svg
+    alt: MusicTheoryJS
   actions:
     - theme: brand
       text: Get Started
