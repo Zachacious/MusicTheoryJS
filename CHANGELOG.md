@@ -1,5 +1,11 @@
 # musictheoryjs
 
+## 3.0.1
+
+### Patch Changes
+
+- 1b0b9c2: Rewrite README for a JavaScript-developer audience and point the package homepage at musictheoryjs.com
+
 ## 3.0.0
 
 ### Major Changes
