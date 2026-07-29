@@ -8,6 +8,7 @@
 
 import type { NoteEvent, NoteStream, NoteStreamInput } from "../analysis/types";
 import { type EnharmonicPreference, Note } from "../note/note";
+import { type TimeSignatureLike, asTimeSignature } from "../rhythm/meter";
 import type { MidiFile, MidiNote } from "./types";
 
 /** Default MIDI tempo: 500000 µs/quarter = 120 BPM. */
@@ -62,11 +63,17 @@ export function midiToNoteStream(
 /**
  * Convert a {@link NoteStream} (seconds) to a single-track {@link MidiFile}.
  * Times are quantised to ticks at the chosen PPQ; every note lasts at least one
- * tick.
+ * tick. Pass `timeSignature` (`"6/8"`, `[3, 4]`, or an object) to stamp a
+ * time-signature meta event on the file.
  */
 export function noteStreamToMidi(
   stream: NoteStreamInput,
-  options: { ppq?: number; tempo?: number; channel?: number } = {}
+  options: {
+    ppq?: number;
+    tempo?: number;
+    channel?: number;
+    timeSignature?: TimeSignatureLike;
+  } = {}
 ): MidiFile {
   const ppq = options.ppq ?? DEFAULT_PPQ;
   const tempo = options.tempo ?? DEFAULT_TEMPO;
@@ -81,5 +88,8 @@ export function noteStreamToMidi(
     channel,
   }));
 
-  return { format: 0, ppq, tempo, tracks: [{ notes }] };
+  const file: MidiFile = { format: 0, ppq, tempo, tracks: [{ notes }] };
+  return options.timeSignature === undefined
+    ? file
+    : { ...file, timeSignature: asTimeSignature(options.timeSignature) };
 }

@@ -34,8 +34,10 @@ export * from "./tuning/index";
 export * from "./scale/index";
 export * from "./chord/index";
 export * from "./key/index";
+export * from "./rhythm/index";
 export * from "./analysis/index";
 export * from "./midi/index";
+export * from "./notation/index";
 export * from "./audio/index";
 
 /** The library version. */

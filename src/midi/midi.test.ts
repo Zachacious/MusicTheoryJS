@@ -79,6 +79,77 @@ describe("write -> read round-trip", () => {
   });
 });
 
+describe("time signatures", () => {
+  test("write -> read round-trip", () => {
+    const file: MidiFile = {
+      ...sampleFile,
+      timeSignature: { numerator: 6, denominator: 8 },
+    };
+    const back = parseMidi(writeMidi(file));
+    expect(back.timeSignature).toEqual({ numerator: 6, denominator: 8 });
+  });
+
+  test("absent when the file sets none", () => {
+    const back = parseMidi(writeMidi(sampleFile));
+    expect(back.timeSignature).toBeUndefined();
+  });
+
+  test("first time signature wins (hand-assembled two-track file)", () => {
+    const track = (nn: number, dd: number) => [
+      ...[0x4d, 0x54, 0x72, 0x6b], // MTrk
+      ...[0, 0, 0, 12], // length
+      ...[0x00, 0xff, 0x58, 0x04, nn, dd, 0x18, 0x08], // FF 58
+      ...[0x00, 0xff, 0x2f, 0x00], // end of track
+    ];
+    const bytes = [
+      ...[0x4d, 0x54, 0x68, 0x64], // MThd
+      ...[0, 0, 0, 6], // header length
+      ...[0, 1], // format 1
+      ...[0, 2], // two tracks
+      ...[0x01, 0xe0], // 480 PPQ
+      ...track(3, 2), // 3/4
+      ...track(7, 3), // 7/8
+    ];
+    expect(parseMidi(bytes).timeSignature).toEqual({
+      numerator: 3,
+      denominator: 4,
+    });
+  });
+
+  test("writer emits a spec-shaped FF 58 event", () => {
+    const bytes = writeMidi({
+      format: 0,
+      ppq: 480,
+      timeSignature: { numerator: 6, denominator: 8 },
+      tracks: [{ notes: [] }],
+    });
+    const hex = [...bytes];
+    const at = hex.findIndex(
+      (b, i) => b === 0xff && hex[i + 1] === 0x58 && hex[i + 2] === 0x04
+    );
+    expect(at).toBeGreaterThan(-1);
+    // nn dd cc bb: 6, 2^3 = 8, dotted-quarter click = 36 clocks, 8 32nds.
+    expect(hex.slice(at + 3, at + 7)).toEqual([6, 3, 36, 8]);
+  });
+
+  test("writer rejects a non-power-of-two denominator", () => {
+    expect(() =>
+      writeMidi({
+        format: 0,
+        ppq: 480,
+        timeSignature: { numerator: 4, denominator: 6 },
+        tracks: [{ notes: [] }],
+      })
+    ).toThrow(RangeError);
+  });
+
+  test("noteStreamToMidi stamps a time signature from any accepted shape", () => {
+    const file = noteStreamToMidi([], { timeSignature: "3/4" });
+    expect(file.timeSignature).toEqual({ numerator: 3, denominator: 4 });
+    expect(noteStreamToMidi([]).timeSignature).toBeUndefined();
+  });
+});
+
 describe("tempo helpers", () => {
   test("bpm <-> tempo", () => {
     expect(bpmToTempo(120)).toBe(500000);

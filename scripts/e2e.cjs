@@ -25,6 +25,9 @@ const {
 const { chromagram } = require("musictheoryjs/audio");
 const { equalTemperament } = require("musictheoryjs/tuning");
 const { scaleFromTuning } = require("musictheoryjs/scale");
+const { barTicks, durationTicks } = require("musictheoryjs/rhythm");
+const { toABC } = require("musictheoryjs/notation");
+const { retuneMidi, justIntonation } = require("musictheoryjs");
 
 function sine(freq, n, sr = 44100) {
   const out = new Float32Array(n);
@@ -53,6 +56,31 @@ assert.ok(
 );
 const chroma = chromagram(sine(440, 8192), 44100);
 assert.equal(chroma.indexOf(Math.max(...chroma)), 9, "chroma A via /audio");
+
+// Rhythm via /rhythm
+assert.equal(durationTicks("q."), 720, "dotted quarter ticks");
+assert.equal(barTicks("6/8", 96), 288, "6/8 bar ticks via /rhythm");
+
+// Notation via /notation, retuning via root
+assert.ok(toABC(["D4"]).includes("D2 |]"), "ABC via /notation");
+const tuned = retuneMidi(
+  {
+    format: 0,
+    ppq: 480,
+    tracks: [
+      {
+        notes: [
+          { note: 64, start: 0, duration: 480, velocity: 96, channel: 0 },
+        ],
+      },
+    ],
+  },
+  justIntonation()
+);
+assert.ok(
+  Math.abs(tuned.tracks[0].notes[0].bend * 100 + 13.69) < 0.1,
+  "JI retune bend"
+);
 
 // MIDI round-trip + harmony
 const stream = [

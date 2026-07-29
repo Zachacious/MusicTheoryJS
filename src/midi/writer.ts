@@ -3,10 +3,13 @@
  *
  * Notes are expanded into note-on/note-off events, ordered by tick (note-offs
  * before note-ons at the same tick to avoid stuck notes), delta-timed, and
- * written as SMF format-1 (or format-0 for a single track). An optional tempo
- * and per-track name are emitted as meta events.
+ * written as SMF format-1 (or format-0 for a single track). An optional tempo,
+ * time signature, and per-track name are emitted as meta events; note `bend`
+ * fields become pitch-bend events just before their note-ons.
  */
 
+import { wholeNotes } from "../rhythm/duration";
+import { type TimeSignature, beatUnit } from "../rhythm/meter";
 import type { MidiFile, MidiNote, MidiTrack } from "./types";
 
 /** A growable byte buffer. */
@@ -54,12 +57,17 @@ class ByteWriter {
 
 interface TickEvent {
   tick: number;
-  /** 0 = note-off (sorted first), 1 = note-on. */
+  /** Sort key within a tick: -1 meta, 0 note-off, 0.5 pitch bend, 1 note-on —
+   * bends land after the offs and just before the ons they affect. */
   order: number;
   bytes: number[];
 }
 
-function trackEvents(track: MidiTrack, tempo?: number): number[] {
+function trackEvents(
+  track: MidiTrack,
+  tempo?: number,
+  timeSignature?: TimeSignature
+): number[] {
   const events: TickEvent[] = [];
 
   if (track.name !== undefined) {
@@ -84,6 +92,22 @@ function trackEvents(track: MidiTrack, tempo?: number): number[] {
       ],
     });
   }
+  if (timeSignature !== undefined) {
+    const dd = Math.log2(timeSignature.denominator);
+    if (!Number.isInteger(dd) || dd < 0) {
+      throw new RangeError(
+        `time signature denominator must be a power of two, got ${timeSignature.denominator}`
+      );
+    }
+    // cc = MIDI clocks per metronome click (whole note = 96): 24 for a
+    // quarter-note beat, 36 for the dotted-quarter beat of compound meters.
+    const cc = Math.round(96 * wholeNotes(beatUnit(timeSignature)));
+    events.push({
+      tick: 0,
+      order: -1,
+      bytes: [0xff, 0x58, 0x04, timeSignature.numerator & 0xff, dd, cc, 8],
+    });
+  }
 
   for (const n of track.notes) {
     const ch = n.channel & 0x0f;
@@ -97,6 +121,33 @@ function trackEvents(track: MidiTrack, tempo?: number): number[] {
       order: 0,
       bytes: [0x80 | ch, n.note & 0x7f, 0],
     });
+  }
+
+  // Pitch bends: one event per change, per channel, in note-start order
+  // (GM ±2-semitone range; simultaneous same-channel notes share a bend).
+  const byChannel = new Map<number, MidiNote[]>();
+  for (const n of track.notes) {
+    const ch = n.channel & 0x0f;
+    const list = byChannel.get(ch);
+    if (list) list.push(n);
+    else byChannel.set(ch, [n]);
+  }
+  for (const [ch, notes] of byChannel) {
+    let last = 0;
+    for (const n of [...notes].sort((a, b) => a.start - b.start)) {
+      const bend = n.bend ?? 0;
+      if (bend === last) continue;
+      last = bend;
+      const value = Math.min(
+        16383,
+        Math.max(0, Math.round(8192 + (bend / 2) * 8192))
+      );
+      events.push({
+        tick: n.start,
+        order: 0.5,
+        bytes: [0xe0 | ch, value & 0x7f, (value >> 7) & 0x7f],
+      });
+    }
   }
 
   events.sort((a, b) => a.tick - b.tick || a.order - b.order);
@@ -133,8 +184,12 @@ export function writeMidi(file: MidiFile): Uint8Array {
   w.u16(file.ppq);
 
   file.tracks.forEach((track, i) => {
-    // Tempo goes on the first track only.
-    const body = trackEvents(track, i === 0 ? file.tempo : undefined);
+    // Tempo and time signature go on the first track only.
+    const body = trackEvents(
+      track,
+      i === 0 ? file.tempo : undefined,
+      i === 0 ? file.timeSignature : undefined
+    );
     w.ascii("MTrk");
     w.u32(body.length);
     w.bytes(body);

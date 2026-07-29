@@ -3,10 +3,13 @@
  *
  * Supports SMF formats 0–2 with metrical (PPQ) division. Note-on/note-off pairs
  * are matched into {@link MidiNote}s; a note-on with velocity 0 counts as a
- * note-off (as the spec allows). The first tempo meta event is surfaced on the
- * file. Running status and interleaved meta/sysex events are handled.
+ * note-off (as the spec allows). The first tempo and time-signature meta events
+ * are surfaced on the file, and pitch bends are folded into the notes they
+ * affect (the `bend` field). Running status and interleaved meta/sysex events
+ * are handled.
  */
 
+import type { TimeSignature } from "../rhythm/meter";
 import type { MidiFile, MidiNote, MidiTrack } from "./types";
 
 /** A bounds-checked forward cursor over the file bytes. */
@@ -66,17 +69,21 @@ function toBytes(data: Uint8Array | ArrayBuffer | number[]): Uint8Array {
 interface OpenNote {
   start: number;
   velocity: number;
+  bend: number;
 }
 
 function parseTrack(
   r: ByteReader,
   length: number,
-  onTempo: (t: number) => void
+  onTempo: (t: number) => void,
+  onTimeSignature: (ts: TimeSignature) => void
 ): MidiTrack {
   const end = r.pos + length;
   const notes: MidiNote[] = [];
   // Open note-ons keyed by channel*128 + note.
   const open = new Map<number, OpenNote>();
+  // Current pitch-bend per channel, in semitones (GM ±2 range).
+  const bends = new Map<number, number>();
   let tick = 0;
   let status = 0;
   let name: string | undefined;
@@ -106,6 +113,13 @@ function parseTrack(
             (data[1] as number) * 256 +
             (data[2] as number)
         );
+      } else if (metaType === 0x58 && len >= 2) {
+        // FF 58: nn dd cc bb — numerator, denominator as a power of two,
+        // MIDI clocks per metronome click, 32nds per quarter (last two ignored).
+        onTimeSignature({
+          numerator: data[0] as number,
+          denominator: 2 ** (data[1] as number),
+        });
       } else if (metaType === 0x03) {
         name = String.fromCharCode(...data);
       }
@@ -127,7 +141,11 @@ function parseTrack(
         if (velocity === 0) {
           closeNote(open, notes, key, note, channel, tick);
         } else {
-          open.set(key, { start: tick, velocity });
+          open.set(key, {
+            start: tick,
+            velocity,
+            bend: bends.get(channel) ?? 0,
+          });
         }
         break;
       }
@@ -138,9 +156,15 @@ function parseTrack(
         closeNote(open, notes, channel * 128 + note, note, channel, tick);
         break;
       }
+      case 0xe0: {
+        // Pitch bend: 14-bit value, 8192 = centred, GM range ±2 semitones.
+        const lsb = r.u8();
+        const msb = r.u8();
+        bends.set(channel, ((((msb << 7) | lsb) - 8192) / 8192) * 2);
+        break;
+      }
       case 0xa0: // poly aftertouch (2 data)
       case 0xb0: // control change (2 data)
-      case 0xe0: // pitch bend (2 data)
         r.u8();
         r.u8();
         break;
@@ -176,6 +200,7 @@ function closeNote(
     duration: tick - on.start,
     velocity: on.velocity,
     channel,
+    ...(on.bend === 0 ? {} : { bend: on.bend }),
   });
 }
 
@@ -198,6 +223,7 @@ export function parseMidi(data: Uint8Array | ArrayBuffer | number[]): MidiFile {
   const ppq = division;
 
   let tempo: number | undefined;
+  let timeSignature: TimeSignature | undefined;
   const tracks: MidiTrack[] = [];
   for (let i = 0; i < ntracks && !r.done; i++) {
     if (r.ascii(4) !== "MTrk") {
@@ -205,13 +231,24 @@ export function parseMidi(data: Uint8Array | ArrayBuffer | number[]): MidiFile {
     }
     const len = r.u32();
     tracks.push(
-      parseTrack(r, len, (t) => {
-        if (tempo === undefined) tempo = t;
-      })
+      parseTrack(
+        r,
+        len,
+        (t) => {
+          if (tempo === undefined) tempo = t;
+        },
+        (ts) => {
+          if (timeSignature === undefined) timeSignature = ts;
+        }
+      )
     );
   }
 
-  return tempo === undefined
-    ? { format, ppq, tracks }
-    : { format, ppq, tracks, tempo };
+  return {
+    format,
+    ppq,
+    tracks,
+    ...(tempo === undefined ? {} : { tempo }),
+    ...(timeSignature === undefined ? {} : { timeSignature }),
+  };
 }

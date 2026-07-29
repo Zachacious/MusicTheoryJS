@@ -44,6 +44,7 @@ export default defineConfig({
             { label: "Scales", slug: "guides/scales" },
             { label: "Chords", slug: "guides/chords" },
             { label: "Keys & harmony", slug: "guides/keys" },
+            { label: "Rhythm & meter", slug: "guides/rhythm" },
           ],
         },
         {
@@ -55,6 +56,7 @@ export default defineConfig({
           items: [
             { label: "Symbolic analysis", slug: "guides/analysis" },
             { label: "MIDI files", slug: "guides/midi" },
+            { label: "Notation export", slug: "guides/notation" },
             { label: "Audio (DSP)", slug: "guides/audio" },
           ],
         },

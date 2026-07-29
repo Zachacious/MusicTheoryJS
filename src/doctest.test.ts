@@ -31,7 +31,9 @@ import * as root from "./index";
 import * as intervalNS from "./interval/index";
 import * as keyNS from "./key/index";
 import * as midiNS from "./midi/index";
+import * as notationNS from "./notation/index";
 import * as noteNS from "./note/index";
+import * as rhythmNS from "./rhythm/index";
 import * as scaleNS from "./scale/index";
 import * as tuningNS from "./tuning/index";
 
@@ -46,7 +48,9 @@ const MODULES: Record<string, Record<string, unknown>> = {
   "musictheoryjs/interval": intervalNS,
   "musictheoryjs/key": keyNS,
   "musictheoryjs/midi": midiNS,
+  "musictheoryjs/notation": notationNS,
   "musictheoryjs/note": noteNS,
+  "musictheoryjs/rhythm": rhythmNS,
   "musictheoryjs/scale": scaleNS,
   "musictheoryjs/tuning": tuningNS,
 };

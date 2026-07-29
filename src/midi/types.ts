@@ -7,6 +7,8 @@
  * tempo to get seconds (see the `convert` module).
  */
 
+import type { TimeSignature } from "../rhythm/meter";
+
 /** A note with tick timing, as read from or written to a MIDI file. */
 export interface MidiNote {
   /** MIDI note number, 0–127 (middle C = 60). */
@@ -19,6 +21,12 @@ export interface MidiNote {
   readonly velocity: number;
   /** MIDI channel, 0–15. */
   readonly channel: number;
+  /**
+   * Pitch-bend offset in semitones in effect at the note's start, assuming
+   * the General MIDI ±2-semitone bend range. Absent means centred (no bend).
+   * Written as a pitch-bend event just before the note-on; see `retuneMidi`.
+   */
+  readonly bend?: number;
 }
 
 /** One track of a MIDI file. */
@@ -37,4 +45,6 @@ export interface MidiFile {
   readonly tracks: MidiTrack[];
   /** Tempo in microseconds per quarter note (500000 = 120 BPM) if the file set one. */
   readonly tempo?: number;
+  /** Time signature from the first FF 58 meta event, if the file set one. */
+  readonly timeSignature?: TimeSignature;
 }

@@ -93,20 +93,20 @@ Connect chords the way arrangers do.
 
 Give time the same footing as pitch.
 
-- [ ] Time signatures, note-value durations, dots, and tuplets.
-- [ ] Beat/subdivision helpers and quantization for the analysis and MIDI
+- [x] Time signatures, note-value durations, dots, and tuplets.
+- [x] Beat/subdivision helpers and quantization for the analysis and MIDI
       layers.
-- [ ] Surface time-signature meta events when reading MIDI files (tempo
+- [x] Surface time-signature meta events when reading MIDI files (tempo
       already is).
 
 ## Phase 6 — Notation and audio depth
 
 Get music in and out in more forms.
 
-- [ ] MusicXML and/or ABC export from notes, chords, and scales.
-- [ ] Pitch tracking over time: a monophonic melody transcriber built on the
+- [x] MusicXML and/or ABC export from notes, chords, and scales.
+- [x] Pitch tracking over time: a monophonic melody transcriber built on the
       existing YIN + onset pieces, and a constant-Q option for chroma.
-- [ ] Tuning presets (common maqamat, ragas, gamelan slendro/pelog),
+- [x] Tuning presets (common maqamat, ragas, gamelan slendro/pelog),
       tempered-versus-just comparison, and retuning a MIDI file.
 
 ## Phase 7 — Docs that play

@@ -28,9 +28,17 @@ import {
 } from "musictheoryjs";
 
 import { intervalClassVector } from "musictheoryjs/analysis";
-import { detectPitch } from "musictheoryjs/audio";
+import { cqtChroma, detectPitch } from "musictheoryjs/audio";
 // Subpath entries
 import { parseChordSymbol } from "musictheoryjs/chord";
+import { toABC, toMusicXML } from "musictheoryjs/notation";
+import {
+  durationName,
+  durationTicks,
+  quantizeTick,
+  tickToPosition,
+} from "musictheoryjs/rhythm";
+import { justDeviations, maqamTuning } from "musictheoryjs/tuning";
 
 function sine(freq, n, sr = 44100) {
   const out = new Float32Array(n);
@@ -71,9 +79,38 @@ assert.deepEqual(
   "dim7 IC vector"
 );
 
+// --- Rhythm (via subpath) ---
+assert.equal(durationTicks("8t"), 160, "eighth triplet ticks");
+assert.equal(durationName("q."), "dotted quarter", "duration name");
+assert.equal(quantizeTick(933, "16"), 960, "quantize to sixteenths");
+assert.deepEqual(
+  tickToPosition(1500, "6/8"),
+  { bar: 2, beat: 1, offset: 60 },
+  "6/8 position"
+);
+
+// --- Notation (via subpath) ---
+assert.ok(
+  toABC(["C4", "E4", "G4"]).endsWith("K:C\nC2 E2 G2 |]"),
+  "ABC triad run"
+);
+assert.ok(
+  toMusicXML(["F#4"], { key: "D major" }).includes("<fifths>2</fifths>"),
+  "MusicXML key signature"
+);
+
+// --- Tuning presets and comparison ---
+assert.equal(maqamTuning("rast").centsForDegree(2), 350, "rast neutral third");
+assert.ok(
+  Math.abs(justDeviations()[4].difference - 13.69) < 0.1,
+  "12-TET third vs just"
+);
+
 // --- Audio DSP ---
 assert.equal(detectNote(sine(440, 4096), 44100)?.toString(), "A4", "YIN A4");
 assert.ok(detectPitch(sine(220, 4096), 44100) > 218, "YIN 220 via subpath");
+const cq = cqtChroma(sine(440, 8192), 44100);
+assert.equal(cq.indexOf(Math.max(...cq)), 9, "CQT chroma A");
 
 // --- Full pipeline: notes -> MIDI bytes -> notes, + harmonic analysis ---
 const stream = [
@@ -87,9 +124,16 @@ const stream = [
   { pitch: new Note("E4"), start: 2, duration: 1 },
   { pitch: new Note("G4"), start: 2, duration: 1 },
 ];
-const bytes = writeMidi(noteStreamToMidi(stream, { tempo: 500000 }));
+const bytes = writeMidi(
+  noteStreamToMidi(stream, { tempo: 500000, timeSignature: "4/4" })
+);
 const back = midiToNoteStream(parseMidi(bytes));
 assert.equal(back.length, 9, "MIDI round-trip note count");
+assert.deepEqual(
+  parseMidi(bytes).timeSignature,
+  { numerator: 4, denominator: 4 },
+  "time signature survives the MIDI round-trip"
+);
 
 const analysis = analyzeHarmony(stream, { key: Key.major("C") });
 assert.deepEqual(

@@ -56,6 +56,41 @@ justIntonation().centsForDegree(4);       // 386.31   (5/4)
 frequencyOfNote(new Note("E4"), justIntonation()); // pure third above C
 ```
 
+## Presets: maqamat, ragas, gamelan
+
+Common non-Western systems ship as presets — each an ordinary `Tuning`:
+
+```ts
+import { maqamTuning, ragaTuning, slendro, pelog, scaleFromTuning } from "musictheoryjs";
+
+maqamTuning("rast").centsForDegree(2);   // 350 — the neutral third
+ragaTuning("bhairav");                    // thaat as 5-limit just ratios
+slendro();                                // five near-equal gamelan steps
+scaleFromTuning(pelog(), { frequency: 275 }, true);
+```
+
+The maqam tables are theoretical quarter-tone values, the ragas 5-limit
+ratios by thaat, and the gamelan sets averages of published measurements —
+representative starting points, since real intonation varies by region,
+gharana, and ensemble. When you have an instrument's own numbers, feed them to
+`centsTuning`.
+
+## Tempered versus just
+
+`compareTunings` lines two tunings up degree by degree; `justDeviations` is
+the classic table of what a temperament trades against pure ratios:
+
+```ts
+import { justDeviations, compareTunings, pythagorean, justIntonation } from "musictheoryjs";
+
+justDeviations()[4].difference;   //  13.69 — 12-TET's major third runs sharp
+justDeviations()[7].difference;   //  -1.96 — its fifth is barely flat
+compareTunings(pythagorean(), justIntonation())[4].difference; // 21.51, the syntonic comma
+```
+
+To *hear* a tuning applied to real material, `retuneMidi` bends every note of
+a MIDI file into it — see the [MIDI guide](/guides/midi/).
+
 ## Custom tunings (maqam, gamelan, xenharmonic)
 
 Define a tuning from an explicit list of cents, from ratios, or from a Scala

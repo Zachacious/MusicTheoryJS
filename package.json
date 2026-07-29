@@ -25,7 +25,9 @@
     "microtonal",
     "edo",
     "just-intonation",
-    "midi"
+    "midi",
+    "rhythm",
+    "meter"
   ],
   "engines": {
     "bun": ">=1.1.0",
@@ -63,6 +65,11 @@
       "import": "./dist/key/index.js",
       "require": "./dist/key/index.cjs"
     },
+    "./rhythm": {
+      "types": "./dist/rhythm/index.d.ts",
+      "import": "./dist/rhythm/index.js",
+      "require": "./dist/rhythm/index.cjs"
+    },
     "./analysis": {
       "types": "./dist/analysis/index.d.ts",
       "import": "./dist/analysis/index.js",
@@ -72,6 +79,11 @@
       "types": "./dist/midi/index.d.ts",
       "import": "./dist/midi/index.js",
       "require": "./dist/midi/index.cjs"
+    },
+    "./notation": {
+      "types": "./dist/notation/index.d.ts",
+      "import": "./dist/notation/index.js",
+      "require": "./dist/notation/index.cjs"
     },
     "./audio": {
       "types": "./dist/audio/index.d.ts",

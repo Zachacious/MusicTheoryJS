@@ -3,8 +3,8 @@ title: Audio (DSP)
 ---
 
 MusicTheoryJS includes a small, **dependency-free DSP toolkit** for turning audio
-into notes: a radix-2 FFT, monophonic pitch detection, chroma extraction, and
-onset detection.
+into notes: a radix-2 FFT, monophonic pitch detection and melody transcription,
+FFT and constant-Q chroma extraction, and onset detection.
 
 ::: info The library never captures audio
 It operates on **sample buffers you pass in** — typically a `Float32Array` you
@@ -34,6 +34,33 @@ detectPitch(samples, 44100, {
 });
 ```
 
+## Melody transcription
+
+`transcribeMelody` turns a monophonic recording into a
+[`NoteStream`](/guides/analysis/): YIN pitch-tracks frame by frame, an RMS gate
+drops silence, spectral-flux onsets separate repeated notes, and blips shorter
+than `minNoteDuration` are discarded. `trackPitch` exposes the raw
+frame-by-frame track (vibrato, glides, tuning drift) when you want the curve
+rather than notes.
+
+```ts
+import { transcribeMelody, trackPitch, analyzeHarmony } from "musictheoryjs";
+
+const notes = transcribeMelody(samples, 44100);
+notes.map((e) => e.pitch.toString());   // ["A4", "C5", …] with starts/durations
+analyzeHarmony(notes);                   // straight into the analysis layer
+
+trackPitch(samples, 44100);              // [{ time, frequency, rms }, …]
+transcribeMelody(samples, 44100, {
+  minNoteDuration: 0.1,                  // ignore anything shorter
+  silenceThreshold: 0.02,                // RMS gate
+  prefer: "flat",                        // spell detected notes with flats
+});
+```
+
+Strictly monophonic — one voice at a time. Polyphony needs a trained model and
+belongs in the client app.
+
 ## Chroma (pitch-class profile)
 
 A chromagram folds the spectrum onto the 12 pitch classes — a tuning-robust
@@ -48,6 +75,20 @@ chroma.indexOf(Math.max(...chroma));        // dominant pitch class (0 = C)
 
 // Use it as weights for key detection
 detectKey([...chroma]);
+```
+
+### Constant-Q chroma
+
+The FFT spaces bins linearly in Hz, which blurs neighbouring semitones in the
+bass. The constant-Q variant keeps one bin per semitone at every octave, so
+low notes resolve cleanly:
+
+```ts
+import { cqt, cqtChroma } from "musictheoryjs";
+
+cqtChroma(samples, 44100);              // Float64Array(12), sharper in the bass
+cqt(samples, 44100);                    // the raw 84 log-spaced bins (C1 up)
+cqt(samples, 44100, { binsPerOctave: 24, octaves: 5 }); // quarter-tone bins
 ```
 
 ## Onset detection
@@ -78,25 +119,11 @@ const im = new Float64Array(re.length);
 fft(re, im);
 ```
 
-## A monophonic transcription sketch
+## From audio to the rest of the library
 
-Combining the pieces — detect onsets, then pitch-track each segment, then hand
-the notes to the analysis engine:
-
-```ts
-import { detectOnsets, detectNote, analyzeHarmony } from "musictheoryjs";
-
-const sr = 44100;
-const onsets = detectOnsets(samples, sr);
-const events = onsets.map((t, i) => {
-  const start = Math.floor(t * sr);
-  const end = Math.floor((onsets[i + 1] ?? samples.length / sr) * sr);
-  const pitch = detectNote(samples.subarray(start, end), sr);
-  return pitch ? { pitch, start: t, duration: (end - start) / sr } : null;
-}).filter(Boolean);
-
-analyzeHarmony(events);
-```
-
-For polyphonic material, run a dedicated model in your app and pass its notes to
-[`analyzeHarmony`](/guides/analysis/) — the theory side stays the same.
+`transcribeMelody` is the assembled pipeline — its output plugs straight into
+[`analyzeHarmony`](/guides/analysis/), [`quantizeStream`](/guides/rhythm/),
+[`noteStreamToMidi`](/guides/midi/), or the
+[notation exporters](/guides/notation/). For polyphonic material, run a
+dedicated model in your app and pass its notes in — the theory side stays the
+same.

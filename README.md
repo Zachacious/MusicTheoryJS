@@ -12,7 +12,7 @@ Roman numeral, detect the key of a melody, read a MIDI file, find the pitch in a
 audio buffer.
 
 - **Zero runtime dependencies.** Nothing gets pulled into your tree but the code you call.
-- **Tree-shakable to the function.** Import `Note` alone and you ship ~1.5 KB gzipped; the whole library is ~11 KB. Nine subpaths (`musictheoryjs/note`, `/chord`, `/audio`, …) let a bundler drop what you don't touch.
+- **Tree-shakable to the function.** Import `Note` alone and you ship ~1.5 KB gzipped; the whole library is ~11 KB. Eleven subpaths (`musictheoryjs/note`, `/chord`, `/audio`, …) let a bundler drop what you don't touch.
 - **Written in TypeScript.** Types ship in the package. `.d.ts` for every export, no `@types` install, no `any` at the edges.
 - **ESM and CommonJS.** `import` or `require`, both resolve to real builds with their own type declarations.
 - **Immutable values.** Every operation returns a new object, so notes and chords are safe to share, compare, and memoize.
@@ -109,19 +109,43 @@ const { key, timeline, cadences } = analyzeHarmony([
 ]);
 ```
 
+**Rhythm and meter.** Durations with dots and tuplets, time signatures from 4/4
+to 7/8 with their felt beat groupings, bar/beat positions, and grid quantization
+for MIDI ticks or seconds.
+
+```ts
+import { durationName, tickToPosition, quantizeTick, beatGrouping } from "musictheoryjs";
+
+durationName("q.");          // "dotted quarter"
+beatGrouping("7/8");         // [3, 2, 2]  — eighths per felt beat
+tickToPosition(1500, "6/8"); // { bar: 2, beat: 1, offset: 60 }
+quantizeTick(933, "16");     // 960
+```
+
 **MIDI and audio, no extra packages.** Read and write Standard MIDI Files with a
-byte codec, and pull pitch, chroma, and onsets out of audio samples with a
+byte codec, transcribe a monophonic melody straight from audio samples, and pull
+pitch, chroma (FFT or constant-Q), and onsets out of a buffer with a
 dependency-free DSP layer.
 
 ```ts no-run
-import { parseMidi, midiToNoteStream, detectNote } from "musictheoryjs";
+import { parseMidi, midiToNoteStream, transcribeMelody } from "musictheoryjs";
 
 analyzeHarmony(midiToNoteStream(parseMidi(midiBytes)));
-detectNote(float32Samples, 44100)?.toString();   // "A4"  (monophonic, YIN)
+transcribeMelody(float32Samples, 44100);  // [{ pitch: A4, start, duration }, …]
 ```
 
 Capturing audio and transcribing polyphony need a platform API or a model, so
 those stay in your app — the library takes the notes and hands back the theory.
+
+**Notation out.** Export notes, chords, scales, or full scores as ABC or
+MusicXML — key and time signatures, dots and tuplets, ties across barlines —
+ready for any notation program.
+
+```ts
+import { toABC, Scale } from "musictheoryjs";
+
+toABC(Scale.from("C4", "major"));   // "X:1\nM:4/4\n..." — a complete ABC tune
+```
 
 **Any tuning, not just 12-TET.** Frequency comes from a tuning you pass in.
 Twelve-tone equal temperament is the default because it's what most people want,
@@ -130,13 +154,15 @@ meantone, Just Intonation, a maqam defined in cents, or a Scala file are all
 ordinary tunings.
 
 ```ts
-import { equalTemperament, centsTuning, scaleFromTuning } from "musictheoryjs";
+import { equalTemperament, maqamTuning, justDeviations, scaleFromTuning } from "musictheoryjs";
 
 scaleFromTuning(equalTemperament(24)); // quarter tones — 24 equal divisions
-
-const rast = centsTuning([0, 204, 355, 498, 702, 906, 1057], { name: "Rast" });
-scaleFromTuning(rast, { frequency: 264 }, true); // a maqam, anchored to real Hz
+maqamTuning("rast");                   // presets: maqamat, ragas, gamelan
+justDeviations()[4].difference;        // 13.69 — what 12-TET costs the third
 ```
+
+`retuneMidi` applies any of these tunings to a real MIDI file with per-note
+pitch bends.
 
 ## Classes or functions
 
@@ -163,10 +189,12 @@ bundlers can split on the boundaries.
 | `musictheoryjs/scale` | scales, modes, detection, chord-scale matching (92 templates) |
 | `musictheoryjs/chord` | chords, symbol parsing, detection, voicings, voice leading, Neo-Riemannian transforms (108 qualities) |
 | `musictheoryjs/key` | keys, signatures, Roman numerals, secondary dominants, progressions, next-chord suggestion |
+| `musictheoryjs/rhythm` | durations, tuplets, time signatures, bar/beat positions, quantization |
 | `musictheoryjs/tuning` | tuning systems (EDO, JI, historical, custom, Scala) |
 | `musictheoryjs/analysis` | key detection, chord timelines, set theory |
-| `musictheoryjs/midi` | Standard MIDI File read/write |
-| `musictheoryjs/audio` | FFT, pitch, chroma, onset detection |
+| `musictheoryjs/midi` | Standard MIDI File read/write, retuning |
+| `musictheoryjs/notation` | ABC and MusicXML export |
+| `musictheoryjs/audio` | FFT, pitch, chroma (FFT + constant-Q), onsets, melody transcription |
 
 The [docs](https://musictheoryjs.com) have a guide for each plus a full API
 reference.
