@@ -10,7 +10,11 @@ import { mod } from "../math/index";
 import { Note, type NoteLike } from "../note/note";
 import { detectQuality } from "./analysis";
 import { Chord, type ChordLike } from "./chord";
-import { CHORD_QUALITIES, type ChordQuality } from "./templates";
+import {
+  CHORD_QUALITIES,
+  type ChordQuality,
+  chordDictionaryVersion,
+} from "./templates";
 
 const MINOR_THIRD = interval(3, "m");
 const MAJOR_THIRD = interval(3, "M");
@@ -160,10 +164,21 @@ export function negativeNote(
   return Note.fromMidi(60 + reflected, "flat");
 }
 
-/** Dictionary rank of each quality — earlier entries are preferred readings. */
-const QUALITY_RANK: ReadonlyMap<ChordQuality, number> = new Map(
-  CHORD_QUALITIES.map((q, i) => [q, i])
-);
+/**
+ * Dictionary rank of each quality — earlier entries are preferred readings.
+ * Rebuilt whenever the dictionary changes, so runtime additions rank too.
+ */
+let rankCache: ReadonlyMap<ChordQuality, number> = new Map();
+let rankCacheVersion = -1;
+
+function qualityRank(): ReadonlyMap<ChordQuality, number> {
+  const version = chordDictionaryVersion();
+  if (version !== rankCacheVersion) {
+    rankCache = new Map(CHORD_QUALITIES.map((q, i) => [q, i]));
+    rankCacheVersion = version;
+  }
+  return rankCache;
+}
 
 /**
  * The negative-harmony counterpart of a chord over a tonic: every pitch
@@ -194,7 +209,7 @@ export function negativeChord(
     if (best !== null && root.pitchClass === best.root.pitchClass) continue;
     const quality = detectQuality(pcs.map((pc) => pc - root.pitchClass));
     if (quality === undefined) continue;
-    const rank = QUALITY_RANK.get(quality) as number;
+    const rank = qualityRank().get(quality) as number;
     if (best === null || rank < best.rank) {
       best = { root, quality, rank };
     }

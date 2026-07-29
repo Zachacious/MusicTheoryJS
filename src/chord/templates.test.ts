@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { Chord } from "./chord";
-import { CHORD_TEMPLATES, type ChordQuality } from "./templates";
+import { CHORD_TEMPLATES, type ChordQuality, chordTemplate } from "./templates";
 
 describe("chord template coverage", () => {
   test("every quality round-trips symbol -> parse -> quality", () => {
@@ -15,7 +15,7 @@ describe("chord template coverage", () => {
     for (const quality of Object.keys(CHORD_TEMPLATES) as ChordQuality[]) {
       const notes = Chord.of("C4", quality).noteNames();
       expect(notes[0]).toBe("C4");
-      expect(notes.length).toBe(CHORD_TEMPLATES[quality].length);
+      expect(notes.length).toBe(chordTemplate(quality).length);
     }
   });
 

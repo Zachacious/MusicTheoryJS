@@ -40,6 +40,11 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
+    "./collection": {
+      "types": "./dist/collection/index.d.ts",
+      "import": "./dist/collection/index.js",
+      "require": "./dist/collection/index.cjs"
+    },
     "./note": {
       "types": "./dist/note/index.d.ts",
       "import": "./dist/note/index.js",
@@ -107,6 +112,7 @@
     "test": "bun test",
     "test:cov": "bun test --coverage",
     "bench": "bun run bench/index.ts",
+    "bench:vs": "bun run bench/vs.ts",
     "e2e": "bun run build && node scripts/e2e.mjs && node scripts/e2e.cjs",
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",

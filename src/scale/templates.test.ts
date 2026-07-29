@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { Scale } from "./scale";
-import { SCALE_TEMPLATES, type ScaleName } from "./templates";
+import { SCALE_TEMPLATES, type ScaleName, scaleTemplate } from "./templates";
 
 describe("scale template coverage", () => {
   test("every scale builds correctly-lettered notes rooted on its tonic", () => {
@@ -8,7 +8,7 @@ describe("scale template coverage", () => {
       const scale = Scale.from("C4", name);
       const notes = scale.notes;
       expect(notes[0]?.toString()).toBe("C4");
-      expect(notes.length).toBe(SCALE_TEMPLATES[name].length);
+      expect(notes.length).toBe(scaleTemplate(name).length);
       // Notes ascend in pitch within the octave.
       for (let i = 1; i < notes.length; i++) {
         expect((notes[i] as { chroma: number }).chroma).toBeGreaterThan(

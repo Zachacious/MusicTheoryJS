@@ -171,6 +171,67 @@ Feed a detected chord into a [`Key`](/guides/keys/) to get its Roman numeral, or
 segment a whole performance into a chord timeline — see
 [Analysis](/guides/analysis/).
 
+## Voicing dictionaries
+
+Beyond the drop and spread voicings above, a *dictionary* maps a chord quality
+to named, idiomatic shapes written as intervals above the root. Writing them as
+intervals is what makes them portable: the same entry voices the chord on any
+root, and the spelling follows from the interval.
+
+Two ship with the library. `LEFTHAND_VOICINGS` holds the rootless left-hand
+jazz shapes — the root is left to the bass — with an A and a B form per quality
+so a comping part can alternate between them:
+
+```ts
+import { voicingsOf, LEFTHAND_VOICINGS } from "musictheoryjs";
+
+voicingsOf("Dm7", LEFTHAND_VOICINGS).map((v) => v.map(String));
+// [["F4","A4","C5","E5"], ["C5","E5","F5","A5"]]
+
+voicingsOf("Ebmaj7", LEFTHAND_VOICINGS)[0].map(String);
+// ["G4","Bb4","D5","F5"] — transposes with the root, spelling intact
+```
+
+`TRIAD_VOICINGS` holds root position and both inversions, voiced close:
+
+```ts
+import { voicingsOf, TRIAD_VOICINGS } from "musictheoryjs";
+
+voicingsOf("C", TRIAD_VOICINGS).map((v) => v.map(String));
+// [["C4","E4","G4"], ["E4","G4","C5"], ["G4","C5","E5"]]
+```
+
+`lookupVoicings` returns the raw intervals instead of notes, and yields an empty
+array — rather than `undefined` — for a quality the dictionary does not cover,
+so you can fall back without branching:
+
+```ts
+import { lookupVoicings, LEFTHAND_VOICINGS, intervalName } from "musictheoryjs";
+
+lookupVoicings("maj7", LEFTHAND_VOICINGS)[0].map(intervalName);
+// ["M3", "P5", "M7", "M9"]
+lookupVoicings("power", LEFTHAND_VOICINGS); // []
+```
+
+Any object of the same shape works, so a house style can be its own dictionary.
+
+## Wider and narrower chords
+
+`chordSupersets` lists the qualities that contain this one — everything you
+could extend it into over the same root without dropping a tone — and
+`chordSubsets` the reverse, smallest first.
+
+```ts
+import { chordSupersets, chordSubsets } from "musictheoryjs";
+
+chordSupersets("maj"); // ["add9", "addb9", "maj6", "maj69", "maj7", …]
+chordSubsets("maj7");  // ["power", "maj"]
+```
+
+This is the machinery behind "what can I substitute here?" — extend a triad
+into the seventh chords that contain it, or reduce a dense voicing to the
+smallest chord that still implies it.
+
 ## Try it live
 
 ```ts live

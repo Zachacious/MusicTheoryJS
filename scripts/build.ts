@@ -8,6 +8,7 @@ export {};
 
 const entrypoints = [
   "src/index.ts",
+  "src/collection/index.ts",
   "src/note/index.ts",
   "src/interval/index.ts",
   "src/scale/index.ts",

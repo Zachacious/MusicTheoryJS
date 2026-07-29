@@ -14,6 +14,7 @@
 import {
   type Interval,
   intervalBetween,
+  intervalFifths,
   transpose,
 } from "../interval/interval";
 import { type IntervalLike, asInterval } from "../interval/parse";
@@ -277,4 +278,81 @@ export function transposeNotes(
 ): Note[] {
   const interval = asInterval(iv);
   return notes.map((n) => Note.from(n).transpose(interval));
+}
+
+/**
+ * Move a note `count` positions around the circle of fifths, keeping the
+ * spelling that the circle implies: sharpwards for positive counts, flatwards
+ * for negative. This is how key signatures move, so it stays in the spelled
+ * world rather than collapsing to pitch classes — six fifths up from C is F#,
+ * six down is Gb.
+ *
+ * The fifths stack literally, so the register climbs with them: two fifths
+ * above C4 is D5, not D4.
+ *
+ * @example
+ * ```ts
+ * import { transposeFifths } from "musictheoryjs";
+ * transposeFifths("C4", 1).toString(); // => "G4"
+ * transposeFifths("C4", 2).toString(); // => "D5"
+ * transposeFifths("C4", -1).toString(); // => "F3"
+ * transposeFifths("C4", 6).toString({ octave: false }); // => "F#"
+ * transposeFifths("C4", -6).toString({ octave: false }); // => "Gb"
+ * ```
+ */
+export function transposeFifths(
+  input: Note | NoteLike | string,
+  count: number
+): Note {
+  // Spelling falls out of the diatonic step count: six fifths up spans 24
+  // letters and lands on F#, six down lands on Gb.
+  return Note.from(input).transpose(intervalFifths(count));
+}
+
+/**
+ * Sort notes by sounding pitch, low to high. Accepts names or note objects and
+ * returns {@link Note} instances; the input array is left untouched.
+ *
+ * @example
+ * ```ts
+ * import { sortNotes } from "musictheoryjs";
+ * sortNotes(["G4", "C4", "E4"]).map(String); // => ["C4","E4","G4"]
+ * sortNotes(["C5", "C4"]).map(String); // => ["C4","C5"]
+ * ```
+ */
+export function sortNotes(
+  notes: ReadonlyArray<Note | NoteLike | string>,
+  descending = false
+): Note[] {
+  const sorted = notes
+    .map((n) => Note.from(n))
+    .sort((a, b) => chroma(a) - chroma(b));
+  return descending ? sorted.reverse() : sorted;
+}
+
+/**
+ * Sort notes by sounding pitch and drop duplicates. Notes that merely *sound*
+ * alike are kept apart — C#4 and Db4 are different spellings and both survive;
+ * only identical spellings collapse.
+ *
+ * @example
+ * ```ts
+ * import { sortNotesUnique } from "musictheoryjs";
+ * sortNotesUnique(["G4", "C4", "G4"]).map(String); // => ["C4","G4"]
+ * sortNotesUnique(["C#4", "Db4"]).length; // => 2
+ * ```
+ */
+export function sortNotesUnique(
+  notes: ReadonlyArray<Note | NoteLike | string>,
+  descending = false
+): Note[] {
+  const seen = new Set<string>();
+  const unique: Note[] = [];
+  for (const n of sortNotes(notes)) {
+    const key = n.toString();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    unique.push(n);
+  }
+  return descending ? unique.reverse() : unique;
 }

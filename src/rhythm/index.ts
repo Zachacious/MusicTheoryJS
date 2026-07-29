@@ -6,4 +6,5 @@
 
 export * from "./duration";
 export * from "./meter";
+export * from "./pattern";
 export * from "./quantize";

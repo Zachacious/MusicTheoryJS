@@ -171,6 +171,101 @@ export function addIntervals(a: Interval, b: Interval): Interval {
 }
 
 /**
+ * Subtract `b` from `a` (diatonically and chromatically) — the interval that,
+ * added to `b`, gives back `a`.
+ *
+ * @example
+ * ```ts
+ * import { subtractIntervals, parseInterval, intervalName } from "musictheoryjs";
+ * intervalName(subtractIntervals(parseInterval("P5"), parseInterval("M3"))); // => "m3"
+ * intervalName(subtractIntervals(parseInterval("P8"), parseInterval("P5"))); // => "P4"
+ * ```
+ */
+export function subtractIntervals(a: Interval, b: Interval): Interval {
+  return { steps: a.steps - b.steps, semitones: a.semitones - b.semitones };
+}
+
+/**
+ * Reduce a compound interval to its simple equivalent — within one octave,
+ * keeping quality. An octave itself stays an octave (it is the boundary, not a
+ * compound unison); direction is preserved.
+ *
+ * @example
+ * ```ts
+ * import { simplifyInterval, parseInterval, intervalName } from "musictheoryjs";
+ * intervalName(simplifyInterval(parseInterval("M9"))); // => "M2"
+ * intervalName(simplifyInterval(parseInterval("P15"))); // => "P8"
+ * intervalName(simplifyInterval(parseInterval("P5"))); // => "P5"
+ * intervalName(simplifyInterval(parseInterval("-M10"))); // => "-M3"
+ * ```
+ */
+export function simplifyInterval(iv: Interval): Interval {
+  const descending = iv.steps < 0;
+  const steps = Math.abs(iv.steps);
+  const semitones = descending ? -iv.semitones : iv.semitones;
+  // A plain octave (and its multiples) reduces to an octave, not a unison, so
+  // that "P15" simplifies to "P8" rather than collapsing to nothing.
+  const octaves =
+    steps > 0 && steps % 7 === 0
+      ? Math.floor(steps / 7) - 1
+      : Math.floor(steps / 7);
+  const simple = {
+    steps: steps - 7 * octaves,
+    semitones: semitones - 12 * octaves,
+  };
+  return descending
+    ? { steps: -simple.steps || 0, semitones: -simple.semitones || 0 }
+    : simple;
+}
+
+/**
+ * Invert an interval about the octave: the interval that completes it to a
+ * perfect octave. Major↔minor and augmented↔diminished swap, perfect stays
+ * perfect. Compound intervals are simplified first.
+ *
+ * @example
+ * ```ts
+ * import { invertInterval, parseInterval, intervalName } from "musictheoryjs";
+ * intervalName(invertInterval(parseInterval("M3"))); // => "m6"
+ * intervalName(invertInterval(parseInterval("P5"))); // => "P4"
+ * intervalName(invertInterval(parseInterval("A4"))); // => "d5"
+ * intervalName(invertInterval(parseInterval("P1"))); // => "P8"
+ * ```
+ */
+export function invertInterval(iv: Interval): Interval {
+  const descending = iv.steps < 0;
+  const simple = simplifyInterval(descending ? negateInterval(iv) : iv);
+  const inverted = {
+    steps: 7 - simple.steps,
+    semitones: 12 - simple.semitones,
+  };
+  return descending ? negateInterval(inverted) : inverted;
+}
+
+/**
+ * The interval spanned by stacking `count` perfect fifths — literally, so the
+ * result is compound once it passes an octave. Positive counts move sharpwards
+ * (toward the dominant), negative flatwards (toward the subdominant). Pair it
+ * with {@link simplifyInterval} for the octave-reduced form.
+ *
+ * @example
+ * ```ts
+ * import { intervalFifths, simplifyInterval, intervalName } from "musictheoryjs";
+ * intervalName(intervalFifths(0)); // => "P1"
+ * intervalName(intervalFifths(1)); // => "P5"
+ * intervalName(intervalFifths(2)); // => "M9"
+ * intervalName(simplifyInterval(intervalFifths(2))); // => "M2"
+ * intervalName(intervalFifths(-1)); // => "-P5"
+ * ```
+ */
+export function intervalFifths(count: number): Interval {
+  if (!Number.isInteger(count)) {
+    throw new RangeError(`fifths count must be an integer, got ${count}`);
+  }
+  return { steps: 4 * count, semitones: 7 * count };
+}
+
+/**
  * Transpose a spelled pitch by a spelled interval, keeping correct spelling.
  * The new letter comes from the diatonic step count; the alteration is whatever
  * makes the chromatic distance come out right. So transposing C4 up a

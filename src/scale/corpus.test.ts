@@ -9,7 +9,12 @@ import { describe, expect, test } from "bun:test";
 import { ScaleType as RefScaleType } from "tonal";
 import { pcsetMask } from "../pitch/pcset";
 import { Scale } from "./scale";
-import { SCALE_DEFINITIONS, SCALE_TEMPLATES, isScaleName } from "./templates";
+import {
+  SCALE_DEFINITIONS,
+  SCALE_TEMPLATES,
+  isScaleName,
+  scaleTemplate,
+} from "./templates";
 
 describe("scale dictionary invariants", () => {
   test("the dictionary holds 92 scales", () => {
@@ -65,7 +70,7 @@ describe("scale dictionary invariants", () => {
 
 /** Our template's pitch-class chroma string, reference-style (bit 0 = tonic). */
 function chromaString(name: string): string {
-  const template = SCALE_TEMPLATES[name as keyof typeof SCALE_TEMPLATES];
+  const template = scaleTemplate(name);
   const mask = pcsetMask(template.map((iv) => iv.semitones));
   let out = "";
   for (let pc = 0; pc < 12; pc++) out += mask & (1 << pc) ? "1" : "0";

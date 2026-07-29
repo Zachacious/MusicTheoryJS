@@ -7,6 +7,7 @@ export * from "./templates";
 export * from "./parse";
 export * from "./chord";
 export * from "./analysis";
+export * from "./dictionary";
 export * from "./voicing";
 export * from "./leading";
 export * from "./transform";

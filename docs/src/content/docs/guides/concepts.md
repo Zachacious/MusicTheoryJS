@@ -37,6 +37,29 @@ Chord.from("Bdim7").noteNames();        // B4 D5 F5 Ab5          (Ab, not G#)
 new Note("C4").transpose(interval(4, "d")).toString(); // "Fb4"  (a diminished 4th)
 ```
 
+### Numbers still work
+
+Spelling is about how a note is *stored*, not about what you may hand in.
+Numbers are a first-class input everywhere — semitone counts, semitone patterns,
+scale steps, MIDI numbers — and the spelling is chosen for you on the way out.
+
+```ts
+import { Note, Scale, Chord, intervalFromSemitones, intervalName, scaleStep } from "musictheoryjs";
+
+Note.from("C4").transpose(7).toString();          // "G4" — a bare semitone count
+Note.fromMidi(61).toString();                     // "C#4"
+Chord.fromSemitones("C4", [0, 4, 7]).noteNames(); // ["C4","E4","G4"]
+Scale.fromSemitones("C4", [0, 2, 4, 5, 7, 9, 11]).noteNames();
+intervalName(intervalFromSemitones(7));           // "P5"
+scaleStep("C4 major", "C4", 2).toString();        // "E4" — up two scale steps
+Note.from("C#4").midi;                            // 61 — and back out again
+```
+
+So you never have to build an `Interval` to move a note, and data that arrives
+as numbers (MIDI, a step sequencer, a generative algorithm) needs no conversion
+layer. What you get back is a spelled note, which is the point: the numbers go
+in, the musician-readable answer comes out.
+
 That last one is the tell. A diminished fourth and a major third land on the same
 key, but a diminished fourth above C is spelled F♭, and the library knows the
 difference.

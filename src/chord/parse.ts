@@ -13,11 +13,21 @@ import type { SpelledPitch } from "../pitch/spelled";
 import {
   CHORD_DEFINITIONS,
   type ChordQuality,
+  chordDictionaryVersion,
   isChordQuality,
 } from "./templates";
 
-/** Suffix → canonical quality, generated from the chord dictionary. */
-const SUFFIX_TO_QUALITY: ReadonlyMap<string, ChordQuality> = (() => {
+/**
+ * Suffix → canonical quality, generated from the chord dictionary. Rebuilt
+ * whenever the dictionary changes, so a quality registered at runtime is
+ * parseable from its symbol immediately.
+ */
+let suffixCache: ReadonlyMap<string, ChordQuality> = new Map();
+let suffixCacheVersion = -1;
+
+function suffixToQuality(): ReadonlyMap<string, ChordQuality> {
+  const version = chordDictionaryVersion();
+  if (version === suffixCacheVersion) return suffixCache;
   const map = new Map<string, ChordQuality>();
   for (const def of CHORD_DEFINITIONS) {
     for (const suffix of [def.name, def.suffix, ...def.aliases]) {
@@ -30,8 +40,10 @@ const SUFFIX_TO_QUALITY: ReadonlyMap<string, ChordQuality> = (() => {
       map.set(suffix, def.name);
     }
   }
+  suffixCache = map;
+  suffixCacheVersion = version;
   return map;
-})();
+}
 
 /** Fold unicode accidentals/symbols in a quality suffix to their ASCII forms. */
 function normalizeSuffix(suffix: string): string {
@@ -53,7 +65,7 @@ function normalizeSuffix(suffix: string): string {
  */
 export function normalizeChordQuality(name: string): ChordQuality | null {
   if (isChordQuality(name)) return name;
-  return SUFFIX_TO_QUALITY.get(normalizeSuffix(name)) ?? null;
+  return suffixToQuality().get(normalizeSuffix(name)) ?? null;
 }
 
 /** A chord symbol split into its root pitch and canonical quality. */
@@ -74,7 +86,7 @@ export function tryParseChordSymbol(symbol: string): ParsedChordSymbol | null {
   const root = tryParseNote(rootRaw as string);
   if (!root) return null;
 
-  const quality = SUFFIX_TO_QUALITY.get(normalizeSuffix(suffixRaw));
+  const quality = suffixToQuality().get(normalizeSuffix(suffixRaw));
   if (quality === undefined) return null;
 
   return { root, quality };

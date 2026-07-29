@@ -17,6 +17,25 @@ export type IntervalLike = Interval | string | number;
 const NAME_PATTERN = /^\s*(-)?(P|M|m|A+|d+)(\d+)\s*$/;
 
 /**
+ * Successful parses, keyed by the exact input string. Intervals are immutable
+ * value objects, so handing the same instance to every caller is safe; the
+ * entries are frozen so a caller cannot corrupt the cache for everyone else.
+ *
+ * Interval vocabulary is tiny in practice (a few dozen names), but the key is
+ * caller-supplied, so the map is bounded and dropped wholesale when it fills
+ * rather than growing without limit on adversarial input.
+ */
+const PARSE_CACHE = new Map<string, Interval>();
+const PARSE_CACHE_LIMIT = 512;
+
+function remember(name: string, iv: Interval): Interval {
+  if (PARSE_CACHE.size >= PARSE_CACHE_LIMIT) PARSE_CACHE.clear();
+  const frozen = Object.freeze(iv);
+  PARSE_CACHE.set(name, frozen);
+  return frozen;
+}
+
+/**
  * Parse an interval name (`"P5"`, `"m3"`, `"-M2"`, `"AA4"`, `"dd7"`), or
  * return `null` when the string is not a valid interval. Stacked `A`/`d`
  * letters mean doubly (triply, …) augmented or diminished.
@@ -29,6 +48,8 @@ const NAME_PATTERN = /^\s*(-)?(P|M|m|A+|d+)(\d+)\s*$/;
  * ```
  */
 export function tryParseInterval(name: string): Interval | null {
+  const hit = PARSE_CACHE.get(name);
+  if (hit) return hit;
   const match = NAME_PATTERN.exec(name);
   if (!match) return null;
   const [, sign, qualityRaw = "", numberRaw = ""] = match;
@@ -37,7 +58,10 @@ export function tryParseInterval(name: string): Interval | null {
   try {
     const iv = interval(Number(numberRaw), quality, count);
     // `|| 0` keeps a negated unison at 0, never -0.
-    return sign ? { steps: -iv.steps || 0, semitones: -iv.semitones || 0 } : iv;
+    return remember(
+      name,
+      sign ? { steps: -iv.steps || 0, semitones: -iv.semitones || 0 } : iv
+    );
   } catch {
     // Well-formed but impossible, e.g. "M5": no major fifth exists.
     return null;
@@ -60,17 +84,24 @@ export function tryParseInterval(name: string): Interval | null {
  * ```
  */
 export function parseInterval(name: string): Interval {
+  const hit = PARSE_CACHE.get(name);
+  if (hit) return hit;
   const match = NAME_PATTERN.exec(name);
   if (!match) {
     throw new SyntaxError(`invalid interval name: "${name}"`);
   }
   const [, sign, qualityRaw = "", numberRaw = ""] = match;
+  // Left uncaught: a well-formed but impossible name ("M5") must still raise
+  // the RangeError from `interval`, not be silently cached as a miss.
   const iv = interval(
     Number(numberRaw),
     qualityRaw[0] as Quality,
     qualityRaw.length
   );
-  return sign ? { steps: -iv.steps || 0, semitones: -iv.semitones || 0 } : iv;
+  return remember(
+    name,
+    sign ? { steps: -iv.steps || 0, semitones: -iv.semitones || 0 } : iv
+  );
 }
 
 /** Diatonic steps for each pitch class under the conventional spelling. Only

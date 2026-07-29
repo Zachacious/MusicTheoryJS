@@ -27,6 +27,7 @@
  * @module
  */
 
+export * from "./collection/index";
 export * from "./pitch/index";
 export * from "./interval/index";
 export * from "./note/index";

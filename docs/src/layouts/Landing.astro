@@ -11,6 +11,8 @@ const {
 } = Astro.props;
 
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+/** Absolute origin, required for share-card metadata. */
+const site = new URL(base, Astro.site ?? "https://musictheoryjs.com").href;
 const docs = `${base}guides/getting-started/`;
 const api = `${base}api/`;
 const github = "https://github.com/Zachacious/MusicTheoryJS";
@@ -28,8 +30,15 @@ const npm = "https://www.npmjs.com/package/musictheoryjs";
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={`${base}favicon.svg`} />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:url" content={site} />
+    <!-- Link previews need a raster image at an absolute URL; an SVG favicon
+         is ignored by most platforms. -->
+    <meta property="og:image" content={`${site}og.jpg`} />
+    <meta property="og:image:width" content="1280" />
+    <meta property="og:image:height" content="956" />
+    <meta property="og:image:alt" content={title} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={`${site}og.jpg`} />
   </head>
   <body
     class="min-h-screen bg-white text-slate-700 antialiased selection:bg-violet-500/25 dark:bg-[#0b0a10] dark:text-slate-300"

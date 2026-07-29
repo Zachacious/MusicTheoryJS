@@ -115,6 +115,39 @@ Get music in and out in more forms.
       using the library directly in the browser.
 - [x] A migration guide from 2.x, verified by execution.
 
+## Phase 8 — Close the gaps
+
+Nothing a musician can do in another theory library should be missing here,
+and the paths everyone hits should be the fastest ones.
+
+- [x] Interval arithmetic completed: inversion, simplification of compounds,
+      subtraction, stacked fifths, and a list of the simple interval names.
+- [x] Notes: transposition around the circle of fifths (keeping the circle's
+      spelling, so six fifths up is F# and six down is Gb), plus sorting by
+      sounding pitch with and without duplicates.
+- [x] A `collection` module for the array work music code keeps redoing:
+      numeric ranges, rotation, permutations, shuffling, compaction.
+- [x] Pitch-class sets gained rotations (the modes of a set), snapping a MIDI
+      note to the nearest set member, and walking a set as a scale by step or
+      by degree.
+- [x] Relating modes: the interval between two modes of one parent, and
+      re-rooting a mode onto the tonic that shares its notes.
+- [x] Subset and superset queries over the dictionaries, for scales and chord
+      qualities alike — what a scale widens into, what it narrows to.
+- [x] Rhythm patterns: Euclidean distribution, inter-onset construction, hex
+      shorthand both ways, rotation, and weighted or plain randomness.
+- [x] Named voicing dictionaries — rootless left-hand jazz shapes and triad
+      inversions — realised on any root.
+- [x] ABC import to match the export: single pitches, and whole tunes with
+      their header fields, honouring ABC's measure-accidental rule.
+- [x] **Open dictionaries.** Chord qualities and scale templates can be
+      registered, removed, and reset at runtime, and everything derived from
+      them — symbol parsing, detection, chord-scale matching, Roman numerals —
+      picks the change up immediately rather than caching a stale table.
+- [x] Speed: memoized note and interval parsing, mode relations computed on
+      pitch-class offsets instead of constructed scales, and chord-scale
+      ranking that scores from masks and builds only the scales it returns.
+
 ## Not planned
 
 - Audio capture and **polyphonic** transcription. These need platform APIs or a

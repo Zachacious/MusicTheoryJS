@@ -120,6 +120,54 @@ JSON:
 JSON.stringify({ n: new Note("Eb3") }); // '{"n":"Eb3"}'
 ```
 
+## Around the circle of fifths
+
+`transposeFifths` moves a note by whole perfect fifths and keeps the spelling
+the circle implies. This is how key signatures move, so it stays in the spelled
+world rather than collapsing to pitch classes: six fifths up from C is F♯, six
+down is G♭ — never each other's enharmonic.
+
+```ts
+import { transposeFifths } from "musictheoryjs";
+
+transposeFifths("C4", 1).toString();  // "G4"
+transposeFifths("C4", -1).toString(); // "F3"
+transposeFifths("C4", 6).toString({ octave: false });  // "F#"
+transposeFifths("C4", -6).toString({ octave: false }); // "Gb"
+```
+
+The fifths stack literally, so the register climbs with them — two fifths above
+C4 is D5, not D4:
+
+```ts
+import { transposeFifths } from "musictheoryjs";
+
+transposeFifths("C4", 2).toString();  // "D5"
+transposeFifths("C4", -2).toString(); // "Bb2"
+```
+
+## Sorting
+
+`sortNotes` orders by sounding pitch, low to high, and returns `Note` instances
+whatever you hand it. The input is never mutated.
+
+```ts
+import { sortNotes, sortNotesUnique } from "musictheoryjs";
+
+sortNotes(["G4", "C4", "E4"]).map(String);       // ["C4","E4","G4"]
+sortNotes(["C4", "G4", "E4"], true).map(String); // ["G4","E4","C4"] — descending
+```
+
+`sortNotesUnique` also drops duplicates — but only identical *spellings*. Notes
+that merely sound alike stay apart, because C♯4 and D♭4 are different notes:
+
+```ts
+import { sortNotesUnique } from "musictheoryjs";
+
+sortNotesUnique(["G4", "C4", "G4"]).map(String); // ["C4","G4"]
+sortNotesUnique(["C#4", "Db4"]).length;          // 2 — both kept
+```
+
 ## Try it live
 
 Edit and run — `log` prints, `play` sounds the notes:

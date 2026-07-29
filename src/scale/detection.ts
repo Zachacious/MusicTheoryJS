@@ -9,12 +9,20 @@
  */
 
 import { type EnharmonicPreference, Note, type NoteLike } from "../note/note";
-import { pcsetIsSubset, pcsetMask, pcsetTranspose } from "../pitch/pcset";
+import {
+  pcsetIsSubset,
+  pcsetMask,
+  pcsetSize,
+  pcsetTranspose,
+} from "../pitch/pcset";
 import { pitchClass as pitchClassOf } from "../pitch/spelled";
 import {
   type CanonicalScaleName,
   SCALE_DEFINITIONS,
+  SCALE_TEMPLATES,
   type ScaleDefinition,
+  type ScaleName,
+  scaleDictionaryVersion,
 } from "./templates";
 
 /** A scale that fits a set of notes. */
@@ -38,14 +46,30 @@ export interface ScaleDetectionOptions {
   readonly prefer?: EnharmonicPreference;
 }
 
-/** Each canonical scale with its pitch-class mask, in dictionary order. */
-const TEMPLATE_MASKS: ReadonlyArray<{
+interface MaskedScale {
   readonly def: ScaleDefinition;
   readonly mask: number;
-}> = SCALE_DEFINITIONS.map((def) => ({
-  def,
-  mask: pcsetMask(def.intervals.map((iv) => iv.semitones)),
-}));
+}
+
+/**
+ * Each scale with its pitch-class mask, in dictionary order. Rebuilt whenever
+ * the dictionary changes, so scales registered at runtime are detectable
+ * immediately rather than only in processes that imported them early enough.
+ */
+let maskCache: readonly MaskedScale[] = [];
+let maskCacheVersion = -1;
+
+function templateMasks(): readonly MaskedScale[] {
+  const version = scaleDictionaryVersion();
+  if (version !== maskCacheVersion) {
+    maskCache = SCALE_DEFINITIONS.map((def) => ({
+      def,
+      mask: pcsetMask(def.intervals.map((iv) => iv.semitones)),
+    }));
+    maskCacheVersion = version;
+  }
+  return maskCache;
+}
 
 /**
  * All known scales that fit `notes` — by default those whose pitch-class set
@@ -84,7 +108,7 @@ export function detectScales(
   for (const tonic of parsed) {
     const rootPc = pitchClassOf(tonic);
     const relative = pcsetTranspose(inputMask, -rootPc);
-    for (const { def, mask } of TEMPLATE_MASKS) {
+    for (const { def, mask } of templateMasks()) {
       if (mask !== relative) continue;
       const dedupeKey = `${rootPc}:${def.name}`;
       if (seen.has(dedupeKey)) continue;
@@ -110,10 +134,9 @@ function subsetMatches(
   const matches: Array<ScaleMatch & { size: number; order: number }> = [];
   for (let pc = 0; pc < 12; pc++) {
     const relative = pcsetTranspose(inputMask, -pc);
-    for (let i = 0; i < TEMPLATE_MASKS.length; i++) {
-      const { def, mask } = TEMPLATE_MASKS[
-        i
-      ] as (typeof TEMPLATE_MASKS)[number];
+    const masks = templateMasks();
+    for (let i = 0; i < masks.length; i++) {
+      const { def, mask } = masks[i] as MaskedScale;
       if (!pcsetIsSubset(relative, mask)) continue;
       matches.push({
         tonic: tonicFor(pc),
@@ -153,4 +176,55 @@ export function scalesContaining(
   options: Omit<ScaleDetectionOptions, "match"> = {}
 ): ScaleMatch[] {
   return detectScales(notes, { ...options, match: "subset" });
+}
+
+/** The pitch-class mask of a named template, rooted on its own tonic. */
+function templateMask(name: ScaleName): number {
+  const template = SCALE_TEMPLATES[name];
+  if (!template) throw new RangeError(`unknown scale template: "${name}"`);
+  return pcsetMask(template.map((iv) => iv.semitones));
+}
+
+/**
+ * The templates that contain this one — every scale you could widen it into
+ * without losing a note. Major extends into bebop and chromatic; the scale
+ * itself is never listed. Both scales are compared rooted on the same tonic.
+ *
+ * @example
+ * ```ts
+ * import { scaleSupersets } from "musictheoryjs";
+ * const wider = scaleSupersets("major");
+ * wider.includes("bebopDominant"); // => true
+ * wider.includes("chromatic"); // => true
+ * wider.includes("major"); // => false
+ * wider.includes("minor"); // => false
+ * ```
+ */
+export function scaleSupersets(name: ScaleName): CanonicalScaleName[] {
+  const mask = templateMask(name);
+  return templateMasks()
+    .filter((t) => t.mask !== mask && pcsetIsSubset(mask, t.mask))
+    .map((t) => t.def.name);
+}
+
+/**
+ * The templates contained within this one — every scale you could narrow it
+ * to. Major reduces to its pentatonics; the scale itself is never listed.
+ * Results come back smallest first.
+ *
+ * @example
+ * ```ts
+ * import { scaleSubsets } from "musictheoryjs";
+ * const narrower = scaleSubsets("major");
+ * narrower.includes("majorPentatonic"); // => true
+ * narrower.includes("major"); // => false
+ * narrower.includes("chromatic"); // => false
+ * ```
+ */
+export function scaleSubsets(name: ScaleName): CanonicalScaleName[] {
+  const mask = templateMask(name);
+  return templateMasks()
+    .filter((t) => t.mask !== mask && pcsetIsSubset(t.mask, mask))
+    .sort((a, b) => pcsetSize(a.mask) - pcsetSize(b.mask))
+    .map((t) => t.def.name);
 }

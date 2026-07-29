@@ -109,6 +109,20 @@ const stats = [
 <Landing>
   <!-- Hero -->
   <section class="relative overflow-hidden">
+    <!-- Decorative hero art, one of several picked at random per visit. It
+         sits behind the gradient wash and is masked out toward the copy, so
+         swapping it can never affect legibility or layout. -->
+    <div class="pointer-events-none absolute inset-0 overflow-hidden">
+      <img
+        id="hero-art"
+        src={`${base}hero/hero-1.webp`}
+        alt=""
+        aria-hidden="true"
+        decoding="async"
+        fetchpriority="low"
+        class="h-full w-full scale-105 object-cover opacity-[0.14] [mask-image:radial-gradient(75%_70%_at_50%_10%,black,transparent)] dark:opacity-[0.20]"
+      />
+    </div>
     <div
       class="pointer-events-none absolute inset-x-0 -top-40 h-[30rem] bg-[radial-gradient(60%_60%_at_50%_0%,rgba(124,92,255,0.20),transparent_70%)]"
     >
@@ -368,4 +382,15 @@ const stats = [
       </div>
     </div>
   </section>
+
+  <!-- Swap the hero art for a random one. Inline and synchronous so it runs
+       before paint; the markup already carries a valid image, so with JS off
+       (or if this fails) the page simply keeps the first. -->
+  <script is:inline define:vars={{ base, heroCount: 4 }}>
+    const art = document.getElementById("hero-art");
+    if (art) {
+      const pick = 1 + Math.floor(Math.random() * heroCount);
+      if (pick !== 1) art.src = `${base}hero/hero-${pick}.webp`;
+    }
+  </script>
 </Landing>

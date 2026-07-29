@@ -14,7 +14,7 @@
  */
 
 import type { Interval } from "../interval/interval";
-import { parseInterval } from "../interval/parse";
+import { intervalFromSemitones, parseInterval } from "../interval/parse";
 
 /** A named chord template: intervals of each chord tone above the root. */
 export type ChordTemplate = readonly Interval[];
@@ -207,8 +207,15 @@ const DEFS = [
   ["augAdds9", "P1 M3 A5 A9", "+add#9"],
 ] as const;
 
-/** Canonical quality name of a chord template. */
-export type ChordQuality = (typeof DEFS)[number][0];
+/** Canonical quality names of the built-in chord templates. */
+export type BuiltinChordQuality = (typeof DEFS)[number][0];
+
+/**
+ * A chord-quality name. Every built-in quality is suggested by autocomplete,
+ * but any string is accepted, because {@link addChordType} can register more at
+ * runtime — the dictionary is open, so the type is too.
+ */
+export type ChordQuality = BuiltinChordQuality | (string & {});
 
 /** One chord-dictionary entry: how a quality is built, printed, and parsed. */
 export interface ChordDefinition {
@@ -226,7 +233,7 @@ export interface ChordDefinition {
  * Every built-in chord quality, in dictionary order (the order detection uses
  * to break ties between qualities that share a pitch-class set).
  */
-export const CHORD_DEFINITIONS: readonly ChordDefinition[] = DEFS.map(
+const BUILTIN_DEFINITIONS: readonly ChordDefinition[] = DEFS.map(
   ([name, intervals, suffix, ...aliases]) => ({
     name,
     intervals: intervals.split(" ").map(parseInterval),
@@ -235,24 +242,193 @@ export const CHORD_DEFINITIONS: readonly ChordDefinition[] = DEFS.map(
   })
 );
 
-/** Chord templates by canonical quality name. */
-export const CHORD_TEMPLATES: Readonly<Record<ChordQuality, ChordTemplate>> =
-  Object.fromEntries(
-    CHORD_DEFINITIONS.map((def) => [def.name, def.intervals])
-  ) as Record<ChordQuality, ChordTemplate>;
+/**
+ * Every chord quality, in dictionary order (the order detection uses to break
+ * ties between qualities that share a pitch-class set) — built-ins first, then
+ * anything {@link addChordType} has added.
+ *
+ * All four dictionary exports are live: they are mutated in place by the
+ * registration functions, so a module that captured one still sees later
+ * additions.
+ */
+export const CHORD_DEFINITIONS: readonly ChordDefinition[] = [];
 
-/** The canonical names of all built-in chord qualities, in dictionary order. */
-export const CHORD_QUALITIES: readonly ChordQuality[] = CHORD_DEFINITIONS.map(
-  (def) => def.name
-);
+/** Chord templates by canonical quality name. */
+export const CHORD_TEMPLATES: Readonly<
+  Partial<Record<ChordQuality, ChordTemplate>>
+> = {};
+
+/** The canonical names of all chord qualities, in dictionary order. */
+export const CHORD_QUALITIES: readonly ChordQuality[] = [];
 
 /** Display suffix for each canonical chord quality. */
-export const CHORD_SUFFIXES: Readonly<Record<ChordQuality, string>> =
-  Object.fromEntries(
-    CHORD_DEFINITIONS.map((def) => [def.name, def.suffix])
-  ) as Record<ChordQuality, string>;
+export const CHORD_SUFFIXES: Readonly<Partial<Record<ChordQuality, string>>> =
+  {};
 
-/** True if `name` is a known built-in chord template. */
+/**
+ * Bumped on every dictionary change. Modules that precompute from the
+ * dictionary (detection masks, the symbol-suffix table) compare against this
+ * to know when their caches have gone stale.
+ */
+let dictionaryVersion = 0;
+
+/**
+ * The current chord-dictionary revision; changes whenever a quality is added
+ * or removed. Cache anything derived from the dictionary against this and
+ * rebuild when it moves.
+ *
+ * @example
+ * ```ts
+ * import { chordDictionaryVersion, addChordType, removeChordType } from "musictheoryjs";
+ * const before = chordDictionaryVersion();
+ * addChordType("versionDemo", "P1 M3 P5");
+ * chordDictionaryVersion() === before; // => false
+ * removeChordType("versionDemo");
+ * ```
+ */
+export function chordDictionaryVersion(): number {
+  return dictionaryVersion;
+}
+
+/** Add one definition to every derived table. */
+function indexDefinition(def: ChordDefinition): void {
+  const templates = CHORD_TEMPLATES as Record<string, ChordTemplate>;
+  if (Object.hasOwn(templates, def.name)) {
+    throw new Error(`chord dictionary conflict: duplicate name "${def.name}"`);
+  }
+  templates[def.name] = def.intervals;
+  (CHORD_SUFFIXES as Record<string, string>)[def.name] = def.suffix;
+  (CHORD_QUALITIES as ChordQuality[]).push(def.name);
+  (CHORD_DEFINITIONS as ChordDefinition[]).push(def);
+}
+
+for (const def of BUILTIN_DEFINITIONS) indexDefinition(def);
+
+/**
+ * The template for a quality — the intervals of its chord tones above the root.
+ * @throws {RangeError} when the quality is not in the dictionary.
+ *
+ * @example
+ * ```ts
+ * import { chordTemplate, intervalName } from "musictheoryjs";
+ * chordTemplate("maj7").map(intervalName); // => ["P1", "M3", "P5", "M7"]
+ * chordTemplate("nope"); // => throws "unknown chord quality"
+ * ```
+ */
+export function chordTemplate(quality: ChordQuality): ChordTemplate {
+  const template = CHORD_TEMPLATES[quality];
+  if (!template) throw new RangeError(`unknown chord quality: "${quality}"`);
+  return template;
+}
+
+/** True if `name` is a known chord template (built-in or added). */
 export function isChordQuality(name: string): name is ChordQuality {
   return Object.hasOwn(CHORD_TEMPLATES, name);
+}
+
+/**
+ * Register a chord quality at runtime, so the rest of the library — building,
+ * symbol parsing, detection, Roman numerals — treats it exactly like a
+ * built-in.
+ *
+ * Intervals may be spelled names (`"P1 M3 P5"`), an array of them, or an array
+ * of semitone offsets from the root; spelling the intervals gives the chord
+ * correctly spelled tones. The `suffix` is what `Chord.toString` prints and is
+ * also accepted when parsing symbols, as is every alias.
+ *
+ * @throws when the quality name is already taken — dictionaries silently
+ *   overwriting each other is worse than a loud failure. Remove first to
+ *   replace.
+ *
+ * @example
+ * ```ts
+ * import { addChordType, removeChordType, Chord, isChordQuality } from "musictheoryjs";
+ * addChordType("so4", "P1 P4 P5 M9", { suffix: "so4", aliases: ["sowhat"] });
+ * isChordQuality("so4"); // => true
+ * Chord.from("Cso4").noteNames(); // => ["C4","F4","G4","D5"]
+ * Chord.from("Csowhat").toString(); // => "Cso4"
+ * removeChordType("so4");
+ * isChordQuality("so4"); // => false
+ * ```
+ */
+export function addChordType(
+  name: string,
+  intervals: string | ReadonlyArray<string | number>,
+  options: {
+    readonly suffix?: string;
+    readonly aliases?: readonly string[];
+  } = {}
+): void {
+  indexDefinition({
+    name,
+    intervals: parseTemplate(intervals),
+    suffix: options.suffix ?? name,
+    aliases: options.aliases ?? [],
+  });
+  dictionaryVersion++;
+}
+
+/**
+ * Remove a chord quality by its canonical name. Returns whether anything was
+ * removed.
+ *
+ * @example
+ * ```ts
+ * import { addChordType, removeChordType, isChordQuality } from "musictheoryjs";
+ * addChordType("tempChord", "P1 M3 P5");
+ * removeChordType("tempChord"); // => true
+ * removeChordType("tempChord"); // => false
+ * isChordQuality("maj7"); // => true
+ * ```
+ */
+export function removeChordType(name: string): boolean {
+  const defs = CHORD_DEFINITIONS as ChordDefinition[];
+  const index = defs.findIndex((def) => def.name === name);
+  if (index === -1) return false;
+  defs.splice(index, 1);
+  const qualities = CHORD_QUALITIES as ChordQuality[];
+  qualities.splice(qualities.indexOf(name), 1);
+  delete (CHORD_TEMPLATES as Record<string, ChordTemplate>)[name];
+  delete (CHORD_SUFFIXES as Record<string, string>)[name];
+  dictionaryVersion++;
+  return true;
+}
+
+/**
+ * Drop every runtime addition and restore the built-in dictionary. Useful
+ * between tests, or when a host application reloads its own definitions.
+ *
+ * @example
+ * ```ts
+ * import { addChordType, resetChordTypes, isChordQuality } from "musictheoryjs";
+ * addChordType("scratchChord", "P1 P5");
+ * resetChordTypes();
+ * isChordQuality("scratchChord"); // => false
+ * isChordQuality("maj7"); // => true
+ * ```
+ */
+export function resetChordTypes(): void {
+  (CHORD_DEFINITIONS as ChordDefinition[]).length = 0;
+  (CHORD_QUALITIES as ChordQuality[]).length = 0;
+  for (const table of [CHORD_TEMPLATES, CHORD_SUFFIXES]) {
+    for (const key of Object.keys(table)) {
+      delete (table as Record<string, unknown>)[key];
+    }
+  }
+  for (const def of BUILTIN_DEFINITIONS) indexDefinition(def);
+  dictionaryVersion++;
+}
+
+/** Accept spelled interval names, an array of them, or semitone offsets. */
+function parseTemplate(
+  intervals: string | ReadonlyArray<string | number>
+): ChordTemplate {
+  const list =
+    typeof intervals === "string" ? intervals.trim().split(/\s+/) : intervals;
+  if (list.length === 0) {
+    throw new RangeError("a chord template needs at least one interval");
+  }
+  return list.map((iv) =>
+    typeof iv === "number" ? intervalFromSemitones(iv) : parseInterval(iv)
+  );
 }

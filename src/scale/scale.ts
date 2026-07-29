@@ -34,7 +34,12 @@ import {
   degreeCents,
   frequencyOfDegree,
 } from "../tuning/tuning";
-import { SCALE_TEMPLATES, type ScaleName, isScaleName } from "./templates";
+import {
+  SCALE_TEMPLATES,
+  type ScaleName,
+  isScaleName,
+  scaleTemplate,
+} from "./templates";
 
 /** A scale described as plain data: a tonic plus a template name and/or
  * explicit intervals (spelled or named). */
@@ -58,7 +63,7 @@ function scaleFromString(input: string): Scale {
       `invalid scale: "${input}" (expected "<tonic> <template>", e.g. "C4 major")`
     );
   }
-  return new Scale(Note.of(tonic), SCALE_TEMPLATES[name], name);
+  return new Scale(Note.of(tonic), scaleTemplate(name), name);
 }
 
 function scaleFromSpec(spec: ScaleSpec): Scale {
@@ -66,7 +71,7 @@ function scaleFromSpec(spec: ScaleSpec): Scale {
     return new Scale(spec.tonic, spec.intervals.map(asInterval), spec.name);
   }
   if (spec.name !== undefined && isScaleName(spec.name)) {
-    return new Scale(spec.tonic, SCALE_TEMPLATES[spec.name], spec.name);
+    return new Scale(spec.tonic, scaleTemplate(spec.name), spec.name);
   }
   throw new RangeError(
     `scale spec needs intervals or a known template name, got "${spec.name}"`
@@ -99,7 +104,7 @@ export class Scale {
     if (template !== undefined) {
       return new Scale(
         a as Note | NoteLike | string,
-        SCALE_TEMPLATES[template],
+        scaleTemplate(template),
         template
       );
     }

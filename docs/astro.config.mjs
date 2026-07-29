@@ -65,6 +65,7 @@ export default defineConfig({
             { label: "Chords", slug: "guides/chords" },
             { label: "Keys & harmony", slug: "guides/keys" },
             { label: "Rhythm & meter", slug: "guides/rhythm" },
+            { label: "Rhythm patterns", slug: "guides/patterns" },
           ],
         },
         {
@@ -76,8 +77,14 @@ export default defineConfig({
           items: [
             { label: "Symbolic analysis", slug: "guides/analysis" },
             { label: "MIDI files", slug: "guides/midi" },
-            { label: "Notation export", slug: "guides/notation" },
+            { label: "Notation (ABC & MusicXML)", slug: "guides/notation" },
             { label: "Audio (DSP)", slug: "guides/audio" },
+          ],
+        },
+        {
+          label: "Extending",
+          items: [
+            { label: "Custom chords & scales", slug: "guides/extending" },
           ],
         },
         {

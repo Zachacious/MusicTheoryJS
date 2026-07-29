@@ -24,6 +24,7 @@ import {
   CHORD_SUFFIXES,
   CHORD_TEMPLATES,
   type ChordQuality,
+  chordTemplate,
 } from "../chord/templates";
 import { interval, negateInterval, transpose } from "../interval/interval";
 import { Note } from "../note/note";
@@ -151,7 +152,9 @@ function renderParts(quality: ChordQuality): {
     default:
       break;
   }
-  const display = CHORD_SUFFIXES[quality];
+  // A quality registered at runtime may have no suffix entry; fall back to
+  // its canonical name, which always parses back to itself.
+  const display = CHORD_SUFFIXES[quality] ?? quality;
   const tryParts = (lower: boolean, suffix: string): boolean => {
     if (suffix === "" || Object.hasOwn(FIGURES, suffix)) return false;
     try {
@@ -407,7 +410,7 @@ export function romanToChord(roman: string | RomanNumeral, k: KeyLike): Chord {
 function canBeApplied(quality: ChordQuality): boolean {
   if (quality === "maj") return true;
   const semitones = new Set(
-    CHORD_TEMPLATES[quality].map((iv) => ((iv.semitones % 12) + 12) % 12)
+    chordTemplate(quality).map((iv) => ((iv.semitones % 12) + 12) % 12)
   );
   return semitones.has(4) && semitones.has(10);
 }

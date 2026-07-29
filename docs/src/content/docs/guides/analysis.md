@@ -139,6 +139,50 @@ pcsetTranspose(triad, 2) === pcsetMask([2, 6, 9]); // true — up a whole step
 pcsetSize(scale);                            // 7
 ```
 
+### Rotations, snapping, and walking a set
+
+A set's rotations are its modes. By default only rotations that begin on a pitch
+class actually present are returned, which for a seven-note scale gives the
+seven modes:
+
+```ts
+import { pcsetMask, pcsetModes, pcsetPitchClasses } from "musictheoryjs";
+
+const major = pcsetMask([0, 2, 4, 5, 7, 9, 11]);
+pcsetModes(major).length;                          // 7
+pcsetPitchClasses(pcsetModes(major)[1]);           // [0,2,3,5,7,9,10] — dorian
+pcsetModes(major, false).length;                   // 12 — every rotation
+```
+
+`pcsetNearest` snaps a MIDI note to the closest member of a set, which is how
+you constrain arbitrary input — a controller, a random generator, a detected
+pitch — to a scale or chord. Ties resolve upward:
+
+```ts
+import { pcsetMask, pcsetNearest } from "musictheoryjs";
+
+const triad = pcsetMask([0, 4, 7]);
+pcsetNearest(triad, 61); // 60 — C♯ snaps down to C
+pcsetNearest(triad, 66); // 67 — F♯ snaps up to G
+```
+
+`pcsetStep` and `pcsetDegree` walk a set as though it were a scale, climbing
+through octaves indefinitely. `pcsetStep` counts from 0; `pcsetDegree` numbers
+the way musicians do, from 1, and rejects 0 rather than guessing:
+
+```ts
+import { pcsetMask, pcsetStep, pcsetDegree } from "musictheoryjs";
+
+const triad = pcsetMask([0, 4, 7]);
+pcsetStep(triad, 60, 1);    // 64 — one step up from C4 is E4
+pcsetStep(triad, 60, 3);    // 72 — a full turn is exactly an octave
+pcsetStep(triad, 60, -1);   // 55 — negative steps descend
+pcsetDegree(triad, 60, 4);  // 72 — the same note, numbered from 1
+```
+
+Together these are an arpeggiator in three functions: pick a set, walk it by
+step, and let a [rhythm pattern](/guides/patterns/) decide the timing.
+
 ## From MIDI and audio
 
 The pieces that produce a `NoteStream` — reading a MIDI file, or detecting a

@@ -126,3 +126,119 @@ export function pcsetIsSubset(sub: number, sup: number): boolean {
 export function pcsetIsSuperset(sup: number, sub: number): boolean {
   return pcsetIsSubset(sub, sup);
 }
+
+/**
+ * The rotations of a set — its modes. By default only the rotations that begin
+ * on a pitch class actually present are returned, which for a seven-note scale
+ * gives the seven modes; pass `false` to get all twelve transpositional
+ * rotations regardless.
+ *
+ * @example
+ * ```ts
+ * import { pcsetMask, pcsetModes, pcsetPitchClasses } from "musictheoryjs";
+ * const major = pcsetMask([0, 2, 4, 5, 7, 9, 11]);
+ * pcsetModes(major).length; // => 7
+ * pcsetModes(major, false).length; // => 12
+ * // The second mode of major is dorian.
+ * pcsetPitchClasses(pcsetModes(major)[1]); // => [0, 2, 3, 5, 7, 9, 10]
+ * ```
+ */
+export function pcsetModes(mask: number, onlyPresent = true): number[] {
+  const m = mask & PCSET_ALL;
+  const out: number[] = [];
+  for (let pc = 0; pc < 12; pc++) {
+    // Rotating *down* by `pc` puts pitch class `pc` at the root, which is what
+    // "the mode starting on that degree" means.
+    if (onlyPresent && !(m & (1 << pc))) continue;
+    out.push(pcsetTranspose(m, -pc));
+  }
+  return out;
+}
+
+/**
+ * The MIDI note in `mask` nearest to `midi`. Ties (a pitch exactly between two
+ * members of the set) resolve upward.
+ *
+ * @example
+ * ```ts
+ * import { pcsetMask, pcsetNearest } from "musictheoryjs";
+ * const cMajorTriad = pcsetMask([0, 4, 7]);
+ * pcsetNearest(cMajorTriad, 61); // => 60
+ * pcsetNearest(cMajorTriad, 66); // => 67
+ * pcsetNearest(cMajorTriad, 64); // => 64
+ * ```
+ */
+export function pcsetNearest(mask: number, midi: number): number {
+  const m = mask & PCSET_ALL;
+  if (m === 0) {
+    throw new RangeError("cannot snap to an empty pitch-class set");
+  }
+  for (let distance = 0; distance <= 6; distance++) {
+    // Upward first, so an exact tie lands on the higher neighbour.
+    if (m & (1 << mod(midi + distance, 12))) return midi + distance;
+    if (m & (1 << mod(midi - distance, 12))) return midi - distance;
+  }
+  // Unreachable: any non-empty 12-bit set has a member within 6 semitones.
+  return midi;
+}
+
+/**
+ * Walk the set as a scale: the MIDI note `step` positions above `tonic`,
+ * counting only pitch classes in the set. Step 0 is the tonic itself, negative
+ * steps descend, and the walk keeps climbing through octaves indefinitely.
+ *
+ * @example
+ * ```ts
+ * import { pcsetMask, pcsetStep } from "musictheoryjs";
+ * const cMajorTriad = pcsetMask([0, 4, 7]);
+ * pcsetStep(cMajorTriad, 60, 0); // => 60
+ * pcsetStep(cMajorTriad, 60, 1); // => 64
+ * pcsetStep(cMajorTriad, 60, 3); // => 72
+ * pcsetStep(cMajorTriad, 60, -1); // => 55
+ * ```
+ */
+export function pcsetStep(mask: number, tonic: number, step: number): number {
+  const m = mask & PCSET_ALL;
+  if (m === 0) {
+    throw new RangeError("cannot step through an empty pitch-class set");
+  }
+  if (!Number.isInteger(step)) {
+    throw new RangeError(`step must be an integer, got ${step}`);
+  }
+  const size = pcsetSize(m);
+  const pcs = pcsetPitchClasses(m);
+  const tonicPc = mod(tonic, 12);
+  // Re-root the pitch classes on the tonic so index 0 is always the tonic,
+  // then let the octave fall out of how many times the index wraps.
+  const rooted = pcs.map((pc) => mod(pc - tonicPc, 12)).sort((a, b) => a - b);
+  const index = mod(step, size);
+  const octaves = Math.floor(step / size);
+  return tonic + (rooted[index] as number) + 12 * octaves;
+}
+
+/**
+ * The same walk as {@link pcsetStep}, but numbered the way musicians count
+ * degrees: 1 is the tonic, 2 the next note up, and 0 is rejected rather than
+ * silently meaning something.
+ *
+ * @example
+ * ```ts
+ * import { pcsetMask, pcsetDegree } from "musictheoryjs";
+ * const cMajorTriad = pcsetMask([0, 4, 7]);
+ * pcsetDegree(cMajorTriad, 60, 1); // => 60
+ * pcsetDegree(cMajorTriad, 60, 4); // => 72
+ * pcsetDegree(cMajorTriad, 60, -1); // => 55
+ * pcsetDegree(cMajorTriad, 60, 0); // => throws "degree 0"
+ * ```
+ */
+export function pcsetDegree(
+  mask: number,
+  tonic: number,
+  degree: number
+): number {
+  if (degree === 0) {
+    throw new RangeError("degree 0 does not exist; degrees start at 1");
+  }
+  // Negative degrees count downward from the tonic: -1 is the note below it.
+  return pcsetStep(mask, tonic, degree > 0 ? degree - 1 : degree);
+}

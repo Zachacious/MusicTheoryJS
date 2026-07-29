@@ -32,6 +32,7 @@ import { join, relative } from "node:path";
 import * as analysisNS from "./analysis/index";
 import * as audioNS from "./audio/index";
 import * as chordNS from "./chord/index";
+import * as collectionNS from "./collection/index";
 import * as root from "./index";
 import * as intervalNS from "./interval/index";
 import * as keyNS from "./key/index";
@@ -50,6 +51,7 @@ const MODULES: Record<string, Record<string, unknown>> = {
   "musictheoryjs/analysis": analysisNS,
   "musictheoryjs/audio": audioNS,
   "musictheoryjs/chord": chordNS,
+  "musictheoryjs/collection": collectionNS,
   "musictheoryjs/interval": intervalNS,
   "musictheoryjs/key": keyNS,
   "musictheoryjs/midi": midiNS,

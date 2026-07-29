@@ -55,6 +55,9 @@ function foldAccidentals(token: string): number {
  * without exceptions.
  */
 export function tryParseNote(input: string): SpelledPitch | null {
+  const hit = PARSE_CACHE.get(input);
+  if (hit) return hit;
+
   const match = NOTE_RE.exec(input);
   if (!match) return null;
 
@@ -64,8 +67,22 @@ export function tryParseNote(input: string): SpelledPitch | null {
   const alteration = foldAccidentals(accidentals);
   const octave = octaveRaw !== undefined ? Number(octaveRaw) : DEFAULT_OCTAVE;
 
-  return { step, alteration, octave };
+  // Spelled pitches are immutable value objects, so one frozen instance can be
+  // shared by every caller. Note names repeat constantly — a scale, a chord,
+  // a whole score reuses the same handful — so this is the hottest cache in
+  // the library.
+  if (PARSE_CACHE.size >= PARSE_CACHE_LIMIT) PARSE_CACHE.clear();
+  const parsed = Object.freeze({ step, alteration, octave });
+  PARSE_CACHE.set(input, parsed);
+  return parsed;
 }
+
+/**
+ * Successful parses, keyed by the exact input string. Bounded and dropped
+ * wholesale when full, since the key is caller-supplied.
+ */
+const PARSE_CACHE = new Map<string, SpelledPitch>();
+const PARSE_CACHE_LIMIT = 2048;
 
 /**
  * Parse a note string into a {@link SpelledPitch}.

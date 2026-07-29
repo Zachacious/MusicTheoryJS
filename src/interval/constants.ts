@@ -19,3 +19,31 @@ export const MAJOR_SIXTH: Interval = interval(6, "M");
 export const MINOR_SEVENTH: Interval = interval(7, "m");
 export const MAJOR_SEVENTH: Interval = interval(7, "M");
 export const PERFECT_OCTAVE: Interval = interval(8, "P");
+
+/**
+ * The names of every simple interval within an octave, ascending — the
+ * chromatic vocabulary in its conventional spelling, unison through octave.
+ *
+ * @example
+ * ```ts
+ * import { INTERVAL_NAMES } from "musictheoryjs";
+ * INTERVAL_NAMES.length; // => 13
+ * INTERVAL_NAMES[0]; // => "P1"
+ * INTERVAL_NAMES[7]; // => "P5"
+ * ```
+ */
+export const INTERVAL_NAMES: readonly string[] = [
+  "P1",
+  "m2",
+  "M2",
+  "m3",
+  "M3",
+  "P4",
+  "A4",
+  "P5",
+  "m6",
+  "M6",
+  "m7",
+  "M7",
+  "P8",
+];

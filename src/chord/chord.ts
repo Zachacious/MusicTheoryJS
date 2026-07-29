@@ -27,6 +27,7 @@ import {
   CHORD_SUFFIXES,
   CHORD_TEMPLATES,
   type ChordQuality,
+  chordTemplate,
 } from "./templates";
 
 /** A chord described as plain data: a root plus a canonical quality and/or
@@ -51,7 +52,7 @@ function chordFromSpec(spec: ChordSpec): Chord {
     return new Chord(spec.root, spec.intervals.map(asInterval), quality);
   }
   if (quality !== undefined) {
-    return new Chord(spec.root, CHORD_TEMPLATES[quality], quality);
+    return new Chord(spec.root, chordTemplate(quality), quality);
   }
   throw new RangeError(
     `chord spec needs intervals or a known quality, got "${spec.quality}"`
@@ -90,7 +91,7 @@ export class Chord {
 
   /** Build a chord from a root and a canonical quality, e.g. `Chord.of("C4", "min7")`. */
   static of(root: Note | NoteLike | string, quality: ChordQuality): Chord {
-    return new Chord(root, CHORD_TEMPLATES[quality], quality);
+    return new Chord(root, chordTemplate(quality), quality);
   }
 
   /**
@@ -102,7 +103,7 @@ export class Chord {
     if (input instanceof Chord) return input;
     if (typeof input === "string") {
       const { root, quality } = parseChordSymbol(input);
-      return new Chord(Note.of(root), CHORD_TEMPLATES[quality], quality);
+      return new Chord(Note.of(root), chordTemplate(quality), quality);
     }
     return chordFromSpec(input);
   }
@@ -124,7 +125,7 @@ export class Chord {
     const quality = detectQuality(semitones);
     if (
       quality !== undefined &&
-      CHORD_TEMPLATES[quality].length === semitones.length
+      chordTemplate(quality).length === semitones.length
     ) {
       return Chord.of(root, quality);
     }

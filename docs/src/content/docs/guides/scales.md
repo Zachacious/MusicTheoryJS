@@ -182,6 +182,68 @@ import { Scale, interval } from "musictheoryjs";
 new Scale("C4", [interval(1, "P"), interval(2, "M"), interval(3, "M")]);
 ```
 
+## Wider and narrower scales
+
+Every scale sits inside larger ones and contains smaller ones. `scaleSupersets`
+answers "what could I widen this into without losing a note?", and
+`scaleSubsets` the reverse. Both compare rooted on the same tonic and never list
+the scale itself.
+
+```ts
+import { scaleSupersets, scaleSubsets } from "musictheoryjs";
+
+scaleSupersets("major"); // ["bebopDominant", "bebopMajor", "ichikosucho", "chromatic"]
+scaleSubsets("major");   // ["majorPentatonic", "ionianPentatonic", "yo", …]
+```
+
+Subsets come back smallest first, which makes the first entry the most
+economical choice — useful when simplifying a line for a beginner, or picking a
+safe pentatonic to solo with over a modal vamp.
+
+## Relating modes
+
+Two scales that are rotations of one parent have a distance: how far the second
+mode's tonic sits from the first's when both share a key signature.
+`modeDistance` reports it the way musicians name it, in whichever direction is
+nearer.
+
+```ts
+import { modeDistance, intervalName } from "musictheoryjs";
+
+intervalName(modeDistance("major", "dorian")); // "M2"
+intervalName(modeDistance("dorian", "major")); // "-M2" — down, not up a seventh
+intervalName(modeDistance("major", "minor"));  // "-m3" — C major to A minor
+```
+
+`relativeTonic` answers the practical version: given a tonic for one mode, which
+tonic gives the other the same notes?
+
+```ts
+import { relativeTonic } from "musictheoryjs";
+
+relativeTonic("major", "dorian", "C4").toString({ octave: false }); // "D"
+relativeTonic("major", "minor", "C4").toString({ octave: false });  // "A"
+relativeTonic("dorian", "major", "D4").toString({ octave: false }); // "C"
+```
+
+Scales that are not modes of one another throw rather than returning a
+misleading answer — major and harmonic minor have no such relationship.
+
+## Splitting a scale name
+
+`tokenizeScaleName` separates a tonic from a template without validating either,
+which is what you want while a user is still typing. Templates can be
+multi-word, and the tonic is optional, so it resolves the ambiguity by checking
+which prefix actually reads as a note.
+
+```ts
+import { tokenizeScaleName } from "musictheoryjs";
+
+tokenizeScaleName("C major");           // ["C", "major"]
+tokenizeScaleName("C4 melodic minor");  // ["C4", "melodic minor"]
+tokenizeScaleName("dorian");            // ["", "dorian"]
+```
+
 ## Try it live
 
 ```ts live
