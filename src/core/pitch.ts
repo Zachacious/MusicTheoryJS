@@ -216,6 +216,25 @@ export function freq(
   return a4 * Math.pow(2, (h - 69 + (p.cents ?? 0) / 100) / 12);
 }
 
+/**
+ * Spell a chromatic pitch class 0-11 as a `Pitch` (octave-free). Defaults to
+ * sharp spellings: `spellChroma(8)` is G#, `spellChroma(8, { prefer: "flat" })`
+ * is Ab.
+ */
+export function spellChroma(
+  chromaValue: number,
+  options?: { prefer?: "sharp" | "flat" }
+): Pitch {
+  if (!Number.isInteger(chromaValue) || chromaValue < 0 || chromaValue > 11) {
+    throw new MusicTheoryError(
+      `Invalid chroma ${chromaValue}: must be an integer 0-11.`
+    );
+  }
+  const table = options?.prefer === "flat" ? FLAT_SPELLINGS : SHARP_SPELLINGS;
+  const [step, alt] = table[chromaValue];
+  return pitch(step, alt);
+}
+
 /** Spell a MIDI note number (0-127). Defaults to sharp spellings. */
 export function fromMidi(
   midiValue: number,

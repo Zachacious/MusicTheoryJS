@@ -25,7 +25,7 @@ describe("dictionaries", () => {
       expect((entry.chroma & 1) !== 0).toBe(true); // root always present
       expect(interval(entry.intervals[0]).semitones).toBe(0);
     }
-    // Chord symbols are built from aliases[0]; the dictionary must provide it.
+    // Chord symbols are built from the display alias; every entry needs one.
     for (const entry of CHORD_TYPES) {
       expect(entry.aliases.length).toBeGreaterThanOrEqual(1);
     }
@@ -109,7 +109,7 @@ describe("detectScales — discriminating ranked scores (Phase 2 acceptance)", (
 
 describe("detectChords — ranked with inversions and partials", () => {
   it("detects basic qualities in root position", () => {
-    expect(detectChords(["C", "E", "G"])[0].symbol).toBe("CM");
+    expect(detectChords(["C", "E", "G"])[0].symbol).toBe("C");
     expect(detectChords(["C", "Eb", "G", "Bb"])[0].symbol).toBe("Cm7");
     expect(detectChords(["C", "E", "G", "B"])[0].symbol).toBe("Cmaj7");
     expect(detectChords(["G", "B", "D", "F"])[0].symbol).toBe("G7");
@@ -123,18 +123,18 @@ describe("detectChords — ranked with inversions and partials", () => {
 
   it("uses the lowest note as bass when octaves are given", () => {
     const results = detectChords(["E3", "G3", "C4"]);
-    expect(results[0].symbol).toBe("CM/E");
+    expect(results[0].symbol).toBe("C/E");
     expect(results[0].bass).toBe("E");
   });
 
   it("finds the bass regardless of input order", () => {
     const results = detectChords(["C4", "G3", "E3"]);
-    expect(results[0].symbol).toBe("CM/E");
+    expect(results[0].symbol).toBe("C/E");
   });
 
   it("keeps the input's spelling for the tonic", () => {
-    expect(detectChords(["Eb", "G", "Bb"])[0].symbol).toBe("EbM");
-    expect(detectChords(["D#", "F##", "A#"])[0].symbol).toBe("D#M");
+    expect(detectChords(["Eb", "G", "Bb"])[0].symbol).toBe("Eb");
+    expect(detectChords(["D#", "F##", "A#"])[0].symbol).toBe("D#");
   });
 
   it("handles omitted fifths as partial matches", () => {

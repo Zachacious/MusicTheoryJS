@@ -10,6 +10,7 @@ import { ChordTypeData, ScaleTypeData } from "./types";
 
 export { CHORD_TYPES } from "./chord-types";
 export { SCALE_TYPES } from "./scale-types";
+export { chordDisplayAlias } from "./display";
 export type { ChordTypeData, ScaleTypeData } from "./types";
 export {
   type ChordDetection,

@@ -22,6 +22,7 @@ export {
   samePitch,
   sameSpelling,
   semitoneHeight,
+  spellChroma,
   tryNote,
 } from "./pitch";
 export {

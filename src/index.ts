@@ -19,8 +19,18 @@
  * romanToChord("V7/V", "C major").symbol; // "D7"
  * ```
  *
- * Note: the microtonal/tuning layer (cents, EDO, JI, temperaments) is being
- * rebuilt on this core next — see REDESIGN.md Phase 4.
+ * Microtonality is first-class: `cents` lives on `Pitch` itself, and tuning
+ * systems are keyed on *spelled* pitches, so meantone and Pythagorean tuning
+ * genuinely distinguish G# from Ab:
+ *
+ * ```ts
+ * import { addCents, justNote, meantoneTuning, frequency } from "musictheoryjs";
+ *
+ * addCents("C4", 250);                    // D4 +50¢ (a quarter-tone)
+ * justNote("C4", "M3");                   // E4 −13.69¢ (pure 5/4 third)
+ * meantoneTuning().offset("G#");          // ≠ .offset("Ab") — by ~41.06¢
+ * frequency("A4", equalTemperament({ a4: 432 })); // 432 — stored reference
+ * ```
  */
 
 export * from "./core";
@@ -93,6 +103,46 @@ export {
   progressionRomans,
   suggestNextChords,
 } from "./progression";
+export {
+  type CentsOptions,
+  CENTS_PER_OCTAVE,
+  JUST_RATIOS,
+  addCents,
+  centsBetween,
+  centsToRatio,
+  edoScale,
+  edoStepCents,
+  edoTranspose,
+  fromRatio,
+  justNote,
+  justRatio,
+  microtonalName,
+  parseRatio,
+  ratioToCents,
+} from "./micro";
+export {
+  type JustTuningOptions,
+  type MeantoneOptions,
+  type PitchBendOptions,
+  type Tuning,
+  type TuningOptions,
+  PURE_FIFTH_CENTS,
+  SYNTONIC_COMMA_CENTS,
+  edoTuning,
+  equalTemperament,
+  fifthsIndex,
+  frequency,
+  getTuning,
+  isTuning,
+  justTuning,
+  meantoneTuning,
+  pitchBend,
+  pythagoreanTuning,
+  registerTuning,
+  resolveTuning,
+  tuningNames,
+  tuningOffset,
+} from "./tuning";
 
 /** The current version of the MusicTheoryJS library. */
 export const VERSION = "3.0.0";

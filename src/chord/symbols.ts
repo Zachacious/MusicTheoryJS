@@ -10,22 +10,7 @@
 import { closestMatch } from "../core/util";
 import { CHORD_TYPES, ChordTypeData, getChordType } from "../dict";
 
-/**
- * The alias used when printing a chord type in a symbol: the empty alias if
- * the type has one (a major triad prints as `"C"`, not `"CM"`), otherwise the
- * first plain-ASCII alias (no `Δ`/`°`/`ø` glyphs, no `/` that could read as a
- * slash bass), otherwise the first alias.
- */
-export function chordDisplayAlias(type: ChordTypeData): string {
-  if (type.aliases.includes("")) return "";
-  const ascii = type.aliases.filter((a) => /^[A-Za-z0-9#b+-]+$/.test(a));
-  const primary = ascii[0] ?? type.aliases[0];
-  if (!primary.startsWith("M")) return primary;
-  // "Cadd9" and "Cmaj13#11" read better than "CMadd9" / "CM13#11" — but a
-  // bare-numeral alias like "2" is a worse print than what it replaces.
-  const alt = ascii.find((a) => !a.startsWith("M") && !/^\d+$/.test(a));
-  return alt ?? primary;
-}
+export { chordDisplayAlias } from "../dict";
 
 /**
  * Lowercase alias index for case-insensitive fallback lookup. Keys whose

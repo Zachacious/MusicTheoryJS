@@ -8,6 +8,8 @@ import { describe, expect, it } from "vitest";
 import { Chord as RefChord, ChordType as RefChordType, Scale as RefScale, ScaleType as RefScaleType } from "tonal";
 
 import { noteName, transpose } from "../../src/core";
+import { chord } from "../../src/chord";
+import { chromaFromNotes } from "../../src/pcset";
 import {
   CHORD_TYPES,
   SCALE_TYPES,
@@ -52,8 +54,26 @@ describe("dictionary parity with the reference", () => {
   });
 
   it("ranks the reference's top chord answer within our results", () => {
+    // Symbols are print conventions ("CM" vs "C", "Cm/ma7" vs "CmM7"), so
+    // each side is fingerprinted by its OWN parse (root + root-relative
+    // pitch-class set). The reference even prints root-ambiguous symbols
+    // ("Cb9sus" meaning C, not Cb), so its symbols must never be read by
+    // our tokenizer.
+    const fingerprint = (symbol: string): string => {
+      const c = chord(symbol);
+      return `${c.root}:${c.chroma}`;
+    };
+    const refFingerprint = (symbol: string): string => {
+      const rc = RefChord.get(symbol);
+      const chromaInt = [...rc.chroma].reduce(
+        (acc, bit, i) => acc | (bit === "1" ? 1 << i : 0),
+        0
+      );
+      return `${rc.tonic ?? ""}:${chromaInt}`;
+    };
     const failures: string[] = [];
     let skipped = 0;
+    let refSelfInconsistent = 0;
     for (const entry of CHORD_TYPES) {
       const notes = notesFromC(entry.intervals);
       const theirs = RefChord.detect(notes);
@@ -61,8 +81,17 @@ describe("dictionary parity with the reference", () => {
         skipped++;
         continue;
       }
+      // Documented divergence: the reference sometimes prints a symbol its
+      // own parser reads as a different chord ("Cb9sus" for a C-rooted
+      // b9sus — Chord.get returns a Cb chord). Such answers carry no usable
+      // meaning, so they are skipped and counted instead of compared.
+      const refNotes = RefChord.get(theirs[0]).notes;
+      if (chromaFromNotes(refNotes) !== chromaFromNotes(notes)) {
+        refSelfInconsistent++;
+        continue;
+      }
       const ourSymbols = detectChords(notes, { maxResults: 8 }).map((m) => m.symbol);
-      if (!ourSymbols.includes(theirs[0])) {
+      if (!ourSymbols.map(fingerprint).includes(refFingerprint(theirs[0]))) {
         failures.push(
           `${entry.aliases[0] ?? entry.name}: ref=${theirs[0]} ours=${ourSymbols.join(",")}`
         );
@@ -70,5 +99,6 @@ describe("dictionary parity with the reference", () => {
     }
     expect(failures).toEqual([]);
     expect(skipped).toBe(0);
+    expect(refSelfInconsistent).toBe(2); // the two b9sus-set entries
   });
 });

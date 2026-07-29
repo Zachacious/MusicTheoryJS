@@ -231,10 +231,10 @@ export function suggestNextChords(
       `Invalid maxResults ${maxResults}: must be a non-negative integer.`
     );
   }
-  const steps =
-    Array.isArray(progression) && progression.length === 0
-      ? []
-      : parseProgression(k, progression);
+  const empty =
+    (Array.isArray(progression) && progression.length === 0) ||
+    (typeof progression === "string" && progression.trim() === "");
+  const steps = empty ? [] : parseProgression(k, progression);
   const last = [...steps].reverse().find((s) => s.chord !== null) ?? null;
 
   const suggestions = candidatePool(k).map((symbol) => {

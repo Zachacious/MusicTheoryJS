@@ -52,6 +52,16 @@ describe("chord()", () => {
     expect(chord("Cm/maj7").bass).toBeUndefined();
   });
 
+  it("never generates a symbol whose quality fuses with the root (Cb9sus bug)", () => {
+    // "b9sus" as a printed quality would read as root Cb + "9sus".
+    const c = chord("C", "b9sus");
+    expect(c.symbol).toBe("C7b9sus");
+    expect(chord(c.symbol).chroma).toBe(c.chroma);
+    // Greedy root parsing is the documented reading of the ambiguous input.
+    expect(chord("Cb9sus").root).toBe("Cb");
+    expect(chord("Cb9sus").type).toBe("");
+  });
+
   it("round-trips through its own symbol and object", () => {
     for (const symbol of ["Cm7b5", "F#7#9", "Bbmaj13#11", "Am7/G", "Ebdim7"]) {
       const c = chord(symbol);

@@ -110,12 +110,16 @@ function qualityOf(
   if (marker === "°") {
     if (suffix === "" && !seventh) return resolveQuality("dim", context);
     if (suffix === "" || suffix === "7") return resolveQuality("dim7", context);
-    return resolveQuality(`dim${suffix}`, context);
+    // "dim<suffix>" first, then the "o" alias family ("vii°M7" → oM7).
+    const dim = resolveChordQuality(`dim${suffix}`) !== null ? `dim${suffix}` : `o${suffix}`;
+    return resolveQuality(dim, context);
   }
   if (marker === "+") {
     if (suffix === "" && !seventh) return resolveQuality("aug", context);
     if (suffix === "" || suffix === "7") return resolveQuality("7#5", context);
-    return resolveQuality(`aug${suffix}`, context);
+    // "aug<suffix>" first, then the "+" alias family ("III+maj7" → +maj7).
+    const aug = resolveChordQuality(`aug${suffix}`) !== null ? `aug${suffix}` : `+${suffix}`;
+    return resolveQuality(aug, context);
   }
   if (suffix === "") {
     if (seventh) return resolveQuality(lower ? "m7" : "7", context);

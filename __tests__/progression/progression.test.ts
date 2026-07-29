@@ -101,6 +101,7 @@ describe("suggestNextChords() (audit defect #13 regression: real scoring)", () =
   it("suggests the tonic first for an empty progression", () => {
     expect(suggestNextChords("C major", [])[0].symbol).toBe("Cmaj7");
     expect(suggestNextChords("a minor", [])[0].symbol).toBe("Am7");
+    expect(suggestNextChords("C major", "  ")[0].symbol).toBe("Cmaj7");
   });
 
   it("respects maxResults and annotates romans", () => {

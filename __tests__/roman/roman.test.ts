@@ -55,6 +55,12 @@ describe("romanNumeral() parsing", () => {
     expect(romanNumeral("iiØ7").symbol).toBe("iiø7");
   });
 
+  it("resolves marker + explicit suffix through the alias families", () => {
+    expect(romanNumeral("III+maj7").chordType).toBe("augmented seventh");
+    expect(romanNumeral("vii°M7").chordType).toBe(""); // the oM7 type is unnamed
+    expect(romanNumeral("vii°M7").quality).toBe("oM7");
+  });
+
   it("rejects junk with clear errors", () => {
     expect(() => romanNumeral("VIII")).toThrow(MusicTheoryError);
     expect(() => romanNumeral("Vx9")).toThrow(MusicTheoryError);

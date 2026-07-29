@@ -22,6 +22,7 @@ import {
 } from "../pcset";
 import { CHORD_TYPES } from "./chord-types";
 import { SCALE_TYPES } from "./scale-types";
+import { chordDisplayAlias } from "./display";
 
 /** Pitch-class name of a note, octave and cents stripped. */
 function pcName(p: Pitch): string {
@@ -208,7 +209,7 @@ export function detectChords(
       }
       const inverted = exact && pc !== bassPc;
       matches.push({
-        symbol: `${name}${type.aliases[0]}${inverted ? `/${bassName}` : ""}`,
+        symbol: `${name}${chordDisplayAlias(type)}${inverted ? `/${bassName}` : ""}`,
         tonic: name,
         type: type.name,
         score,
