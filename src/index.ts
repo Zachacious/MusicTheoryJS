@@ -1,81 +1,98 @@
 /**
- * @module MusicTheoryJS
- * @description
- * # MusicTheoryJS - A Comprehensive Music Theory Library
+ * @module musictheoryjs
+ * MusicTheoryJS v3 — a music theory library built on a spelled-pitch core.
  *
- * Welcome to MusicTheoryJS, a robust library designed for music theory calculations, analysis,
- * and manipulation in JavaScript and TypeScript environments. This library provides tools for
- * working with fundamental musical concepts including Notes, Intervals, Chords, Scales,
- * Progressions, and Tuning Systems.
+ * Enharmonic spelling is exact everywhere because pitches store their
+ * spelling (letter step + alteration), intervals carry quality (letter
+ * distance + chromatic distance), and everything else — chords, scales,
+ * keys, roman numerals, progressions — derives spellings by arithmetic on
+ * those types. Strings are accepted everywhere and never required.
  *
- * ## Core Features:
- * - **Notes:** Create, transpose, compare notes. Handle frequencies, MIDI values, and microtonal adjustments (cents).
- * - **Intervals:** Define and work with intervals using semitone values.
- * - **Chords:** Create chords from symbols or notes, analyze structure (root, quality, inversion, tensions), parse/generate symbols, handle voicings, analyze function, and work with progressions.
- * - **Scales:** Create scales by name, pattern, or notes. Generate modes, analyze structure, brightness, tension, and relationships. Includes microtonal scale generation (JI, EDO, Custom).
- * - **Tuning:** Apply different tuning systems (JI, Pythagorean, Meantone, EDOs) and manage custom tunings. Convert between cents and ratios.
- * - **Immutability:** Core objects like Note, Scale, Chord are designed to be immutable. Operations return new instances.
- * - **Type Safety:** Built with TypeScript for strong type checking.
- *
- * NOTE: v3 is mid-rebuild (see REDESIGN.md). This entry point currently serves
- * the legacy API, which is being replaced module by module by a verified core.
- * Import from the package root; subpath imports are not published.
- *
- * @example Basic Usage
+ * @example
  * ```ts
- * import { createNote, createScale, createChord, transpose, PERFECT_FIFTH } from 'musictheoryjs';
+ * import { transpose, chord, scale, majorKey, romanToChord } from "musictheoryjs";
  *
- * const c4 = createNote({ letter: 'C', octave: 4 });
- * const cMajorScale = createScale(c4, 'major');
- * const g7 = createChord(transpose(c4, PERFECT_FIFTH), '7');
- *
- * console.log(cMajorScale.notes.map(n => n.notation));
- * console.log(g7.symbol);
+ * transpose("Eb4", "P5");          // Bb4
+ * chord("Cm7b5").notes;            // ["C", "Eb", "Gb", "Bb"]
+ * scale("F# dorian").notes;        // ["F#", "G#", "A", "B", "C#", "D#", "E"]
+ * majorKey("Eb").secondaryDominants; // ["", "C7", "D7", "Eb7", "F7", "G7", ""]
+ * romanToChord("V7/V", "C major").symbol; // "D7"
  * ```
+ *
+ * Note: the microtonal/tuning layer (cents, EDO, JI, temperaments) is being
+ * rebuilt on this core next — see REDESIGN.md Phase 4.
  */
 
-// Re-export everything from the note module
-// Includes Note type, creation functions, operations, calculations, etc.
-export * from "./note";
+export * from "./core";
+export * from "./pcset";
+export {
+  CHORD_TYPES,
+  SCALE_TYPES,
+  type ChordTypeData,
+  type ScaleTypeData,
+  type ChordDetection,
+  type DetectChordsOptions,
+  type DetectScalesOptions,
+  type ScaleDetection,
+  detectChords,
+  detectScales,
+  getChordType,
+  getChordTypeByChroma,
+  getScaleType,
+  getScaleTypeByChroma,
+} from "./dict";
+export {
+  type Chord,
+  type ChordTokens,
+  chord,
+  chordDisplayAlias,
+  chordNotes,
+  isChord,
+  resolveChordQuality,
+  suggestChordQuality,
+  tokenizeChordSymbol,
+  transposeChord,
+  tryChord,
+} from "./chord";
+export {
+  type Scale,
+  isScale,
+  mode,
+  modes,
+  scale,
+  scaleBrightness,
+  scaleChords,
+  scaleNotes,
+  tryScale,
+} from "./scale";
+export {
+  type Key,
+  type KeyHarmony,
+  type MajorKey,
+  type MinorKey,
+  key,
+  majorKey,
+  minorKey,
+  tryKey,
+} from "./key";
+export {
+  type RomanNumeral,
+  chordToRoman,
+  isRomanNumeral,
+  romanNumeral,
+  romanToChord,
+  tryRomanNumeral,
+} from "./roman";
+export {
+  type ChordSuggestion,
+  type ProgressionStep,
+  type SuggestNextChordsOptions,
+  COMMON_PROGRESSIONS,
+  parseProgression,
+  progressionChords,
+  progressionRomans,
+  suggestNextChords,
+} from "./progression";
 
-// Re-export everything from the scale module
-// Includes Scale type, creation functions, operations, analysis, detection, modes, etc.
-export * from "./scale";
-
-// Re-export everything from the chord module
-// Includes Chord type, creation functions, operations, analysis, voicing, roman numerals, progressions etc.
-export * from "./chord";
-
-// Re-export everything from the interval module
-// Includes Interval type and interval constants (e.g., MAJOR_THIRD)
-export * from "./interval";
-
-/**
- * The current version of the MusicTheoryJS library.
- * @readonly
- * @type {string}
- */
-export const VERSION = "3.0.0"; // Keep version updated
-
-// Re-export selected tuning system utilities from the tuning module
-// Allows access to predefined systems and registration function from the main entry point.
-export { TUNING_SYSTEMS, registerTuningSystem } from "./tuning/tuning";
-
-/**
- * General information about the MusicTheoryJS library.
- * @readonly
- * @property {string} name - The official name of the library.
- * @property {string} version - The current version string (matches VERSION constant).
- * @property {string} description - A brief description of the library.
- * @property {string} author - The author's name (Update if necessary).
- * @property {string} license - The software license (e.g., "MIT").
- * @property {string} repository - URL of the source code repository.
- */
-export const LIBRARY_INFO = {
-  name: "MusicTheoryJS",
-  version: VERSION,
-  description: "A comprehensive music theory library for JavaScript/TypeScript",
-  author: "Zachacious", // Updated based on repository URL
-  license: "ISC",
-  repository: "https://github.com/Zachacious/musictheoryjs",
-}; // Original code didn't freeze this, so not freezing here.
+/** The current version of the MusicTheoryJS library. */
+export const VERSION = "3.0.0";
