@@ -84,6 +84,26 @@ isScaleName("dorian");             // true
 Scale.from("C4 melodic minor");    // spaced aliases parse too
 ```
 
+## Diatonic chords of any scale
+
+Stack alternating degrees on each step of *any* template — not just major
+and minor — and get correctly spelled chords with detected qualities:
+
+```ts
+import { scaleChord, scaleChords } from "musictheoryjs";
+
+scaleChords("C4 major").map(String);
+// ["C", "Dm", "Em", "F", "G", "Am", "Bdim"]
+
+scaleChords("C4 melodicMinor", { seventh: true }).map(String);
+// ["CmMaj7", "Dm7", "Ebmaj7#5", "F7", "G7", "Am7b5", "Bm7b5"]
+
+scaleChord("C4 harmonicMajor", 6, { seventh: true }).toString(); // "Abmaj7#5"
+```
+
+A chord whose tones match no known quality still builds — it just prints its
+note names instead of a symbol.
+
 ## Modes
 
 Any scale's modes are its rotations — each degree treated as a new tonic:
@@ -127,6 +147,26 @@ scalesContaining(["D4", "F4", "G4"]);
 
 detectScales(["C4", "Eb4", "G4"], { match: "subset", prefer: "flat" });
 // the same query in long form; `prefer` spells tonics the input didn't sound
+```
+
+## Chord-scale matching
+
+Which scales can you play over a chord? `chordScales` ranks every scale
+(rooted on the chord's root) that contains the chord, with **avoid-note
+awareness** — a scale tone a half step above a chord tone is penalized, so
+the rankings match jazz practice:
+
+```ts
+import { chordScales } from "musictheoryjs";
+
+chordScales("Dm7")[0]?.scale.name;   // "dorian"          (avoid-free)
+chordScales("Cmaj7")[0]?.scale.name; // "lydian"          (major carries the F avoid note)
+chordScales("G7")[0]?.scale.name;    // "lydianDominant"
+chordScales("Bm7b5")[0]?.scale.name; // "halfDiminished"  (locrian ♮2)
+
+const major = chordScales("Cmaj7", { maxResults: 20 })
+  .find((m) => m.scale.name === "major");
+major?.avoidNotes.map((n) => n.toString({ octave: false })); // ["F"]
 ```
 
 ## Custom & microtonal scales

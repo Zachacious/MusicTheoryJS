@@ -102,6 +102,57 @@ drop3(c).map(String);        // ["E3","C4","G4","B4"]
 spread(c).map(String);       // widened across octaves
 ```
 
+## Voice leading
+
+Connect chords the way arrangers do. `voiceChord` builds an initial voicing
+(root in the bass, tones covered by priority root > third > seventh > fifth);
+`nextVoicing` moves to the next chord with minimal total motion — keeping
+voice order, staying in range, and refusing parallel fifths and octaves
+unless you ask for them. `voiceProgression` does a whole progression in one
+call:
+
+```ts
+import { voiceChord, nextVoicing, voiceProgression, findParallels, voiceLeadingCost } from "musictheoryjs";
+
+voiceChord("Cmaj7").map(String);      // ["C3","E3","B3","G4"]
+
+const voicings = voiceProgression(["C", "F", "G7", "C"]);
+voicings.map((v) => v.map(String).join(" "));
+// ["C3 E3 G3 E4", "F3 F3 A3 C4", "G2 F3 G3 B3", "C3 E3 G3 C4"]
+
+findParallels(voicings[2], voicings[3]);    // [] — never emitted by default
+voiceLeadingCost(voicings[0], voicings[1]); // total motion in semitones
+```
+
+Parallels are judged on **spelled** intervals (a d5→P5 slide is not a
+parallel fifth), and the search is exhaustive per connection: if the
+constraints are truly unsatisfiable it throws rather than emit bad
+counterpoint — widen `range` or `maxLeap` (default 12, one octave), or pass
+`allowParallels: true`.
+
+## Transformations
+
+Neo-Riemannian P/L/R operations on triads — each an involution (applying it
+twice returns the original chord, spelling included) — plus chromatic
+mediants and negative harmony:
+
+```ts
+import { neoRiemannian, parallelTriad, relativeTriad, leadingToneExchange,
+         chromaticMediants, negativeChord, negativeNote } from "musictheoryjs";
+
+parallelTriad("C").toString();       // "Cm"
+relativeTriad("C").toString();       // "Am"
+leadingToneExchange("C").toString(); // "Em"
+neoRiemannian("C", "PL").toString(); // "Ab"   (hexatonic mediant)
+neoRiemannian("C", "PLP").toString();// "Abm"  (hexatonic pole)
+
+chromaticMediants("C").map(String);  // ["E", "Eb", "A", "Ab"]
+
+// Reflection around the tonic–dominant axis: V7 becomes the classic iv6.
+negativeChord("G7", "C").toString(); // "Fm6"
+negativeNote("E4", "C").toString();  // "Eb4"
+```
+
 ## Detecting a chord from notes
 
 The inverse of building from a symbol — identify the chord a set of notes forms.

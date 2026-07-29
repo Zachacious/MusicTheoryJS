@@ -4,3 +4,5 @@
  */
 
 export * from "./key";
+export * from "./roman";
+export * from "./progression";

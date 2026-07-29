@@ -7,7 +7,6 @@
  * the ii chord in C major is `Dm`, not `Ebbm`.
  */
 
-import { detectQuality } from "../chord/analysis";
 import { Chord, type ChordLike } from "../chord/chord";
 import type { ChordQuality } from "../chord/templates";
 import {
@@ -21,9 +20,33 @@ import { mod } from "../math/index";
 import { Note, type NoteLike } from "../note/note";
 import { tryParseNote } from "../pitch/parse";
 import { chroma } from "../pitch/spelled";
+import { scaleChord } from "../scale/harmony";
 import { Scale } from "../scale/scale";
 
 export type Mode = "major" | "minor";
+
+/** The three classical minor-scale variants. */
+export type MinorVariant = "natural" | "harmonic" | "melodic";
+
+/** Harmonic function of a scale degree: tonic, subdominant, dominant, or none. */
+export type HarmonicFunction = "T" | "SD" | "D" | "";
+
+/** Per-degree harmonic-function tables, following the common convention. */
+const FUNCTION_TABLES: Readonly<
+  Record<"major" | MinorVariant, readonly HarmonicFunction[]>
+> = {
+  major: ["T", "SD", "T", "SD", "D", "T", "D"],
+  natural: ["T", "SD", "T", "SD", "D", "SD", "SD"],
+  harmonic: ["T", "SD", "T", "SD", "D", "SD", "D"],
+  melodic: ["T", "SD", "T", "SD", "D", "", ""],
+};
+
+/** Scale template for each minor variant. */
+const VARIANT_TEMPLATES: Readonly<Record<MinorVariant, string>> = {
+  natural: "minor",
+  harmonic: "harmonicMinor",
+  melodic: "melodicMinor",
+};
 
 /** A key described as plain data. `mode` defaults to major. */
 export interface KeySpec {
@@ -196,19 +219,122 @@ export class Key {
   }
 
   /**
+   * The scale a minor variant names, rooted on this key's tonic: natural,
+   * harmonic, or melodic minor.
+   * @throws {RangeError} for major keys — variants apply to minor keys only.
+   */
+  variantScale(variant: MinorVariant): Scale {
+    if (this.mode !== "minor") {
+      throw new RangeError(
+        `minor-scale variant "${variant}" applies only to minor keys, not ${this.toString()}`
+      );
+    }
+    return Scale.from(this.tonic, VARIANT_TEMPLATES[variant] as "minor");
+  }
+
+  /** The scale for an optional variant: the key's own scale when omitted. */
+  private scaleFor(variant?: MinorVariant): Scale {
+    if (variant === undefined) return this.scale;
+    return this.variantScale(variant);
+  }
+
+  /**
    * The diatonic chord rooted on scale degree `n` (1-based), built by stacking
    * thirds from within the key. Pass `seventh: true` for a four-note seventh
-   * chord.
+   * chord. In minor keys, `variant` harmonizes the harmonic or melodic minor
+   * scale instead of the natural minor.
    */
-  chord(n: number, options: { seventh?: boolean } = {}): Chord {
-    const root = this.scale.degree(n);
-    const degrees = options.seventh
-      ? [n, n + 2, n + 4, n + 6]
-      : [n, n + 2, n + 4];
-    const tones = degrees.map((d) => this.scale.degree(d));
-    const intervals: Interval[] = tones.map((t) => intervalBetween(root, t));
-    const quality = detectQuality(intervals.map((iv) => iv.semitones));
-    return new Chord(root, intervals, quality);
+  chord(
+    n: number,
+    options: { seventh?: boolean; variant?: MinorVariant } = {}
+  ): Chord {
+    return scaleChord(
+      this.scaleFor(options.variant),
+      n,
+      options.seventh === undefined ? {} : { seventh: options.seventh }
+    );
+  }
+
+  /**
+   * The harmonic function of scale degree `n`: `"T"` (tonic), `"SD"`
+   * (subdominant), `"D"` (dominant), or `""` where the convention assigns
+   * none. Minor keys default to the natural-minor table; pass `variant` for
+   * the harmonic or melodic reading.
+   */
+  harmonicFunction(
+    n: number,
+    options: { variant?: MinorVariant } = {}
+  ): HarmonicFunction {
+    if (options.variant !== undefined && this.mode !== "minor") {
+      throw new RangeError(
+        `minor-scale variant "${options.variant}" applies only to minor keys, not ${this.toString()}`
+      );
+    }
+    const table =
+      this.mode === "major"
+        ? FUNCTION_TABLES.major
+        : FUNCTION_TABLES[options.variant ?? "natural"];
+    return table[mod(n - 1, 7)] as HarmonicFunction;
+  }
+
+  /**
+   * The secondary dominant of scale degree `n` — the V7 of that degree's
+   * chord (`V7/V` in C major is `D7`). `null` when the degree's triad is
+   * neither major nor minor (nothing to tonicize) or when the dominant is
+   * already diatonic (V7 of the tonic is just the key's own V7).
+   */
+  secondaryDominant(n: number): Chord | null {
+    const target = this.chord(n);
+    // Only true major/minor triads are tonicized (isMinor() alone would let
+    // diminished triads through — they contain a minor third too).
+    if (target.quality !== "maj" && target.quality !== "min") return null;
+    const domRoot = target.root.transpose(interval(5, "P"));
+    for (let degree = 1; degree <= this.scale.size; degree++) {
+      const diatonic = this.chord(degree, { seventh: true });
+      if (
+        diatonic.quality === "dom7" &&
+        diatonic.root.step === domRoot.step &&
+        diatonic.root.alteration === domRoot.alteration
+      ) {
+        return null;
+      }
+    }
+    return Chord.of(domRoot, "dom7");
+  }
+
+  /**
+   * The "related ii" of degree `n`'s secondary dominant — the supertonic
+   * that pairs with it in a ii–V of the tonicized degree: `m7` when the
+   * target chord is major, `m7b5` when it is minor. `null` whenever
+   * {@link Key.secondaryDominant} is.
+   */
+  relatedTwo(n: number): Chord | null {
+    if (this.secondaryDominant(n) === null) return null;
+    const target = this.chord(n);
+    const root = target.root.transpose(interval(2, "M"));
+    return Chord.of(root, target.quality === "maj" ? "min7" : "min7b5");
+  }
+
+  /**
+   * The tritone substitute for the dominant of degree `n`: the dominant
+   * seventh a diminished fifth above that dominant's root (sharing its
+   * tritone). Unlike {@link Key.secondaryDominant}, this is defined even
+   * where the plain dominant is diatonic — the substitute never is — so
+   * `tritoneSubstitute(1)` in C major is `Db7`. `null` only when the
+   * degree's triad is neither major nor minor.
+   */
+  tritoneSubstitute(n: number): Chord | null {
+    const target = this.chord(n);
+    if (target.quality !== "maj" && target.quality !== "min") return null;
+    const spelled = target.root
+      .transpose(interval(5, "P"))
+      .transpose(interval(5, "d"));
+    // The literal d5 spelling turns absurd in flat keys (Abb7 in Gb major);
+    // charts write the enharmonic simple root (G7), so respell when the
+    // construction needs a double accidental.
+    const subRoot =
+      Math.abs(spelled.alteration) >= 2 ? spelled.enharmonic("flat") : spelled;
+    return Chord.of(subRoot, "dom7");
   }
 
   /** The Roman numeral for a chord in this key (e.g. `"ii"`, `"V7"`, `"bVII"`). */
@@ -321,25 +447,27 @@ export function key(input: KeyLike): Key {
 export function keyChord(
   k: KeyLike,
   n: number,
-  options: { seventh?: boolean } = {}
+  options: { seventh?: boolean; variant?: MinorVariant } = {}
 ): Chord {
   return Key.from(k).chord(n, options);
 }
 
 /**
  * All seven diatonic chords of a key, in degree order. Pass `seventh: true`
- * for seventh chords.
+ * for seventh chords; in minor keys, `variant` harmonizes the harmonic or
+ * melodic minor scale.
  *
  * @example
  * ```ts
  * import { diatonicChords } from "musictheoryjs";
  * diatonicChords("C major").map(String); // => ["C","Dm","Em","F","G","Am","Bdim"]
  * diatonicChords("A minor")[4].toString(); // => "Em"
+ * diatonicChords("A minor", { variant: "harmonic" })[4].toString(); // => "E"
  * ```
  */
 export function diatonicChords(
   k: KeyLike,
-  options: { seventh?: boolean } = {}
+  options: { seventh?: boolean; variant?: MinorVariant } = {}
 ): Chord[] {
   const theKey = Key.from(k);
   return Array.from({ length: theKey.scale.size }, (_, i) =>
@@ -400,6 +528,46 @@ export function keyChordFromRoman(k: KeyLike, roman: string): Chord {
  */
 export function keyProgression(k: KeyLike, input: string): Chord[] {
   return Key.from(k).progression(input);
+}
+
+/**
+ * The harmonic function (`"T"`, `"SD"`, `"D"`, or `""`) of every scale degree
+ * of a key, in degree order — see {@link Key.harmonicFunction}.
+ *
+ * @example
+ * ```ts
+ * import { harmonicFunctions } from "musictheoryjs";
+ * harmonicFunctions("C major"); // => ["T","SD","T","SD","D","T","D"]
+ * harmonicFunctions("A minor"); // => ["T","SD","T","SD","D","SD","SD"]
+ * harmonicFunctions("A minor", { variant: "harmonic" }); // => ["T","SD","T","SD","D","SD","D"]
+ * ```
+ */
+export function harmonicFunctions(
+  k: KeyLike,
+  options: { variant?: MinorVariant } = {}
+): HarmonicFunction[] {
+  const theKey = Key.from(k);
+  return Array.from({ length: 7 }, (_, i) =>
+    theKey.harmonicFunction(i + 1, options)
+  );
+}
+
+/**
+ * The secondary dominant of every degree of a key (`null` where there is
+ * none) — see {@link Key.secondaryDominant}.
+ *
+ * @example
+ * ```ts
+ * import { secondaryDominants } from "musictheoryjs";
+ * secondaryDominants("C major").map((c) => (c ? c.toString() : null)); // => [null,"A7","B7","C7","D7","E7",null]
+ * secondaryDominants("A minor")[3]?.toString(); // => "A7"
+ * ```
+ */
+export function secondaryDominants(k: KeyLike): (Chord | null)[] {
+  const theKey = Key.from(k);
+  return Array.from({ length: theKey.scale.size }, (_, i) =>
+    theKey.secondaryDominant(i + 1)
+  );
 }
 
 /**

@@ -108,7 +108,8 @@ export function pcsetTranspose(mask: number, semitones: number): number {
  * ```
  */
 export function pcsetIsSubset(sub: number, sup: number): boolean {
-  return (sub & sup) === (sub & PCSET_ALL);
+  // Mask both operands so stray bits above bit 11 can never sway the answer.
+  return (sub & sup & PCSET_ALL) === (sub & PCSET_ALL);
 }
 
 /**

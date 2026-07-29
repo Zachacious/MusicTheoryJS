@@ -160,9 +160,9 @@ bundlers can split on the boundaries.
 | --- | --- |
 | `musictheoryjs/note` | notes |
 | `musictheoryjs/interval` | intervals, transposition |
-| `musictheoryjs/scale` | scales, modes, detection (92 templates) |
-| `musictheoryjs/chord` | chords, symbol parsing, detection, voicings (108 qualities) |
-| `musictheoryjs/key` | keys, signatures, Roman numerals, progressions |
+| `musictheoryjs/scale` | scales, modes, detection, chord-scale matching (92 templates) |
+| `musictheoryjs/chord` | chords, symbol parsing, detection, voicings, voice leading, Neo-Riemannian transforms (108 qualities) |
+| `musictheoryjs/key` | keys, signatures, Roman numerals, secondary dominants, progressions, next-chord suggestion |
 | `musictheoryjs/tuning` | tuning systems (EDO, JI, historical, custom, Scala) |
 | `musictheoryjs/analysis` | key detection, chord timelines, set theory |
 | `musictheoryjs/midi` | Standard MIDI File read/write |

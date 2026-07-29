@@ -8,3 +8,5 @@ export * from "./parse";
 export * from "./chord";
 export * from "./analysis";
 export * from "./voicing";
+export * from "./leading";
+export * from "./transform";

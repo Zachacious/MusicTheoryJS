@@ -91,6 +91,26 @@ romanProgression([Chord.from("C"), Chord.from("G"), Chord.from("Am"), Chord.from
 // ["I", "V", "vi", "IV"]
 ```
 
+## Modulation detection
+
+Where does the music change key? `detectModulations` scans the stream with
+overlapping windows, ranks each window's pitch-class histogram against the
+key profiles, and merges agreeing windows into segments — transitional
+windows that fit neither key are recognized as such rather than reported as
+spurious keys:
+
+```ts
+import { detectModulations } from "musictheoryjs";
+
+const segments = detectModulations(stream);
+// [{ key: C major, start: 0, end: 8, score: 0.9 },
+//  { key: G major, start: 8, end: 16, score: 0.9 }]
+```
+
+Window and hop sizes adapt to the stream's density by default and can be set
+explicitly (`{ windowSize, hopSize, minSegment }`); time stays in whatever
+unit the stream uses.
+
 ## Pitch-class set theory
 
 Transposition/inversion-invariant fingerprints for a sonority:

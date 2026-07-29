@@ -68,25 +68,25 @@ Recognize what musicians actually write.
 
 Answer harmony questions in any key or scale, not only major and minor.
 
-- [ ] Diatonic chords for each degree of any scale template.
-- [ ] Deeper keys: tonic/subdominant/dominant labels, secondary dominants with
+- [x] Diatonic chords for each degree of any scale template.
+- [x] Deeper keys: tonic/subdominant/dominant labels, secondary dominants with
       their related ii chords, tritone substitutes, and natural/harmonic/
       melodic variants for minor keys.
-- [ ] A standalone roman-numeral module with round-trip parsing.
-- [ ] Progressions: roman-numeral and symbol parsing (including `N.C.` slots),
+- [x] A standalone roman-numeral module with round-trip parsing.
+- [x] Progressions: roman-numeral and symbol parsing (including `N.C.` slots),
       a library of named progressions (12-bar blues, ii–V–I, …), per-step
       function labels, and next-chord suggestion.
-- [ ] Modulation detection in the analysis layer.
+- [x] Modulation detection in the analysis layer.
 
 ## Phase 4 — Voice leading and transforms
 
 Connect chords the way arrangers do.
 
-- [ ] Voice leading: initial voicings, minimal-motion connection between
+- [x] Voice leading: initial voicings, minimal-motion connection between
       chords with parallel-fifth/octave rejection and sensible doubling, and
       voicing a whole progression in one call.
-- [ ] Chord-scale matching ranked with avoid-note awareness.
-- [ ] Neo-Riemannian P/L/R operations, chromatic mediants, and negative
+- [x] Chord-scale matching ranked with avoid-note awareness.
+- [x] Neo-Riemannian P/L/R operations, chromatic mediants, and negative
       harmony.
 
 ## Phase 5 — Rhythm and meter
