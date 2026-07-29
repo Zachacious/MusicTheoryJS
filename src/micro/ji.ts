@@ -51,6 +51,16 @@ export const JUST_RATIOS: Readonly<Record<string, number>> = Object.freeze({
  * The just ratio for a spelled interval, octave-extended: `justRatio("P5")`
  * is 1.5, `justRatio("M10")` is 2 × 5/4. Throws for intervals with no
  * defined 5-limit ratio (e.g. triple-augmented ones) — never a guess.
+ *
+ * @example
+ * ```ts
+ * import { justRatio, ratioToCents } from "musictheoryjs";
+ *
+ * justRatio("P5"); // => 1.5
+ * justRatio("M10"); // => 2.5
+ * ratioToCents(justRatio("M3")); // => ~386.31
+ * justRatio("AAA4"); // => throws "No just-intonation ratio"
+ * ```
  */
 export function justRatio(input: string | Interval): number {
   const i = interval(input);
@@ -76,6 +86,15 @@ export function justRatio(input: string | Interval): number {
  * 12-TET pitch with the deviation in `cents`: `fromRatio("C4", "5/4")` is
  * E4 −13.69¢ (a pure major third). Accepts `"3/2"`, `1.5`, or an interval
  * name resolved through `JUST_RATIOS` (`fromRatio("C4", "M3")`).
+ *
+ * @example
+ * ```ts
+ * import { fromRatio, microtonalName } from "musictheoryjs";
+ *
+ * microtonalName(fromRatio("C4", "5/4")); // => "E4-13.69c"
+ * microtonalName(fromRatio("C4", "M3")); // => "E4-13.69c"
+ * microtonalName(fromRatio("A4", 1.5)); // => "E5+1.96c"
+ * ```
  */
 export function fromRatio(
   reference: string | Pitch,
@@ -99,6 +118,15 @@ export function fromRatio(
  * `justNote("C4", "M3")` is E4 −13.69¢ — the *spelling* comes from the
  * interval (transposition on the core), the `cents` from the ratio, so
  * `justNote("C4", "A4")` and `justNote("C4", "d5")` differ in both.
+ *
+ * @example
+ * ```ts
+ * import { justNote, microtonalName } from "musictheoryjs";
+ *
+ * microtonalName(justNote("C4", "M3")); // => "E4-13.69c"
+ * microtonalName(justNote("C4", "A4")); // => "F#4-9.78c"
+ * microtonalName(justNote("C4", "d5")); // => "Gb4+9.78c"
+ * ```
  */
 export function justNote(
   reference: string | Pitch,

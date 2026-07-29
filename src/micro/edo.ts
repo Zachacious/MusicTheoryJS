@@ -17,7 +17,18 @@ function assertDivisions(divisions: number): void {
   }
 }
 
-/** Exact size of `steps` steps of n-EDO in cents: `edoStepCents(1, 24)` is 50. */
+/**
+ * Exact size of `steps` steps of n-EDO in cents: `edoStepCents(1, 24)` is 50.
+ *
+ * @example
+ * ```ts
+ * import { edoStepCents } from "musictheoryjs";
+ *
+ * edoStepCents(1, 24); // => 50
+ * edoStepCents(7, 19); // => ~442.11
+ * edoStepCents(1, 0); // => throws "positive integer"
+ * ```
+ */
 export function edoStepCents(steps: number, divisions: number): number {
   assertDivisions(divisions);
   if (!Number.isFinite(steps)) {
@@ -29,6 +40,15 @@ export function edoStepCents(steps: number, divisions: number): number {
 /**
  * Transpose a pitch by n-EDO steps: `edoTranspose("C4", 7, 19)` moves up
  * seven 19-EDO steps (442.1¢). Negative steps descend.
+ *
+ * @example
+ * ```ts
+ * import { edoTranspose, microtonalName } from "musictheoryjs";
+ *
+ * microtonalName(edoTranspose("C4", 1, 24)); // => "C4+50c"
+ * microtonalName(edoTranspose("C4", 3, 24)); // => "C#4+50c"
+ * microtonalName(edoTranspose("C4", 7, 19)); // => "E4+42.11c"
+ * ```
  */
 export function edoTranspose(
   input: string | Pitch,
@@ -42,6 +62,16 @@ export function edoTranspose(
 /**
  * One octave of an n-EDO scale from a reference pitch, inclusive of the
  * octave: `edoScale("C4", 24)` is 25 quarter-tone pitches from C4 to C5.
+ *
+ * @example
+ * ```ts
+ * import { edoScale, microtonalName, noteName } from "musictheoryjs";
+ *
+ * const quarterTones = edoScale("C4", 24);
+ * quarterTones.length; // => 25
+ * microtonalName(quarterTones[1]); // => "C4+50c"
+ * noteName(quarterTones[24]); // => "C5"
+ * ```
  */
 export function edoScale(
   reference: string | Pitch,

@@ -173,7 +173,20 @@ function signatureOf(alteration: number): string {
   return alteration > 0 ? "#".repeat(alteration) : "b".repeat(-alteration);
 }
 
-/** The major key on a tonic: `majorKey("Eb")`. Accepts a name or `Pitch`. */
+/**
+ * The major key on a tonic: `majorKey("Eb")`. Accepts a name or `Pitch`.
+ *
+ * @example
+ * ```ts
+ * import { majorKey } from "musictheoryjs";
+ *
+ * const k = majorKey("Eb");
+ * k.keySignature; // => "bbb"
+ * k.chords; // => ["Ebmaj7", "Fm7", "Gm7", "Abmaj7", "Bb7", "Cm7", "Dm7b5"]
+ * k.secondaryDominants; // => ["", "C7", "D7", "Eb7", "F7", "G7", ""]
+ * k.minorRelative; // => "C"
+ * ```
+ */
 export function majorKey(tonic: string | Pitch): MajorKey {
   const harmony = buildHarmony(tonic, "major");
   const alteration = alterationOf(harmony.scale);
@@ -190,6 +203,17 @@ export function majorKey(tonic: string | Pitch): MajorKey {
  * The minor key on a tonic: `minorKey("c#")`. Contains all three
  * harmonizations (`natural`, `harmonic`, `melodic`); the signature comes from
  * the natural form.
+ *
+ * @example
+ * ```ts
+ * import { minorKey } from "musictheoryjs";
+ *
+ * const k = minorKey("c#");
+ * k.keySignature; // => "####"
+ * k.relativeMajor; // => "E"
+ * k.natural.chords[4]; // => "G#m7"
+ * k.harmonic.chords[4]; // => "G#7"
+ * ```
  */
 export function minorKey(tonic: string | Pitch): MinorKey {
   const pc = toPitchClass(tonic);
@@ -215,6 +239,16 @@ const TONIC_REGEX = /^[A-Ga-g](?:#{1,3}|b{1,3})?$/;
  * Parse a key name: `key("Eb major")`, `key("c minor")`, `key("F#m")`,
  * `key("Bb")` (major by default). Returns a `MajorKey` or `MinorKey`;
  * discriminate on `.type`.
+ *
+ * @example
+ * ```ts
+ * import { key } from "musictheoryjs";
+ *
+ * key("Eb major").keySignature; // => "bbb"
+ * key("F#m").type; // => "minor"
+ * key("Bb").type; // => "major"
+ * key("H major"); // => throws "Invalid key"
+ * ```
  */
 export function key(name: string | Key): Key {
   if (typeof name === "object" && name !== null && "type" in name) {
@@ -238,7 +272,17 @@ export function key(name: string | Key): Key {
     : majorKey(tonic);
 }
 
-/** Soft-failure variant of `key()`: returns `null` instead of throwing. */
+/**
+ * Soft-failure variant of `key()`: returns `null` instead of throwing.
+ *
+ * @example
+ * ```ts
+ * import { tryKey } from "musictheoryjs";
+ *
+ * tryKey("d minor").tonic; // => "D"
+ * tryKey("H major"); // => null
+ * ```
+ */
 export function tryKey(name: string | Key): Key | null {
   try {
     return key(name);

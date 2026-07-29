@@ -4,8 +4,8 @@
     "noEmit": false,
     "declaration": true,
     "emitDeclarationOnly": true,
-    "declarationDir": "dist",
-    "outDir": "dist",
+    "declarationDir": "dist/types-tmp",
+    "outDir": "dist/types-tmp",
     "sourceMap": true,
     "rootDir": "./src"
   },

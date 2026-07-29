@@ -27,6 +27,15 @@ const PERFECT_CLASS = new Set([0, 3, 4]);
 /**
  * Structural type guard for `Interval`-shaped values. Only own properties are
  * consulted, so values remain deterministic under prototype pollution.
+ *
+ * @example
+ * ```ts
+ * import { isInterval, interval } from "musictheoryjs";
+ *
+ * isInterval(interval("m3")); // => true
+ * isInterval({ steps: 2, semitones: 3 }); // => true
+ * isInterval("m3"); // => false
+ * ```
  */
 export function isInterval(value: unknown): value is Interval {
   if (typeof value !== "object" || value === null) return false;
@@ -61,9 +70,27 @@ const intervalCache = new Map<string, Interval>();
 /**
  * Parse an interval name or normalize an `Interval` object; returns `null` on
  * failure (including theory violations like `"P3"` or `"M5"`).
+ *
+ * @example
+ * ```ts
+ * import { tryInterval } from "musictheoryjs";
+ *
+ * tryInterval("m3").semitones; // => 3
+ * tryInterval("5P").steps; // => 4
+ * // Thirds are major or minor, never perfect:
+ * tryInterval("P3"); // => null
+ * ```
  */
 export function tryInterval(input: string | Interval): Interval | null {
   if (isInterval(input)) {
+    // Fast path: frozen, field-valid intervals pass through untouched.
+    if (
+      Object.isFrozen(input) &&
+      Number.isSafeInteger(input.steps) &&
+      Number.isSafeInteger(input.semitones)
+    ) {
+      return input;
+    }
     try {
       return make(input.steps, input.semitones);
     } catch {
@@ -104,7 +131,18 @@ export function tryInterval(input: string | Interval): Interval | null {
   return parsed;
 }
 
-/** Parse an interval name or normalize an `Interval` object; throws on failure. */
+/**
+ * Parse an interval name or normalize an `Interval` object; throws on failure.
+ *
+ * @example
+ * ```ts
+ * import { interval } from "musictheoryjs";
+ *
+ * interval("P5").semitones; // => 7
+ * interval("-M6").steps; // => -5
+ * interval("M5"); // => throws "Invalid interval"
+ * ```
+ */
 export function interval(input: string | Interval): Interval {
   const i = tryInterval(input);
   if (i === null) {
@@ -155,6 +193,15 @@ function qualityString(parts: IntervalParts): string {
  * Canonical name: `intervalName({steps: 2, semitones: 3}) === "m3"`, descending
  * prefixed `-`. Unisons are named by semitone sign — `(0, -1)` is `"-A1"`;
  * `"d1"` and `"-P1"` parse as aliases that normalize to canonical form.
+ *
+ * @example
+ * ```ts
+ * import { intervalName } from "musictheoryjs";
+ *
+ * intervalName({ steps: 2, semitones: 3 }); // => "m3"
+ * intervalName({ steps: 1, semitones: 3 }); // => "A2"
+ * intervalName("d1"); // => "-A1"
+ * ```
  */
 export function intervalName(input: string | Interval): string {
   const parts = decompose(input);
@@ -162,22 +209,65 @@ export function intervalName(input: string | Interval): string {
   return `${sign}${qualityString(parts)}${parts.absSteps + 1}`;
 }
 
-/** Quality string alone: `"P"`, `"M"`, `"m"`, `"A"`, `"dd"`, … */
+/**
+ * Quality string alone: `"P"`, `"M"`, `"m"`, `"A"`, `"dd"`, …
+ *
+ * @example
+ * ```ts
+ * import { intervalQuality } from "musictheoryjs";
+ *
+ * intervalQuality("P5"); // => "P"
+ * intervalQuality("m7"); // => "m"
+ * intervalQuality({ steps: 3, semitones: 4 }); // => "d"
+ * ```
+ */
 export function intervalQuality(input: string | Interval): string {
   return qualityString(decompose(input));
 }
 
-/** Generic interval number (always positive): `intervalNumber("-m10") === 10`. */
+/**
+ * Generic interval number (always positive): `intervalNumber("-m10") === 10`.
+ *
+ * @example
+ * ```ts
+ * import { intervalNumber } from "musictheoryjs";
+ *
+ * intervalNumber("P5"); // => 5
+ * intervalNumber("-m10"); // => 10
+ * ```
+ */
 export function intervalNumber(input: string | Interval): number {
   return decompose(input).absSteps + 1;
 }
 
-/** 1 for ascending (and unison), -1 for descending. */
+/**
+ * 1 for ascending (and unison), -1 for descending.
+ *
+ * @example
+ * ```ts
+ * import { intervalDirection } from "musictheoryjs";
+ *
+ * intervalDirection("M3"); // => 1
+ * intervalDirection("-M3"); // => -1
+ * intervalDirection("P1"); // => 1
+ * ```
+ */
 export function intervalDirection(input: string | Interval): 1 | -1 {
   return decompose(input).direction;
 }
 
-/** Sum of two intervals: `add("M3", "m3")` = P5. Pure vector addition. */
+/**
+ * Sum of two intervals: `add("M3", "m3")` = P5. Pure vector addition.
+ *
+ * @example
+ * ```ts
+ * import { add, intervalName } from "musictheoryjs";
+ *
+ * intervalName(add("M3", "m3")); // => "P5"
+ * // Two major thirds make an augmented fifth, not a minor sixth:
+ * intervalName(add("M3", "M3")); // => "A5"
+ * ```
+ */
 export function add(
   a: string | Interval,
   b: string | Interval
@@ -187,7 +277,17 @@ export function add(
   return make(x.steps + y.steps, x.semitones + y.semitones);
 }
 
-/** Difference of two intervals: `subtract("P5", "M3")` = m3. */
+/**
+ * Difference of two intervals: `subtract("P5", "M3")` = m3.
+ *
+ * @example
+ * ```ts
+ * import { subtract, intervalName } from "musictheoryjs";
+ *
+ * intervalName(subtract("P5", "M3")); // => "m3"
+ * intervalName(subtract("M3", "P5")); // => "-m3"
+ * ```
+ */
 export function subtract(
   a: string | Interval,
   b: string | Interval
@@ -200,6 +300,15 @@ export function subtract(
 /**
  * Reduce a compound interval to its simple equivalent, preserving direction.
  * Exact octave multiples reduce to the octave, not unison: `simplify("P15")` = P8.
+ *
+ * @example
+ * ```ts
+ * import { simplify, intervalName } from "musictheoryjs";
+ *
+ * intervalName(simplify("m10")); // => "m3"
+ * intervalName(simplify("P15")); // => "P8"
+ * intervalName(simplify("-M9")); // => "-M2"
+ * ```
  */
 export function simplify(input: string | Interval): Interval {
   const i = interval(input);
@@ -215,6 +324,15 @@ export function simplify(input: string | Interval): Interval {
 /**
  * Standard inversion of the (simplified) interval, preserving direction:
  * m3→M6, A4→d5, P1→P8, P8→P1.
+ *
+ * @example
+ * ```ts
+ * import { invert, intervalName } from "musictheoryjs";
+ *
+ * intervalName(invert("m3")); // => "M6"
+ * intervalName(invert("A4")); // => "d5"
+ * intervalName(invert("P1")); // => "P8"
+ * ```
  */
 export function invert(input: string | Interval): Interval {
   const parts = decompose(simplify(input));

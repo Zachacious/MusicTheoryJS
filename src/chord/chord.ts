@@ -52,7 +52,17 @@ export interface Chord {
   readonly chroma: Chroma;
 }
 
-/** Structural type guard for `Chord`-shaped values. */
+/**
+ * Structural type guard for `Chord`-shaped values.
+ *
+ * @example
+ * ```ts
+ * import { chord, isChord } from "musictheoryjs";
+ *
+ * isChord(chord("Cm7")); // => true
+ * isChord("Cm7"); // => false
+ * ```
+ */
 export function isChord(value: unknown): value is Chord {
   if (typeof value !== "object" || value === null) return false;
   const c = value as Record<string, unknown>;
@@ -101,6 +111,14 @@ function buildChord(
  * root and quality (`chord("C", "maj7")`), or normalize an existing `Chord`.
  * Returns `null` when the symbol or quality is unrecognized — never a
  * defaulted quality.
+ *
+ * @example
+ * ```ts
+ * import { tryChord } from "musictheoryjs";
+ *
+ * tryChord("Cm9").symbol; // => "Cm9"
+ * tryChord("Cwat"); // => null
+ * ```
  */
 export function tryChord(
   input: string | Chord | Pitch,
@@ -119,8 +137,29 @@ export function tryChord(
  * normalize an existing `Chord` object. Throws `MusicTheoryError` with a
  * "did you mean" suggestion for unrecognized qualities; there is no silent
  * fallback quality.
+ *
+ * @example
+ * ```ts
+ * import { chord } from "musictheoryjs";
+ *
+ * chord("Cm").notes; // => ["C", "Eb", "G"]
+ * chord("C13#11").notes; // => ["C", "E", "G", "Bb", "D", "F#", "A"]
+ * chord("Cm(maj7)").symbol; // => "CmM7"
+ * chord("C7alt").symbol; // => "C7#5#9"
+ * chord("Am7/G").bass; // => "G"
+ * chord("Cmj7"); // => throws "did you mean"
+ * ```
  */
 export function chord(input: string | Chord | Pitch, quality?: string): Chord {
+  if (typeof input === "string" && quality === undefined) {
+    // Parse-once: symbols are memoized (values are frozen, so sharing is safe).
+    const cached = chordCache.get(input);
+    if (cached !== undefined) return cached;
+    const built = chordFromSymbol(input);
+    if (chordCache.size > 10_000) chordCache.clear();
+    chordCache.set(input, built);
+    return built;
+  }
   if (isChord(input)) {
     if (quality !== undefined) {
       throw new MusicTheoryError(
@@ -140,9 +179,10 @@ export function chord(input: string | Chord | Pitch, quality?: string): Chord {
       `Invalid chord: ${JSON.stringify(input)}. Expected a symbol like "Cm7", a root plus quality like chord("C", "m7"), or a Chord object.`
     );
   }
-  if (quality !== undefined) {
-    return chordFromParts(input, resolveRequired(quality, `${input}${quality}`));
-  }
+  return chordFromParts(input, resolveRequired(quality ?? "", `${input}${quality ?? ""}`));
+}
+
+function chordFromSymbol(input: string): Chord {
   const tokens = tokenizeChordSymbol(input);
   if ("reason" in tokens) {
     switch (tokens.reason) {
@@ -186,9 +226,20 @@ function chordFromParts(
   return buildChord(root, type, bass);
 }
 
+const chordCache = new Map<string, Chord>();
+
 /**
  * Transpose a chord (root and any slash bass): `transposeChord("Cm7", "M2")`
  * → the Dm7 chord. Accepts a symbol or a `Chord`.
+ *
+ * @example
+ * ```ts
+ * import { transposeChord } from "musictheoryjs";
+ *
+ * transposeChord("Cm7", "M2").symbol; // => "Dm7"
+ * transposeChord("Ebmaj7", "P5").notes; // => ["Bb", "D", "F", "A"]
+ * transposeChord("Am7/G", "m3").symbol; // => "Cm7/Bb"
+ * ```
  */
 export function transposeChord(
   input: string | Chord,
@@ -206,6 +257,14 @@ export function transposeChord(
  * Octave-realized chord tones, ascending from the root in the given octave:
  * `chordNotes("Cmaj9", 4)` → ["C4", "E4", "G4", "B4", "D5"]. Compound
  * intervals in the type (9ths, 11ths, 13ths) land in the upper octave.
+ *
+ * @example
+ * ```ts
+ * import { chordNotes } from "musictheoryjs";
+ *
+ * chordNotes("Cmaj9", 4); // => ["C4", "E4", "G4", "B4", "D5"]
+ * chordNotes("C13#11", 3); // => ["C3", "E3", "G3", "Bb3", "D4", "F#4", "A4"]
+ * ```
  */
 export function chordNotes(input: string | Chord, octave: number = 4): string[] {
   const c = chord(input);

@@ -10,13 +10,13 @@
  *
  * @example
  * ```ts
- * import { transpose, chord, scale, majorKey, romanToChord } from "musictheoryjs";
+ * import { transpose, noteName, chord, scale, majorKey, romanToChord } from "musictheoryjs";
  *
- * transpose("Eb4", "P5");          // Bb4
- * chord("Cm7b5").notes;            // ["C", "Eb", "Gb", "Bb"]
- * scale("F# dorian").notes;        // ["F#", "G#", "A", "B", "C#", "D#", "E"]
- * majorKey("Eb").secondaryDominants; // ["", "C7", "D7", "Eb7", "F7", "G7", ""]
- * romanToChord("V7/V", "C major").symbol; // "D7"
+ * noteName(transpose("Eb4", "P5")); // => "Bb4"
+ * chord("Cm7b5").notes; // => ["C", "Eb", "Gb", "Bb"]
+ * scale("F# dorian").notes; // => ["F#", "G#", "A", "B", "C#", "D#", "E"]
+ * majorKey("Eb").secondaryDominants; // => ["", "C7", "D7", "Eb7", "F7", "G7", ""]
+ * romanToChord("V7/V", "C major").symbol; // => "D7"
  * ```
  *
  * Microtonality is first-class: `cents` lives on `Pitch` itself, and tuning
@@ -24,12 +24,13 @@
  * genuinely distinguish G# from Ab:
  *
  * ```ts
- * import { addCents, justNote, meantoneTuning, frequency } from "musictheoryjs";
+ * import { addCents, microtonalName, justNote, meantoneTuning, frequency, equalTemperament } from "musictheoryjs";
  *
- * addCents("C4", 250);                    // D4 +50¢ (a quarter-tone)
- * justNote("C4", "M3");                   // E4 −13.69¢ (pure 5/4 third)
- * meantoneTuning().offset("G#");          // ≠ .offset("Ab") — by ~41.06¢
- * frequency("A4", equalTemperament({ a4: 432 })); // 432 — stored reference
+ * microtonalName(addCents("C4", 250)); // => "D4+50c"
+ * justNote("C4", "M3").cents; // => ~-13.69
+ * meantoneTuning().offset("G#"); // => ~-17.11
+ * meantoneTuning().offset("Ab"); // => ~23.95
+ * frequency("A4", equalTemperament({ a4: 432 })); // => 432
  * ```
  */
 
@@ -53,6 +54,7 @@ export {
 } from "./dict";
 export {
   type Chord,
+  type ChordTokenizeFailure,
   type ChordTokens,
   chord,
   chordDisplayAlias,
@@ -121,6 +123,39 @@ export {
   ratioToCents,
 } from "./micro";
 export {
+  type Cadence,
+  type CadenceType,
+  type ChordScaleMatch,
+  type ChordScalesOptions,
+  type DetectKeysOptions,
+  type DetectModulationsOptions,
+  type KeyDetection,
+  type KeyDetectionInput,
+  type ModulationSegment,
+  type ParallelMotion,
+  type VoiceLeadingOptions,
+  type Voicing,
+  type WeightedNote,
+  analyzeCadences,
+  borrowedFrom,
+  chordScales,
+  chromaticMediants,
+  detectCadence,
+  detectKeys,
+  detectModulations,
+  findParallels,
+  leadingToneExchange,
+  negativeChord,
+  negativeNote,
+  neoRiemannian,
+  nextVoicing,
+  parallel,
+  relative,
+  voiceChord,
+  voiceLeadingCost,
+  voiceProgression,
+} from "./harmony";
+export {
   type JustTuningOptions,
   type MeantoneOptions,
   type PitchBendOptions,
@@ -130,7 +165,6 @@ export {
   SYNTONIC_COMMA_CENTS,
   edoTuning,
   equalTemperament,
-  fifthsIndex,
   frequency,
   getTuning,
   isTuning,
@@ -145,4 +179,4 @@ export {
 } from "./tuning";
 
 /** The current version of the MusicTheoryJS library. */
-export const VERSION = "3.0.0";
+export const VERSION = "3.1.0";

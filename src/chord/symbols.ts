@@ -47,6 +47,16 @@ function lookup(quality: string): ChordTypeData | null {
  * `"mmaj7"`), parenthesized extensions (`"m(maj7)"`), and the spelled-out
  * `min`/`dom` prefixes (`"min6"`, `"dom7"`). Returns `null` when nothing
  * matches — never a default.
+ *
+ * @example
+ * ```ts
+ * import { resolveChordQuality } from "musictheoryjs";
+ *
+ * resolveChordQuality("m(maj7)").name; // => "minor/major seventh"
+ * resolveChordQuality("MAJ7").name; // => "major seventh"
+ * resolveChordQuality("dom7").name; // => "dominant seventh"
+ * resolveChordQuality("wat"); // => null
+ * ```
  */
 export function resolveChordQuality(quality: string): ChordTypeData | null {
   // The bare-root symbol: "C" is a C major triad. The dictionary index skips
@@ -72,6 +82,15 @@ export function resolveChordQuality(quality: string): ChordTypeData | null {
 /**
  * Closest known quality alias within edit distance 2 (case-insensitive), for
  * "did you mean" error messages. Returns `null` when nothing is close.
+ *
+ * @example
+ * ```ts
+ * import { suggestChordQuality } from "musictheoryjs";
+ *
+ * suggestChordQuality("mj7"); // => "maj7"
+ * suggestChordQuality("7allt"); // => "7alt"
+ * suggestChordQuality("xyzzy"); // => null
+ * ```
  */
 export function suggestChordQuality(quality: string): string | null {
   return closestMatch(
@@ -111,6 +130,18 @@ function normalizeNoteToken(token: string): string {
  * post-root text is tried as a quality first, so aliases containing `/`
  * (`"6/9"`, `"m/maj7"`) win over the slash-bass reading; only when that fails
  * is a trailing `/note` treated as a bass.
+ *
+ * @example
+ * ```ts
+ * import { tokenizeChordSymbol } from "musictheoryjs";
+ *
+ * const t = tokenizeChordSymbol("Am7/G");
+ * t.root; // => "A"
+ * t.type.name; // => "minor seventh"
+ * t.bass; // => "G"
+ * tokenizeChordSymbol("C6/9").type.name; // => "sixth added ninth"
+ * tokenizeChordSymbol("N.C.").reason; // => "no-chord"
+ * ```
  */
 export function tokenizeChordSymbol(
   symbol: string

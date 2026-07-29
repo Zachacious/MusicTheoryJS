@@ -18,6 +18,19 @@
 
 import { ChordTypeData } from "./types";
 
+/**
+ * The alias used when printing `type` in a chord symbol, chosen by the rules
+ * above. The major triad prints as the empty string.
+ *
+ * @example
+ * ```ts
+ * import { chordDisplayAlias, resolveChordQuality } from "musictheoryjs";
+ *
+ * chordDisplayAlias(resolveChordQuality("half-diminished")); // => "m7b5"
+ * chordDisplayAlias(resolveChordQuality("minor")); // => "m"
+ * chordDisplayAlias(resolveChordQuality("major")); // => ""
+ * ```
+ */
 export function chordDisplayAlias(type: ChordTypeData): string {
   if (type.aliases.includes("")) return "";
   const ascii = type.aliases.filter(

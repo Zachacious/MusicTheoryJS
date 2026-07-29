@@ -39,7 +39,17 @@ export interface RomanNumeral {
   readonly secondary: RomanNumeral | null;
 }
 
-/** Structural type guard for `RomanNumeral`-shaped values. */
+/**
+ * Structural type guard for `RomanNumeral`-shaped values.
+ *
+ * @example
+ * ```ts
+ * import { isRomanNumeral, romanNumeral } from "musictheoryjs";
+ *
+ * isRomanNumeral(romanNumeral("bVII")); // => true
+ * isRomanNumeral("bVII"); // => false
+ * ```
+ */
 export function isRomanNumeral(value: unknown): value is RomanNumeral {
   if (typeof value !== "object" || value === null) return false;
   const r = value as Record<string, unknown>;
@@ -196,6 +206,18 @@ function parseRoman(input: string): RomanNumeral {
 /**
  * Parse a roman numeral (`"V7"`, `"iiø7"`, `"bVII"`, `"V65"`, `"V7/V"`) or
  * normalize a `RomanNumeral` object; throws `MusicTheoryError` on failure.
+ *
+ * @example
+ * ```ts
+ * import { romanNumeral } from "musictheoryjs";
+ *
+ * const r = romanNumeral("V7/V");
+ * r.degree; // => 5
+ * r.secondary.symbol; // => "V"
+ * romanNumeral("iiø7").chordType; // => "half-diminished"
+ * romanNumeral("V65").inversion; // => 1
+ * romanNumeral("Vx9q"); // => throws "Unknown chord quality"
+ * ```
  */
 export function romanNumeral(input: string | RomanNumeral): RomanNumeral {
   if (isRomanNumeral(input)) return parseRoman(input.symbol);
@@ -207,7 +229,17 @@ export function romanNumeral(input: string | RomanNumeral): RomanNumeral {
   return parseRoman(input);
 }
 
-/** Soft-failure variant of `romanNumeral()`: returns `null` on failure. */
+/**
+ * Soft-failure variant of `romanNumeral()`: returns `null` on failure.
+ *
+ * @example
+ * ```ts
+ * import { tryRomanNumeral } from "musictheoryjs";
+ *
+ * tryRomanNumeral("iiø7").chordType; // => "half-diminished"
+ * tryRomanNumeral("nope"); // => null
+ * ```
+ */
 export function tryRomanNumeral(
   input: string | RomanNumeral
 ): RomanNumeral | null {
@@ -236,6 +268,16 @@ function degreeRoot(tonic: Pitch, degree: number, accidental: number): Pitch {
  * "C major")` is G7 over B. Degrees are measured from the tonic's major
  * scale, so `"bVII"` in any key is the flattened seventh degree; secondary
  * functions resolve against the tonicized degree recursively.
+ *
+ * @example
+ * ```ts
+ * import { romanToChord } from "musictheoryjs";
+ *
+ * romanToChord("V7/V", "C major").symbol; // => "D7"
+ * romanToChord("ii7", "Eb major").symbol; // => "Fm7"
+ * romanToChord("V65", "C major").symbol; // => "G7/B"
+ * romanToChord("iiø7", "c minor").symbol; // => "Dm7b5"
+ * ```
  */
 export function romanToChord(
   romanInput: string | RomanNumeral,
@@ -344,6 +386,16 @@ function wrapDelta(delta: number): number {
  * (`D7` in C major → `"V7/V"`, `D` major → `"V/V"`); everything else renders
  * with accidentals (`Ab` in C major → `"bVI"`). A slash bass that is a chord
  * member becomes an inversion figure (`G7/B` → `"V65"`).
+ *
+ * @example
+ * ```ts
+ * import { chordToRoman } from "musictheoryjs";
+ *
+ * chordToRoman("Dm7", "C major").symbol; // => "ii7"
+ * chordToRoman("D7", "C major").symbol; // => "V7/V"
+ * chordToRoman("G7/B", "C major").symbol; // => "V65"
+ * chordToRoman("Ab", "C major").symbol; // => "bVI"
+ * ```
  */
 export function chordToRoman(
   chordInput: string | Chord,

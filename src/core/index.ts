@@ -11,6 +11,7 @@ export {
   type Step,
   STEP_SEMITONES,
   chroma,
+  fifthsIndex,
   freq,
   fromFreq,
   fromMidi,

@@ -120,6 +120,16 @@ function tokenize(input: string | readonly string[]): string[] {
  * ("ii7", "V65", "V7/V"), a chord symbol ("Dm7", "G7/B"), or "N.C.".
  * Every step carries both views (chord and numeral) plus a T/SD/D tag:
  * `parseProgression("C major", "ii7 V7 Imaj7")`.
+ *
+ * @example
+ * ```ts
+ * import { parseProgression } from "musictheoryjs";
+ *
+ * const steps = parseProgression("C major", "Dm7 | G7 | Cmaj7");
+ * steps.map((s) => s.roman.symbol); // => ["ii7", "V7", "Imaj7"]
+ * steps.map((s) => s.function); // => ["SD", "D", "T"]
+ * parseProgression("C major", ["N.C.", "A7"])[1].roman.symbol; // => "V7/ii"
+ * ```
  */
 export function parseProgression(
   keyInput: string | Key,
@@ -133,6 +143,14 @@ export function parseProgression(
  * Resolve roman numerals to chord symbols in a key:
  * `progressionChords("C major", ["ii7", "V7", "Imaj7"])` →
  * `["Dm7", "G7", "Cmaj7"]`. "N.C." slots pass through unchanged.
+ *
+ * @example
+ * ```ts
+ * import { progressionChords } from "musictheoryjs";
+ *
+ * progressionChords("Bb major", ["ii7", "V7", "Imaj7"]); // => ["Cm7", "F7", "Bbmaj7"]
+ * progressionChords("F major", ["I", "V7/ii", "ii7", "V7"]); // => ["F", "D7", "Gm7", "C7"]
+ * ```
  */
 export function progressionChords(
   keyInput: string | Key,
@@ -147,6 +165,14 @@ export function progressionChords(
  * Analyze chord symbols as roman numerals in a key:
  * `progressionRomans("C major", ["Dm7", "G7", "Cmaj7"])` →
  * `["ii7", "V7", "Imaj7"]`. Applied dominants are detected ("D7" → "V7/V").
+ *
+ * @example
+ * ```ts
+ * import { progressionRomans } from "musictheoryjs";
+ *
+ * progressionRomans("C major", ["Dm7", "G7", "Cmaj7"]); // => ["ii7", "V7", "Imaj7"]
+ * progressionRomans("C major", ["C", "A7", "Dm7", "G7"]); // => ["I", "V7/ii", "ii7", "V7"]
+ * ```
  */
 export function progressionRomans(
   keyInput: string | Key,
@@ -218,6 +244,16 @@ function candidatePool(k: Key): string[] {
  * and resolution of a pending applied dominant, so results discriminate:
  * after `["ii7"]` in C major, G7 ranks strictly first. With an empty
  * progression, tonic-function chords lead.
+ *
+ * @example
+ * ```ts
+ * import { suggestNextChords } from "musictheoryjs";
+ *
+ * const next = suggestNextChords("C major", ["Dm7"]);
+ * next[0].symbol; // => "G7"
+ * next[0].function; // => "D"
+ * suggestNextChords("C major", "ii7 V7", { maxResults: 3 }).map((s) => s.symbol); // => ["Cmaj7", "Am7", "Em7"]
+ * ```
  */
 export function suggestNextChords(
   keyInput: string | Key,

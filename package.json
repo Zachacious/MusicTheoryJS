@@ -1,29 +1,144 @@
 {
   "name": "musictheoryjs",
-  "version": "3.0.0",
-  "private": true,
-  "description": "A tree-shakable music theory library",
+  "version": "3.1.0",
+  "description": "A music theory library built on a spelled-pitch core: exact enharmonics, chords, scales, keys, roman numerals, progressions, voice leading, key detection — and first-class microtonality and tuning systems.",
   "type": "module",
-  "main": "dist/musictheory.cjs",
-  "module": "dist/musictheory.esm.js",
-  "types": "dist/musictheory.d.ts",
+  "main": "./dist/cjs/index.cjs",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/musictheory.d.ts",
-      "import": "./dist/musictheory.esm.js",
-      "require": "./dist/musictheory.cjs",
-      "default": "./dist/musictheory.esm.js"
-    }
+      "import": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/types/index.d.cts",
+        "default": "./dist/cjs/index.cjs"
+      }
+    },
+    "./core": {
+      "import": {
+        "types": "./dist/types/core.d.ts",
+        "default": "./dist/esm/core.js"
+      },
+      "require": {
+        "types": "./dist/types/core.d.cts",
+        "default": "./dist/cjs/core.cjs"
+      }
+    },
+    "./pcset": {
+      "import": {
+        "types": "./dist/types/pcset.d.ts",
+        "default": "./dist/esm/pcset.js"
+      },
+      "require": {
+        "types": "./dist/types/pcset.d.cts",
+        "default": "./dist/cjs/pcset.cjs"
+      }
+    },
+    "./dict": {
+      "import": {
+        "types": "./dist/types/dict.d.ts",
+        "default": "./dist/esm/dict.js"
+      },
+      "require": {
+        "types": "./dist/types/dict.d.cts",
+        "default": "./dist/cjs/dict.cjs"
+      }
+    },
+    "./chord": {
+      "import": {
+        "types": "./dist/types/chord.d.ts",
+        "default": "./dist/esm/chord.js"
+      },
+      "require": {
+        "types": "./dist/types/chord.d.cts",
+        "default": "./dist/cjs/chord.cjs"
+      }
+    },
+    "./scale": {
+      "import": {
+        "types": "./dist/types/scale.d.ts",
+        "default": "./dist/esm/scale.js"
+      },
+      "require": {
+        "types": "./dist/types/scale.d.cts",
+        "default": "./dist/cjs/scale.cjs"
+      }
+    },
+    "./key": {
+      "import": {
+        "types": "./dist/types/key.d.ts",
+        "default": "./dist/esm/key.js"
+      },
+      "require": {
+        "types": "./dist/types/key.d.cts",
+        "default": "./dist/cjs/key.cjs"
+      }
+    },
+    "./roman": {
+      "import": {
+        "types": "./dist/types/roman.d.ts",
+        "default": "./dist/esm/roman.js"
+      },
+      "require": {
+        "types": "./dist/types/roman.d.cts",
+        "default": "./dist/cjs/roman.cjs"
+      }
+    },
+    "./progression": {
+      "import": {
+        "types": "./dist/types/progression.d.ts",
+        "default": "./dist/esm/progression.js"
+      },
+      "require": {
+        "types": "./dist/types/progression.d.cts",
+        "default": "./dist/cjs/progression.cjs"
+      }
+    },
+    "./harmony": {
+      "import": {
+        "types": "./dist/types/harmony.d.ts",
+        "default": "./dist/esm/harmony.js"
+      },
+      "require": {
+        "types": "./dist/types/harmony.d.cts",
+        "default": "./dist/cjs/harmony.cjs"
+      }
+    },
+    "./micro": {
+      "import": {
+        "types": "./dist/types/micro.d.ts",
+        "default": "./dist/esm/micro.js"
+      },
+      "require": {
+        "types": "./dist/types/micro.d.cts",
+        "default": "./dist/cjs/micro.cjs"
+      }
+    },
+    "./tuning": {
+      "import": {
+        "types": "./dist/types/tuning.d.ts",
+        "default": "./dist/esm/tuning.js"
+      },
+      "require": {
+        "types": "./dist/types/tuning.d.cts",
+        "default": "./dist/cjs/tuning.cjs"
+      }
+    },
+    "./package.json": "./package.json"
   },
   "files": [
     "dist",
     "README.md",
+    "MIGRATION.md",
     "LICENSE.txt"
   ],
   "sideEffects": false,
   "scripts": {
     "dev": "rollup -c -w",
-    "build": "npm run clean && npm run build:types && rollup -c",
+    "build": "npm run clean && npm run build:types && rollup -c && rimraf dist/types-tmp",
     "build:types": "tsc -p tsconfig.build.json",
     "clean": "rimraf dist",
     "test": "vitest run",
@@ -32,13 +147,29 @@
     "typecheck": "tsc --noEmit",
     "generate:dict": "bun scripts/generate-dictionaries.ts",
     "prepublishOnly": "npm run typecheck && npm run test && npm run build",
-    "docs": "typedoc"
+    "docs": "sed \"s|media/mjsv3.png|media/music_theory_js_1.jpg|\" README.md > .typedoc-readme.md && typedoc --readme .typedoc-readme.md && rm .typedoc-readme.md",
+    "bench": "bun bench/bench.ts",
+    "smoke-test": "bash scripts/smoke-test.sh"
   },
   "keywords": [
     "music",
-    "theory",
-    "javascript",
-    "typescript"
+    "music-theory",
+    "typescript",
+    "notes",
+    "intervals",
+    "chords",
+    "scales",
+    "keys",
+    "roman-numerals",
+    "progressions",
+    "voice-leading",
+    "microtonal",
+    "tuning",
+    "temperament",
+    "just-intonation",
+    "EDO",
+    "midi",
+    "pitch"
   ],
   "author": "Zach Moore",
   "license": "ISC",
@@ -57,10 +188,50 @@
     "rollup": "^4.40.2",
     "rollup-plugin-dts": "^6.2.1",
     "rollup-plugin-typescript2": "^0.36.0",
+    "tinybench": "^6.1.2",
     "tonal": "6.4.3",
     "typedoc": "^0.28.4",
     "typedoc-material-theme": "^1.4.0",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"
+  },
+  "unpkg": "./dist/musictheory.umd.min.js",
+  "jsdelivr": "./dist/musictheory.umd.min.js",
+  "typesVersions": {
+    "*": {
+      "core": [
+        "./dist/types/core.d.ts"
+      ],
+      "pcset": [
+        "./dist/types/pcset.d.ts"
+      ],
+      "dict": [
+        "./dist/types/dict.d.ts"
+      ],
+      "chord": [
+        "./dist/types/chord.d.ts"
+      ],
+      "scale": [
+        "./dist/types/scale.d.ts"
+      ],
+      "key": [
+        "./dist/types/key.d.ts"
+      ],
+      "roman": [
+        "./dist/types/roman.d.ts"
+      ],
+      "progression": [
+        "./dist/types/progression.d.ts"
+      ],
+      "harmony": [
+        "./dist/types/harmony.d.ts"
+      ],
+      "micro": [
+        "./dist/types/micro.d.ts"
+      ],
+      "tuning": [
+        "./dist/types/tuning.d.ts"
+      ]
+    }
   }
 }

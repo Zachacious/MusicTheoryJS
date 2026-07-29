@@ -1,5 +1,17 @@
 {
-  "entryPoints": ["src/index.ts"],
+  "entryPoints": [
+    "src/core/index.ts",
+    "src/pcset/index.ts",
+    "src/dict/index.ts",
+    "src/chord/index.ts",
+    "src/scale/index.ts",
+    "src/key/index.ts",
+    "src/roman/index.ts",
+    "src/progression/index.ts",
+    "src/harmony/index.ts",
+    "src/micro/index.ts",
+    "src/tuning/index.ts"
+  ],
   "out": "docs",
   "name": "MusicTheoryJS",
   "includeVersion": true,
@@ -11,7 +23,6 @@
   "theme": "default",
   "readme": "README.md",
   "categorizeByGroup": true,
-  "categoryOrder": ["Note", "Scale", "Chord", "Tuning", "*"],
   "navigation": {
     "includeCategories": true,
     "includeGroups": true

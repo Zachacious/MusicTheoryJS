@@ -14,7 +14,15 @@
  * ~23.46¢; in 12-EDO (s = 700) by nothing — 12-EDO is just the default.
  */
 
-import { MusicTheoryError, Pitch, distance, note, noteName, pitch } from "../core";
+import {
+  MusicTheoryError,
+  Pitch,
+  distance,
+  fifthsIndex,
+  note,
+  noteName,
+  pitch,
+} from "../core";
 import { justRatio, ratioToCents } from "../micro";
 
 /** An immutable tuning system. Offsets are normalized so `offset(A) === 0`. */
@@ -31,7 +39,17 @@ export interface Tuning {
   readonly offset: (pitchClass: string | Pitch) => number;
 }
 
-/** Structural type guard for `Tuning`-shaped values. */
+/**
+ * Structural type guard for `Tuning`-shaped values.
+ *
+ * @example
+ * ```ts
+ * import { isTuning, meantoneTuning } from "musictheoryjs";
+ *
+ * isTuning(meantoneTuning()); // => true
+ * isTuning("meantone"); // => false
+ * ```
+ */
 export function isTuning(value: unknown): value is Tuning {
   if (typeof value !== "object" || value === null) return false;
   const t = value as Record<string, unknown>;
@@ -42,18 +60,7 @@ export function isTuning(value: unknown): value is Tuning {
   );
 }
 
-/** Position of each natural letter on the chain of fifths from C. */
-const FIFTHS_OF_STEP: readonly number[] = [0, 2, 4, -1, 1, 3, 5];
-
-/**
- * Position of a spelled pitch class on the chain of fifths from C: C = 0,
- * G = 1, F = −1, G# = +8, Ab = −4. This is what makes spelled temperaments
- * possible — enharmonic spellings land on different chain positions.
- */
-export function fifthsIndex(input: string | Pitch): number {
-  const p = note(input);
-  return FIFTHS_OF_STEP[p.step] + 7 * p.alt;
-}
+export { fifthsIndex } from "../core";
 
 /** 3:2 in cents: 701.955… */
 export const PURE_FIFTH_CENTS = ratioToCents(3 / 2);
@@ -101,7 +108,18 @@ export interface TuningOptions {
   readonly a4?: number;
 }
 
-/** Standard 12-tone equal temperament: every offset is 0. */
+/**
+ * Standard 12-tone equal temperament: every offset is 0.
+ *
+ * @example
+ * ```ts
+ * import { equalTemperament, frequency } from "musictheoryjs";
+ *
+ * equalTemperament().offset("G#"); // => 0
+ * equalTemperament().offset("Ab"); // => 0
+ * frequency("C4", equalTemperament({ a4: 432 })); // => ~256.87
+ * ```
+ */
 export function equalTemperament(options?: TuningOptions): Tuning {
   return fifthGenerated(
     "equal",
@@ -111,7 +129,19 @@ export function equalTemperament(options?: TuningOptions): Tuning {
   );
 }
 
-/** Pythagorean tuning: pure 3:2 fifths; G# and Ab differ by ~23.46¢. */
+/**
+ * Pythagorean tuning: pure 3:2 fifths; G# and Ab differ by ~23.46¢.
+ *
+ * @example
+ * ```ts
+ * import { pythagoreanTuning } from "musictheoryjs";
+ *
+ * const pyth = pythagoreanTuning();
+ * pyth.offset("G#"); // => ~9.775
+ * pyth.offset("Ab"); // => ~-13.685
+ * pyth.offset("G#") - pyth.offset("Ab"); // => ~23.46
+ * ```
+ */
 export function pythagoreanTuning(options?: TuningOptions): Tuning {
   return fifthGenerated(
     "pythagorean",
@@ -130,6 +160,16 @@ export interface MeantoneOptions extends TuningOptions {
  * Meantone temperament: fifths narrowed by a fraction of the syntonic comma
  * (default quarter-comma, which makes major thirds pure 5:4 and separates
  * G# from Ab by the great diesis, ~41.06¢).
+ *
+ * @example
+ * ```ts
+ * import { meantoneTuning } from "musictheoryjs";
+ *
+ * const mt = meantoneTuning();
+ * mt.offset("G#"); // => ~-17.11
+ * mt.offset("Ab"); // => ~23.95
+ * mt.offset("E") - mt.offset("C"); // => ~-13.69
+ * ```
  */
 export function meantoneTuning(options?: MeantoneOptions): Tuning {
   const fraction = options?.commaFraction ?? 1 / 4;
@@ -151,6 +191,15 @@ export function meantoneTuning(options?: MeantoneOptions): Tuning {
  * approximation of 3:2, and every spelled pitch follows the chain of fifths.
  * `edoTuning(12)` is equal temperament; in `edoTuning(19)` and
  * `edoTuning(31)` sharp and flat spellings are genuinely different steps.
+ *
+ * @example
+ * ```ts
+ * import { edoTuning } from "musictheoryjs";
+ *
+ * edoTuning(19).name; // => "19-EDO"
+ * edoTuning(12).offset("G#"); // => 0
+ * edoTuning(19).offset("Ab") - edoTuning(19).offset("G#"); // => ~63.16
+ * ```
  */
 export function edoTuning(divisions: number, options?: TuningOptions): Tuning {
   if (!Number.isInteger(divisions) || divisions <= 0) {
@@ -177,6 +226,16 @@ export interface JustTuningOptions extends TuningOptions {
  * its exact `JUST_RATIOS` ratio above the tonic (full precision — E above C
  * is −13.686¢, not −14). Throws for spellings whose interval from the tonic
  * has no defined ratio.
+ *
+ * @example
+ * ```ts
+ * import { justTuning, frequency } from "musictheoryjs";
+ *
+ * const just = justTuning();
+ * frequency("E4", just) / frequency("C4", just); // => ~1.25
+ * justTuning({ tonic: "D" }).description; // => "5-limit just intonation on D"
+ * just.offset("B#"); // => throws "No just-intonation ratio"
+ * ```
  */
 export function justTuning(options?: JustTuningOptions): Tuning {
   const tonic = toPitchClass(options?.tonic ?? "C");

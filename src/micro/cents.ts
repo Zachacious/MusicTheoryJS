@@ -39,6 +39,15 @@ function assertFiniteCents(cents: number): void {
  * spelling (respelled with the given preference), the remainder becomes the
  * `cents` field. `addCents("C4", 250)` is D4 +50¢; `addCents("A4", -19)` is
  * A4 −19¢. Works on pitch classes too (the octave stays absent).
+ *
+ * @example
+ * ```ts
+ * import { addCents, microtonalName, noteName } from "musictheoryjs";
+ *
+ * microtonalName(addCents("C4", 50)); // => "C4+50c"
+ * microtonalName(addCents("C4", 250)); // => "D4+50c"
+ * noteName(addCents("C4", 100, { prefer: "flat" })); // => "Db4"
+ * ```
  */
 export function addCents(
   input: string | Pitch,
@@ -72,6 +81,16 @@ export function addCents(
  * own `cents` deviation. Between pitch classes the ascending distance within
  * one octave is returned; mixing a pitch class with an octave-specific note
  * throws (as with `distance`).
+ *
+ * @example
+ * ```ts
+ * import { centsBetween, addCents } from "musictheoryjs";
+ *
+ * centsBetween("C4", "G4"); // => 700
+ * centsBetween("A4", addCents("A4", 19)); // => 19
+ * centsBetween("G", "C"); // => 500
+ * centsBetween("C", "E4"); // => throws "pitch class"
+ * ```
  */
 export function centsBetween(
   fromInput: string | Pitch,
@@ -97,7 +116,18 @@ export function centsBetween(
   );
 }
 
-/** Frequency ratio → cents: `ratioToCents(2)` is 1200, `ratioToCents(3/2)` ≈ 701.955. */
+/**
+ * Frequency ratio → cents: `ratioToCents(2)` is 1200, `ratioToCents(3/2)` ≈ 701.955.
+ *
+ * @example
+ * ```ts
+ * import { ratioToCents } from "musictheoryjs";
+ *
+ * ratioToCents(2); // => 1200
+ * ratioToCents(3 / 2); // => ~701.955
+ * ratioToCents(5 / 4); // => ~386.31
+ * ```
+ */
 export function ratioToCents(ratio: number): number {
   if (!Number.isFinite(ratio) || ratio <= 0) {
     throw new MusicTheoryError(`Invalid ratio ${ratio}: must be a positive finite number.`);
@@ -105,7 +135,18 @@ export function ratioToCents(ratio: number): number {
   return CENTS_PER_OCTAVE * Math.log2(ratio);
 }
 
-/** Cents → frequency ratio: `centsToRatio(1200)` is 2. */
+/**
+ * Cents → frequency ratio: `centsToRatio(1200)` is 2.
+ *
+ * @example
+ * ```ts
+ * import { centsToRatio } from "musictheoryjs";
+ *
+ * centsToRatio(1200); // => 2
+ * centsToRatio(701.955); // => ~1.5
+ * centsToRatio(700); // => ~1.4983
+ * ```
+ */
 export function centsToRatio(cents: number): number {
   assertFiniteCents(cents);
   return Math.pow(2, cents / CENTS_PER_OCTAVE);
@@ -115,6 +156,15 @@ export function centsToRatio(cents: number): number {
  * Parse a frequency ratio given as a number (`1.5`), a fraction string
  * (`"3/2"`), or a decimal string (`"1.25"`). Throws unless the result is a
  * positive finite number. (The salvaged just-intonation ratio parsing.)
+ *
+ * @example
+ * ```ts
+ * import { parseRatio } from "musictheoryjs";
+ *
+ * parseRatio("3/2"); // => 1.5
+ * parseRatio(1.25); // => 1.25
+ * parseRatio("0"); // => throws "positive"
+ * ```
  */
 export function parseRatio(input: string | number): number {
   let value: number;
@@ -145,6 +195,15 @@ export function parseRatio(input: string | number): number {
  * Format a pitch including its cents deviation, which `noteName` drops:
  * `microtonalName(addCents("A4", 19.561))` is `"A4+19.56c"`. Deviations
  * under 0.005¢ are omitted.
+ *
+ * @example
+ * ```ts
+ * import { microtonalName, addCents, fromRatio } from "musictheoryjs";
+ *
+ * microtonalName(addCents("A4", -19)); // => "A4-19c"
+ * microtonalName(fromRatio("C4", "5/4")); // => "E4-13.69c"
+ * microtonalName("A4"); // => "A4"
+ * ```
  */
 export function microtonalName(input: string | Pitch): string {
   const p = note(input);

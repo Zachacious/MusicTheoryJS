@@ -15,6 +15,7 @@ export {
   tryChord,
 } from "./chord";
 export {
+  type ChordTokenizeFailure,
   type ChordTokens,
   chordDisplayAlias,
   resolveChordQuality,

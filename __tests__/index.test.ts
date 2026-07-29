@@ -13,6 +13,6 @@ describe("public API barrel", () => {
     expect(mt.romanToChord("V7/V", "C major").symbol).toBe("D7");
     expect(mt.progressionChords("C major", ["ii7", "V7", "Imaj7"])).toEqual(["Dm7", "G7", "Cmaj7"]);
     expect(mt.detectChords(["C", "Eb", "G", "Bb"])[0].symbol).toBe("Cm7");
-    expect(mt.VERSION).toBe("3.0.0");
+    expect(mt.VERSION).toBe("3.1.0");
   });
 });

@@ -53,7 +53,17 @@ export interface Scale {
   readonly chroma: Chroma;
 }
 
-/** Structural type guard for `Scale`-shaped values. */
+/**
+ * Structural type guard for `Scale`-shaped values.
+ *
+ * @example
+ * ```ts
+ * import { isScale, scale } from "musictheoryjs";
+ *
+ * isScale(scale("C major")); // => true
+ * isScale("C major"); // => false
+ * ```
+ */
 export function isScale(value: unknown): value is Scale {
   if (typeof value !== "object" || value === null) return false;
   const s = value as Record<string, unknown>;
@@ -120,6 +130,14 @@ function scaleTypeError(name: string): MusicTheoryError {
  * Create a scale from a name (`scale("C major")`, `scale("f# dorian")`), from
  * a tonic and type (`scale("Eb", "harmonic minor")`), or normalize an
  * existing `Scale`. Returns `null` on failure.
+ *
+ * @example
+ * ```ts
+ * import { tryScale } from "musictheoryjs";
+ *
+ * tryScale("F# dorian").name; // => "F# dorian"
+ * tryScale("C majr"); // => null
+ * ```
  */
 export function tryScale(input: string | Scale, type?: string): Scale | null {
   try {
@@ -134,6 +152,17 @@ export function tryScale(input: string | Scale, type?: string): Scale | null {
  * from a tonic and type (`scale("Eb", "dorian")`, tonic may be a `Pitch`), or
  * normalize an existing `Scale` object. Throws `MusicTheoryError` with a
  * suggestion for unknown types.
+ *
+ * @example
+ * ```ts
+ * import { scale } from "musictheoryjs";
+ *
+ * scale("C major").notes; // => ["C", "D", "E", "F", "G", "A", "B"]
+ * scale("Eb", "harmonic minor").notes; // => ["Eb", "F", "Gb", "Ab", "Bb", "Cb", "D"]
+ * scale("Cb major").notes; // => ["Cb", "Db", "Eb", "Fb", "Gb", "Ab", "Bb"]
+ * scale("C ionian").name; // => "C major"
+ * scale("C majr"); // => throws "did you mean"
+ * ```
  */
 export function scale(input: string | Scale | Pitch, type?: string): Scale {
   if (isScale(input)) {
@@ -208,6 +237,16 @@ function rotateToTonic(absolute: Chroma, tonic: Pitch): Chroma {
  * parent's spelled notes: `mode("C major", 2)` is D dorian with notes
  * D E F G A B C. When the rotation matches a dictionary type it is named
  * (type/aliases from the dictionary); otherwise `type` is `""`.
+ *
+ * @example
+ * ```ts
+ * import { mode } from "musictheoryjs";
+ *
+ * mode("C major", 2).name; // => "D dorian"
+ * mode("Eb major", 6).notes; // => ["C", "D", "Eb", "F", "G", "Ab", "Bb"]
+ * mode("C harmonic minor", 5).type; // => "phrygian dominant"
+ * mode("C major", 8); // => throws "Invalid mode degree"
+ * ```
  */
 export function mode(input: string | Scale, degree: number): Scale {
   const s = scale(input);
@@ -219,7 +258,16 @@ export function mode(input: string | Scale, degree: number): Scale {
   return modeFromNotes(s.notes.map(note), degree);
 }
 
-/** All modes of a scale, one per degree, in degree order. */
+/**
+ * All modes of a scale, one per degree, in degree order.
+ *
+ * @example
+ * ```ts
+ * import { modes } from "musictheoryjs";
+ *
+ * modes("C major").map((m) => m.name); // => ["C major", "D dorian", "E phrygian", "F lydian", "G mixolydian", "A minor", "B locrian"]
+ * ```
+ */
 export function modes(input: string | Scale): Scale[] {
   const s = scale(input);
   return s.notes.map((_, i) => modeFromNotes(s.notes.map(note), i + 1));
@@ -229,6 +277,14 @@ export function modes(input: string | Scale): Scale[] {
  * Octave-realized scale notes ascending from the tonic in the given octave:
  * `scaleNotes("C major", 4)` → ["C4", "D4", …, "B4"]. Without an octave,
  * returns the pitch-class names.
+ *
+ * @example
+ * ```ts
+ * import { scaleNotes } from "musictheoryjs";
+ *
+ * scaleNotes("A minor", 3); // => ["A3", "B3", "C4", "D4", "E4", "F4", "G4"]
+ * scaleNotes("Bb mixolydian"); // => ["Bb", "C", "D", "Eb", "F", "G", "Ab"]
+ * ```
  */
 export function scaleNotes(input: string | Scale, octave?: number): string[] {
   const s = scale(input);
@@ -243,6 +299,14 @@ export function scaleNotes(input: string | Scale, octave?: number): string[] {
  * 1-3-5-7 for `size` 4), as chord symbols: `scaleChords("C major", 4)` →
  * ["Cmaj7", "Dm7", "Em7", "Fmaj7", "G7", "Am7", "Bm7b5"]. Degrees whose stack
  * matches no dictionary chord type yield `""`.
+ *
+ * @example
+ * ```ts
+ * import { scaleChords } from "musictheoryjs";
+ *
+ * scaleChords("C major", 4); // => ["Cmaj7", "Dm7", "Em7", "Fmaj7", "G7", "Am7", "Bm7b5"]
+ * scaleChords("A harmonic minor", 3); // => ["Am", "Bdim", "Caug", "Dm", "E", "F", "G#dim"]
+ * ```
  */
 export function scaleChords(input: string | Scale, size: 3 | 4 = 3): string[] {
   const s = scale(input);
@@ -263,6 +327,15 @@ export function scaleChords(input: string | Scale, size: 3 | 4 = 3): string[] {
  * Brightness as a comparable number: the sum of semitone sizes of the scale's
  * intervals. Higher is brighter — lydian > major > mixolydian > dorian >
  * minor > phrygian > locrian.
+ *
+ * @example
+ * ```ts
+ * import { scaleBrightness } from "musictheoryjs";
+ *
+ * scaleBrightness("C lydian"); // => 39
+ * scaleBrightness("C major"); // => 38
+ * scaleBrightness("C minor"); // => 35
+ * ```
  */
 export function scaleBrightness(input: string | Scale): number {
   const s = scale(input);

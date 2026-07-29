@@ -49,6 +49,17 @@ function getRegistry(): Map<string, Tuning> {
  * Register a tuning under its `name`, making it available to `frequency()`
  * and `pitchBend()` by that name. Re-registering a name replaces it.
  * Invalid tunings throw — there is no silent failure path.
+ *
+ * @example
+ * ```ts
+ * import { registerTuning, equalTemperament, frequency, tuningNames } from "musictheoryjs";
+ *
+ * // Any { name, description, a4, offset() } object works; the registry is global.
+ * registerTuning({ ...equalTemperament({ a4: 432 }), name: "doctest-well" });
+ * frequency("A4", "doctest-well"); // => 432
+ * frequency("C4", "doctest-well"); // => ~256.87
+ * tuningNames().includes("doctest-well"); // => true
+ * ```
  */
 export function registerTuning(tuning: Tuning): void {
   if (!isTuning(tuning) || tuning.name === "") {
@@ -64,12 +75,33 @@ export function registerTuning(tuning: Tuning): void {
   getRegistry().set(tuning.name, Object.isFrozen(tuning) ? tuning : Object.freeze({ ...tuning }));
 }
 
-/** Look up a registered tuning by name; `null` when absent. */
+/**
+ * Look up a registered tuning by name; `null` when absent.
+ *
+ * @example
+ * ```ts
+ * import { getTuning } from "musictheoryjs";
+ *
+ * getTuning("meantone").name; // => "meantone"
+ * getTuning("meantone").a4; // => 440
+ * getTuning("no-such-tuning"); // => null
+ * ```
+ */
 export function getTuning(name: string): Tuning | null {
   return getRegistry().get(name) ?? null;
 }
 
-/** Names of all registered tunings (built-ins plus registered customs). */
+/**
+ * Names of all registered tunings (built-ins plus registered customs).
+ *
+ * @example
+ * ```ts
+ * import { tuningNames } from "musictheoryjs";
+ *
+ * tuningNames().slice(0, 4); // => ["equal", "pythagorean", "meantone", "just"]
+ * tuningNames().includes("24-EDO"); // => true
+ * ```
+ */
 export function tuningNames(): string[] {
   return [...getRegistry().keys()];
 }
@@ -78,6 +110,16 @@ export function tuningNames(): string[] {
  * Resolve a tuning argument: a `Tuning` object passes through, a name is
  * looked up in the registry (throwing with a suggestion when unknown), and
  * `undefined` means standard equal temperament at A4 = 440.
+ *
+ * @example
+ * ```ts
+ * import { resolveTuning, meantoneTuning } from "musictheoryjs";
+ *
+ * resolveTuning().name; // => "equal"
+ * resolveTuning("just").name; // => "just"
+ * resolveTuning(meantoneTuning({ a4: 415 })).a4; // => 415
+ * resolveTuning("pythagorian"); // => throws "did you mean"
+ * ```
  */
 export function resolveTuning(input?: string | Tuning): Tuning {
   if (input === undefined) return DEFAULT_TUNING;
@@ -102,6 +144,15 @@ export function resolveTuning(input?: string | Tuning): Tuning {
  * class (the note's own `cents` field is not included):
  * `tuningOffset("G#4", "meantone")` ≈ −17.1, `tuningOffset("Ab4", "meantone")`
  * ≈ +24.0 — spelled pitches, different offsets.
+ *
+ * @example
+ * ```ts
+ * import { tuningOffset } from "musictheoryjs";
+ *
+ * tuningOffset("G#4", "meantone"); // => ~-17.11
+ * tuningOffset("Ab4", "meantone"); // => ~23.95
+ * tuningOffset("Ab4"); // => 0
+ * ```
  */
 export function tuningOffset(
   input: string | Pitch,
@@ -117,6 +168,17 @@ export function tuningOffset(
  * now correct). Includes the note's own `cents` deviation and the tuning's
  * spelled-pitch offset. `null` for pitch classes. Accepts registered names:
  * `frequency("E4", "just")`.
+ *
+ * @example
+ * ```ts
+ * import { frequency, equalTemperament } from "musictheoryjs";
+ *
+ * frequency("A4"); // => 440
+ * frequency("C4", equalTemperament({ a4: 432 })); // => ~256.87
+ * frequency("G#4", "meantone"); // => ~411.22
+ * frequency("Ab4", "meantone"); // => ~421.09
+ * frequency("C"); // => null
+ * ```
  */
 export function frequency(
   input: string | Pitch,
@@ -140,6 +202,16 @@ export interface PitchBendOptions {
  * total deviation — its own `cents` plus the tuning's spelled-pitch offset —
  * within the given bend range (default ±2 semitones): `pitchBend("A4")` is
  * 8192, `pitchBend("E4", "just")` is 8272. Values beyond the range clamp.
+ *
+ * @example
+ * ```ts
+ * import { pitchBend, addCents } from "musictheoryjs";
+ *
+ * pitchBend("A4"); // => 8192
+ * pitchBend("E4", "just"); // => 8272
+ * pitchBend(addCents("C4", 50)); // => 10240
+ * pitchBend(addCents("C4", 50), undefined, { range: 1 }); // => 12288
+ * ```
  */
 export function pitchBend(
   input: string | Pitch,

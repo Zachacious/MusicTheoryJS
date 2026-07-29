@@ -39,13 +39,35 @@ function buildIndex<T extends { name: string; aliases: readonly string[] }>(
   return index;
 }
 
-/** Look up a chord type by name ("major seventh") or alias ("maj7", "Δ"). */
+/**
+ * Look up a chord type by name ("major seventh") or alias ("maj7", "Δ").
+ *
+ * @example
+ * ```ts
+ * import { getChordType } from "musictheoryjs";
+ *
+ * getChordType("maj7").intervals; // => ["P1", "M3", "P5", "M7"]
+ * getChordType("Δ").name; // => "major seventh"
+ * getChordType("no such chord"); // => null
+ * ```
+ */
 export function getChordType(nameOrAlias: string): ChordTypeData | null {
   if (chordIndex === null) chordIndex = buildIndex(CHORD_TYPES);
   return chordIndex.get(nameOrAlias) ?? null;
 }
 
-/** Look up a scale type by name ("major") or alias ("ionian"). */
+/**
+ * Look up a scale type by name ("major") or alias ("ionian").
+ *
+ * @example
+ * ```ts
+ * import { getScaleType } from "musictheoryjs";
+ *
+ * getScaleType("dorian").intervals; // => ["P1", "M2", "m3", "P4", "P5", "M6", "m7"]
+ * getScaleType("ionian").name; // => "major"
+ * getScaleType("no such scale"); // => null
+ * ```
+ */
 export function getScaleType(nameOrAlias: string): ScaleTypeData | null {
   if (scaleIndex === null) scaleIndex = buildIndex(SCALE_TYPES);
   return scaleIndex.get(nameOrAlias) ?? null;
@@ -68,13 +90,35 @@ function buildChromaIndex<
   return index;
 }
 
-/** The chord type whose pitch-class set (root at bit 0) equals `chroma`. */
+/**
+ * The chord type whose pitch-class set (root at bit 0) equals `chroma`.
+ *
+ * @example
+ * ```ts
+ * import { getChordTypeByChroma, chromaFromNotes } from "musictheoryjs";
+ *
+ * getChordTypeByChroma(chromaFromNotes(["C", "Eb", "G", "Bb"])).name; // => "minor seventh"
+ * getChordTypeByChroma(chromaFromNotes(["C", "E", "G#"])).name; // => "augmented"
+ * ```
+ */
 export function getChordTypeByChroma(chroma: number): ChordTypeData | null {
   if (chordChromaIndex === null) chordChromaIndex = buildChromaIndex(CHORD_TYPES);
   return chordChromaIndex.get(chroma) ?? null;
 }
 
-/** The scale type whose pitch-class set (tonic at bit 0) equals `chroma`. */
+/**
+ * The scale type whose pitch-class set (tonic at bit 0) equals `chroma`.
+ *
+ * @example
+ * ```ts
+ * import { getScaleTypeByChroma, chromaFromNotes } from "musictheoryjs";
+ *
+ * getScaleTypeByChroma(chromaFromNotes(["C", "D", "Eb", "F", "G", "Ab", "B"])).name; // => "harmonic minor"
+ * getScaleTypeByChroma(0b101010110101).name; // => "major"
+ * // 145 is a triad chroma; no scale type matches it:
+ * getScaleTypeByChroma(145); // => null
+ * ```
+ */
 export function getScaleTypeByChroma(chroma: number): ScaleTypeData | null {
   if (scaleChromaIndex === null) scaleChromaIndex = buildChromaIndex(SCALE_TYPES);
   return scaleChromaIndex.get(chroma) ?? null;

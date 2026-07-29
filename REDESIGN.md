@@ -1,7 +1,7 @@
 # MusicTheoryJS v3 — Audit, Architecture & Roadmap
 
-> Status: **planning — approved direction, not yet started**
-> Date: 2026-07-28
+> Status: **complete — phases 0–6 shipped; `3.1.0` prepared for publish** (3.1.0 rather than 3.0.x: the defective legacy v3 was already published as 3.0.0–3.0.2)
+> Date: 2026-07-28 (roadmap approved); phases 0–6 completed 2026-07-28/29
 > Goal: ship the best music-theory library in the JavaScript ecosystem — correct where the incumbents are correct, richer where they're thin, faster where it counts, and unmatched in the areas they don't cover at all.
 
 ---
