@@ -7,3 +7,6 @@ coverage/
 .vscode/
 
 # The docs/ Astro project manages its own build artifacts via docs/.gitignore.
+
+# playwright-cli browser-session artifacts
+.playwright-cli/

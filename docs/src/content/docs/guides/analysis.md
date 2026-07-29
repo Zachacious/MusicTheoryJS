@@ -145,3 +145,15 @@ The pieces that produce a `NoteStream` — reading a MIDI file, or detecting a
 pitch from audio samples — live in the [MIDI](/guides/midi/) and
 [Audio](/guides/audio/) modules. `Note.fromMidi` and `Note.fromFrequency` bridge
 raw numbers into spelled notes.
+
+## Try it live
+
+```ts live
+const melody = [
+  { pitch: "C4", start: 0, duration: 0.4 },
+  { pitch: "E4", start: 0.4, duration: 0.4 },
+  { pitch: "G4", start: 0.8, duration: 0.6 },
+];
+log("key:", detectKey(["C4", "E4", "G4"])[0].key.toString());
+play(melody);
+```

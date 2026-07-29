@@ -170,3 +170,12 @@ detectChord(["E4", "G#4", "C5"])?.root.letter;      // "C" (aug, roots on bass)
 Feed a detected chord into a [`Key`](/guides/keys/) to get its Roman numeral, or
 segment a whole performance into a chord timeline — see
 [Analysis](/guides/analysis/).
+
+## Try it live
+
+```ts live
+const chord = Chord.from("Cmaj9");
+log(chord.noteNames());
+log("drop 2:", drop2(chord).map(String));
+play(chord);
+```

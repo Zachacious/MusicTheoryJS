@@ -146,3 +146,14 @@ the Scala format.
 To go the other way — from a detected/desired frequency to the nearest Western
 note — use `Note.fromFrequency` (see [Notes](/guides/notes/)) or the lower-level
 `PitchPoint` helpers.
+
+## Try it live
+
+Hear a maqam's neutral third — something 12-TET can't play:
+
+```ts live
+const rast = maqamTuning("rast");
+log("degree cents:", scaleFromTuning(rast).map((d) => d.cents));
+log("12-TET third vs just:", justDeviations()[4].difference.toFixed(2), "cents");
+play(scaleFromTuning(rast, { frequency: 264 }, true));
+```

@@ -98,3 +98,12 @@ intervalName(addIntervals(interval(3, "M"), interval(3, "m"))); // "P5"  (M3 + m
 const down5 = negateInterval(interval(5, "P"));
 new Note("C4").transpose(down5).toString(); // "F3"
 ```
+
+## Try it live
+
+```ts live
+const fifth = parseInterval("P5");
+log(new Note("C4").transpose(fifth).toString());
+log(intervalName(intervalFromSemitones(10)));
+play(["C4", new Note("C4").transpose(fifth)]);
+```

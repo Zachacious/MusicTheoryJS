@@ -1,0 +1,14 @@
+---
+/**
+ * Starlight Footer override: renders the default footer and loads the
+ * playground script that upgrades `.mtjs-live` blocks (see
+ * ../plugins/remark-live.mjs) into runnable examples on every docs page.
+ */
+import Default from "@astrojs/starlight/components/Footer.astro";
+---
+
+<Default><slot /></Default>
+
+<script>
+  import "../scripts/playground";
+</script>

@@ -111,9 +111,9 @@ Get music in and out in more forms.
 
 ## Phase 7 — Docs that play
 
-- [ ] Runnable examples in the guides — edit the code, hear or see the result —
+- [x] Runnable examples in the guides — edit the code, hear or see the result —
       using the library directly in the browser.
-- [ ] A migration guide from 2.x, verified by execution.
+- [x] A migration guide from 2.x, verified by execution.
 
 ## Not planned
 

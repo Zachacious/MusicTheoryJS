@@ -1,6 +1,8 @@
 /**
  * Doctest runner: every fenced ```ts block inside an `@example` JSDoc in
- * `src/**` and every ```ts fence in README.md is extracted and executed here.
+ * `src/**`, every ```ts fence in README.md and the docs migration guide, and
+ * every ```ts live playground fence in the docs guides is extracted and
+ * executed here.
  *
  * Conventions for example code (enforced by execution):
  * - `import { a, b } from "musictheoryjs"` (or a subpath) lines are validated
@@ -14,6 +16,9 @@
  * - Plain lines simply execute (and must not throw).
  * - Markdown fences tagged ```ts no-run are skipped (inputs that need real
  *   MIDI bytes or audio buffers).
+ * - Guide fences tagged ```ts live are the browser playground blocks; they
+ *   run here with no-op `log`/`play` stubs so a broken example fails CI even
+ *   though the real helpers only exist in the browser.
  *
  * A final ratchet test tracks which public functions still lack an example:
  * documenting one shrinks the list; adding an undocumented function without
@@ -134,8 +139,10 @@ function extractFromSource(file: string): {
   return { examples, documented };
 }
 
-/** All runnable ```ts fences in a markdown file. */
-function extractFromMarkdown(file: string): Example[] {
+/** All runnable ```ts fences in a markdown file. With `live`, only the
+ * ```ts live playground fences are taken; otherwise they are skipped along
+ * with ```ts no-run. */
+function extractFromMarkdown(file: string, live = false): Example[] {
   const text = readFileSync(file, "utf8");
   const rel = relative(ROOT, file);
   const examples: Example[] = [];
@@ -148,8 +155,9 @@ function extractFromMarkdown(file: string): Example[] {
     if (current === null) {
       const fence = /^```(\w+)?(.*)$/.exec(line.trim());
       if (fence && fence[1] === "ts") {
+        const meta = fence[2] ?? "";
         current = [];
-        skip = /\bno-run\b/.test(fence[2] ?? "");
+        skip = live ? !/\blive\b/.test(meta) : /\b(no-run|live)\b/.test(meta);
         startLine = i + 1;
       }
     } else if (line.trim() === "```") {
@@ -270,7 +278,10 @@ function __assert(
   expect(actual).toEqual(expected);
 }
 
-function runExample(example: Example): number {
+function runExample(
+  example: Example,
+  extraScope: Record<string, unknown> = {}
+): number {
   const withoutImports = stripImports(example.code, example.where);
   const { body, assertions } = instrument(withoutImports);
   // Sloppy-mode Function so `with` can expose the whole public API to the
@@ -280,7 +291,7 @@ function runExample(example: Example): number {
     "__assert",
     `with (__scope) {\n${body}\n}`
   );
-  fn(SCOPE, __assert);
+  fn({ ...SCOPE, ...extraScope }, __assert);
   return assertions;
 }
 
@@ -310,6 +321,33 @@ describe("doctest: README code fences", () => {
     it(`fence @ ${example.where}`, () => {
       runExample(example);
     });
+  }
+});
+
+const GUIDES = join(ROOT, "docs/src/content/docs/guides");
+
+describe("doctest: migration guide", () => {
+  for (const example of extractFromMarkdown(join(GUIDES, "migration.md"))) {
+    it(`fence @ ${example.where}`, () => {
+      // Migration snippets must actually assert their claims.
+      expect(runExample(example)).toBeGreaterThan(0);
+    });
+  }
+});
+
+/** Browser-only playground helpers, stubbed for headless execution. */
+const PLAYGROUND_STUBS: Record<string, unknown> = {
+  log: () => {},
+  play: () => {},
+};
+
+describe("doctest: guide live examples", () => {
+  for (const file of readdirSync(GUIDES).filter((f) => f.endsWith(".md"))) {
+    for (const example of extractFromMarkdown(join(GUIDES, file), true)) {
+      it(`fence @ ${example.where}`, () => {
+        runExample(example, PLAYGROUND_STUBS);
+      });
+    }
   }
 });
 

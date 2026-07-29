@@ -90,3 +90,9 @@ transcribed from audio, or a MIDI file's notes quantized through the
 One caveat by design: a tuplet split across a barline has no plain notation,
 so the exporters throw rather than guess — re-group the tuplet or change the
 meter.
+
+## Try it live
+
+```ts live
+log(toABC(Scale.from("C4", "major"), { title: "C major" }));
+```

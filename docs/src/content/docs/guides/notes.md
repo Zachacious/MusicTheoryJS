@@ -119,3 +119,14 @@ JSON:
 ```ts
 JSON.stringify({ n: new Note("Eb3") }); // '{"n":"Eb3"}'
 ```
+
+## Try it live
+
+Edit and run — `log` prints, `play` sounds the notes:
+
+```ts live
+const note = new Note("Eb4");
+log(note.toString(), "· midi", note.midi, "·", note.frequency.toFixed(2), "Hz");
+log("up a fifth:", note.transpose("P5").toString());
+play([note, note.transpose("M3"), note.transpose("P5")]);
+```

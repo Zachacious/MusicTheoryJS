@@ -129,3 +129,11 @@ quantizeMidi(midiFile, "16", { durations: true }); // whole file, in ticks
 `parseMidi` surfaces the first time-signature meta event as
 `file.timeSignature`, `writeMidi` emits one when set, and `noteStreamToMidi`
 accepts one — see the [MIDI guide](/guides/midi/).
+
+## Try it live
+
+```ts live
+log(durationName("q."), "=", wholeNotes("q."), "whole notes");
+log("7/8 groups as", beatGrouping("7/8"));
+log(tickToPosition(1500, "6/8"));
+```

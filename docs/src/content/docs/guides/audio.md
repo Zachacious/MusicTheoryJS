@@ -127,3 +127,17 @@ fft(re, im);
 [notation exporters](/guides/notation/). For polyphonic material, run a
 dedicated model in your app and pass its notes in — the theory side stays the
 same.
+
+## Try it live
+
+Synthesize a two-note melody in code, transcribe it back, and hear the result:
+
+```ts live
+const sr = 44100;
+const tone = (f, n) =>
+  Float64Array.from({ length: n }, (_, i) => Math.sin((2 * Math.PI * f * i) / sr));
+const audio = new Float64Array([...tone(440, 11025), ...tone(523.25, 11025)]);
+const notes = transcribeMelody(audio, sr);
+log(notes.map((e) => e.pitch.toString()));
+play(notes);
+```

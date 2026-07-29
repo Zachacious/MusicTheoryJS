@@ -120,3 +120,17 @@ secondsPerTick(480, 500000); // seconds per tick at 480 PPQ, 120 BPM
 - Multi-byte variable-length delta times
 
 Everything round-trips: `parseMidi(writeMidi(file))` reproduces the notes.
+
+## Try it live
+
+A full write → parse round-trip on real bytes, no file needed:
+
+```ts live
+const file = noteStreamToMidi(
+  [{ pitch: "C4", start: 0, duration: 0.5 }],
+  { timeSignature: "3/4" }
+);
+const back = parseMidi(writeMidi(file));
+log("ppq:", back.ppq, "· time signature:", formatTimeSignature(back.timeSignature));
+log(back.tracks[0].notes);
+```

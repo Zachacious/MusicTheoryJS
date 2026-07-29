@@ -1,7 +1,9 @@
 // @ts-check
+import { fileURLToPath } from "node:url";
 import { defineConfig, passthroughImageService } from "astro/config";
 import starlight from "@astrojs/starlight";
 import tailwindcss from "@tailwindcss/vite";
+import { remarkLive } from "./src/plugins/remark-live.mjs";
 
 export default defineConfig({
   site: "https://musictheoryjs.com",
@@ -12,6 +14,18 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss()],
+    resolve: {
+      alias: {
+        // The playground bundles the library straight from this repo's
+        // source, so live examples always match the checked-out code.
+        musictheoryjs: fileURLToPath(new URL("../src/index.ts", import.meta.url)),
+      },
+    },
+  },
+
+  markdown: {
+    // ```ts live fences become editable, runnable playground blocks.
+    remarkPlugins: [remarkLive],
   },
 
   integrations: [
@@ -21,6 +35,11 @@ export default defineConfig({
         "A music theory library for JavaScript and TypeScript: notes, scales, chords, keys, tunings, MIDI, and audio analysis — with real support for microtonal and non-Western music.",
       logo: { src: "./src/assets/logo.svg", alt: "MusicTheoryJS" },
       customCss: ["./src/styles/global.css"],
+      components: {
+        // Loads the playground script on every docs page (and still renders
+        // the stock footer).
+        Footer: "./src/components/Footer.astro",
+      },
       social: [
         {
           icon: "github",
@@ -34,6 +53,7 @@ export default defineConfig({
           items: [
             { label: "Getting started", slug: "guides/getting-started" },
             { label: "Core concepts", slug: "guides/concepts" },
+            { label: "Migrating from 2.x", slug: "guides/migration" },
           ],
         },
         {

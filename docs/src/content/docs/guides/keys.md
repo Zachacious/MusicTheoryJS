@@ -209,3 +209,18 @@ a.romanNumeral(Chord.from("C")); // "III"
 
 For full harmonic analysis of a performance — detecting the key, labelling a
 chord timeline, and finding cadences — see [Analysis](/guides/analysis/).
+
+## Try it live
+
+A ii–V–I in B♭, voiced and played on a timeline:
+
+```ts live
+const key = Key.major("Bb");
+const chords = key.progression("ii7 V7 Imaj7");
+log(chords.map(String));
+play(
+  chords.flatMap((c, i) =>
+    c.notes.map((n) => ({ pitch: n, start: i * 0.8, duration: 0.75 }))
+  )
+);
+```

@@ -181,3 +181,12 @@ import { Scale, interval } from "musictheoryjs";
 // A custom scale from spelled intervals
 new Scale("C4", [interval(1, "P"), interval(2, "M"), interval(3, "M")]);
 ```
+
+## Try it live
+
+```ts live
+const scale = Scale.from("A3", "harmonicMinor");
+log(scale.noteNames());
+log("3rd degree:", scale.degree(3).toString());
+play(scale);
+```

@@ -41,6 +41,20 @@ Chord.from("Cmaj7").noteNames();
 // ["C4", "E4", "G4", "B4"]
 ```
 
+## Try it right here
+
+Blocks like the one below run the real library in your browser — edit the
+code, press **Run**. `log(…)` prints to the panel underneath, `play(…)` plays
+notes, chords, and scales through your speakers, and the whole public API is
+already in scope. Every guide has at least one.
+
+```ts live
+const scale = Scale.from("D4", "dorian");
+log(scale.noteNames());
+log(Chord.from("Dm7").noteNames());
+play(scale);
+```
+
 If you read one more page, make it [Core concepts](/guides/concepts/).
 Two ideas there (spelled pitch, and tuning as something separate from spelling)
 explain why the rest of the API behaves the way it does.

@@ -30,10 +30,12 @@ Key.major("C").progression("ii7 V7 Imaj7");   // [Dm7, G7, Cmaj7]
 new Note("C4").transpose(interval(5, "P")).toString(); // "G4"
 ```
 
-**Docs:** https://musictheoryjs.com
+**Docs:** https://musictheoryjs.com — the guides have editable, runnable
+examples that play through your speakers.
 
 > v3 is a rewrite and is not API-compatible with v2. On v2, pin it or read the
-> migration notes before upgrading.
+> [migration guide](https://musictheoryjs.com/guides/migration/) before
+> upgrading — the v3 snippets on that page run as tests on every commit.
 
 ## Bundle size
 
