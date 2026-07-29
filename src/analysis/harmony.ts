@@ -5,10 +5,10 @@
  */
 
 import type { Chord } from "../chord/chord";
-import { Key } from "../key/key";
+import { Key, type KeyLike } from "../key/key";
 import { type ChordSpan, onsetTimes, segmentChords } from "./chords";
 import { detectKey, pitchClassWeightsFromStream } from "./key";
-import type { NoteStream } from "./types";
+import type { NoteStreamInput } from "./types";
 
 /** The diatonic scale degree (1–7) of a chord's root in `key`, or `null`. */
 function rootDegree(key: Key, chord: Chord): number | null {
@@ -90,11 +90,12 @@ export interface HarmonicAnalysis {
  * label each with a Roman numeral, and locate cadences.
  */
 export function analyzeHarmony(
-  stream: NoteStream,
-  options: { key?: Key; boundaries?: readonly number[] } = {}
+  stream: NoteStreamInput,
+  options: { key?: KeyLike; boundaries?: readonly number[] } = {}
 ): HarmonicAnalysis {
-  const key =
-    options.key ?? detectKey(pitchClassWeightsFromStream(stream))[0]?.key;
+  const key = options.key
+    ? Key.from(options.key)
+    : detectKey(pitchClassWeightsFromStream(stream))[0]?.key;
   if (!key) {
     return { key: Key.major("C"), timeline: [], cadences: [] };
   }

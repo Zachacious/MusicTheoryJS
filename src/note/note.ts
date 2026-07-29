@@ -16,6 +16,7 @@ import {
   intervalBetween,
   transpose,
 } from "../interval/interval";
+import { type IntervalLike, asInterval } from "../interval/parse";
 import { mod } from "../math/index";
 import { type FormatOptions, formatNote } from "../pitch/format";
 import { parseNote } from "../pitch/parse";
@@ -24,6 +25,7 @@ import {
   type PitchReference,
   point,
   fromFrequency as pointFromFrequency,
+  toFrequency as pointToFrequency,
 } from "../pitch/point";
 import {
   type Letter,
@@ -173,9 +175,19 @@ export class Note implements SpelledPitch {
     return point(chroma(this) * 100);
   }
 
-  /** Transpose by a spelled interval, keeping correct spelling. */
-  transpose(iv: Interval): Note {
-    return Note.of(transpose(this, iv));
+  /** Frequency in Hz under 12-TET with A4 = 440. For other tunings or
+   * references use `frequencyOfNote` from the tuning module. */
+  get frequency(): number {
+    return pointToFrequency(this.toPitchPoint());
+  }
+
+  /**
+   * Transpose by an interval, keeping correct spelling. Accepts a spelled
+   * {@link Interval}, an interval name (`"P5"`, `"-m3"`), or a bare semitone
+   * count (`3` → up a minor third).
+   */
+  transpose(iv: IntervalLike): Note {
+    return Note.of(transpose(this, asInterval(iv)));
   }
 
   /** Raise by `n` semitones of alteration (default 1), keeping the letter. */
@@ -235,9 +247,34 @@ export class Note implements SpelledPitch {
   toJSON(): string {
     return this.toString();
   }
+
+  /** Rebuild a note from its {@link toJSON} form: the notation string
+   * itself, or the JSON text of one (`'"C#4"'`). */
+  static fromJSON(json: string): Note {
+    return Note.from(json.startsWith('"') ? JSON.parse(json) : json);
+  }
 }
 
 /** Functional shorthand for `Note.from`. */
 export function note(input: string | NoteLike): Note {
   return Note.from(input);
+}
+
+/**
+ * Transpose every note in a list by the same interval (spelled interval,
+ * interval name, or semitone count), preserving order.
+ *
+ * @example
+ * ```ts
+ * import { transposeNotes } from "musictheoryjs";
+ * transposeNotes(["C4", "E4", "G4"], "M2").map(String); // => ["D4","F#4","A4"]
+ * transposeNotes(["C4", "E4"], -12).map(String); // => ["C3","E3"]
+ * ```
+ */
+export function transposeNotes(
+  notes: ReadonlyArray<Note | NoteLike | string>,
+  iv: IntervalLike
+): Note[] {
+  const interval = asInterval(iv);
+  return notes.map((n) => Note.from(n).transpose(interval));
 }

@@ -94,6 +94,7 @@
     "clean": "rm -rf dist",
     "test": "bun test",
     "test:cov": "bun test --coverage",
+    "bench": "bun run bench/index.ts",
     "e2e": "bun run build && node scripts/e2e.mjs && node scripts/e2e.cjs",
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",
@@ -112,6 +113,8 @@
     "@biomejs/biome": "^1.9.4",
     "@changesets/cli": "^2.27.0",
     "@types/bun": "latest",
+    "tinybench": "^6.1.2",
+    "tonal": "^6.4.3",
     "typescript": "^5.7.0"
   }
 }

@@ -12,7 +12,7 @@ import { Key, type Mode } from "../key/key";
 import { mod } from "../math/index";
 import { Note, type NoteLike } from "../note/note";
 import { pitchClass as pitchClassOf } from "../pitch/spelled";
-import type { NoteStream } from "./types";
+import type { NoteStreamInput } from "./types";
 
 // Krumhansl–Kessler probe-tone profiles (tonic-relative weights).
 const MAJOR_PROFILE = [
@@ -43,10 +43,10 @@ export function pitchClassWeights(
 }
 
 /** A 12-bin pitch-class histogram weighted by each event's sounding duration. */
-export function pitchClassWeightsFromStream(stream: NoteStream): number[] {
+export function pitchClassWeightsFromStream(stream: NoteStreamInput): number[] {
   const w = new Array(12).fill(0);
   for (const e of stream) {
-    w[pitchClassOf(e.pitch)] += Math.max(0, e.duration);
+    w[pitchClassOf(Note.from(e.pitch))] += Math.max(0, e.duration);
   }
   return w;
 }

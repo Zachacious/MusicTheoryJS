@@ -4,4 +4,5 @@
  */
 
 export * from "./interval";
+export * from "./parse";
 export * from "./constants";

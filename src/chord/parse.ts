@@ -8,7 +8,7 @@
 
 import { parseNote, tryParseNote } from "../pitch/parse";
 import type { SpelledPitch } from "../pitch/spelled";
-import type { ChordQuality } from "./templates";
+import { type ChordQuality, isChordQuality } from "./templates";
 
 /** Maps chord-symbol suffix aliases to canonical quality names. */
 const SUFFIX_ALIASES: Readonly<Record<string, ChordQuality>> = {
@@ -75,6 +75,23 @@ const SUFFIX_ALIASES: Readonly<Record<string, ChordQuality>> = {
   m13: "min13",
   min13: "min13",
 };
+
+/**
+ * The canonical quality for a name that may already be canonical (`"min7"`)
+ * or a symbol-suffix alias (`"m7"`, `"Δ"`, `"-7"`), or `null` when unknown.
+ *
+ * @example
+ * ```ts
+ * import { normalizeChordQuality } from "musictheoryjs";
+ * normalizeChordQuality("m7"); // => "min7"
+ * normalizeChordQuality("min7"); // => "min7"
+ * normalizeChordQuality("what"); // => null
+ * ```
+ */
+export function normalizeChordQuality(name: string): ChordQuality | null {
+  if (isChordQuality(name)) return name;
+  return SUFFIX_ALIASES[name] ?? null;
+}
 
 /** A chord symbol split into its root pitch and canonical quality. */
 export interface ParsedChordSymbol {

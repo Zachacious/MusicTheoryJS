@@ -100,14 +100,18 @@ labels each chord with a Roman numeral, and marks cadences.
 import { detectKey, analyzeHarmony } from "musictheoryjs";
 
 detectKey(["C4", "E4", "G4"])[0].key.toString();  // "C major"
-const { key, timeline, cadences } = analyzeHarmony(noteStream);
+const { key, timeline, cadences } = analyzeHarmony([
+  { pitch: "C4", start: 0, duration: 1 },
+  { pitch: "E4", start: 0, duration: 1 },
+  { pitch: "G4", start: 0, duration: 1 },
+]);
 ```
 
 **MIDI and audio, no extra packages.** Read and write Standard MIDI Files with a
 byte codec, and pull pitch, chroma, and onsets out of audio samples with a
 dependency-free DSP layer.
 
-```ts
+```ts no-run
 import { parseMidi, midiToNoteStream, detectNote } from "musictheoryjs";
 
 analyzeHarmony(midiToNoteStream(parseMidi(midiBytes)));

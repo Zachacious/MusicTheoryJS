@@ -8,26 +8,29 @@
  */
 
 import { type Chord, detectChord } from "../chord/index";
-import type { Note } from "../note/note";
-import type { NoteEvent, NoteStream } from "./types";
+import { Note } from "../note/note";
+import type { NoteEventInput, NoteStreamInput } from "./types";
 
-const END = (e: NoteEvent) => e.start + e.duration;
+const END = (e: NoteEventInput) => e.start + e.duration;
 
 /** The notes sounding at `time` (event active when `start <= time < end`). */
-export function notesSoundingAt(stream: NoteStream, time: number): Note[] {
+export function notesSoundingAt(stream: NoteStreamInput, time: number): Note[] {
   return stream
     .filter((e) => e.start <= time && time < END(e))
-    .map((e) => e.pitch);
+    .map((e) => Note.from(e.pitch));
 }
 
 /** The chord formed by the notes sounding at `time`, or `null` if none matches. */
-export function detectChordAt(stream: NoteStream, time: number): Chord | null {
+export function detectChordAt(
+  stream: NoteStreamInput,
+  time: number
+): Chord | null {
   const notes = notesSoundingAt(stream, time);
   return notes.length === 0 ? null : detectChord(notes);
 }
 
 /** The distinct onset times in the stream, ascending. */
-export function onsetTimes(stream: NoteStream): number[] {
+export function onsetTimes(stream: NoteStreamInput): number[] {
   return [...new Set(stream.map((e) => e.start))].sort((a, b) => a - b);
 }
 
@@ -45,7 +48,7 @@ export interface ChordSpan {
  * if it overlaps it at all. Pass {@link onsetTimes} for onset-based segmentation.
  */
 export function segmentChords(
-  stream: NoteStream,
+  stream: NoteStreamInput,
   boundaries: readonly number[]
 ): ChordSpan[] {
   const spans: ChordSpan[] = [];
@@ -54,7 +57,7 @@ export function segmentChords(
     const end = boundaries[i + 1] as number;
     const notes = stream
       .filter((e) => e.start < end && END(e) > start)
-      .map((e) => e.pitch);
+      .map((e) => Note.from(e.pitch));
     spans.push({
       start,
       end,

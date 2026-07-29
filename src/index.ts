@@ -12,16 +12,16 @@
  * @example Western
  * ```ts
  * import { Note, Scale, Chord } from "musictheoryjs";
- * Scale.from("C4", "major").noteNames(); // ["C4","D4","E4","F4","G4","A4","B4"]
- * Chord.from("Cmaj7").noteNames();        // ["C4","E4","G4","B4"]
+ * Scale.from("C4", "major").noteNames(); // => ["C4","D4","E4","F4","G4","A4","B4"]
+ * Chord.from("Cmaj7").noteNames(); // => ["C4","E4","G4","B4"]
  * ```
  *
  * @example Microtonal / non-Western
  * ```ts
  * import { equalTemperament, centsTuning, scaleFromTuning } from "musictheoryjs";
- * scaleFromTuning(equalTemperament(24));  // 24-EDO quarter-tone scale
+ * scaleFromTuning(equalTemperament(24)).length; // => 24
  * const rast = centsTuning([0, 204, 355, 498, 702, 906, 1057], { name: "Rast" });
- * scaleFromTuning(rast, { frequency: 264 }, true);
+ * scaleFromTuning(rast, { frequency: 264 }, true).length; // => 8
  * ```
  *
  * @module

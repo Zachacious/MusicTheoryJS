@@ -29,25 +29,25 @@ each shippable on its own; no dates, just order.
 Nothing in the library should require constructing a class instance, and no
 value should be a dead end.
 
-- [ ] Parse interval names (`"P5"`, `"-m3"`) the way note names parse today.
-- [ ] Numbers as a first-class path: transpose by a bare semitone count,
+- [x] Parse interval names (`"P5"`, `"-m3"`) the way note names parse today.
+- [x] Numbers as a first-class path: transpose by a bare semitone count,
       intervals from a semitone count with a sensible default spelling, scale
       and chord templates from semitone patterns like `[0, 4, 7]`, and
       diatonic movement — "up two scale steps" — within any scale. Spelling
       stays automatic (with a sharp/flat preference) when numeric values come
       back out as names.
-- [ ] Accept a symbol string or a plain object anywhere a chord, scale, or key
+- [x] Accept a symbol string or a plain object anywhere a chord, scale, or key
       is expected, the way note functions already take `"C#4"` or
       `{step, alteration}`.
-- [ ] Free-function equivalents of the class methods.
-- [ ] `transpose` for Scale, Chord, and Key, plus a bulk transpose for arrays
+- [x] Free-function equivalents of the class methods.
+- [x] `transpose` for Scale, Chord, and Key, plus a bulk transpose for arrays
       of notes.
-- [ ] `toJSON`/`fromJSON` round-trips for Note, Scale, Chord, and Key.
-- [ ] A `frequency` getter on Note; analysis functions accept plain note
+- [x] `toJSON`/`fromJSON` round-trips for Note, Scale, Chord, and Key.
+- [x] A `frequency` getter on Note; analysis functions accept plain note
       objects, not only Note instances.
-- [ ] Ranges: generate runs of notes between two pitches, chromatic or
+- [x] Ranges: generate runs of notes between two pitches, chromatic or
       filtered through a scale.
-- [ ] Test infrastructure: doctests that execute every `@example` block in the
+- [x] Test infrastructure: doctests that execute every `@example` block in the
       source, differential tests against a reference implementation
       (dev-dependency only, never shipped), and a benchmark suite.
 

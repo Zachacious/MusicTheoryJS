@@ -6,7 +6,7 @@
  * PPQ and tempo, and map MIDI note numbers to spelled {@link Note}s.
  */
 
-import type { NoteEvent, NoteStream } from "../analysis/types";
+import type { NoteEvent, NoteStream, NoteStreamInput } from "../analysis/types";
 import { type EnharmonicPreference, Note } from "../note/note";
 import type { MidiFile, MidiNote } from "./types";
 
@@ -65,7 +65,7 @@ export function midiToNoteStream(
  * tick.
  */
 export function noteStreamToMidi(
-  stream: NoteStream,
+  stream: NoteStreamInput,
   options: { ppq?: number; tempo?: number; channel?: number } = {}
 ): MidiFile {
   const ppq = options.ppq ?? DEFAULT_PPQ;
@@ -74,7 +74,7 @@ export function noteStreamToMidi(
   const spt = secondsPerTick(ppq, tempo);
 
   const notes: MidiNote[] = stream.map((e) => ({
-    note: e.pitch.midi,
+    note: Note.from(e.pitch).midi,
     start: Math.round(e.start / spt),
     duration: Math.max(1, Math.round(e.duration / spt)),
     velocity: e.velocity ?? 80,

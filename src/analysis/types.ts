@@ -7,7 +7,7 @@
  * The library never touches audio itself — it works on these symbolic events.
  */
 
-import type { Note } from "../note/note";
+import type { Note, NoteLike } from "../note/note";
 
 /**
  * A single sounded note positioned in time. `start` and `duration` are in
@@ -24,3 +24,20 @@ export interface NoteEvent {
 
 /** A time-ordered (or unordered) collection of note events. */
 export type NoteStream = readonly NoteEvent[];
+
+/**
+ * A note event as the analysis functions *accept* it: the pitch may be a
+ * {@link Note}, a plain `{step, alteration, octave}` object, or a notation
+ * string like `"C#4"` — no class construction required.
+ */
+export interface NoteEventInput {
+  readonly pitch: Note | NoteLike | string;
+  readonly start: number;
+  readonly duration: number;
+  /** Optional MIDI-style velocity (0–127). */
+  readonly velocity?: number;
+}
+
+/** What stream-consuming functions accept. Streams the library *produces*
+ * (e.g. from the midi module) are always concrete {@link NoteEvent}s. */
+export type NoteStreamInput = readonly NoteEventInput[];

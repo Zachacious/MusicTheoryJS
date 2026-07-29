@@ -5,5 +5,6 @@
 
 export * from "./templates";
 export * from "./scale";
+export * from "./range";
 export * from "./modes";
 export * from "./detection";

@@ -1,28 +1,29 @@
 /**
  * Chord voicings — the same chord tones arranged across octaves.
  *
- * Each function takes a {@link Chord} and returns its notes as a re-octaved,
- * ascending {@link Note} array. Spelling is preserved; only octaves change.
+ * Each function takes a chord (as a {@link Chord}, a symbol string, or a
+ * `{root, quality}` object) and returns its notes as a re-octaved, ascending
+ * {@link Note} array. Spelling is preserved; only octaves change.
  */
 
 import type { Note } from "../note/note";
-import type { Chord } from "./chord";
+import { Chord, type ChordLike } from "./chord";
 
 function ascending(notes: Note[]): Note[] {
   return [...notes].sort((a, b) => a.compareTo(b));
 }
 
 /** Close position: chord tones stacked as tightly as possible (the default). */
-export function closeVoicing(chord: Chord): Note[] {
-  return ascending(chord.notes);
+export function closeVoicing(chord: ChordLike): Note[] {
+  return ascending(Chord.from(chord).notes);
 }
 
 /**
  * Drop-2: take the close voicing and drop the second-from-top voice down an
  * octave. A staple of jazz guitar/piano voicings.
  */
-export function drop2(chord: Chord): Note[] {
-  const notes = ascending(chord.notes);
+export function drop2(chord: ChordLike): Note[] {
+  const notes = ascending(Chord.from(chord).notes);
   if (notes.length < 2) return notes;
   const idx = notes.length - 2;
   const voice = notes[idx] as Note;
@@ -31,8 +32,8 @@ export function drop2(chord: Chord): Note[] {
 }
 
 /** Drop-3: drop the third-from-top voice down an octave. */
-export function drop3(chord: Chord): Note[] {
-  const notes = ascending(chord.notes);
+export function drop3(chord: ChordLike): Note[] {
+  const notes = ascending(Chord.from(chord).notes);
   if (notes.length < 3) return notes;
   const idx = notes.length - 3;
   const voice = notes[idx] as Note;
@@ -44,8 +45,8 @@ export function drop3(chord: Chord): Note[] {
  * Spread (open) voicing: place each successive chord tone in the next octave
  * up, widening the chord.
  */
-export function spread(chord: Chord): Note[] {
-  const notes = ascending(chord.notes);
+export function spread(chord: ChordLike): Note[] {
+  const notes = ascending(Chord.from(chord).notes);
   let octaveBump = 0;
   return notes.map((n, i) => {
     if (i > 0) octaveBump += 1;

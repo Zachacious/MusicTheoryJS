@@ -11,12 +11,48 @@ import { PERFECT_OCTAVE } from "../interval/constants";
 import {
   type Interval,
   addIntervals,
+  intervalName,
   intervalNumber,
   transpose,
 } from "../interval/interval";
-import { Note, type NoteLike } from "../note/note";
-import { parseChordSymbol } from "./parse";
+import {
+  type IntervalLike,
+  asInterval,
+  intervalFromSemitones,
+} from "../interval/parse";
+import { type EnharmonicPreference, Note, type NoteLike } from "../note/note";
+import { detectQuality } from "./analysis";
+import { normalizeChordQuality, parseChordSymbol } from "./parse";
 import { CHORD_TEMPLATES, type ChordQuality } from "./templates";
+
+/** A chord described as plain data: a root plus a canonical quality and/or
+ * explicit intervals (spelled or named). */
+export interface ChordSpec {
+  readonly root: Note | NoteLike | string;
+  readonly quality?: string;
+  readonly intervals?: ReadonlyArray<Interval | string>;
+}
+
+/** Anything the ergonomic layer accepts as a chord: a {@link Chord}, a symbol
+ * string like `"Cmaj7"`, or a {@link ChordSpec} object. */
+export type ChordLike = Chord | string | ChordSpec;
+
+function chordFromSpec(spec: ChordSpec): Chord {
+  // Accept canonical names and symbol-suffix aliases ("min7" and "m7") alike.
+  const quality =
+    spec.quality !== undefined
+      ? (normalizeChordQuality(spec.quality) ?? undefined)
+      : undefined;
+  if (spec.intervals !== undefined) {
+    return new Chord(spec.root, spec.intervals.map(asInterval), quality);
+  }
+  if (quality !== undefined) {
+    return new Chord(spec.root, CHORD_TEMPLATES[quality], quality);
+  }
+  throw new RangeError(
+    `chord spec needs intervals or a known quality, got "${spec.quality}"`
+  );
+}
 
 /** Display suffix for each canonical chord quality. */
 const QUALITY_SUFFIX: Readonly<Record<ChordQuality, string>> = {
@@ -89,10 +125,45 @@ export class Chord {
     return new Chord(root, CHORD_TEMPLATES[quality], quality);
   }
 
-  /** Parse a chord symbol such as `"Cmaj7"`, `"F#m"`, `"Bb7"` (root octave defaults to 4). */
-  static from(symbol: string): Chord {
-    const { root, quality } = parseChordSymbol(symbol);
-    return new Chord(Note.of(root), CHORD_TEMPLATES[quality], quality);
+  /**
+   * Build a chord from any {@link ChordLike}: a symbol such as `"Cmaj7"`,
+   * `"F#m"`, `"Bb7"` (root octave defaults to 4), an existing chord, or a
+   * `{root, quality}` / `{root, intervals}` object.
+   */
+  static from(input: ChordLike): Chord {
+    if (input instanceof Chord) return input;
+    if (typeof input === "string") {
+      const { root, quality } = parseChordSymbol(input);
+      return new Chord(Note.of(root), CHORD_TEMPLATES[quality], quality);
+    }
+    return chordFromSpec(input);
+  }
+
+  /**
+   * Build a chord from a root and semitone offsets, e.g.
+   * `Chord.fromSemitones("C4", [0, 4, 7])`. When the offsets match a known
+   * quality the chord takes that quality's canonical spelled intervals (so
+   * `[0, 3, 6, 9]` really is a dim7 with a diminished seventh, not a sixth);
+   * otherwise each offset is spelled conventionally.
+   */
+  static fromSemitones(
+    root: Note | NoteLike | string,
+    semitones: readonly number[],
+    options: { prefer?: EnharmonicPreference } = {}
+  ): Chord {
+    // Only adopt a detected quality when it accounts for every offset —
+    // [0,4,7,12] must stay four tones, not collapse to a triad.
+    const quality = detectQuality(semitones);
+    if (
+      quality !== undefined &&
+      CHORD_TEMPLATES[quality].length === semitones.length
+    ) {
+      return Chord.of(root, quality);
+    }
+    const intervals = semitones.map((s) =>
+      intervalFromSemitones(s, options.prefer)
+    );
+    return new Chord(root, intervals);
   }
 
   /** The chord tones, correctly spelled. */
@@ -155,6 +226,16 @@ export class Chord {
     );
   }
 
+  /** The same chord on a transposed root. Accepts a spelled interval, an
+   * interval name (`"P4"`), or a semitone count. */
+  transpose(iv: IntervalLike): Chord {
+    return new Chord(
+      this.root.transpose(asInterval(iv)),
+      this.intervals,
+      this.quality
+    );
+  }
+
   /**
    * A chord symbol when the voicing matches a known quality
    * (`"Cmaj7"`), otherwise the comma-joined chord-tone names.
@@ -165,9 +246,78 @@ export class Chord {
     }
     return this.noteNames().join(",");
   }
+
+  /** Plain-data form: root notation, interval names, and the canonical
+   * quality when there is one. Round-trips through {@link Chord.fromJSON}. */
+  toJSON(): { root: string; intervals: string[]; quality?: ChordQuality } {
+    const data: { root: string; intervals: string[]; quality?: ChordQuality } =
+      {
+        root: this.root.toString(),
+        intervals: this.intervals.map((iv) => intervalName(iv)),
+      };
+    if (this.quality !== undefined) data.quality = this.quality;
+    return data;
+  }
+
+  /** Rebuild a chord from its {@link toJSON} form (object or JSON string). */
+  static fromJSON(json: string | ChordSpec): Chord {
+    const spec: ChordSpec = typeof json === "string" ? JSON.parse(json) : json;
+    return chordFromSpec(spec);
+  }
 }
 
-/** Functional shorthand: parse a chord symbol into a {@link Chord}. */
-export function chord(symbol: string): Chord {
-  return Chord.from(symbol);
+/**
+ * Functional shorthand for {@link Chord.from}.
+ *
+ * @example
+ * ```ts
+ * import { chord } from "musictheoryjs";
+ * chord("F#m7").noteNames(); // => ["F#4","A4","C#5","E5"]
+ * chord({ root: "C4", quality: "min" }).toString(); // => "Cm"
+ * ```
+ */
+export function chord(input: ChordLike): Chord {
+  return Chord.from(input);
+}
+
+/**
+ * The tones of any {@link ChordLike}, correctly spelled.
+ *
+ * @example
+ * ```ts
+ * import { chordNotes } from "musictheoryjs";
+ * chordNotes("Bb7").map(String); // => ["Bb4","D5","F5","Ab5"]
+ * ```
+ */
+export function chordNotes(c: ChordLike): Note[] {
+  return Chord.from(c).notes;
+}
+
+/**
+ * The tone names of any {@link ChordLike}.
+ *
+ * @example
+ * ```ts
+ * import { chordNoteNames } from "musictheoryjs";
+ * chordNoteNames({ root: "G4", quality: "dom7" }); // => ["G4","B4","D5","F5"]
+ * ```
+ */
+export function chordNoteNames(c: ChordLike): string[] {
+  return Chord.from(c).noteNames();
+}
+
+/**
+ * Invert any {@link ChordLike} `times` times (default 1).
+ *
+ * @example
+ * ```ts
+ * import { invertChord } from "musictheoryjs";
+ * invertChord("C").noteNames(); // => ["E4","G4","C5"]
+ * invertChord("C", 2).noteNames(); // => ["G4","C5","E5"]
+ * ```
+ */
+export function invertChord(c: ChordLike, times = 1): Chord {
+  let result = Chord.from(c);
+  for (let i = 0; i < times; i++) result = result.invert();
+  return result;
 }

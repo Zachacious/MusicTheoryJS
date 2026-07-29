@@ -8,13 +8,43 @@
  */
 
 import { detectQuality } from "../chord/analysis";
-import { Chord } from "../chord/chord";
+import { Chord, type ChordLike } from "../chord/chord";
 import type { ChordQuality } from "../chord/templates";
 import { type Interval, intervalBetween } from "../interval/interval";
+import { type IntervalLike, asInterval } from "../interval/parse";
 import { Note, type NoteLike } from "../note/note";
+import { tryParseNote } from "../pitch/parse";
 import { Scale } from "../scale/scale";
 
 export type Mode = "major" | "minor";
+
+/** A key described as plain data. `mode` defaults to major. */
+export interface KeySpec {
+  readonly tonic: Note | NoteLike | string;
+  readonly mode?: Mode;
+}
+
+/** Anything the ergonomic layer accepts as a key: a {@link Key}, a string
+ * like `"C major"`, `"f# minor"`, or `"Eb"` (major), or a {@link KeySpec}. */
+export type KeyLike = Key | string | KeySpec;
+
+function keyFromString(input: string): Key {
+  const parts = input.trim().split(/\s+/);
+  const [tonicRaw = "", modeRaw] = parts;
+  const tonic = tryParseNote(tonicRaw);
+  const mode =
+    modeRaw === undefined || modeRaw === "major"
+      ? "major"
+      : modeRaw === "minor"
+        ? "minor"
+        : null;
+  if (!tonic || mode === null || parts.length > 2) {
+    throw new SyntaxError(
+      `invalid key: "${input}" (expected "<tonic>", "<tonic> major", or "<tonic> minor")`
+    );
+  }
+  return new Key(Note.of(tonic), mode);
+}
 
 /** The accidentals that make up a key signature. */
 export interface KeySignature {
@@ -87,6 +117,14 @@ export class Key {
     return new Key(tonic, "minor");
   }
 
+  /** Build a key from any {@link KeyLike}: an existing key, a string like
+   * `"C major"` / `"F#"` (major implied), or a `{tonic, mode}` object. */
+  static from(input: KeyLike): Key {
+    if (input instanceof Key) return input;
+    if (typeof input === "string") return keyFromString(input);
+    return new Key(input.tonic, input.mode ?? "major");
+  }
+
   /** The seven diatonic notes, correctly spelled. */
   get notes(): Note[] {
     return this.scale.notes;
@@ -123,7 +161,8 @@ export class Key {
   }
 
   /** The Roman numeral for a chord in this key (e.g. `"ii"`, `"V7"`, `"bVII"`). */
-  romanNumeral(chord: Chord): string {
+  romanNumeral(input: ChordLike): string {
+    const chord = Chord.from(input);
     const root = chord.root;
     const idx = this.scale.notes.findIndex((n) => n.letter === root.letter);
     if (idx === -1) {
@@ -181,9 +220,161 @@ export class Key {
     return new Key(this.tonic, this.mode === "major" ? "minor" : "major");
   }
 
+  /** The same key on a transposed tonic. Accepts a spelled interval, an
+   * interval name (`"P4"`), or a semitone count. */
+  transpose(iv: IntervalLike): Key {
+    return new Key(this.tonic.transpose(asInterval(iv)), this.mode);
+  }
+
   toString(): string {
     return `${this.tonic.toString({ octave: false })} ${this.mode}`;
   }
+
+  /** Plain-data form: tonic notation and mode. Round-trips through
+   * {@link Key.fromJSON}. */
+  toJSON(): { tonic: string; mode: Mode } {
+    return { tonic: this.tonic.toString(), mode: this.mode };
+  }
+
+  /** Rebuild a key from its {@link toJSON} form (object or JSON string). */
+  static fromJSON(json: string | KeySpec): Key {
+    const spec: KeySpec = typeof json === "string" ? JSON.parse(json) : json;
+    return new Key(spec.tonic, spec.mode ?? "major");
+  }
+}
+
+/**
+ * Functional shorthand for {@link Key.from}.
+ *
+ * @example
+ * ```ts
+ * import { key } from "musictheoryjs";
+ * key("Eb").signature.count; // => -3
+ * key("f# minor").toString(); // => "F# minor"
+ * ```
+ */
+export function key(input: KeyLike): Key {
+  return Key.from(input);
+}
+
+/**
+ * The diatonic chord on degree `n` of any {@link KeyLike} —
+ * see {@link Key.chord}.
+ *
+ * @example
+ * ```ts
+ * import { keyChord } from "musictheoryjs";
+ * keyChord("C major", 5, { seventh: true }).toString(); // => "G7"
+ * ```
+ */
+export function keyChord(
+  k: KeyLike,
+  n: number,
+  options: { seventh?: boolean } = {}
+): Chord {
+  return Key.from(k).chord(n, options);
+}
+
+/**
+ * All seven diatonic chords of a key, in degree order. Pass `seventh: true`
+ * for seventh chords.
+ *
+ * @example
+ * ```ts
+ * import { diatonicChords } from "musictheoryjs";
+ * diatonicChords("C major").map(String); // => ["C","Dm","Em","F","G","Am","Bdim"]
+ * diatonicChords("A minor")[4].toString(); // => "Em"
+ * ```
+ */
+export function diatonicChords(
+  k: KeyLike,
+  options: { seventh?: boolean } = {}
+): Chord[] {
+  const theKey = Key.from(k);
+  return Array.from({ length: theKey.scale.size }, (_, i) =>
+    theKey.chord(i + 1, options)
+  );
+}
+
+/**
+ * The key signature of any {@link KeyLike}.
+ *
+ * @example
+ * ```ts
+ * import { keySignatureOf } from "musictheoryjs";
+ * keySignatureOf("D major").count; // => 2
+ * ```
+ */
+export function keySignatureOf(k: KeyLike): KeySignature {
+  return Key.from(k).signature;
+}
+
+/**
+ * The Roman numeral of a chord in any {@link KeyLike} —
+ * see {@link Key.romanNumeral}.
+ *
+ * @example
+ * ```ts
+ * import { keyRomanNumeral } from "musictheoryjs";
+ * keyRomanNumeral("C major", "G7"); // => "V7"
+ * keyRomanNumeral("C major", "Dm"); // => "ii"
+ * ```
+ */
+export function keyRomanNumeral(k: KeyLike, chord: ChordLike): string {
+  return Key.from(k).romanNumeral(chord);
+}
+
+/**
+ * The chord a Roman numeral denotes in any {@link KeyLike}.
+ *
+ * @example
+ * ```ts
+ * import { keyChordFromRoman } from "musictheoryjs";
+ * keyChordFromRoman("C major", "vi").toString(); // => "Am"
+ * ```
+ */
+export function keyChordFromRoman(k: KeyLike, roman: string): Chord {
+  return Key.from(k).chordFromRoman(roman);
+}
+
+/**
+ * Parse a Roman-numeral progression in any {@link KeyLike} —
+ * see {@link Key.progression}.
+ *
+ * @example
+ * ```ts
+ * import { keyProgression } from "musictheoryjs";
+ * keyProgression("C major", "I V vi IV").map(String); // => ["C","G","Am","F"]
+ * ```
+ */
+export function keyProgression(k: KeyLike, input: string): Chord[] {
+  return Key.from(k).progression(input);
+}
+
+/**
+ * The relative key of any {@link KeyLike}.
+ *
+ * @example
+ * ```ts
+ * import { relativeKey } from "musictheoryjs";
+ * relativeKey("C major").toString(); // => "A minor"
+ * ```
+ */
+export function relativeKey(k: KeyLike): Key {
+  return Key.from(k).relative();
+}
+
+/**
+ * The parallel key of any {@link KeyLike}.
+ *
+ * @example
+ * ```ts
+ * import { parallelKey } from "musictheoryjs";
+ * parallelKey("C major").toString(); // => "C minor"
+ * ```
+ */
+export function parallelKey(k: KeyLike): Key {
+  return Key.from(k).parallel();
 }
 
 /** A Roman numeral broken into its scale degree, accidental, and chord quality. */

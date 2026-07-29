@@ -3,3 +3,4 @@
  */
 
 export * from "./note";
+export * from "./range";
