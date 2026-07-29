@@ -23,7 +23,11 @@ import {
 import { type EnharmonicPreference, Note, type NoteLike } from "../note/note";
 import { detectQuality } from "./analysis";
 import { normalizeChordQuality, parseChordSymbol } from "./parse";
-import { CHORD_TEMPLATES, type ChordQuality } from "./templates";
+import {
+  CHORD_SUFFIXES,
+  CHORD_TEMPLATES,
+  type ChordQuality,
+} from "./templates";
 
 /** A chord described as plain data: a root plus a canonical quality and/or
  * explicit intervals (spelled or named). */
@@ -53,42 +57,6 @@ function chordFromSpec(spec: ChordSpec): Chord {
     `chord spec needs intervals or a known quality, got "${spec.quality}"`
   );
 }
-
-/** Display suffix for each canonical chord quality. */
-const QUALITY_SUFFIX: Readonly<Record<ChordQuality, string>> = {
-  maj: "",
-  min: "m",
-  dim: "dim",
-  aug: "aug",
-  sus2: "sus2",
-  sus4: "sus4",
-  power: "5",
-  maj6: "6",
-  min6: "m6",
-  maj69: "6/9",
-  min69: "m6/9",
-  dom7: "7",
-  maj7: "maj7",
-  min7: "m7",
-  minMaj7: "mMaj7",
-  dim7: "dim7",
-  min7b5: "m7b5",
-  aug7: "aug7",
-  dom7b5: "7b5",
-  dom7b9: "7b9",
-  dom7s9: "7#9",
-  dom7s11: "7#11",
-  dom9: "9",
-  maj9: "maj9",
-  min9: "m9",
-  add9: "add9",
-  dom11: "11",
-  maj11: "maj11",
-  min11: "m11",
-  dom13: "13",
-  maj13: "maj13",
-  min13: "m13",
-};
 
 function sameIntervals(
   a: readonly Interval[],
@@ -242,7 +210,7 @@ export class Chord {
    */
   toString(): string {
     if (this.quality !== undefined) {
-      return `${this.root.toString({ octave: false })}${QUALITY_SUFFIX[this.quality]}`;
+      return `${this.root.toString({ octave: false })}${CHORD_SUFFIXES[this.quality]}`;
     }
     return this.noteNames().join(",");
   }

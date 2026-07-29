@@ -55,13 +55,13 @@ value should be a dead end.
 
 Recognize what musicians actually write.
 
-- [ ] Grow from 32 chord qualities and 46 scales to roughly 106 and 92,
-      generated from one source of truth and tested against a corpus of
-      real-world chord symbols.
-- [ ] Pitch-class sets as 12-bit masks, so detection and subset queries
+- [x] Grow from 32 chord qualities and 46 scales to 108 and 92, generated
+      from one source of truth and tested against a corpus of real-world
+      chord symbols.
+- [x] Pitch-class sets as 12-bit masks, so detection and subset queries
       ("which scales contain these notes") are single integer operations.
-- [ ] Scale detection matches subsets, not only exact note counts.
-- [ ] Key-aware enharmonic respelling (the current simplifier ignores
+- [x] Scale detection matches subsets, not only exact note counts.
+- [x] Key-aware enharmonic respelling (the current simplifier ignores
       context).
 
 ## Phase 3 — Harmony everywhere

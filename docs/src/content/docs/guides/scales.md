@@ -45,28 +45,43 @@ cMajor.contains("Fb4"); // true  (Fb = E, which is in C major)
 
 ## Built-in scale templates
 
-MusicTheoryJS ships **46** templates, from the church modes to world and
-symmetric scales. A selection:
+MusicTheoryJS ships **92** scales, defined once in a single dictionary that
+also drives detection and name parsing. Most have aliases — spaced spellings
+(`"melodic minor"`), traditional names (`gypsyMinor` for `hungarianMinor`),
+and reference names (`"dorian b2"`) all resolve to the same template. A
+selection by family:
 
 - **Modes** — `major` / `ionian`, `dorian`, `phrygian`, `lydian`, `mixolydian`,
   `aeolian` / `minor`, `locrian`
-- **Minor variants** — `harmonicMinor`, `melodicMinor`, `harmonicMajor`
-- **Pentatonic & blues** — `majorPentatonic`, `minorPentatonic`, `minorBlues`,
-  `majorBlues`
-- **Symmetric** — `wholeTone`, `diminished`, `dominantDiminished`, `augmented`,
-  `enigmatic`, `prometheus`
-- **Jazz** — `bebopDominant`, `bebopMajor`, `acoustic` (lydian dominant),
-  `lydianDominant`, `phrygianDominant`, `halfDiminished`
-- **World** — `hungarianMinor`, `hungarianMajor`, `gypsyMinor`, `doubleHarmonic`,
-  `neapolitanMajor`, `neapolitanMinor`, `romanian`, `persian`, `arabian`,
-  `oriental`, `egyptian`, `yo`, `hirajoshi`, `insen`, `iwato`, `kumoi`,
-  `chinese`, `pelog`
+- **Minor variants and their modes** — `harmonicMinor`, `melodicMinor`,
+  `harmonicMajor`, `dorianb2`, `lydianAugmented`, `lydianDominant`
+  (`acoustic`), `mixolydianb6`, `halfDiminished`, `altered` (super locrian),
+  `locrian6`, `majorAugmented`, `romanian`, `lydians2`, `lydianDiminished`,
+  `ultralocrian`, `phrygianDominant`
+- **Pentatonic** — `majorPentatonic`, `minorPentatonic`, `ionianPentatonic`,
+  `mixolydianPentatonic`, `locrianPentatonic`, `minorSixPentatonic`,
+  `scriabin`, `egyptian`, `yo`, `hirajoshi`, `insen`, `iwato`, `kumoi`,
+  `kumoijoshi`, `vietnamese`, `malkosRaga`, `pelog`, and more
+- **Blues** — `minorBlues`, `majorBlues`, `compositeBlues`
+- **Hexatonic & symmetric** — `wholeTone`, `augmented`, `prometheus`,
+  `prometheusNeapolitan`, `minorHexatonic`, `piongio`, `sixToneSymmetric`,
+  `messiaen5`, `enigmatic`
+- **Heptatonic exotics** — `doubleHarmonic`, `doubleHarmonicLydian`,
+  `hungarianMinor`, `hungarianMajor`, `neapolitanMajor`, `neapolitanMinor`,
+  `persian`, `arabian`, `oriental`, `flamenco`, `todiRaga`, `lydianMinor`,
+  `leadingWholeTone`
+- **Octatonic and larger** — `diminished`, `dominantDiminished`,
+  `bebopDominant`, `bebopMajor`, `bebopMinor`, `bebopHarmonicMinor`,
+  `bebopLocrian`, `minorSixDiminished`, `ichikosucho`, `kafiRaga`,
+  `purviRaga`, the remaining Messiaen modes, and `chromatic`
 
 ```ts
-import { SCALE_TEMPLATES, isScaleName } from "musictheoryjs";
+import { SCALE_TEMPLATES, SCALE_DEFINITIONS, isScaleName, Scale } from "musictheoryjs";
 
-Object.keys(SCALE_TEMPLATES); // every template name
-isScaleName("dorian");        // true
+Object.keys(SCALE_TEMPLATES);      // every name and alias
+SCALE_DEFINITIONS.length;          // 92 (one entry per scale)
+isScaleName("dorian");             // true
+Scale.from("C4 melodic minor");    // spaced aliases parse too
 ```
 
 ## Modes
@@ -96,6 +111,22 @@ detectScales(["C4", "D4", "E4", "F4", "G4", "A4", "B4"]);
 
 detectScales(["C4", "D4", "E4", "G4", "A4"]);
 // includes { tonic: C, name: "majorPentatonic" }
+```
+
+Exact matching requires the scale to equal the input's pitch-class set. Ask
+for **subset** matching to find every scale that merely *contains* the notes —
+"which scales can I play over these?" — including scales rooted on a tonic
+you never played. Matching runs on 12-bit pitch-class masks, so each
+candidate is a couple of integer operations:
+
+```ts
+import { detectScales, scalesContaining } from "musictheoryjs";
+
+scalesContaining(["D4", "F4", "G4"]);
+// smallest scales first; includes { tonic: C, name: "major" } — no C was played
+
+detectScales(["C4", "Eb4", "G4"], { match: "subset", prefer: "flat" });
+// the same query in long form; `prefer` spells tonics the input didn't sound
 ```
 
 ## Custom & microtonal scales

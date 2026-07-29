@@ -58,12 +58,11 @@ const CHORD_SYMBOLS = [
 ] as const;
 
 /**
- * Known, deliberate divergences from the reference, with reasons.
- * - C11: we build the theoretical stacked-thirds form (with the major
- *   third); the reference omits the third, the common voicing. To revisit
- *   with the Phase 2 dictionary rebuild.
+ * Known, deliberate divergences from the reference, with reasons. Currently
+ * none: the Phase 2 dictionary rebuild aligned the eleventh chord (`C11` now
+ * omits the third, the common voicing).
  */
-const SKIP = new Set<string>(["C11"]);
+const SKIP = new Set<string>();
 
 describe("chord parity vs reference", () => {
   for (const symbol of CHORD_SYMBOLS) {

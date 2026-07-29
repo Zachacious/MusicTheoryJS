@@ -103,6 +103,22 @@ intervalClassVector(["C4", "E4", "G4"]);        // [0, 0, 1, 1, 1, 0]  (major tr
 intervalClassVector(["C4", "Eb4", "Gb4", "A4"]); // [0, 0, 4, 0, 0, 2]  (dim7)
 ```
 
+A pitch-class set is also available as a **12-bit mask** — bit *n* set means
+pitch class *n* is present — which turns set comparisons into single integer
+operations. Chord and scale detection run on these masks internally, and
+they're handy for your own subset queries:
+
+```ts
+import { pcsetOf, pcsetMask, pcsetIsSubset, pcsetTranspose, pcsetSize } from "musictheoryjs";
+
+const triad = pcsetOf(["C4", "E4", "G4"]);   // === pcsetMask([0, 4, 7])
+const scale = pcsetMask([0, 2, 4, 5, 7, 9, 11]);
+
+pcsetIsSubset(triad, scale);                 // true — C major contains C E G
+pcsetTranspose(triad, 2) === pcsetMask([2, 6, 9]); // true — up a whole step
+pcsetSize(scale);                            // 7
+```
+
 ## From MIDI and audio
 
 The pieces that produce a `NoteStream` — reading a MIDI file, or detecting a

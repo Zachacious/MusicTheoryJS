@@ -1,33 +1,38 @@
 /**
  * Chord analysis: recognising a chord from a set of notes.
  *
- * Detection works on pitch classes (spelling-independent), trying each note as
- * a possible root and matching the resulting interval signature against the
- * known {@link CHORD_TEMPLATES}. This is the inverse of building a chord from a
+ * Detection works on pitch classes (spelling-independent) as 12-bit masks:
+ * every template's pitch-class set is one integer, so trying a candidate root
+ * is a rotate-and-look-up, not an array comparison. Each note is tried as a
+ * possible root and the resulting mask matched against the known
+ * {@link CHORD_TEMPLATES}. This is the inverse of building a chord from a
  * symbol.
  */
 
-import { mod } from "../math/index";
 import { Note, type NoteLike } from "../note/note";
+import { pcsetMask, pcsetTranspose } from "../pitch/pcset";
 import { pitchClass as pitchClassOf } from "../pitch/spelled";
 import { Chord } from "./chord";
-import { CHORD_TEMPLATES, type ChordQuality } from "./templates";
+import { CHORD_DEFINITIONS, type ChordQuality } from "./templates";
 
-/** A pitch-class signature: sorted, unique semitones above the root (mod 12). */
-function signatureFromSemitones(semitones: Iterable<number>): string {
-  const set = new Set<number>();
-  for (const s of semitones) set.add(mod(s, 12));
-  return [...set].sort((a, b) => a - b).join(",");
+/** Mask of semitones-above-root, or -1 when the input isn't whole semitones. */
+function maskFromSemitones(semitones: Iterable<number>): number {
+  let mask = 0;
+  for (const s of semitones) {
+    if (!Number.isInteger(s)) return -1;
+    mask |= 1 << (((s % 12) + 12) % 12);
+  }
+  return mask;
 }
 
-/** Precomputed signature → qualities (first listed wins on ties). */
-const SIGNATURE_TO_QUALITIES: ReadonlyMap<string, ChordQuality[]> = (() => {
-  const map = new Map<string, ChordQuality[]>();
-  for (const [quality, intervals] of Object.entries(CHORD_TEMPLATES)) {
-    const sig = signatureFromSemitones(intervals.map((iv) => iv.semitones));
-    const list = map.get(sig);
-    if (list) list.push(quality as ChordQuality);
-    else map.set(sig, [quality as ChordQuality]);
+/** Precomputed mask → qualities (dictionary order wins on ties). */
+const MASK_TO_QUALITIES: ReadonlyMap<number, ChordQuality[]> = (() => {
+  const map = new Map<number, ChordQuality[]>();
+  for (const def of CHORD_DEFINITIONS) {
+    const mask = pcsetMask(def.intervals.map((iv) => iv.semitones));
+    const list = map.get(mask);
+    if (list) list.push(def.name);
+    else map.set(mask, [def.name]);
   }
   return map;
 })();
@@ -36,9 +41,7 @@ const SIGNATURE_TO_QUALITIES: ReadonlyMap<string, ChordQuality[]> = (() => {
 export function detectQuality(
   semitonesAboveRoot: Iterable<number>
 ): ChordQuality | undefined {
-  return SIGNATURE_TO_QUALITIES.get(
-    signatureFromSemitones(semitonesAboveRoot)
-  )?.[0];
+  return MASK_TO_QUALITIES.get(maskFromSemitones(semitonesAboveRoot))?.[0];
 }
 
 /**
@@ -55,15 +58,14 @@ export function detectChord(
   const parsed = notes.map((n) => Note.from(n));
   if (parsed.length === 0) return null;
 
-  const pcs = parsed.map((n) => pitchClassOf(n));
-  const uniquePcs = [...new Set(pcs)];
+  const mask = pcsetMask(parsed.map((n) => pitchClassOf(n)));
 
   // Try the lowest-sounding note first, then upward, as the root — so
   // symmetric chords (aug, dim7) and unsorted input still root on the bass.
   const rootOrder = [...parsed].sort((a, b) => a.compareTo(b));
   for (const root of rootOrder) {
     const rootPc = pitchClassOf(root);
-    const quality = detectQuality(uniquePcs.map((pc) => pc - rootPc));
+    const quality = MASK_TO_QUALITIES.get(pcsetTranspose(mask, -rootPc))?.[0];
     if (quality) {
       return Chord.of(root, quality);
     }

@@ -70,8 +70,10 @@ new Note("C4").transpose(interval(4, "d")).toString(); // "Fb4"  (a diminished f
 ```
 
 **Scales and chords, in and out.** Construct them from names or symbols, or hand
-the library a set of notes and let it tell you what they are. 46 scale templates,
-32 chord qualities, voicings, and detection both directions.
+the library a set of notes and let it tell you what they are. 92 scale templates,
+108 chord qualities tested against a corpus of real-world chord symbols,
+voicings, and detection both directions — including subset matching ("which
+scales contain these notes?").
 
 ```ts
 import { Scale, Chord, detectChord, detectScales, drop2 } from "musictheoryjs";
@@ -158,8 +160,8 @@ bundlers can split on the boundaries.
 | --- | --- |
 | `musictheoryjs/note` | notes |
 | `musictheoryjs/interval` | intervals, transposition |
-| `musictheoryjs/scale` | scales, modes, detection (46 templates) |
-| `musictheoryjs/chord` | chords, symbol parsing, detection, voicings (32 qualities) |
+| `musictheoryjs/scale` | scales, modes, detection (92 templates) |
+| `musictheoryjs/chord` | chords, symbol parsing, detection, voicings (108 qualities) |
 | `musictheoryjs/key` | keys, signatures, Roman numerals, progressions |
 | `musictheoryjs/tuning` | tuning systems (EDO, JI, historical, custom, Scala) |
 | `musictheoryjs/analysis` | key detection, chord timelines, set theory |

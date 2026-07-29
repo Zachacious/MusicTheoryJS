@@ -82,6 +82,26 @@ Key.minor("A").relative().toString(); // "C major"
 Key.major("C").parallel().toString(); // "C minor"  (same tonic)
 ```
 
+## Respelling notes in a key
+
+Enharmonic respelling on `Note` only knows "prefer sharps" or "prefer flats".
+A key knows more: its scale fixes the spelling of every diatonic note, and
+the harmonic chromatic convention fixes the rest (in major: ♭2, ♭3, ♯4, ♭6,
+♭7; in minor the same intervals read as the raised 3rd, 6th, and 7th). The
+sounding pitch never changes:
+
+```ts
+import { Key, respellInKey } from "musictheoryjs";
+
+Key.from("G major").respell("Gb4").toString(); // "F#4" — diatonic spelling wins
+respellInKey("G#4", "C major").toString();     // "Ab4" — chromatic ♭6
+respellInKey("G#4", "A minor").toString();     // "G#4" — the leading tone stays
+respellInKey("D#4", "C minor").toString();     // "Eb4"
+```
+
+This is what you want when normalising MIDI input (which arrives as sharps or
+flats arbitrarily) into notation for a known key.
+
 ## Minor keys
 
 Minor keys use the natural-minor scale for their signature and diatonic chords:

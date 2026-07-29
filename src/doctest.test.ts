@@ -336,7 +336,6 @@ const RATCHET: readonly string[] = [
   "detectOnsets",
   "detectPitch",
   "detectQuality",
-  "detectScales",
   "drop2",
   "drop3",
   "edo",

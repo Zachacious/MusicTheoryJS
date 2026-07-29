@@ -6,7 +6,10 @@
 
 import { mod } from "../math/index";
 import { Note, type NoteLike } from "../note/note";
+import { pcsetMask } from "../pitch/pcset";
 import { pitchClass as pitchClassOf } from "../pitch/spelled";
+
+export * from "../pitch/pcset";
 
 /** The six interval classes (ic1 … ic6). */
 export type IntervalClassVector = readonly [
@@ -25,6 +28,26 @@ export function pitchClasses(
   const set = new Set<number>();
   for (const n of notes) set.add(pitchClassOf(Note.from(n)));
   return [...set].sort((a, b) => a - b);
+}
+
+/**
+ * The pitch-class set of `notes` as a 12-bit mask: bit `n` set = pitch class
+ * `n` present (C = bit 0). The mask form makes set comparisons — equality,
+ * subset, transposition — single integer operations; see `pcsetIsSubset`,
+ * `pcsetTranspose`, and friends.
+ *
+ * @example
+ * ```ts
+ * import { pcsetOf, pcsetMask, pcsetIsSubset } from "musictheoryjs";
+ * pcsetOf(["C4", "E4", "G4"]) === pcsetMask([0, 4, 7]); // => true
+ * pcsetOf(["C4", "E3", "G5", "C6"]) === pcsetOf(["C4", "E4", "G4"]); // => true
+ * pcsetIsSubset(pcsetOf(["D4", "F4"]), pcsetOf(["C4", "D4", "E4", "F4", "G4", "A4", "B4"])); // => true
+ * ```
+ */
+export function pcsetOf(
+  notes: ReadonlyArray<Note | NoteLike | string>
+): number {
+  return pcsetMask(notes.map((n) => pitchClassOf(Note.from(n))));
 }
 
 /**

@@ -34,18 +34,33 @@ Chord.from("F#dim7");
 Chord.from("Bb13");
 ```
 
-MusicTheoryJS ships **32** chord qualities: triads (`maj`, `min`, `dim`, `aug`,
-`sus2`, `sus4`, `power`), sixths (`maj6`, `min6`, `maj69`, `min69`), sevenths
-(`dom7`, `maj7`, `min7`, `minMaj7`, `dim7`, `min7b5`, `aug7`, `dom7b5`), altered
-dominants (`dom7b9`, `dom7s9`, `dom7s11`), ninths (`dom9`, `maj9`, `min9`,
-`add9`), elevenths (`dom11`, `maj11`, `min11`), and thirteenths (`dom13`,
-`maj13`, `min13`).
+MusicTheoryJS ships **108** chord qualities, defined once in a single
+dictionary that also drives symbol parsing, printing, and detection — and
+tested against a corpus of real-world chord symbols. The families:
+
+- **Triads and power chords** — `maj`, `min`, `dim`, `aug`, `sus2`, `sus4`,
+  `sus24`, `power`, `majb5`, `mins5`, `quartal`
+- **Added tones** — `add9`, `addb9`, `minAdd4`, `minAdd9`, `augAdd9`,
+  `min7add11`, `maj7add13`, `dom7add6`
+- **Sixths** — `maj6`, `min6`, `maj69`, `min69`, `maj6s11`, `maj69s11`
+- **Sevenths** — `dom7`, `maj7`, `min7`, `minMaj7`, `dim7`, `dimMaj7`,
+  `min7b5`, `aug7`, `dom7b5`, `maj7b5`, `maj7s5`, `maj7b6`, `min7s5`
+- **Extended** — ninths, elevenths, and thirteenths in every flavour
+  (`dom9`…`min13`), plus suspended dominants (`dom7sus4`, `dom9sus4`,
+  `dom13sus4`)
+- **Altered dominants** — every practical combination of `b5`/`#5`, `b9`/`#9`,
+  `#11`, and `b13` (`dom7b9`, `dom7s9b13`, `dom13b9s11`, `dom7alt`, …)
+
+Suffix aliases cover what charts actually print: `Δ7`, `ø`, `°7`, `-7`, `^9`,
+`h7`, `alt7`, `+`, `2`, unicode accidentals (`C7♭9`), and so on.
 
 ```ts
-import { CHORD_TEMPLATES, parseChordSymbol } from "musictheoryjs";
+import { CHORD_TEMPLATES, CHORD_DEFINITIONS, parseChordSymbol } from "musictheoryjs";
 
-Object.keys(CHORD_TEMPLATES);      // every quality
+Object.keys(CHORD_TEMPLATES);      // every canonical quality
+CHORD_DEFINITIONS.length;          // 108 — name, intervals, suffix, aliases
 parseChordSymbol("F#m7").quality;  // "min7"
+parseChordSymbol("Bø").quality;    // "min7b5"
 ```
 
 ## Inspecting quality

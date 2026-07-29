@@ -2,79 +2,41 @@
  * Parsing chord symbols like `Cmaj7`, `F#m`, `Bb7`, `Gdim`, `Am7b5`.
  *
  * A symbol is a root note (letter + accidentals, no octave) followed by a
- * quality suffix. Suffix spellings are mapped to canonical
- * {@link ChordQuality} names; many common aliases are accepted.
+ * quality suffix. The accepted suffixes come straight from the chord
+ * dictionary: every canonical {@link ChordQuality} name, every display
+ * suffix, and every alias in {@link CHORD_DEFINITIONS} parses. Unicode
+ * accidentals in the suffix (`♭9`, `♯11`) are read as `b9`, `#11`.
  */
 
 import { parseNote, tryParseNote } from "../pitch/parse";
 import type { SpelledPitch } from "../pitch/spelled";
-import { type ChordQuality, isChordQuality } from "./templates";
+import {
+  CHORD_DEFINITIONS,
+  type ChordQuality,
+  isChordQuality,
+} from "./templates";
 
-/** Maps chord-symbol suffix aliases to canonical quality names. */
-const SUFFIX_ALIASES: Readonly<Record<string, ChordQuality>> = {
-  "": "maj",
-  maj: "maj",
-  major: "maj",
-  M: "maj",
-  m: "min",
-  min: "min",
-  minor: "min",
-  "-": "min",
-  dim: "dim",
-  "°": "dim",
-  o: "dim",
-  aug: "aug",
-  "+": "aug",
-  sus2: "sus2",
-  sus4: "sus4",
-  sus: "sus4",
-  "5": "power",
-  "6": "maj6",
-  m6: "min6",
-  min6: "min6",
-  "6/9": "maj69",
-  "69": "maj69",
-  "m6/9": "min69",
-  m69: "min69",
-  "7": "dom7",
-  dom7: "dom7",
-  maj7: "maj7",
-  M7: "maj7",
-  Δ: "maj7",
-  Δ7: "maj7",
-  m7: "min7",
-  min7: "min7",
-  "-7": "min7",
-  mMaj7: "minMaj7",
-  mM7: "minMaj7",
-  dim7: "dim7",
-  "°7": "dim7",
-  o7: "dim7",
-  m7b5: "min7b5",
-  min7b5: "min7b5",
-  ø: "min7b5",
-  ø7: "min7b5",
-  aug7: "aug7",
-  "7#5": "aug7",
-  "7b5": "dom7b5",
-  "7b9": "dom7b9",
-  "7#9": "dom7s9",
-  "7#11": "dom7s11",
-  "9": "dom9",
-  maj9: "maj9",
-  M9: "maj9",
-  m9: "min9",
-  min9: "min9",
-  add9: "add9",
-  "11": "dom11",
-  maj11: "maj11",
-  m11: "min11",
-  min11: "min11",
-  "13": "dom13",
-  maj13: "maj13",
-  m13: "min13",
-  min13: "min13",
-};
+/** Suffix → canonical quality, generated from the chord dictionary. */
+const SUFFIX_TO_QUALITY: ReadonlyMap<string, ChordQuality> = (() => {
+  const map = new Map<string, ChordQuality>();
+  for (const def of CHORD_DEFINITIONS) {
+    for (const suffix of [def.name, def.suffix, ...def.aliases]) {
+      const existing = map.get(suffix);
+      if (existing !== undefined && existing !== def.name) {
+        throw new Error(
+          `chord dictionary conflict: suffix "${suffix}" maps to both "${existing}" and "${def.name}"`
+        );
+      }
+      map.set(suffix, def.name);
+    }
+  }
+  return map;
+})();
+
+/** Fold unicode accidentals/symbols in a quality suffix to their ASCII forms. */
+function normalizeSuffix(suffix: string): string {
+  return suffix.replace(/♯/gu, "#").replace(/♭/gu, "b").replace(/˚/gu, "°");
+}
 
 /**
  * The canonical quality for a name that may already be canonical (`"min7"`)
@@ -85,12 +47,13 @@ const SUFFIX_ALIASES: Readonly<Record<string, ChordQuality>> = {
  * import { normalizeChordQuality } from "musictheoryjs";
  * normalizeChordQuality("m7"); // => "min7"
  * normalizeChordQuality("min7"); // => "min7"
+ * normalizeChordQuality("ø"); // => "min7b5"
  * normalizeChordQuality("what"); // => null
  * ```
  */
 export function normalizeChordQuality(name: string): ChordQuality | null {
   if (isChordQuality(name)) return name;
-  return SUFFIX_ALIASES[name] ?? null;
+  return SUFFIX_TO_QUALITY.get(normalizeSuffix(name)) ?? null;
 }
 
 /** A chord symbol split into its root pitch and canonical quality. */
@@ -111,7 +74,7 @@ export function tryParseChordSymbol(symbol: string): ParsedChordSymbol | null {
   const root = tryParseNote(rootRaw as string);
   if (!root) return null;
 
-  const quality = SUFFIX_ALIASES[suffixRaw];
+  const quality = SUFFIX_TO_QUALITY.get(normalizeSuffix(suffixRaw));
   if (quality === undefined) return null;
 
   return { root, quality };

@@ -10,10 +10,17 @@
 import { detectQuality } from "../chord/analysis";
 import { Chord, type ChordLike } from "../chord/chord";
 import type { ChordQuality } from "../chord/templates";
-import { type Interval, intervalBetween } from "../interval/interval";
+import {
+  type Interval,
+  interval,
+  intervalBetween,
+  transpose,
+} from "../interval/interval";
 import { type IntervalLike, asInterval } from "../interval/parse";
+import { mod } from "../math/index";
 import { Note, type NoteLike } from "../note/note";
 import { tryParseNote } from "../pitch/parse";
+import { chroma } from "../pitch/spelled";
 import { Scale } from "../scale/scale";
 
 export type Mode = "major" | "minor";
@@ -55,6 +62,28 @@ export interface KeySignature {
 }
 
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII"] as const;
+
+/**
+ * How each pitch class relative to the tonic is spelled: the harmonic
+ * chromatic scale of the key. Diatonic degrees come out exactly as the scale
+ * spells them, in both modes. Chromatic degrees follow the standard
+ * convention — in major: ♭2, ♭3, ♯4, ♭6, ♭7; in minor the same intervals
+ * read as ♭2, raised 3rd, ♯4, raised 6th, raised 7th.
+ */
+const HARMONIC_CHROMATIC: readonly Interval[] = [
+  interval(1, "P"),
+  interval(2, "m"),
+  interval(2, "M"),
+  interval(3, "m"),
+  interval(3, "M"),
+  interval(4, "P"),
+  interval(4, "A"),
+  interval(5, "P"),
+  interval(6, "m"),
+  interval(6, "M"),
+  interval(7, "m"),
+  interval(7, "M"),
+];
 
 /**
  * The suffix a quality contributes to a Roman numeral. The numeral's *case*
@@ -142,6 +171,28 @@ export class Key {
   /** The note at a (1-based) scale degree. */
   degree(n: number): Note {
     return this.scale.degree(n);
+  }
+
+  /**
+   * Respell a note the way this key would write it, preserving the sounding
+   * pitch. Diatonic notes take their scale spelling (F# stays F# in G major,
+   * never Gb); chromatic notes follow the key's harmonic chromatic scale
+   * (in C major, G# respells to Ab; in A minor, the leading tone stays G#).
+   */
+  respell(note: Note | NoteLike | string): Note {
+    const n = Note.from(note);
+    const relativePc = mod(n.pitchClass - this.tonic.pitchClass, 12);
+    const spelled = transpose(
+      this.tonic,
+      HARMONIC_CHROMATIC[relativePc] as Interval
+    );
+    // Same pitch class, so the chroma difference is a whole octave count.
+    const octaveShift = (chroma(n) - chroma(spelled)) / 12;
+    return Note.of({
+      step: spelled.step,
+      alteration: spelled.alteration,
+      octave: spelled.octave + octaveShift,
+    });
   }
 
   /**
@@ -349,6 +400,26 @@ export function keyChordFromRoman(k: KeyLike, roman: string): Chord {
  */
 export function keyProgression(k: KeyLike, input: string): Chord[] {
   return Key.from(k).progression(input);
+}
+
+/**
+ * Respell a note (or several) the way a key would write it, preserving the
+ * sounding pitch — see {@link Key.respell}. The plain enharmonic simplifier
+ * on `Note` only knows "prefer sharps" or "prefer flats"; this uses the key's
+ * scale for diatonic notes and its harmonic chromatic scale for the rest.
+ *
+ * @example
+ * ```ts
+ * import { respellInKey } from "musictheoryjs";
+ * respellInKey("Gb4", "G major").toString(); // => "F#4"
+ * respellInKey("G#4", "C major").toString(); // => "Ab4"
+ * respellInKey("G#4", "A minor").toString(); // => "G#4"
+ * respellInKey("D#4", "c minor").toString(); // => "Eb4"
+ * respellInKey("A#3", "F major").toString(); // => "Bb3"
+ * ```
+ */
+export function respellInKey(note: Note | NoteLike | string, k: KeyLike): Note {
+  return Key.from(k).respell(note);
 }
 
 /**
