@@ -16,24 +16,18 @@
  * - **Tuning:** Apply different tuning systems (JI, Pythagorean, Meantone, EDOs) and manage custom tunings. Convert between cents and ratios.
  * - **Immutability:** Core objects like Note, Scale, Chord are designed to be immutable. Operations return new instances.
  * - **Type Safety:** Built with TypeScript for strong type checking.
- * - **Tree Shakable:** While this main entry point re-exports many features, individual modules (`/note`, `/scale`, etc.) are designed for tree shaking. Importing directly from submodules (e.g., `import { createNote } from 'musictheoryjs/note'`) is recommended for optimal bundle size.
  *
- * This file serves as the main entry point, re-exporting the primary public APIs from the underlying modules.
- * For detailed documentation on specific functions and types, please refer to the generated API documentation
- * or the documentation within the individual module files (e.g., `note/index.ts`, `scale/index.ts`).
+ * NOTE: v3 is mid-rebuild (see REDESIGN.md). This entry point currently serves
+ * the legacy API, which is being replaced module by module by a verified core.
+ * Import from the package root; subpath imports are not published.
  *
  * @example Basic Usage
  * ```ts
- * import { Note, Interval, Scale, Chord, createNote, createScale, createChord, transpose, MAJOR_THIRD, PERFECT_FIFTH } from 'musictheoryjs'; // Assuming main export works like this
- * // Or using specific imports:
- * // import { Note, createNote, transpose } from 'musictheoryjs/note';
- * // import { Scale, createScale } from 'musictheoryjs/scale';
- * // import { Chord, createChord } from 'musictheoryjs/chord';
- * // import { Interval, MAJOR_THIRD, PERFECT_FIFTH } from 'musictheoryjs/interval';
+ * import { createNote, createScale, createChord, transpose, PERFECT_FIFTH } from 'musictheoryjs';
  *
  * const c4 = createNote({ letter: 'C', octave: 4 });
  * const cMajorScale = createScale(c4, 'major');
- * const g7 = createChord({ root: transpose(c4, PERFECT_FIFTH), quality: '7' });
+ * const g7 = createChord(transpose(c4, PERFECT_FIFTH), '7');
  *
  * console.log(cMajorScale.notes.map(n => n.notation));
  * console.log(g7.symbol);

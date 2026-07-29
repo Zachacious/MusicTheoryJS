@@ -27,7 +27,7 @@
  * @example
  * ```ts
  * // Basic Chord Creation and Information
- * import { createChordFromSymbol, formatNote } from 'musictheoryjs/chord'; // Adjust import path
+ * import { createChordFromSymbol, formatNote } from 'musictheoryjs'; // Adjust import path
  *
  * const gm7 = createChordFromSymbol("Gm7");
  * console.log(`Root: ${formatNote(gm7.root)}`);        // Example: Root: G4 (depends on default octave)
@@ -39,9 +39,9 @@
  * @example
  * ```ts
  * // Chord Progression Example
- * import { createNote } from 'musictheoryjs/note'; // Adjust path
- * import { createScaleByName } from 'musictheoryjs/scale'; // Adjust path
- * import { createProgressionFromRomanNumerals, Chord } from 'musictheoryjs/chord'; // Adjust path
+ * import { createNote } from 'musictheoryjs'; // Adjust path
+ * import { createScaleByName } from 'musictheoryjs'; // Adjust path
+ * import { createProgressionFromRomanNumerals, Chord } from 'musictheoryjs'; // Adjust path
  *
  * const cMajorScale = createScaleByName('C4', 'major');
  * const progression: Chord[] = createProgressionFromRomanNumerals(cMajorScale, ["I", "IV", "V", "I"]);

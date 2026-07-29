@@ -7,7 +7,7 @@ export default defineConfig({
       provider: "v8",
       // Coverage is measured against the new core; legacy modules are
       // replaced phase by phase (see REDESIGN.md) and not counted.
-      include: ["src/core/**"],
+      include: ["src/core/**", "src/pcset/**", "src/dict/**"],
     },
   },
 });

@@ -1,11 +1,11 @@
 {
   "name": "musictheoryjs",
   "version": "3.0.0",
+  "private": true,
   "description": "A tree-shakable music theory library",
   "type": "module",
   "main": "dist/musictheory.cjs",
   "module": "dist/musictheory.esm.js",
-  "browser": "dist/musictheory.min.js",
   "types": "dist/musictheory.d.ts",
   "exports": {
     ".": {
@@ -30,10 +30,9 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
+    "generate:dict": "bun scripts/generate-dictionaries.ts",
     "prepublishOnly": "npm run typecheck && npm run test && npm run build",
-    "docs": "typedoc",
-    "docs:publish": "typedoc && gh-pages -d docs",
-    "docs:serve": "typedoc --watch --out docs src/ && npx http-server docs"
+    "docs": "typedoc"
   },
   "keywords": [
     "music",
@@ -51,18 +50,16 @@
     "@rollup/plugin-commonjs": "^25.0.8",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.3.1",
-    "@types/bun": "latest",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@types/bun": "^1.2.0",
     "@vitest/coverage-v8": "^3.2.4",
     "rimraf": "^5.0.10",
     "rollup": "^4.40.2",
     "rollup-plugin-dts": "^6.2.1",
-    "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-typescript2": "^0.36.0",
-    "tonal": "^6.0.0",
+    "tonal": "6.4.3",
     "typedoc": "^0.28.4",
     "typedoc-material-theme": "^1.4.0",
-    "typedoc-plugin-markdown": "^4.6.3",
-    "typedoc-unhoax-theme": "^0.5.3",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"
   }

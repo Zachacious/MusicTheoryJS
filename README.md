@@ -1,62 +1,46 @@
-# MusicTheoryJS v3
+# MusicTheoryJS
 
-**A comprehensive, modern, and flexible music theory library for JavaScript and TypeScript.**
+A music theory library for JavaScript and TypeScript: notes, intervals, chords, scales, progressions, and tuning systems — with first-class microtonal support.
 
-## Introduction
+> **Status: v3 is being rebuilt on a new, verified core and is not yet released** (`package.json` is marked private until the rebuild ships). The architecture, audit findings, and phased roadmap live in [REDESIGN.md](REDESIGN.md). The legacy v3 API currently served by the main entry point has known, documented defects and is being replaced module by module — don't build new work on it.
 
-MusicTheoryJS provides developers, musicians, educators, and researchers with a robust toolkit for modeling, analyzing, and manipulating fundamental music theory concepts programmatically. Whether you are building interactive learning tools, composing algorithmic music, analyzing scores, developing VST plugins with web technologies, or exploring generative AI music applications, this library aims to provide the necessary building blocks.
+## The new core (complete, verified)
 
-Built with TypeScript, it offers strong type safety and a modern development experience. It handles standard 12-tone equal temperament (12-TET) concepts as well as offering extensive support for various microtonal systems and tunings.
+These modules are done, with **100% test coverage on every metric** and their behavior verified against an established reference implementation:
 
-## Goals & Philosophy
+- **`src/core`** — spelled pitches and quality-carrying intervals. `Cb`, `B#`, and `F##` are distinct, representable values; `m3` and `A2` are different intervals; transposition and distance are exact letter arithmetic, so `transpose("Eb4", "P5")` is `Bb4` and the C♯ major scale spells with `E#` and `B#` — correct spelling is a property of the representation, not a preference table. Includes MIDI and frequency conversion with a configurable A4 reference and cents deviations, plus memoized string parsing (objects flow through with zero parsing).
+- **`src/pcset`** — pitch-class sets as 12-bit integers: subset checks, equality, and transposition are single bitwise operations.
+- **`src/dict`** — 106 chord types and 92 scale types (generated, deep-frozen, integrity-checked), lookup by name or alias, and **ranked detection** with discriminating scores: exact matches outrank inversions outrank partials, slash basses are identified from voicing, and input spelling is preserved.
 
-This library (specifically Version 3) is built with several key goals in mind:
+How that's enforced: exhaustive property tests (40,000+ generated cases — e.g. `transpose(a, distance(a, b)) === b` over every spelled-pitch pair in the grid), differential corpora against a reference implementation (21,000-case transposition agreement), and error paths that throw typed `MusicTheoryError`s instead of returning silently wrong defaults.
 
-- **Comprehensiveness:** To accurately model a wide array of music theory elements, including notes, intervals, chords (with qualities, extensions, alterations, inversions), scales (standard, modal, pentatonic, exotic), chord progressions, Roman numeral analysis, and diverse tuning systems.
-- **Accuracy & Reliability:** To provide correct calculations and representations based on established music theory principles.
-- **Modern & Type-Safe:** Leverage TypeScript for improved developer experience, code clarity, and reduced errors.
-- **Immutability:** Core data structures like Notes, Scales, and Chords are treated as immutable, leading to more predictable and safer state management in applications. Operations return new instances rather than modifying originals.
-- **Extensive Microtonal Support:** Go beyond 12-TET by default, enabling work with cents deviations, Just Intonation ratios, Equal Divisions of the Octave (EDOs), historical temperaments, and user-defined custom tunings.
-- **Tree Shakable & Lightweight:** Designed with modern bundling in mind. By importing only the specific functions or modules needed, developers can minimize the impact on final application bundle sizes, making it suitable for web-based projects. The core has minimal external dependencies.
-- **Foundation for AI Music:** Provide the structured data, precise calculations, and theoretical relationships needed for generative music AI, algorithmic composition tools, music information retrieval (MIR) tasks, and intelligent music analysis applications. It handles the symbolic layer, allowing AI models or algorithms to focus on higher-level patterns and creativity.
-- **Extensibility:** Allow users to add their own definitions, such as custom tuning systems via the `registerTuningSystem` function.
+## Legacy API (deprecated in place)
 
-## Features
+The main entry point still re-exports the legacy v3 modules (`createNote`, `createScale`, `createChord`, …) so existing consumers keep compiling while the rebuild proceeds:
 
-MusicTheoryJS offers functionality across several core modules:
+```ts
+import { createNote, createScale, createChord, transpose, PERFECT_FIFTH } from "musictheoryjs";
 
-- **Notes:** Represent individual pitches with spelling (letter, accidental, octave) and pitch class. Create notes from various inputs (parts, MIDI, frequency, ratios). Calculate MIDI numbers and frequencies, including precise microtonal adjustments based on cents or tuning systems. Compare notes for pitch or strict equality. Handle enharmonic spellings.
-- **Intervals:** Define musical intervals based on semitone distance. Provides constants for common intervals (Major Third, Perfect Fifth, etc.) and utilities for simplifying, inverting, and classifying intervals.
-- **Chords:** Create chords from roots and standard quality names (major, min7, 7sus4, add9, dim7, etc.) or by parsing chord symbols ("Cmaj7/G", "F#m7b5"). Analyze chords to find root, quality, bass note, inversion, tensions, alterations, and missing/extra tones. Handle voicings and inversions. Generate standard, jazz, or Unicode symbols. Includes microtonal chord creation (Just Intonation, custom intervals).
-- **Scales:** Create scales from names (major, dorian, minorPentatonic, etc.), interval patterns, step patterns (W-H), or arrays of notes. Generate modes. Analyze scale structure (diatonic, pentatonic, hemitonic, symmetrical), interval content, brightness, tension, and tonal function of degrees. Compare scales and find related keys (parallel/relative). Includes microtonal scale generation (EDO, JI, Custom).
-- **Chord Progressions:** Create progressions from sequences of chord symbols or Roman numerals within a scale context. Generate diatonic progressions. Analyze diatonicity and basic harmonic rhythm. Includes heuristic functions for suggesting next chords and applying simple transformations (substitutions, extensions, secondary dominants, modal interchange).
-- **Tuning Systems:** Apply different tunings beyond 12-TET, including Just Intonation, Pythagorean, Meantone, and various EDOs. Calculate cents deviations. Register custom tuning systems. Convert between frequency ratios and cents.
+const c4 = createNote({ letter: "C", octave: 4 });
+const cMajorScale = createScale(c4, "major");
+const g7 = createChord(transpose(c4, PERFECT_FIFTH), "7");
+```
 
-## Who Is This For?
+These legacy modules carry the defects catalogued in [REDESIGN.md](REDESIGN.md) §2 and Appendix A. They are replaced (and deleted) phase by phase.
 
-- Web developers building music-related applications (editors, visualizers, educational tools).
-- Node.js developers working on music generation, analysis, or backend systems.
-- Musicians and composers exploring theory, microtonality, or algorithmic composition.
-- Educators creating interactive music theory content.
-- Researchers in AI music, MIR, or computational musicology.
-
-## Installation
+## Development
 
 ```bash
-npm install musictheoryjs
+bun install
+bun run test           # vitest suite
+bun run test:coverage  # + v8 coverage (new modules held at 100%)
+bun run typecheck      # src, tests, and scripts under strict TS
+bun run build          # rollup bundles + rolled-up .d.ts
+bun run generate:dict  # regenerate the chord/scale dictionaries
 ```
 
-## Basic Usage
+CI runs typecheck → test → build on every push and pull request.
 
-```javascript
-import { createNote, createScale, createChord } from "musictheoryjs";
+## License
 
-// Create a note
-const cNote = createNote({ letter: "C", octave: 4 });
-
-// Create a scale
-const cMajorScale = createScale(cNote, "major");
-
-// Create a chord
-const cMajorChord = createChord(cNote, "major");
-```
+ISC — see [LICENSE.txt](LICENSE.txt).

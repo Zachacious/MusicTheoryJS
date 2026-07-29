@@ -67,6 +67,33 @@ describe("core/pitch", () => {
       expect(tryNote({ step: 9, alt: 0 } as never)).toBeNull();
       expect(() => note("H4")).toThrow(MusicTheoryError);
     });
+
+    it("rejects octaves beyond safe-integer range instead of corrupting arithmetic", () => {
+      expect(tryNote("C999999999999999999999")).toBeNull();
+      expect(() => pitch(0, 0, 2 ** 53)).toThrow(MusicTheoryError);
+      expect(() => pitch(0, 2 ** 53)).toThrow(MusicTheoryError);
+    });
+
+    it("ignores inherited properties (prototype-pollution safety)", () => {
+      const polluted = Object.create({ oct: 7, cents: 50 }) as Record<string, number>;
+      polluted.step = 0;
+      polluted.alt = 0;
+      const p = note(polluted as never);
+      expect(p.oct).toBeUndefined();
+      expect(p.cents).toBeUndefined();
+      const missingOwn = Object.create({ step: 0, alt: 0 }) as never;
+      expect(tryNote(missingOwn)).toBeNull();
+    });
+
+    it("accepts explicit undefined oct/cents on object input", () => {
+      expect(note({ step: 0, alt: 0, oct: undefined }).oct).toBeUndefined();
+    });
+
+    it("normalizes negative zero in all fields", () => {
+      expect(Object.is(note("C-0").oct, 0)).toBe(true);
+      expect(Object.is(pitch(0, -0).alt, 0)).toBe(true);
+      expect(Object.is(pitch(-0, 0, -0).step, 0)).toBe(true);
+    });
   });
 
   describe("pitch (factory)", () => {

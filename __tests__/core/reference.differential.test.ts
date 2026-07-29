@@ -101,7 +101,9 @@ describe("core vs reference implementation", () => {
     }
     expect(mismatches.slice(0, 20)).toEqual([]);
     expect(mismatches.length).toBe(0);
-    expect(referenceInconsistent.length).toBeLessThan(100);
+    // Exactly the E#↔Fb / B#↔Cb letter-vs-pitch direction pairs; pinned so
+    // silent growth of the "reference is wrong" bucket fails the suite.
+    expect(referenceInconsistent.length).toBeLessThanOrEqual(20);
   });
 
   it("agrees on MIDI numbers", () => {

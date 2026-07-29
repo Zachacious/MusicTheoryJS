@@ -48,15 +48,23 @@ const FLAT_SPELLINGS: ReadonlyArray<readonly [Step, number]> = [
   [4, -1], [4, 0], [5, -1], [5, 0], [6, -1], [6, 0],
 ];
 
-/** Structural type guard for `Pitch`-shaped values. */
+const hasOwn = (obj: object, key: string): boolean =>
+  Object.prototype.hasOwnProperty.call(obj, key);
+
+/**
+ * Structural type guard for `Pitch`-shaped values. Only own properties are
+ * consulted, so values remain deterministic under prototype pollution.
+ */
 export function isPitch(value: unknown): value is Pitch {
   if (typeof value !== "object" || value === null) return false;
   const p = value as Record<string, unknown>;
   return (
+    hasOwn(p, "step") &&
     typeof p.step === "number" &&
+    hasOwn(p, "alt") &&
     typeof p.alt === "number" &&
-    (p.oct === undefined || typeof p.oct === "number") &&
-    (p.cents === undefined || typeof p.cents === "number")
+    (!hasOwn(p, "oct") || p.oct === undefined || typeof p.oct === "number") &&
+    (!hasOwn(p, "cents") || p.cents === undefined || typeof p.cents === "number")
   );
 }
 
@@ -70,26 +78,27 @@ export function pitch(
   oct?: number,
   cents?: number
 ): Pitch {
-  if (!Number.isInteger(step) || step < 0 || step > 6) {
+  if (!Number.isSafeInteger(step) || step < 0 || step > 6) {
     throw new MusicTheoryError(
       `Invalid step ${step}: must be an integer 0-6 (C=0 … B=6).`
     );
   }
-  if (!Number.isInteger(alt)) {
+  if (!Number.isSafeInteger(alt)) {
     throw new MusicTheoryError(
-      `Invalid alteration ${alt}: must be an integer (positive = sharps, negative = flats).`
+      `Invalid alteration ${alt}: must be a safe integer (positive = sharps, negative = flats).`
     );
   }
-  if (oct !== undefined && !Number.isInteger(oct)) {
-    throw new MusicTheoryError(`Invalid octave ${oct}: must be an integer.`);
+  if (oct !== undefined && !Number.isSafeInteger(oct)) {
+    throw new MusicTheoryError(`Invalid octave ${oct}: must be a safe integer.`);
   }
   if (cents !== undefined && !Number.isFinite(cents)) {
     throw new MusicTheoryError(`Invalid cents ${cents}: must be a finite number.`);
   }
+  // Normalize -0 so fields are stable under Object.is / structured clone.
   return Object.freeze({
-    step: step as Step,
-    alt,
-    ...(oct !== undefined && { oct }),
+    step: (step === 0 ? 0 : step) as Step,
+    alt: alt === 0 ? 0 : alt,
+    ...(oct !== undefined && { oct: oct === 0 ? 0 : oct }),
     ...(cents !== undefined && cents !== 0 && { cents }),
   });
 }
@@ -105,7 +114,13 @@ const noteCache = new Map<string, Pitch>();
 export function tryNote(input: string | Pitch): Pitch | null {
   if (isPitch(input)) {
     try {
-      return pitch(input.step, input.alt, input.oct, input.cents);
+      // Read own properties only — inherited oct/cents must not leak in.
+      return pitch(
+        input.step,
+        input.alt,
+        hasOwn(input, "oct") ? input.oct : undefined,
+        hasOwn(input, "cents") ? input.cents : undefined
+      );
     } catch {
       return null;
     }
@@ -123,7 +138,12 @@ export function tryNote(input: string | Pitch): Pitch | null {
     : acc.startsWith("x") ? acc.length * 2
     : -acc.length;
   const oct = m[3] === undefined ? undefined : parseInt(m[3], 10);
-  const parsed = pitch(step, alt, oct);
+  let parsed: Pitch;
+  try {
+    parsed = pitch(step, alt, oct); // e.g. an octave beyond safe-integer range
+  } catch {
+    return null;
+  }
   if (noteCache.size > 10_000) noteCache.clear();
   noteCache.set(input, parsed);
   return parsed;
@@ -140,7 +160,11 @@ export function note(input: string | Pitch): Pitch {
   return p;
 }
 
-/** Format a pitch as a name: `noteName("Eb4") === "Eb4"`, pitch classes omit the octave. */
+/**
+ * Format a pitch as a name: `noteName("Eb4") === "Eb4"`, pitch classes omit
+ * the octave. Names do not encode `cents` — formatting a microtonal pitch is
+ * lossy; keep the `Pitch` object when the deviation matters.
+ */
 export function noteName(input: string | Pitch): string {
   const p = note(input);
   const acc = p.alt > 0 ? "#".repeat(p.alt) : "b".repeat(-p.alt);

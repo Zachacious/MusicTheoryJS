@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "es2018",
     "module": "esnext",
-    "lib": ["dom", "esnext"],
+    "lib": ["esnext"],
     "moduleResolution": "bundler",
     "strict": true,
     "noUnusedLocals": true,
@@ -15,6 +15,6 @@
     "forceConsistentCasingInFileNames": true,
     "noEmit": true
   },
-  "include": ["src", "__tests__", "vitest.config.ts"],
+  "include": ["src", "__tests__", "scripts", "vitest.config.ts"],
   "exclude": ["node_modules", "dist", "v2"]
 }

@@ -10,3 +10,4 @@ node_modules/
 #Exclude tsc generated files
 js/*.map
 js/ts.js
+docs/

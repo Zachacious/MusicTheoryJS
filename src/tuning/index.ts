@@ -12,8 +12,8 @@
  *
  * @example Apply Just Intonation to a triad
  * ```ts
- * import { createNote } from 'musictheoryjs/note'; // Adjust path
- * import { applyTuningSystem } from 'musictheoryjs/tuning'; // Adjust path
+ * import { createNote } from 'musictheoryjs'; // Adjust path
+ * import { applyTuningSystem } from 'musictheoryjs'; // Adjust path
  *
  * const c4 = createNote({ midi: 60 });
  * const e4 = createNote({ midi: 64 });
@@ -33,8 +33,8 @@
  *
  * @example Register and use a custom tuning
  * ```ts
- * import { createNote, Note } from 'musictheoryjs/note'; // Adjust path
- * import { registerTuningSystem, applyTuningSystem, TuningSystemFunction } from 'musictheoryjs/tuning'; // Adjust path
+ * import { createNote, Note } from 'musictheoryjs'; // Adjust path
+ * import { registerTuningSystem, applyTuningSystem, TuningSystemFunction } from 'musictheoryjs'; // Adjust path
  *
  * // Define a function for a simple +10 cents shift
  * const sharpShift: TuningSystemFunction = (note: Note, ref: Note): number => 10;

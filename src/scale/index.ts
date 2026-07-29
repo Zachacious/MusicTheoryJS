@@ -18,8 +18,8 @@
  * @example
  * ```ts
  * // Basic Scale Creation and Operation
- * import { createScaleByName, getDegree, formatNote } from 'musictheoryjs/scale'; // Adjust path if needed
- * import { createNote } from 'musictheoryjs/note'; // Adjust path if needed
+ * import { createScaleByName, getDegree, formatNote } from 'musictheoryjs'; // Adjust path if needed
+ * import { createNote } from 'musictheoryjs'; // Adjust path if needed
  *
  * const c4 = createNote({ letter: 'C', octave: 4 });
  * const gMajor = createScaleByName('G4', 'major'); // Create G Major scale
@@ -33,8 +33,8 @@
  * @example
  * ```ts
  * // Scale Analysis
- * import { createScaleFromSteps, analyzeScaleStructure, formatNote } from 'musictheoryjs/scale';
- * import { createNote } from 'musictheoryjs/note';
+ * import { createScaleFromSteps, analyzeScaleStructure, formatNote } from 'musictheoryjs';
+ * import { createNote } from 'musictheoryjs';
  *
  * const c4 = createNote({ letter: 'C', octave: 4 });
  * const dorianScale = createScaleFromSteps(c4, "W H W W W H W"); // Create C Dorian

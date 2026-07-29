@@ -24,17 +24,27 @@ export interface Interval {
 /** Simple steps whose basic size is "perfect" (unison/octave, fourth, fifth). */
 const PERFECT_CLASS = new Set([0, 3, 4]);
 
-/** Structural type guard for `Interval`-shaped values. */
+/**
+ * Structural type guard for `Interval`-shaped values. Only own properties are
+ * consulted, so values remain deterministic under prototype pollution.
+ */
 export function isInterval(value: unknown): value is Interval {
   if (typeof value !== "object" || value === null) return false;
   const i = value as Record<string, unknown>;
-  return typeof i.steps === "number" && typeof i.semitones === "number";
+  const own = (key: string): boolean =>
+    Object.prototype.hasOwnProperty.call(i, key);
+  return (
+    own("steps") &&
+    typeof i.steps === "number" &&
+    own("semitones") &&
+    typeof i.semitones === "number"
+  );
 }
 
 function make(steps: number, semitones: number): Interval {
-  if (!Number.isInteger(steps) || !Number.isInteger(semitones)) {
+  if (!Number.isSafeInteger(steps) || !Number.isSafeInteger(semitones)) {
     throw new MusicTheoryError(
-      `Invalid interval (steps: ${steps}, semitones: ${semitones}): both must be integers.`
+      `Invalid interval (steps: ${steps}, semitones: ${semitones}): both must be safe integers.`
     );
   }
   return Object.freeze({
@@ -43,8 +53,9 @@ function make(steps: number, semitones: number): Interval {
   });
 }
 
-const INTERVAL_REGEX =
-  /^([-+])?(?:(A{1,4}|P|M|m|d{1,4})(\d+)|(\d+)(A{1,4}|P|M|m|d{1,4}))$/;
+// A/d runs are unbounded so that every name intervalName() can emit parses
+// back — interval(intervalName(x)) round-trips for any Interval.
+const INTERVAL_REGEX = /^([-+])?(?:(A+|P|M|m|d+)(\d+)|(\d+)(A+|P|M|m|d+))$/;
 const intervalCache = new Map<string, Interval>();
 
 /**

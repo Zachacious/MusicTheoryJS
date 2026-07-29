@@ -67,10 +67,24 @@ describe("core/interval", () => {
       expect(tryInterval("M0")).toBeNull();
       expect(tryInterval("x3")).toBeNull();
       expect(tryInterval("")).toBeNull();
-      expect(tryInterval("AAAAA4")).toBeNull(); // beyond quadruple
       expect(tryInterval(3 as unknown as string)).toBeNull();
       expect(tryInterval({ steps: 1.5, semitones: 3 } as never)).toBeNull();
+      expect(tryInterval({ steps: 2 ** 53, semitones: 0 } as never)).toBeNull();
       expect(() => interval("P3")).toThrow(MusicTheoryError);
+    });
+
+    it("ignores inherited properties on object input", () => {
+      const inherited = Object.create({ steps: 2, semitones: 3 }) as never;
+      expect(tryInterval(inherited)).toBeNull();
+    });
+
+    it("parses every name the formatter can emit (round-trip guarantee)", () => {
+      expect(interval("AAAAA4")).toEqual({ steps: 3, semitones: 10 });
+      expect(intervalName(interval("AAAAA4"))).toBe("AAAAA4");
+      const exotic = { steps: 3, semitones: -2 }; // formats as ddddddd4
+      expect(interval(intervalName(exotic))).toEqual(exotic);
+      const extreme = intervalName(interval({ steps: 6, semitones: 19 })); // AAAAAAAA7
+      expect(interval(extreme)).toEqual({ steps: 6, semitones: 19 });
     });
   });
 
