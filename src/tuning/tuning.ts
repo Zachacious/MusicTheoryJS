@@ -19,6 +19,10 @@
 
 import { CENTS_PER_OCTAVE, mod } from "../math/index";
 import { type SpelledPitch, chroma } from "../pitch/spelled";
+// The registry imports this module for its built-ins, so this is a cycle.
+// It is safe because `asTuning` is only ever called from a function body, by
+// which time both modules have finished evaluating.
+import { type TuningLike, asTuning } from "./registry";
 
 /**
  * A tuning system. A tuning divides a repeating *period* (an octave, 1200
@@ -54,10 +58,11 @@ const A4_DEFAULT_HZ = 440;
  * Total cents above the tonic (degree 0 of period 0) for any integer degree,
  * wrapping across periods. `degreeCents(t, t.size)` is one full period up.
  */
-export function degreeCents(tuning: Tuning, degree: number): number {
-  const periods = Math.floor(degree / tuning.size);
-  const index = mod(degree, tuning.size);
-  return periods * tuning.period + tuning.centsForDegree(index);
+export function degreeCents(tuning: TuningLike, degree: number): number {
+  const t = asTuning(tuning);
+  const periods = Math.floor(degree / t.size);
+  const index = mod(degree, t.size);
+  return periods * t.period + t.centsForDegree(index);
 }
 
 /**
@@ -66,7 +71,7 @@ export function degreeCents(tuning: Tuning, degree: number): number {
  * custom cents tables.
  */
 export function frequencyOfDegree(
-  tuning: Tuning,
+  tuning: TuningLike,
   degree: number,
   anchor: TuningAnchor = {}
 ): number {
@@ -78,10 +83,11 @@ export function frequencyOfDegree(
  * Total cents above C0 for a Western spelled note under a 12-note tuning. The
  * note's pitch class selects the degree; its octave selects the period.
  */
-export function noteCents(tuning: Tuning, pitch: SpelledPitch): number {
+export function noteCents(tuning: TuningLike, pitch: SpelledPitch): number {
+  const t = asTuning(tuning);
   const c = chroma(pitch);
-  const octave = Math.floor(c / tuning.size);
-  return octave * tuning.period + tuning.centsForDegree(mod(c, tuning.size));
+  const octave = Math.floor(c / t.size);
+  return octave * t.period + t.centsForDegree(mod(c, t.size));
 }
 
 /**
@@ -91,11 +97,12 @@ export function noteCents(tuning: Tuning, pitch: SpelledPitch): number {
  */
 export function frequencyOfNote(
   pitch: SpelledPitch,
-  tuning: Tuning = TET12,
+  tuning: TuningLike = TET12,
   anchor: TuningAnchor = {}
 ): number {
   const anchorHz = anchor.frequency ?? A4_DEFAULT_HZ;
-  const diff = noteCents(tuning, pitch) - noteCents(tuning, A4);
+  const t = asTuning(tuning);
+  const diff = noteCents(t, pitch) - noteCents(t, A4);
   return anchorHz * 2 ** (diff / CENTS_PER_OCTAVE);
 }
 
@@ -122,6 +129,32 @@ export function equalTemperament(divisions: number): Tuning {
 
 /** Alias for {@link equalTemperament}: n equal divisions of the octave. */
 export const edo = equalTemperament;
+
+/**
+ * True when a value is a usable {@link Tuning}: a positive number of degrees, a
+ * positive period, and a `centsForDegree` function. Useful at the boundary
+ * where a tuning arrives from user code, JSON, or a plugin.
+ *
+ * @example
+ * ```ts
+ * import { isTuning, equalTemperament } from "musictheoryjs";
+ * isTuning(equalTemperament(19)); // => true
+ * isTuning({ name: "broken", size: 0, period: 1200, centsForDegree: () => 0 }); // => false
+ * isTuning(null); // => false
+ * ```
+ */
+export function isTuning(value: unknown): value is Tuning {
+  if (typeof value !== "object" || value === null) return false;
+  const t = value as Partial<Tuning>;
+  return (
+    typeof t.name === "string" &&
+    Number.isInteger(t.size) &&
+    (t.size as number) > 0 &&
+    Number.isFinite(t.period) &&
+    (t.period as number) > 0 &&
+    typeof t.centsForDegree === "function"
+  );
+}
 
 /** Standard 12-tone equal temperament — the default tuning. */
 export const TET12: Tuning = equalTemperament(12);

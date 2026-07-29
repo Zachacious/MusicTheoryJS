@@ -144,6 +144,11 @@ and the paths everyone hits should be the fastest ones.
       registered, removed, and reset at runtime, and everything derived from
       them — symbol parsing, detection, chord-scale matching, Roman numerals —
       picks the change up immediately rather than caching a stale table.
+- [x] Tunings addressable by name: a registry with the same shape as the chord
+      and scale dictionaries (`registerTuning`, `getTuning`, `tuningNames`,
+      remove/reset, version counter), seeded with 34 built-ins, so an app can
+      store a user's tuning choice as a string. Every tuning-taking function
+      accepts a name wherever it accepts an object.
 - [x] Speed: memoized note and interval parsing, mode relations computed on
       pitch-class offsets instead of constructed scales, and chord-scale
       ranking that scores from masks and builds only the scales it returns.

@@ -12,6 +12,83 @@
   --sl-color-accent-high: #2a1958;
 }
 
+/* ------------------------------------------------------------- chrome */
+
+/*
+ * `color-scheme` is what makes the browser's own UI — scrollbars above all —
+ * follow the theme. Without it the page renders dark while its scrollbars stay
+ * light. The default defers to the OS, which is the signal the landing page's
+ * Tailwind `dark:` variants use; Starlight's explicit toggle then wins on the
+ * pages it controls.
+ */
+:root {
+  color-scheme: light dark;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+/* A slimmer scrollbar in the brand's greys rather than the browser default.
+ * `color-scheme` already themes it; this just makes it less obtrusive. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--sl-color-gray-5, #3a3a44) transparent;
+}
+
+/* WebKit before 121 ignores the standard properties above. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  /* The transparent border plus content-box clip insets the thumb, so it reads
+   * as a floating pill rather than filling the gutter edge to edge. */
+  background: var(--sl-color-gray-5, #3a3a44);
+  background-clip: content-box;
+  border: 2px solid transparent;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sl-color-gray-4, #55555f);
+  background-clip: content-box;
+}
+
+/*
+ * Nothing should scroll the page sideways. `clip` rather than `hidden` because
+ * `hidden` on a scroll container silently breaks `position: sticky` — which the
+ * site header relies on.
+ */
+html,
+body {
+  overflow-x: clip;
+  max-width: 100%;
+}
+
+/* Wide content earns its own scrollbar instead of widening the page. Tables
+ * need `display: block` to become scroll containers at all. */
+.sl-markdown-content pre,
+.sl-markdown-content table {
+  max-width: 100%;
+}
+.sl-markdown-content table {
+  display: block;
+  overflow-x: auto;
+}
+
+/* Grid and flex children default to `min-width: auto`, which lets a long code
+ * line push a column — and the page — wider than the viewport. */
+.mtjs-min-w-0,
+.sl-markdown-content > * {
+  min-width: 0;
+}
+
 /* A little extra polish on the hero + cards used by the landing page. */
 .hero-gradient {
   background: radial-gradient(
@@ -38,6 +115,11 @@
   width: 100%;
   border: 0;
   resize: vertical;
+  /* Soft-wrap long lines. The auto-height sizing measures scrollHeight, so
+   * wrapping keeps every line visible without a horizontal scrollbar. */
+  white-space: pre-wrap;
+  overflow-x: hidden;
+  overflow-wrap: break-word;
   padding: 0.75rem 1rem;
   font-family: var(--__sl-font-mono, ui-monospace, "SFMono-Regular", monospace);
   font-size: var(--sl-text-code, 0.875rem);

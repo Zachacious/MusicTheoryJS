@@ -13,6 +13,14 @@ Close the gaps (roadmap Phase 8). Everything is additive.
   than silently overwriting. `chordTemplate`/`scaleTemplate` look a template up
   by name and throw if it is unknown; `chordDictionaryVersion`/
   `scaleDictionaryVersion` expose the revision so callers can cache against it.
+- **Tuning registry**: `registerTuning`, `getTuning`, `tryGetTuning`,
+  `hasTuning`, `tuningNames`, `removeTuning`, `resetTunings`, and
+  `tuningRegistryVersion`, seeded with 34 built-in tunings (12-TET, historical,
+  11 EDOs, 7 maqamat, 10 ragas, slendro, pelog). Lookup ignores case. Every
+  tuning-taking function — `frequencyOfNote`, `frequencyOfDegree`, `noteCents`,
+  `degreeCents` — now accepts a registered name wherever it accepts a `Tuning`,
+  via the new `TuningLike` type and `asTuning`. `isTuning` validates a value at
+  a boundary.
 - **Rhythm patterns**: `euclideanRhythm` (the Euclidean distribution behind the
   tresillo, cinquillo, and Bossa Nova clave), `rhythmFromOnsets`,
   `rhythmToOnsets`, `rhythmFromHex`/`rhythmToHex`, `rotateRhythm`,

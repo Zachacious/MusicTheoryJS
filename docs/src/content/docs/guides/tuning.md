@@ -147,6 +147,85 @@ To go the other way — from a detected/desired frequency to the nearest Western
 note — use `Note.fromFrequency` (see [Notes](/guides/notes/)) or the lower-level
 `PitchPoint` helpers.
 
+## Tunings by name
+
+Passing a `Tuning` object around is the direct route and always works. But an
+app that lets a user *choose* a tuning — a settings menu, a preset list, a saved
+project — needs to store that choice as a string and resolve it later. Every
+tuning that ships is registered under a name, so that works with no setup:
+
+```ts
+import { frequencyOfNote, parseNote, getTuning, tuningNames } from "musictheoryjs";
+
+frequencyOfNote(parseNote("C4"), "Just");        // 264 — a pure C
+frequencyOfNote(parseNote("C4"), "Pythagorean"); // 260.74
+frequencyOfNote(parseNote("C4"));                // 261.63 — 12-TET default
+
+getTuning("24-EDO").size;   // 24
+tuningNames().length;       // 34 built in
+```
+
+Names are matched without regard to case or surrounding space, so `"24-edo"`
+and `"24-EDO"` are the same tuning. A name works anywhere a tuning object does —
+`frequencyOfNote`, `frequencyOfDegree`, `noteCents`, `degreeCents` — and gives
+an identical result:
+
+```ts
+import { frequencyOfNote, parseNote, justIntonation } from "musictheoryjs";
+
+frequencyOfNote(parseNote("E4"), "Just") ===
+  frequencyOfNote(parseNote("E4"), justIntonation()); // true
+```
+
+A typo throws with the closest matches rather than silently falling back to
+12-TET, which would be a wrong answer that sounds almost right:
+
+```ts
+import { getTuning, tryGetTuning } from "musictheoryjs";
+
+getTuning("24-ED");        // throws: unknown tuning "24-ED"; did you mean 24-EDO?
+tryGetTuning("nope");      // null — the non-throwing form
+```
+
+### Registering your own
+
+`registerTuning` adds a tuning under a name, after which it resolves like any
+built-in. `tuningNames()` returns the names as written, which is what you want
+for a picker.
+
+```ts
+import { registerTuning, getTuning, centsTuning, tuningNames } from "musictheoryjs";
+
+const bohlenPierce = centsTuning([0, 146, 293, 439, 585, 732, 878, 1024, 1170], {
+  name: "Bohlen-Pierce",
+  period: 1902,  // a tritave, not an octave
+});
+
+registerTuning("bp", bohlenPierce);
+getTuning("bp").period;            // 1902
+tuningNames().includes("bp");      // true
+```
+
+As with the [chord and scale dictionaries](/guides/extending/), a duplicate name
+is refused rather than silently replacing — a tuning quietly changing underneath
+a program would alter what every note sounds like. Remove it first to replace it
+deliberately, and `resetTunings()` restores the built-ins:
+
+```ts
+import { registerTuning, removeTuning, resetTunings, equalTemperament, getTuning } from "musictheoryjs";
+
+registerTuning("12-TET", equalTemperament(19)); // throws — already registered
+
+removeTuning("12-TET");
+registerTuning("12-TET", equalTemperament(19)); // deliberate override
+getTuning("12-TET").size;                        // 19
+
+resetTunings();                                  // back to the shipped set
+```
+
+If you cache anything derived from the registry, watch `tuningRegistryVersion()`
+— it changes on every register, remove, and reset.
+
 ## Try it live
 
 Hear a maqam's neutral third — something 12-TET can't play:

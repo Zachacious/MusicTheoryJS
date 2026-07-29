@@ -10,3 +10,4 @@ export * from "./historical";
 export * from "./custom";
 export * from "./presets";
 export * from "./compare";
+export * from "./registry";

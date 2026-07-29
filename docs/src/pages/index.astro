@@ -98,10 +98,58 @@ tuning.centsForDegree(4);  // cents above the tonic`,
   },
 ];
 
+const useCases = [
+  {
+    title: "Practice and ear-training apps",
+    body: "Parse whatever a learner types, hand back the right notes, and grade the answer. Detection runs the other way, so you can check a played chord against the one you asked for.",
+    api: "Chord.from · detectChord · chordScales",
+  },
+  {
+    title: "DAWs and sequencers",
+    body: "Read and write Standard MIDI Files, quantize to a grid, and turn Euclidean patterns into onset positions in ticks. No extra packages.",
+    api: "parseMidi · writeMidi · euclideanRhythm · quantizeTick",
+  },
+  {
+    title: "Composition and arranging tools",
+    body: "Generate progressions from Roman numerals, then voice them with real voice-leading rules — minimal motion, no parallel fifths or octaves.",
+    api: "Key#progression · voiceProgression · nextVoicing",
+  },
+  {
+    title: "Analysis and musicology",
+    body: "Point it at a performance or a MIDI file and get the key, a chord timeline labelled with Roman numerals, cadences, and modulations.",
+    api: "detectKey · analyzeHarmony · detectModulations",
+  },
+  {
+    title: "Notation and interchange",
+    body: "Export ABC or MusicXML for any notation program, and read ABC back in — so a tune can round-trip through your app unchanged.",
+    api: "toABC · toMusicXML · fromABC",
+  },
+  {
+    title: "World and microtonal music",
+    body: "Maqamat with real neutral thirds, ragas on just-intonation shrutis, gamelan slendro and pelog, any equal division of the octave, or a Scala file.",
+    api: "getTuning · maqamTuning · ragaTuning · scalaTuning",
+  },
+  {
+    title: "Guitar, synth, and instrument UIs",
+    body: "Ask for the notes of any chord or scale in any tuning, get frequencies for the oscillators, and snap incoming pitches to the scale you are in.",
+    api: "frequencyOfNote · pcsetNearest · voicingsOf",
+  },
+  {
+    title: "Generative and algorithmic music",
+    body: "Walk a pitch-class set as a scale, transform chords with Neo-Riemannian operations or negative harmony, and drive it all with seeded random rhythms.",
+    api: "pcsetStep · neoRiemannian · negativeChord · weightedRhythm",
+  },
+  {
+    title: "Teaching tools and reference sites",
+    body: "108 chord qualities and 92 scales out of the box, with subset and superset queries — and you can register your own vocabulary at runtime.",
+    api: "scaleSupersets · chordSubsets · addChordType",
+  },
+];
+
 const stats = [
   { n: "0", label: "runtime dependencies" },
-  { n: "~1.5 KB", label: "gzipped for one class" },
-  { n: "~11 KB", label: "gzipped, whole library" },
+  { n: "~2 KB", label: "gzipped for one class" },
+  { n: "~31 KB", label: "gzipped, whole library" },
   { n: "ESM + CJS", label: "with full types" },
 ];
 ---
@@ -133,7 +181,7 @@ const stats = [
           <span
             class="inline-flex items-center gap-2 rounded-full border border-violet-500/25 bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-700 dark:text-violet-300"
           >
-            v3 · zero dependencies · ESM + CJS · ~11 KB
+            v3 · zero dependencies · ESM + CJS · fastest and most complete
           </span>
           <h1
             class="mt-5 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl dark:text-white"
@@ -145,11 +193,11 @@ const stats = [
             >.
           </h1>
           <p class="mt-5 max-w-xl text-lg leading-relaxed text-slate-600 dark:text-slate-400">
-            A TypeScript library for notes, scales, chords, and keys — parse a
-            chord, spell a scale, name a Roman numeral, detect the key of a
-            melody. Zero dependencies, typed to the edges, and tree-shakable down
-            to ~1.5 KB for a single class. Microtonal tunings, MIDI, and audio
-            analysis come in the same package.
+            The fastest and most complete music theory library for JavaScript
+            and TypeScript. Notes, scales, chords, keys, Roman numerals, key
+            detection, rhythm, MIDI, notation, audio analysis, and microtonal
+            tunings — one package, zero dependencies, typed to the edges and
+            tree-shakable down to ~2 KB.
           </p>
           <div class="mt-8 flex flex-wrap items-center gap-3">
             <a
@@ -194,6 +242,30 @@ const stats = [
     </div>
   </section>
 
+  <!-- Use cases -->
+  <section class="border-y border-slate-200/70 bg-slate-50/60 dark:border-white/10 dark:bg-white/[0.02]">
+    <div class="mx-auto max-w-6xl px-5 py-16">
+      <div class="mx-auto max-w-2xl text-center">
+        <h2 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+          What people build with it
+        </h2>
+        <p class="mt-4 text-slate-600 dark:text-slate-400">
+          Every one of these is the library doing the theory, so your code can
+          get on with the product.
+        </p>
+      </div>
+      <div class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {useCases.map((u) => (
+          <div class="min-w-0 rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-white/[0.03]">
+            <h3 class="font-semibold text-slate-900 dark:text-white">{u.title}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">{u.body}</p>
+            <p class="mt-4 font-mono text-xs break-words text-violet-600 dark:text-violet-400">{u.api}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
   <!-- Dev credentials -->
   <section class="mx-auto max-w-6xl px-5 py-16">
     <div class="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-center">
@@ -204,8 +276,8 @@ const stats = [
         <p class="mt-4 text-slate-600 dark:text-slate-400">
           The package is marked <code class="rounded bg-slate-100 px-1.5 py-0.5 text-sm dark:bg-white/10">sideEffects: false</code>
           and every area has its own entry point, so a bundler keeps only the
-          code you reach. Import one class and you ship about a kilobyte and a
-          half. Numbers below come from bundling a real import with
+          code you reach. Import one class and you ship about two kilobytes.
+          Numbers below come from bundling a real import with
           <code class="rounded bg-slate-100 px-1.5 py-0.5 text-sm dark:bg-white/10">bun build --minify</code> and gzipping it.
         </p>
         <ul class="mt-6 space-y-2 text-sm text-slate-600 dark:text-slate-400">
@@ -226,11 +298,12 @@ const stats = [
           </thead>
           <tbody class="divide-y divide-slate-100 dark:divide-white/5">
             {[
-              ["Note", "3.2 KB", "1.5 KB"],
-              ["Note, Scale, Chord", "9.6 KB", "3.6 KB"],
-              ["Key + progressions", "12.3 KB", "4.6 KB"],
-              ["MIDI read", "5.6 KB", "2.5 KB"],
-              ["Everything", "29.5 KB", "11.1 KB"],
+              ["Rhythm patterns", "0.5 KB", "0.3 KB"],
+              ["Note", "4.7 KB", "2.0 KB"],
+              ["MIDI read", "7.3 KB", "3.2 KB"],
+              ["Note, Scale, Chord", "21.5 KB", "6.8 KB"],
+              ["Key + progressions", "26.4 KB", "8.3 KB"],
+              ["Everything", "90.4 KB", "30.9 KB"],
             ].map(([what, min, gz]) => (
               <tr>
                 <td class="px-5 py-3 font-mono text-slate-700 dark:text-slate-200">{what}</td>
