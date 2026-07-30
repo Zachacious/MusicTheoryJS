@@ -27,15 +27,48 @@ tunings most software cannot represent.
 
 ## Highlights
 
-- **Fastest.** Faster on 13 of 14 head-to-head operations against the leading alternative — roughly 2× on chord and scale construction, 7–17× on parsing and chord detection, and far more on pitch-class work. [Numbers and method](#speed).
-- **Most complete.** Everything the leading library does, plus whole domains it has none of: microtonal tunings, MIDI file I/O, notation in and out, audio DSP, voice leading, rhythm generation, and sequencing. [What's in the library](#whats-in-the-library).
-- **Easy to use.** One import, no setup, no builders. Pass names (`"Cmaj7"`, `"C4 major"`, `"7/8"`), plain objects, or numbers — anything that could reasonably mean a chord is accepted as one, and you get a spelled, printable answer back.
-- **Small.** `Note` alone is ~2 KB gzipped, everything at once ~41 KB, zero runtime dependencies. Thirteen subpaths let a bundler drop what you don't touch.
-- **Open dictionaries.** 108 chord qualities, 92 scales, and 34 tunings built in — and you can register your own at runtime, after which every part of the library treats them as native.
-- **Typed and immutable.** `.d.ts` for every export, no `any` at the edges, ESM and CommonJS. Every operation returns a new value, safe to share and memoize.
-- **Correct.** `transpose("Eb4", "P5")` is `Bb4`, and G♯ and A♭ stay different pitches when a tuning needs them to be. [Here's why](#why-the-answers-come-out-right).
-- **Documentation you can trust.** Every snippet in this README, every `@example` in the source, and every runnable block in the guides executes in CI. A wrong `// =>` comment fails the build.
-- **Ready for AI assistants.** An [Agent Skill](#ai-assistants) ships in the package so coding agents write real v3 code instead of guessing, and the docs are published as [llms.txt](https://musictheoryjs.com/llms.txt). The skill's snippets run in CI with everything else.
+- **Fastest.** Faster on 13 of 14 head-to-head operations against the leading
+  alternative — roughly 2× on chord and scale construction, 7–17× on parsing
+  and chord detection, and far more on pitch-class work.
+  [Numbers and method](#speed).
+- **Most complete.** Everything the leading library does, plus whole domains
+  it has none of: microtonal tunings, MIDI file I/O, notation in and out,
+  audio DSP, voice leading, rhythm generation, and sequencing.
+  [What's in the library](#whats-in-the-library).
+- **Zero runtime dependencies.** Nothing gets pulled into your tree but the
+  code you call.
+- **Tree-shakable to the import.** Thirteen subpaths (`musictheoryjs/note`,
+  `/chord`, `/tuning`, …) and `sideEffects: false` let a bundler drop
+  everything you don't touch. `Note` alone ships at ~2 KB min+gzip; the
+  entire library — 108 chord qualities, 92 scales, 34 tunings — is about
+  41 KB. [Bundle size](#bundle-size).
+- **Written in TypeScript.** Types ship in the package: `.d.ts` for every
+  export and every subpath, no `@types` install, no `any` at the edges.
+- **ESM and CommonJS.** `import` and `require` both resolve to real builds,
+  each with its own type declarations.
+- **Immutable values.** Every operation returns a new value, so notes and
+  chords are safe to share, compare, and memoize.
+- **Easy to use.** One import, no setup, no builders. Pass names (`"Cmaj7"`,
+  `"C4 major"`, `"7/8"`), plain objects, or numbers — anything that could
+  reasonably mean a chord is accepted as one, and you get a spelled,
+  printable answer back.
+- **Correct results.** `transpose("Eb4", "P5")` is `Bb4`, the C♯ major scale
+  has an E♯ in it, and G♯ and A♭ stay different pitches when a tuning needs
+  them to be. [Here's why](#why-the-answers-come-out-right).
+- **Errors that help.** Bad input throws with a message that names the
+  problem, and `try*` variants (`tryParseNote`, `tryParseChordSymbol`, …)
+  return `null` when you'd rather test than catch — nothing silently falls
+  back to a default.
+- **Open dictionaries.** 108 chord qualities, 92 scales, and 34 tunings
+  built in — and you can register your own at runtime, after which every
+  part of the library treats them as native.
+- **Documentation you can trust.** Every snippet in this README, every
+  `@example` in the source, and every runnable block in the guides executes
+  in CI. A wrong `// =>` comment fails the build.
+- **Ready for AI assistants.** An [Agent Skill](#ai-assistants) ships in the
+  package so coding agents write real v3 code instead of guessing, and the
+  docs are published as [llms.txt](https://musictheoryjs.com/llms.txt). The
+  skill's snippets run in CI with everything else.
 
 ---
 
