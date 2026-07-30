@@ -35,6 +35,7 @@ tunings most software cannot represent.
 - **Typed and immutable.** `.d.ts` for every export, no `any` at the edges, ESM and CommonJS. Every operation returns a new value, safe to share and memoize.
 - **Correct.** `transpose("Eb4", "P5")` is `Bb4`, and G♯ and A♭ stay different pitches when a tuning needs them to be. [Here's why](#why-the-answers-come-out-right).
 - **Documentation you can trust.** Every snippet in this README, every `@example` in the source, and every runnable block in the guides executes in CI. A wrong `// =>` comment fails the build.
+- **Ready for AI assistants.** An [Agent Skill](#ai-assistants) ships in the package so coding agents write real v3 code instead of guessing, and the docs are published as [llms.txt](https://musictheoryjs.com/llms.txt). The skill's snippets run in CI with everything else.
 
 ---
 
@@ -59,6 +60,31 @@ examples that play through your speakers.
 > v3 is a rewrite and is not API-compatible with v2. On v2, pin it or read the
 > [migration guide](https://musictheoryjs.com/guides/migration/) before
 > upgrading — the v3 snippets on that page run as tests on every commit.
+
+## AI assistants
+
+v3 is newer than most models' training data, so an assistant asked cold will
+reach for the old v2 API. The package ships an
+[Agent Skill](skills/musictheoryjs/SKILL.md) that fixes this: a distilled
+reference the agent loads whenever it writes MusicTheoryJS code. In a Claude
+Code project, install it with:
+
+```bash
+cp -r node_modules/musictheoryjs/skills/musictheoryjs .claude/skills/
+```
+
+Or fetch it without installing the package:
+
+```bash
+npx degit Zachacious/MusicTheoryJS/skills/musictheoryjs .claude/skills/musictheoryjs
+```
+
+Any tool that reads `SKILL.md` files can use the same folder. The docs are
+also published for AI tools as [llms.txt](https://musictheoryjs.com/llms.txt)
+and [llms-full.txt](https://musictheoryjs.com/llms-full.txt), and every code
+snippet in the skill executes in CI alongside the README and guides — what it
+teaches is what the library does. Details in the
+[AI assistants guide](https://musictheoryjs.com/guides/ai/).
 
 ---
 

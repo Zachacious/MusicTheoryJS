@@ -33,7 +33,7 @@
     "bun": ">=1.1.0",
     "node": ">=18"
   },
-  "files": ["dist"],
+  "files": ["dist", "skills"],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

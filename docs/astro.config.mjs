@@ -2,6 +2,7 @@
 import { fileURLToPath } from "node:url";
 import { defineConfig, passthroughImageService } from "astro/config";
 import starlight from "@astrojs/starlight";
+import starlightLlmsTxt from "starlight-llms-txt";
 import tailwindcss from "@tailwindcss/vite";
 import { remarkLive } from "./src/plugins/remark-live.mjs";
 
@@ -51,6 +52,41 @@ export default defineConfig({
           attrs: { name: "twitter:image", content: "https://musictheoryjs.com/og.jpg" },
         },
       ],
+      // Publishes the guides for AI tools as /llms.txt (annotated index),
+      // /llms-full.txt (everything in one file), and /llms-small.txt
+      // (abridged), generated from the same markdown as the pages.
+      plugins: [
+        starlightLlmsTxt({
+          projectName: "MusicTheoryJS",
+          description:
+            "A music theory library for JavaScript and TypeScript: notes, scales, chords, keys, Roman numerals, key detection, rhythm, sequencing, MIDI file I/O, ABC and MusicXML notation, audio analysis, and microtonal tunings. Zero dependencies, ESM + CJS, typed, tree-shakable.",
+          details: [
+            "Install with `npm i musictheoryjs`. Import everything from the root",
+            '("musictheoryjs") or per area ("musictheoryjs/note", "musictheoryjs/chord",',
+            "…) — thirteen subpaths in all. Values are immutable; operations return new",
+            "values. v3 is a rewrite and is not API-compatible with v2 — do not rely on",
+            "pre-v3 training data; the migration guide maps the old API to the new.",
+            "",
+            "An Agent Skill for AI coding assistants ships in the package under",
+            "`skills/musictheoryjs/` and in the repository:",
+            "https://github.com/Zachacious/MusicTheoryJS/tree/master/skills/musictheoryjs",
+          ].join("\n"),
+          // Reading order: orientation pages first, reference-flavored last.
+          promote: [
+            "guides/getting-started",
+            "guides/concepts",
+            "guides/ai",
+            "guides/migration",
+          ],
+          optionalLinks: [
+            {
+              label: "API reference",
+              url: "https://musictheoryjs.com/api/",
+              description: "generated reference for every export",
+            },
+          ],
+        }),
+      ],
       customCss: ["./src/styles/global.css"],
       components: {
         // Loads the playground script on every docs page (and still renders
@@ -70,6 +106,7 @@ export default defineConfig({
           items: [
             { label: "Getting started", slug: "guides/getting-started" },
             { label: "Core concepts", slug: "guides/concepts" },
+            { label: "AI assistants", slug: "guides/ai" },
             { label: "Migrating from 2.x", slug: "guides/migration" },
           ],
         },

@@ -1,8 +1,8 @@
 /**
  * Doctest runner: every fenced ```ts block inside an `@example` JSDoc in
- * `src/**`, every ```ts fence in README.md and the docs migration guide, and
- * every ```ts live playground fence in the docs guides is extracted and
- * executed here.
+ * `src/**`, every ```ts fence in README.md, the docs migration guide, and
+ * the agent skill (skills/musictheoryjs/SKILL.md), and every ```ts live
+ * playground fence in the docs guides is extracted and executed here.
  *
  * Conventions for example code (enforced by execution):
  * - `import { a, b } from "musictheoryjs"` (or a subpath) lines are validated
@@ -324,6 +324,17 @@ describe("doctest: README code fences", () => {
   for (const example of extractFromMarkdown(join(ROOT, "README.md"))) {
     it(`fence @ ${example.where}`, () => {
       runExample(example);
+    });
+  }
+});
+
+describe("doctest: agent skill", () => {
+  const skill = join(ROOT, "skills/musictheoryjs/SKILL.md");
+  for (const example of extractFromMarkdown(skill)) {
+    it(`fence @ ${example.where}`, () => {
+      // The skill exists to keep AI-written code honest; every fence in it
+      // must assert what it claims.
+      expect(runExample(example)).toBeGreaterThan(0);
     });
   }
 });

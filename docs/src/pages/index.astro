@@ -6,6 +6,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const docs = `${base}guides/getting-started/`;
 const concepts = `${base}guides/concepts/`;
 const api = `${base}api/`;
+const ai = `${base}guides/ai/`;
 
 const CODE_THEME = "night-owl";
 
@@ -277,6 +278,15 @@ const moduleGroups = [
             <span class="text-violet-500">$</span>
             <span>bun add musictheoryjs</span>
           </div>
+          <p class="mt-4 text-sm text-slate-500 dark:text-slate-400">
+            Using an AI coding assistant? The package
+            <a
+              href={ai}
+              class="font-medium text-violet-600 underline-offset-2 hover:underline dark:text-violet-400"
+              >ships an Agent Skill</a
+            >
+            that teaches it the v3 API.
+          </p>
         </div>
 
         <div class="overflow-hidden rounded-2xl border border-slate-200 shadow-xl dark:border-white/10">
