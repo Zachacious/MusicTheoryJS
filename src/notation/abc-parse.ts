@@ -4,21 +4,33 @@
  * Two levels are offered. {@link abcToNote} and {@link noteToABC} convert a
  * single pitch, which is all most callers need: ABC writes middle C as `C`,
  * the octave above as `c`, and moves further with commas and apostrophes.
- * {@link fromABC} reads a whole tune — header fields plus the note stream —
- * so that a tune rendered by this library can be read back.
+ * {@link fromABC} reads a whole tune — header fields plus the notes with
+ * their rhythm, as a beat-timed stream — so that a tune rendered by this
+ * library round-trips, and tunes from the wider ABC world land ready for
+ * the sequence, analysis, and MIDI layers.
  *
  * Accidentals follow ABC's measure rule on the way in as well as out: an
  * inflection carries to the end of its measure, so `^F ... F` sounds F# twice.
  * Without that, imported tunes would silently lose sharps.
  *
- * This reads the pitch content of a tune, not its every ornament: decorations,
- * slurs, grace notes, and lyrics are skipped rather than modelled.
+ * This reads the musical content of a tune, not its every ornament:
+ * decorations, slurs, grace notes, and lyrics are skipped rather than
+ * modelled, and the note lines of a multi-voice tune are read one after
+ * another rather than overlaid.
  */
 
+import type { NoteEvent, NoteStream } from "../analysis/types";
 import { keySignatureOf } from "../key/key";
 import { Note } from "../note/note";
 import type { Step } from "../pitch/spelled";
+import {
+  barWholeNotes,
+  meterClass,
+  tryParseTimeSignature,
+} from "../rhythm/meter";
 import { relativeTonic } from "../scale/modes";
+
+const EPS = 1e-6;
 
 /** ABC's accidental marks, in the order they must be matched (longest first). */
 const ACCIDENTAL_VALUES: ReadonlyArray<readonly [string, number]> = [
@@ -145,23 +157,104 @@ export interface ParsedABC {
   readonly meter?: string;
   /** The `K:` key field, e.g. `"D"`. */
   readonly key?: string;
-  /** Every note in the body, in order; chords contribute all their tones. */
+  /** The `Q:` tempo in quarter-note beats per minute, when present. */
+  readonly tempo?: number;
+  /** Every written note in the body, in order; chords contribute all their
+   * tones, and tied continuations appear as written. */
   readonly notes: Note[];
+  /** The tune in time, measured in quarter-note beats: durations read
+   * against the unit note length, rests as gaps, chords stacked at one
+   * onset, tuplets scaled, and ties merged into single events. */
+  readonly stream: NoteStream;
 }
 
 /** Header lines look like `X:1` — a single letter, a colon, then the value. */
 const HEADER_PATTERN = /^([A-Za-z]):\s*(.*)$/;
 
-/** One note in the body, with any accidental and octave marks attached. */
-const BODY_PITCH = /(__|\^\^|_|\^|=)?([A-Ga-g])([,']*)/g;
+/** One pitch inside a `[...]` chord, with an optional duration factor. */
+const CHORD_PITCH = /(__|\^\^|_|\^|=)?([A-Ga-g])([,']*)(\d+)?(\/+)?(\d+)?/g;
+
+/** One pitch in the open body, factor read separately. */
+const PITCH_AT = /^(__|\^\^|_|\^|=)?([A-Ga-g])([,']*)/;
+
+/** A duration factor: `2`, `3/2`, `/`, `//`, `/4`. Matches the empty string. */
+const FACTOR = /(\d+)?(\/+)?(\d+)?/y;
+
+/** Long and short multipliers for broken rhythms, by depth: `>` dots the
+ * first note once, `>>` twice, `>>>` three times. */
+const BROKEN_LONG = [3 / 2, 7 / 4, 15 / 8] as const;
+const BROKEN_SHORT = [1 / 2, 1 / 4, 1 / 8] as const;
+
+/** Default `q` for a bare `(p` tuplet, from the ABC standard's table; the
+ * values missing here (5, 7, 9) depend on the meter instead. */
+const TUPLET_Q: Readonly<Record<number, number>> = {
+  2: 3,
+  3: 2,
+  4: 3,
+  6: 2,
+  8: 3,
+};
+
+/** A note, chord, or rest with its duration in unit note lengths. */
+interface TimedToken {
+  sounded: boolean;
+  /** How far this token advances the clock, in units. */
+  units: number;
+  tones: { note: Note; units: number }[];
+  tie: boolean;
+}
+
+function factorValue(
+  num: string | undefined,
+  slashes: string | undefined,
+  den: string | undefined
+): number {
+  const n = num === undefined ? 1 : Number(num);
+  const d =
+    den !== undefined
+      ? Number(den)
+      : slashes !== undefined
+        ? 2 ** slashes.length
+        : 1;
+  return n / d;
+}
+
+/** The `L:` field as a fraction of a whole note, or `null` to use the default. */
+function parseUnitLength(field: string | undefined): number | null {
+  if (field === undefined) return null;
+  const match = /^(\d+)\s*\/\s*(\d+)$/.exec(field.trim());
+  if (!match) return null;
+  const value = Number(match[1]) / Number(match[2]);
+  return value > 0 ? value : null;
+}
+
+/** The `Q:` field in quarter-note BPM: `1/4=120` scales by the named value,
+ * a bare `120` counts unit note lengths per minute (the older form). */
+function parseTempo(
+  field: string | undefined,
+  unitLength: number
+): number | undefined {
+  if (field === undefined) return undefined;
+  const named = /(\d+)\s*\/\s*(\d+)\s*=\s*(\d+(?:\.\d+)?)/.exec(field);
+  if (named) {
+    return (Number(named[3]) * Number(named[1]) * 4) / Number(named[2]);
+  }
+  const bare = /^\s*(\d+(?:\.\d+)?)\s*$/.exec(field);
+  if (bare) return Number(bare[1]) * unitLength * 4;
+  return undefined;
+}
 
 /**
- * Read an ABC tune: its header fields and the notes of its body. Rests, bar
- * lines, and durations are recognised well enough to be skipped; notes inside
- * `[...]` chords are all collected, in written order.
+ * Read an ABC tune: header fields, pitches, and rhythm. Alongside `notes` —
+ * every written pitch in order — the body becomes a beat-timed `stream`:
+ * duration factors against the unit note length (`L:`, or the standard's
+ * default from the meter), broken rhythms (`>` and `<`), rests as gaps,
+ * `(p:q:r` tuplet groups, bracketed chords, and ties merged into single
+ * events, ready for the sequence, analysis, and MIDI layers.
  *
- * Accidentals persist to the end of their measure, per ABC's rules, and the
- * `K:` field seeds each measure's starting inflections.
+ * Accidentals persist to the end of their measure, per ABC's rules; the
+ * `K:` field seeds each measure's starting inflections, and a tied note
+ * keeps its inflection across the barline.
  *
  * @example
  * ```ts
@@ -171,13 +264,18 @@ const BODY_PITCH = /(__|\^\^|_|\^|=)?([A-Ga-g])([,']*)/g;
  * tune.key; // => "D"
  * // F is sharp because the key signature says so.
  * tune.notes.map(String); // => ["D4","E4","F#4","G4"]
+ * // Two eighth-note units per note: one quarter-note beat each.
+ * tune.stream.map((e) => e.start); // => [0, 1, 2, 3]
+ * const jig = fromABC("X:1\nM:6/8\nQ:3/8=40\nK:C\nC2- C z2 c |]");
+ * jig.tempo; // => 60
+ * jig.stream.map((e) => [e.start, e.duration]); // => [[0, 1.5], [2.5, 0.5]]
  * ```
  */
 export function fromABC(abc: string): ParsedABC {
   const headers: Record<string, string> = {};
   const bodyLines: string[] = [];
   for (const line of abc.split(/\r?\n/)) {
-    const trimmed = line.trim();
+    const trimmed = line.replace(/%.*$/, "").trim();
     if (trimmed === "") continue;
     const header = HEADER_PATTERN.exec(trimmed);
     // `K:` closes the header in ABC; anything after it is body, even if a
@@ -186,6 +284,8 @@ export function fromABC(abc: string): ParsedABC {
       headers[header[1] as string] = (header[2] as string).trim();
       continue;
     }
+    // Except lyric and voice lines, which carry words, not music.
+    if (/^[wWV]:/.test(trimmed)) continue;
     bodyLines.push(trimmed);
   }
 
@@ -204,44 +304,258 @@ export function fromABC(abc: string): ParsedABC {
     }
   }
 
+  const ts = headers.M === undefined ? null : tryParseTimeSignature(headers.M);
+  // The standard's default unit: 1/16 when a bar is shorter than 3/4 of a
+  // whole note, 1/8 otherwise (and when there is no meter to measure by).
+  const unitLength =
+    parseUnitLength(headers.L) ??
+    (ts !== null && barWholeNotes(ts) < 0.75 ? 1 / 16 : 1 / 8);
+  const compound = ts !== null && meterClass(ts) === "compound";
+  const barUnits = (ts === null ? 1 : barWholeNotes(ts)) / unitLength;
+
+  const tokens: TimedToken[] = [];
   const notes: Note[] = [];
-  for (const line of bodyLines) {
-    // Measure-local accidentals reset at every bar line.
-    for (const measure of line.split(/\|+/)) {
-      const state = new Map<string, number>();
-      const stripped = measure
-        .replace(/"[^"]*"/g, "") // chord symbols above the staff
-        .replace(/![^!]*!/g, "") // decorations
-        .replace(/\([0-9]+(:[0-9]*)*/g, ""); // tuplet markers
-      BODY_PITCH.lastIndex = 0;
-      let match = BODY_PITCH.exec(stripped);
-      while (match !== null) {
-        const [, accidental = "", letter = "", octaveMarks = ""] = match;
-        const upper = letter.toUpperCase();
-        let octave = letter === upper ? 4 : 5;
-        for (const mark of octaveMarks) octave += mark === "'" ? 1 : -1;
-        const key = `${upper}${octave}`;
-        let alteration: number;
-        if (accidental !== "") {
-          alteration =
-            ACCIDENTAL_VALUES.find(([m]) => m === accidental)?.[1] ?? 0;
-          state.set(key, alteration);
-        } else {
-          alteration = state.get(key) ?? signature[upper] ?? 0;
-        }
-        notes.push(
-          Note.of({ step: LETTER_STEP[upper] as Step, alteration, octave })
-        );
-        match = BODY_PITCH.exec(stripped);
+  // Measure-local accidentals, letter+octave → alteration, cleared at bars.
+  const measure = new Map<string, number>();
+  // Inflections owed to tied-over notes; these survive the barline.
+  const tiedAlteration = new Map<string, number>();
+  let tuplet: { factor: number; left: number } | null = null;
+  let broken: { longFirst: boolean; depth: number } | null = null;
+
+  const resolve = (
+    accidental: string,
+    letter: string,
+    octaveMarks: string
+  ): Note => {
+    const upper = letter.toUpperCase();
+    let octave = letter === upper ? 4 : 5;
+    for (const mark of octaveMarks) octave += mark === "'" ? 1 : -1;
+    const key = `${upper}${octave}`;
+    let alteration: number;
+    if (accidental !== "") {
+      alteration = ACCIDENTAL_VALUES.find(([m]) => m === accidental)?.[1] ?? 0;
+      measure.set(key, alteration);
+    } else {
+      alteration =
+        measure.get(key) ?? tiedAlteration.get(key) ?? signature[upper] ?? 0;
+    }
+    tiedAlteration.delete(key);
+    return Note.of({ step: LETTER_STEP[upper] as Step, alteration, octave });
+  };
+
+  const scale = (token: TimedToken, factor: number): void => {
+    token.units *= factor;
+    for (const tone of token.tones) tone.units *= factor;
+  };
+
+  const push = (token: TimedToken): void => {
+    if (tuplet !== null) {
+      scale(token, tuplet.factor);
+      tuplet = tuplet.left > 1 ? { ...tuplet, left: tuplet.left - 1 } : null;
+    }
+    if (broken !== null) {
+      const prev = tokens[tokens.length - 1];
+      if (prev !== undefined) {
+        const depth = broken.depth - 1;
+        const long = BROKEN_LONG[depth] as number;
+        const short = BROKEN_SHORT[depth] as number;
+        scale(prev, broken.longFirst ? long : short);
+        scale(token, broken.longFirst ? short : long);
       }
+      broken = null;
+    }
+    tokens.push(token);
+  };
+
+  const readFactor = (
+    text: string,
+    at: number
+  ): { value: number; next: number } => {
+    FACTOR.lastIndex = at;
+    const match = FACTOR.exec(text);
+    if (!match) return { value: 1, next: at };
+    return {
+      value: factorValue(match[1], match[2], match[3]),
+      next: at + match[0].length,
+    };
+  };
+
+  for (const line of bodyLines) {
+    let i = 0;
+    while (i < line.length) {
+      const c = line[i] as string;
+      if (/\s/.test(c)) {
+        i++;
+        continue;
+      }
+      if (c === '"' || c === "!" || c === "{") {
+        // Chord symbols, decorations, grace notes: skip to the closer.
+        const closer = c === "{" ? "}" : c;
+        const end = line.indexOf(closer, i + 1);
+        i = end === -1 ? line.length : end + 1;
+        continue;
+      }
+      if (c === "|" || (c === ":" && /[|:]/.test(line[i + 1] ?? ""))) {
+        while (i < line.length && /[|:\]]/.test(line[i] as string)) i++;
+        if (/\d/.test(line[i] ?? "")) i++; // a volta number rides the bar
+        measure.clear();
+        continue;
+      }
+      if (c === "-") {
+        const prev = tokens[tokens.length - 1];
+        if (prev?.sounded) {
+          prev.tie = true;
+          for (const tone of prev.tones) {
+            tiedAlteration.set(
+              `${tone.note.letter}${tone.note.octave}`,
+              tone.note.alteration
+            );
+          }
+        }
+        i++;
+        continue;
+      }
+      if (c === ">" || c === "<") {
+        let depth = 0;
+        while (line[i] === c) {
+          depth++;
+          i++;
+        }
+        broken = { longFirst: c === ">", depth: Math.min(depth, 3) };
+        continue;
+      }
+      if (c === "(") {
+        const spec = /^\((\d+)(?::(\d*))?(?::(\d*))?/.exec(line.slice(i));
+        if (spec) {
+          const p = Number(spec[1]);
+          const q = spec[2]
+            ? Number(spec[2])
+            : (TUPLET_Q[p] ?? (compound ? 3 : 2));
+          const r = spec[3] ? Number(spec[3]) : p;
+          tuplet = { factor: q / p, left: r };
+          i += spec[0].length;
+        } else {
+          i++; // a slur
+        }
+        continue;
+      }
+      if (c === ")" || c === "]" || c === ":") {
+        i++;
+        continue;
+      }
+      if (c === "[") {
+        const rest = line.slice(i + 1);
+        if (rest.startsWith("|")) {
+          i += 2;
+          measure.clear();
+          continue;
+        }
+        if (/^\d/.test(rest)) {
+          i += 2; // a volta bracket: `[1`, `[2`
+          continue;
+        }
+        if (/^[A-Za-z]:/.test(rest)) {
+          const end = line.indexOf("]", i); // an inline field: `[K:G]`
+          i = end === -1 ? line.length : end + 1;
+          continue;
+        }
+        const end = line.indexOf("]", i);
+        if (end === -1) {
+          i++;
+          continue;
+        }
+        const inner = line.slice(i + 1, end);
+        const tones: { note: Note; units: number }[] = [];
+        CHORD_PITCH.lastIndex = 0;
+        let pm = CHORD_PITCH.exec(inner);
+        while (pm !== null) {
+          tones.push({
+            note: resolve(pm[1] ?? "", pm[2] as string, pm[3] ?? ""),
+            units: factorValue(pm[4], pm[5], pm[6]),
+          });
+          pm = CHORD_PITCH.exec(inner);
+        }
+        const outer = readFactor(line, end + 1);
+        i = outer.next;
+        if (tones.length > 0) {
+          for (const tone of tones) {
+            tone.units *= outer.value;
+            notes.push(tone.note);
+          }
+          push({
+            sounded: true,
+            units: (tones[0] as { units: number }).units,
+            tones,
+            tie: false,
+          });
+        }
+        continue;
+      }
+      if (c === "z" || c === "x" || c === "Z") {
+        const { value, next } = readFactor(line, i + 1);
+        i = next;
+        push({
+          sounded: false,
+          units: c === "Z" ? value * barUnits : value,
+          tones: [],
+          tie: false,
+        });
+        continue;
+      }
+      const pm = PITCH_AT.exec(line.slice(i));
+      if (pm) {
+        const { value, next } = readFactor(line, i + pm[0].length);
+        i = next;
+        const note = resolve(pm[1] ?? "", pm[2] as string, pm[3] ?? "");
+        notes.push(note);
+        push({
+          sounded: true,
+          units: value,
+          tones: [{ note, units: value }],
+          tie: false,
+        });
+        continue;
+      }
+      i++; // anything else — a stray ornament letter — is not music
     }
   }
 
+  // Lay the tokens on the clock and merge ties into single events.
+  const beatsPerUnit = unitLength * 4;
+  const events: NoteEvent[] = [];
+  const open = new Map<string, number>(); // pitch name → index in events
+  let at = 0;
+  for (const token of tokens) {
+    for (const tone of token.tones) {
+      const beats = tone.units * beatsPerUnit;
+      const name = tone.note.toString();
+      const tiedIndex = open.get(name);
+      const prev = tiedIndex === undefined ? undefined : events[tiedIndex];
+      if (
+        prev !== undefined &&
+        Math.abs(prev.start + prev.duration - at) < EPS
+      ) {
+        events[tiedIndex as number] = {
+          ...prev,
+          duration: prev.duration + beats,
+        };
+        if (!token.tie) open.delete(name);
+      } else {
+        events.push({ pitch: tone.note, start: at, duration: beats });
+        if (token.tie) open.set(name, events.length - 1);
+      }
+    }
+    at += token.units * beatsPerUnit;
+  }
+
+  const tempo = parseTempo(headers.Q, unitLength);
   const result: ParsedABC = {
     notes,
+    stream: events,
     ...(headers.T === undefined ? {} : { title: headers.T }),
     ...(headers.M === undefined ? {} : { meter: headers.M }),
     ...(keyField === undefined ? {} : { key: keyField }),
+    ...(tempo === undefined ? {} : { tempo }),
   };
   return result;
 }

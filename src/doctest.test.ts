@@ -41,6 +41,7 @@ import * as notationNS from "./notation/index";
 import * as noteNS from "./note/index";
 import * as rhythmNS from "./rhythm/index";
 import * as scaleNS from "./scale/index";
+import * as sequenceNS from "./sequence/index";
 import * as tuningNS from "./tuning/index";
 
 const SRC = import.meta.dir;
@@ -59,6 +60,7 @@ const MODULES: Record<string, Record<string, unknown>> = {
   "musictheoryjs/note": noteNS,
   "musictheoryjs/rhythm": rhythmNS,
   "musictheoryjs/scale": scaleNS,
+  "musictheoryjs/sequence": sequenceNS,
   "musictheoryjs/tuning": tuningNS,
 };
 

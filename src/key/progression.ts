@@ -126,6 +126,36 @@ function tokenize(input: string | readonly string[]): string[] {
   return raw.filter((t) => t !== "");
 }
 
+/** True when a value would resolve as a key — used only to improve errors. */
+function readsAsKey(value: unknown): boolean {
+  if (value instanceof Key) return true;
+  if (typeof value !== "string") return false;
+  try {
+    Key.from(value);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Resolve the key argument. When it fails *and* the progression argument
+ * reads as a key, the caller has almost certainly swapped the two — say so,
+ * instead of only "invalid key" with a progression quoted in it.
+ */
+function keyOfProgression(k: KeyLike, input: unknown): Key {
+  try {
+    return Key.from(k);
+  } catch (error) {
+    if (readsAsKey(input)) {
+      throw new SyntaxError(
+        `invalid key: ${JSON.stringify(k)} — the key comes first, then the progression: ("C major", "ii7 V7 Imaj7")`
+      );
+    }
+    throw error;
+  }
+}
+
 /**
  * Parse a progression in a key. Accepts an array of tokens, a string
  * separated by spaces, bars, or commas, or the name of a
@@ -142,6 +172,7 @@ function tokenize(input: string | readonly string[]): string[] {
  * steps.map((s) => s.function); // => ["SD", "D", "T"]
  * parseProgression("C major", ["N.C.", "A7"])[1]?.roman?.symbol; // => "V7/ii"
  * parseProgression("G major", "pop").map((s) => s.chord?.toString()); // => ["G", "D", "Em", "C"]
+ * parseProgression("ii7 V7 Imaj7", "C major"); // => throws "the key comes first"
  * ```
  */
 export function parseProgression(
@@ -152,7 +183,7 @@ export function parseProgression(
     typeof input === "string" && Object.hasOwn(COMMON_PROGRESSIONS, input)
       ? COMMON_PROGRESSIONS[input]
       : undefined;
-  const key = Key.from(k);
+  const key = keyOfProgression(k, input);
   return tokenize(named ?? input).map((t) => parseToken(key, t));
 }
 

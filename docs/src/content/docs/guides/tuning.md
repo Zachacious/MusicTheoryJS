@@ -1,5 +1,6 @@
 ---
 title: Tuning & Microtonal
+description: "Tuning systems beyond 12-TET: any EDO, Just Intonation, historical temperaments, maqamat, ragas, gamelan, and Scala files."
 ---
 
 This is where MusicTheoryJS goes beyond most theory libraries. 12-tone equal

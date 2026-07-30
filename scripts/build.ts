@@ -15,6 +15,7 @@ const entrypoints = [
   "src/chord/index.ts",
   "src/key/index.ts",
   "src/rhythm/index.ts",
+  "src/sequence/index.ts",
   "src/analysis/index.ts",
   "src/midi/index.ts",
   "src/notation/index.ts",

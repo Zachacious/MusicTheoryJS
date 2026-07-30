@@ -1,12 +1,14 @@
 ---
 title: Notation (ABC & MusicXML)
+description: "Export ABC and MusicXML scores and read both back in — key and time signatures, tuplets, and ties included."
 ---
 
 MusicTheoryJS exports notes, chords, scales, and full scores as **ABC
 notation** and **MusicXML** — the two formats nearly every notation program,
-converter, and renderer reads — and reads ABC back in, so a tune can round-trip.
-Durations, dots, and tuplets come from the [rhythm module](/guides/rhythm/);
-spelling, key signatures, and accidentals from the theory core.
+converter, and renderer reads — and reads both back in, so music round-trips
+in either format. Durations, dots, and tuplets come from the
+[rhythm module](/guides/rhythm/); spelling, key signatures, and accidentals
+from the theory core.
 
 ## What the exporters take
 
@@ -80,6 +82,32 @@ const xml = toMusicXML(
 // -> "<?xml version..." with <tie type="start"/> / <tied type="stop"/> pairs
 ```
 
+### Reading MusicXML back
+
+`fromMusicXML` reads both `score-partwise` and `score-timewise` documents —
+from this library or from notation software. Spelling survives (`<alter>`
+stays an accidental, not a pitch class), ties merge back into single events,
+`<chord/>` stacks share a start, multiple voices resolve through
+`<backup>`/`<forward>`, and each part keeps its identity. The music comes
+out as beat-timed streams, ready for the [sequence](/guides/sequencing/),
+[analysis](/guides/analysis/), and [MIDI](/guides/midi/) layers.
+
+```ts
+import { fromMusicXML, toMusicXML } from "musictheoryjs";
+
+const doc = fromMusicXML(toMusicXML(["C4", "D4", "E4"], { key: "C major", tempo: 96 }));
+
+doc.key.toString();                        // "C major"
+doc.tempo;                                 // 96
+doc.stream.map((e) => e.pitch.toString()); // ["C4", "D4", "E4"]
+doc.stream.map((e) => e.start);            // [0, 1, 2] — quarter-note beats
+doc.parts.length;                          // 1
+```
+
+Grace and cue notes carry no duration, so they are skipped; layout,
+dynamics, lyrics, and repeats are ignored. What comes back is the music as
+timed, spelled events — the form the rest of the library works on.
+
 ## Round trips with the rest of the library
 
 Because the exporters take plain events, anything that produces notes can be
@@ -93,17 +121,21 @@ meter.
 
 ## Reading ABC back
 
-`fromABC` parses a tune: its header fields and every note of its body.
+`fromABC` parses a tune: its header fields, its notes, and their rhythm. The
+body comes out twice — as `notes`, every written pitch in order, and as a
+beat-timed `stream`, the same form the MusicXML importer and the
+[sequence module](/guides/sequencing/) produce.
 
 ```ts
 import { fromABC } from "musictheoryjs";
 
 const tune = fromABC("X:1\nT:Scale\nM:4/4\nK:D\nD2 E2 F2 G2 |]");
 
-tune.title;             // "Scale"
-tune.key;               // "D"
-tune.meter;             // "4/4"
-tune.notes.map(String); // ["D4", "E4", "F#4", "G4"]
+tune.title;                     // "Scale"
+tune.key;                       // "D"
+tune.meter;                     // "4/4"
+tune.notes.map(String);         // ["D4", "E4", "F#4", "G4"]
+tune.stream.map((e) => e.start); // [0, 1, 2, 3] — quarter-note beats
 ```
 
 Notice the F♯. The `K:D` field puts two sharps in the key signature, and the
@@ -126,10 +158,14 @@ import { fromABC } from "musictheoryjs";
 fromABC("K:Edor\nE2 F2 C2 |]").notes.map(String); // ["E4", "F#4", "C#4"]
 ```
 
-Rests, bar lines, chord symbols in quotes, and decorations are skipped rather
-than mistaken for notes; notes inside a `[CEG]` chord are all collected. What it
-reads is the pitch content of a tune, not every ornament — slurs, grace notes,
-and lyrics are ignored.
+Durations are read against the tune's unit note length (`L:`, or the
+standard's default from the meter): factors like `D2` and `E/2`, broken
+rhythms (`C>D`), `(3` tuplet groups, and the `Q:` tempo field all land in
+the stream. Rests become gaps, `[CEG]` chords stack their tones at one
+onset, and ties merge into single events — across the barline, keeping
+their accidental. Chord symbols in quotes and decorations are skipped
+rather than mistaken for notes; slurs, grace notes, and lyrics are ignored,
+and repeats pass through as plain barlines, unexpanded.
 
 For a single pitch, `abcToNote` and `noteToABC` convert both ways. ABC writes
 middle C as `C`, the octave above as `c`, and moves further with commas and
@@ -159,18 +195,32 @@ tokenizeABC("x");   // null — not a pitch
 
 ## Round-tripping
 
-What `toABC` writes, `fromABC` reads:
+What `toABC` writes, `fromABC` reads — pitches and rhythm alike — and the
+same holds for MusicXML:
 
 ```ts
-import { toABC, fromABC } from "musictheoryjs";
+import { toABC, fromABC, toMusicXML, fromMusicXML } from "musictheoryjs";
 
 const notes = ["C4", "D4", "E4", "F#4", "G4"];
 fromABC(toABC(notes)).notes.map(String); // ["C4","D4","E4","F#4","G4"]
+fromMusicXML(toMusicXML(notes)).stream.map((e) => e.pitch.toString()); // the same five
 ```
 
-That makes ABC a usable storage format for melodies, and pairs with
-[MIDI](/guides/midi/) for getting music in and out: read a tune from ABC,
-analyze it, and write a MIDI file — or the reverse.
+A sequenced stream survives the trip through notation with its timing
+intact:
+
+```ts
+import { melody, sequenceToScore, toABC, fromABC } from "musictheoryjs";
+
+const line = melody(["C4", "E4", "G4", "C5"], ["q", "8", "8", "h"]);
+const tune = fromABC(toABC(sequenceToScore(line, { key: "C major" })));
+tune.stream.map((e) => [e.start, e.duration]);
+// [[0, 1], [1, 0.5], [1.5, 0.5], [2, 2]] — as sequenced
+```
+
+That makes both formats usable storage, and pairs with
+[MIDI](/guides/midi/) for getting music in and out: read a tune from ABC or
+a score from MusicXML, analyze it, and write a MIDI file — or the reverse.
 
 ## Use cases
 
@@ -181,8 +231,8 @@ on its notes, and file it.
 **A notation-backed exercise app.** Store exercises as ABC, read them into
 notes, and check a student's played MIDI against them.
 
-**Format conversion.** ABC in, MusicXML out, with the theory layer available in
-between to transpose, respell, or re-key.
+**Format conversion.** ABC in, MusicXML out — or MusicXML in, ABC out — with
+the theory layer available in between to transpose, respell, or re-key.
 
 ## Try it live
 
@@ -190,4 +240,5 @@ between to transpose, respell, or re-key.
 log(toABC(Scale.from("C4", "major"), { title: "C major" }));
 log("read back:", fromABC(toABC(["C4", "E4", "G4"])).notes.map(String));
 log("with a key signature:", fromABC("K:D\nD2 E2 F2 |]").notes.map(String));
+log("in time:", fromABC("K:C\nC2 z2 E2 |]").stream.map((e) => e.start));
 ```

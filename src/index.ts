@@ -7,7 +7,7 @@
  *
  * The public API is a set of named exports. For the smallest bundles, import
  * from a subpath (`musictheoryjs/note`, `/interval`, `/scale`, `/chord`,
- * `/tuning`) so unused areas tree-shake away.
+ * `/sequence`, `/tuning`) so unused areas tree-shake away.
  *
  * @example Western
  * ```ts
@@ -36,10 +36,11 @@ export * from "./scale/index";
 export * from "./chord/index";
 export * from "./key/index";
 export * from "./rhythm/index";
+export * from "./sequence/index";
 export * from "./analysis/index";
 export * from "./midi/index";
 export * from "./notation/index";
 export * from "./audio/index";
 
 /** The library version. */
-export const VERSION = "3.0.0";
+export const VERSION = "3.1.0";

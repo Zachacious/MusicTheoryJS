@@ -1,5 +1,6 @@
 ---
 title: Intervals & Transposition
+description: "Spelled intervals: parse and name them, transpose notes, invert, simplify, and measure the distance between pitches."
 ---
 
 An interval is the distance between two pitches. MusicTheoryJS models it with

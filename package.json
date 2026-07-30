@@ -75,6 +75,11 @@
       "import": "./dist/rhythm/index.js",
       "require": "./dist/rhythm/index.cjs"
     },
+    "./sequence": {
+      "types": "./dist/sequence/index.d.ts",
+      "import": "./dist/sequence/index.js",
+      "require": "./dist/sequence/index.cjs"
+    },
     "./analysis": {
       "types": "./dist/analysis/index.d.ts",
       "import": "./dist/analysis/index.js",
@@ -123,7 +128,7 @@
     "docs:preview": "cd docs && bun run preview",
     "changeset": "changeset",
     "release:cut": "bun run scripts/release.ts",
-    "version": "changeset version && biome check --write .",
+    "version": "changeset version && bun run scripts/sync-version.ts && biome check --write .",
     "release": "bun run build && changeset publish",
     "prepublishOnly": "bun run lint && bun run typecheck && bun test && bun run build && node scripts/e2e.mjs && node scripts/e2e.cjs"
   },

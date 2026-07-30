@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { Key } from "./key";
 import {
   COMMON_PROGRESSIONS,
   parseProgression,
@@ -56,6 +57,25 @@ describe("parseProgression", () => {
 
   test("rejects junk tokens", () => {
     expect(() => parseProgression("C major", "I wat V")).toThrow(SyntaxError);
+  });
+
+  test("swapped arguments name the real mistake", () => {
+    // progression first, key second — in each style the key argument fails,
+    // and the error should say the arguments are swapped, not just "invalid".
+    expect(() => parseProgression("ii7 V7 Imaj7", "C major")).toThrow(
+      /the key comes first/
+    );
+    expect(() =>
+      // biome-ignore lint/suspicious/noExplicitAny: deliberately ill-typed
+      (progressionChords as any)("ii7 V7 Imaj7", Key.major("C"))
+    ).toThrow(/the key comes first/);
+    expect(() => progressionRomans("Dm7 G7 Cmaj7", "F major")).toThrow(
+      /the key comes first/
+    );
+    // A genuinely bad key with a non-key progression keeps the plain error.
+    expect(() => parseProgression("X major", "ii V I")).toThrow(
+      /invalid key(?!.*comes first)/
+    );
   });
 });
 

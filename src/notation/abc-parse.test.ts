@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { Scale } from "../scale/scale";
+import { sequenceToScore } from "../sequence/convert";
 import { toABC } from "./abc";
 import { abcToNote, fromABC, noteToABC, tokenizeABC } from "./abc-parse";
 
@@ -136,5 +137,118 @@ describe("fromABC", () => {
     expect(fromABC(rendered).notes.map(String)).toEqual(
       scale.notes.map(String)
     );
+  });
+});
+
+describe("fromABC rhythm", () => {
+  test("durations against an explicit unit length, rests as gaps", () => {
+    const tune = fromABC("X:1\nM:4/4\nL:1/4\nK:C\nC D2 z E |]");
+    expect(tune.stream.map((e) => e.start)).toEqual([0, 1, 4]);
+    expect(tune.stream.map((e) => e.duration)).toEqual([1, 2, 1]);
+  });
+
+  test("the default unit length follows the meter", () => {
+    // 4/4 defaults to eighths; 2/4 (under 3/4 of a whole note) to sixteenths.
+    expect(fromABC("M:4/4\nK:C\nC2 D2").stream[1]?.start).toBe(1);
+    expect(fromABC("M:2/4\nK:C\nC2 D2").stream[1]?.start).toBe(0.5);
+  });
+
+  test("fractional factors: /2, /, 3/2, //", () => {
+    const tune = fromABC("K:C\nC/2 C/ C3/2 C// |]");
+    expect(tune.stream.map((e) => e.duration)).toEqual([
+      0.25, 0.25, 0.75, 0.125,
+    ]);
+    expect(tune.stream.map((e) => e.start)).toEqual([0, 0.25, 0.5, 1.25]);
+  });
+
+  test("broken rhythms dot one side and halve the other", () => {
+    const tune = fromABC("K:C\nC>D E<F |]");
+    expect(tune.stream.map((e) => e.duration)).toEqual([
+      0.75, 0.25, 0.25, 0.75,
+    ]);
+    expect(tune.stream.map((e) => e.start)).toEqual([0, 0.75, 1, 1.25]);
+  });
+
+  test("ties merge into one event and carry their inflection over the bar", () => {
+    const tune = fromABC("K:C\n^F2- | F2 F2 |]");
+    expect(tune.stream.map((e) => e.pitch.toString())).toEqual(["F#4", "F4"]);
+    expect(tune.stream.map((e) => [e.start, e.duration])).toEqual([
+      [0, 2],
+      [2, 1],
+    ]);
+    // The written notes still appear one by one.
+    expect(tune.notes.map(String)).toEqual(["F#4", "F#4", "F4"]);
+  });
+
+  test("a tie into a different pitch stays two events", () => {
+    const tune = fromABC("K:C\nC2- D2 |]");
+    expect(tune.stream).toHaveLength(2);
+    expect(tune.stream.map((e) => e.duration)).toEqual([1, 1]);
+  });
+
+  test("tuplet groups scale their notes", () => {
+    const explicit = fromABC("M:4/4\nK:C\n(3:2:3 C C C C |]");
+    expect(explicit.stream[1]?.start).toBeCloseTo(1 / 3, 9);
+    expect(explicit.stream[3]?.start).toBeCloseTo(1, 9);
+    expect(explicit.stream[3]?.duration).toBe(0.5);
+    // A bare (3 means three in the time of two in a simple meter.
+    const bare = fromABC("M:4/4\nK:C\n(3 C C C C |]");
+    expect(bare.stream[2]?.duration).toBeCloseTo(1 / 3, 9);
+    expect(bare.stream[3]?.duration).toBe(0.5);
+  });
+
+  test("chords stack every tone at one onset", () => {
+    const tune = fromABC("K:C\n[CEG]2 [ce]/ |]");
+    expect(tune.stream.map((e) => e.start)).toEqual([0, 0, 0, 1, 1]);
+    expect(tune.stream.map((e) => e.duration)).toEqual([1, 1, 1, 0.25, 0.25]);
+  });
+
+  test("reads the tempo field in quarter-note BPM", () => {
+    expect(fromABC("X:1\nQ:1/4=120\nK:C\nC").tempo).toBe(120);
+    expect(fromABC("X:1\nQ:1/8=120\nK:C\nC").tempo).toBe(60);
+    // The bare form counts unit note lengths per minute.
+    expect(fromABC("X:1\nL:1/8\nQ:140\nK:C\nC").tempo).toBe(70);
+    expect(fromABC("X:1\nK:C\nC").tempo).toBeUndefined();
+  });
+
+  test("repeats and voltas pass through as barlines, unexpanded", () => {
+    const tune = fromABC("K:C\n|: C2 :|1 D2 :|2 E2 |]");
+    expect(tune.notes.map(String)).toEqual(["C4", "D4", "E4"]);
+    expect(tune.stream.map((e) => e.start)).toEqual([0, 1, 2]);
+  });
+
+  test("inline fields and lyric lines contribute no notes", () => {
+    const tune = fromABC("K:C\nC2 [K:G] D2 |]\nw: la la");
+    expect(tune.notes.map(String)).toEqual(["C4", "D4"]);
+    expect(tune.stream.map((e) => e.start)).toEqual([0, 1]);
+  });
+
+  test("a multi-measure rest spans whole bars", () => {
+    const tune = fromABC("M:4/4\nK:C\nC2 | Z2 | D2 |]");
+    expect(tune.stream.map((e) => e.start)).toEqual([0, 9]);
+  });
+
+  test("round-trips a sequenced score: chords, a cross-bar tie, a rest", () => {
+    const stream = [
+      { pitch: "C4", start: 0, duration: 3 },
+      { pitch: "E4", start: 3, duration: 2 },
+      { pitch: "G4", start: 3, duration: 2 },
+      { pitch: "D4", start: 6, duration: 1 },
+    ];
+    const score = sequenceToScore(stream, {
+      key: "C major",
+      timeSignature: "4/4",
+      tempo: 96,
+    });
+    const back = fromABC(toABC(score));
+    expect(back.tempo).toBe(96);
+    expect(
+      back.stream.map((e) => [e.pitch.toString(), e.start, e.duration])
+    ).toEqual([
+      ["C4", 0, 3],
+      ["E4", 3, 2],
+      ["G4", 3, 2],
+      ["D4", 6, 1],
+    ]);
   });
 });

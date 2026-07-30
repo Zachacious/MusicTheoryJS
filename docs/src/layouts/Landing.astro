@@ -6,8 +6,8 @@ interface Props {
   description?: string;
 }
 const {
-  title = "MusicTheoryJS — music theory that keeps its spelling",
-  description = "A JavaScript and TypeScript music theory library: notes, scales, chords, keys, tunings, MIDI, and audio analysis — with correct enharmonic spelling and real microtonal support.",
+  title = "MusicTheoryJS — music theory library for JavaScript & TypeScript",
+  description = "A music theory library for JavaScript and TypeScript: notes, scales, chords, keys, rhythm, sequencing, MIDI, notation, audio analysis, and microtonal tunings. Zero dependencies, fully typed.",
 } = Astro.props;
 
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
@@ -17,6 +17,21 @@ const docs = `${base}guides/getting-started/`;
 const api = `${base}api/`;
 const github = "https://github.com/Zachacious/MusicTheoryJS";
 const npm = "https://www.npmjs.com/package/musictheoryjs";
+
+// Structured data for search engines: this page describes an open-source
+// JS/TS library, so SoftwareSourceCode is the matching schema.org type.
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  name: "MusicTheoryJS",
+  description,
+  url: site,
+  codeRepository: github,
+  programmingLanguage: ["TypeScript", "JavaScript"],
+  runtimePlatform: ["Node.js", "Bun", "Deno", "browsers"],
+  license: "https://opensource.org/licenses/ISC",
+  author: { "@type": "Person", name: "Zach Moore" },
+};
 ---
 
 <!doctype html>
@@ -27,7 +42,13 @@ const npm = "https://www.npmjs.com/package/musictheoryjs";
     <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={site} />
+    <link rel="sitemap" href={`${base}sitemap-index.xml`} />
+    <meta name="theme-color" content="#0b0a10" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="MusicTheoryJS" />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={site} />
@@ -38,7 +59,10 @@ const npm = "https://www.npmjs.com/package/musictheoryjs";
     <meta property="og:image:height" content="956" />
     <meta property="og:image:alt" content={title} />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={`${site}og.jpg`} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
   <body
     class="min-h-screen bg-white text-slate-700 antialiased selection:bg-violet-500/25 dark:bg-[#0b0a10] dark:text-slate-300"
@@ -76,7 +100,7 @@ const npm = "https://www.npmjs.com/package/musictheoryjs";
       >
         <div class="flex items-center gap-2">
           <img src={`${base}favicon.svg`} alt="" width="20" height="20" class="rounded" />
-          <span>MusicTheoryJS · ISC © 2021–2026 Zach Moore</span>
+          <span>MusicTheoryJS · ISC © 2020–2026 Zach Moore</span>
         </div>
         <div class="flex items-center gap-4">
           <a href={docs} class="hover:text-slate-800 dark:hover:text-white">Docs</a>

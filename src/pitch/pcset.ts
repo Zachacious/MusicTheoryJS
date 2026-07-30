@@ -242,3 +242,135 @@ export function pcsetDegree(
   // Negative degrees count downward from the tonic: -1 is the note below it.
   return pcsetStep(mask, tonic, degree > 0 ? degree - 1 : degree);
 }
+
+/**
+ * Invert a mask around an axis: each pitch class `pc` becomes
+ * `axis - pc` (the set-theory operation I<sub>n</sub>). The default axis 0
+ * mirrors around C.
+ *
+ * @example
+ * ```ts
+ * import { pcsetMask, pcsetInvert } from "musictheoryjs";
+ * pcsetInvert(pcsetMask([0, 4, 7])) === pcsetMask([0, 8, 5]); // => true
+ * // I7 of a major triad is the minor triad on the same root.
+ * pcsetInvert(pcsetMask([0, 4, 7]), 7) === pcsetMask([0, 3, 7]); // => true
+ * ```
+ */
+export function pcsetInvert(mask: number, axis = 0): number {
+  let inverted = 0;
+  for (const pc of pcsetPitchClasses(mask)) {
+    inverted |= 1 << mod(axis - pc, 12);
+  }
+  return inverted;
+}
+
+/**
+ * The pitch classes a mask does not contain.
+ *
+ * @example
+ * ```ts
+ * import { pcsetMask, pcsetComplement, pcsetSize } from "musictheoryjs";
+ * const diatonic = pcsetMask([0, 2, 4, 5, 7, 9, 11]);
+ * pcsetComplement(diatonic) === pcsetMask([1, 3, 6, 8, 10]); // => true
+ * pcsetSize(pcsetComplement(0)); // => 12
+ * ```
+ */
+export function pcsetComplement(mask: number): number {
+  return PCSET_ALL & ~mask;
+}
+
+/** True when `a`, read as zero-based intervals, is more packed than `b` by
+ * Rahn's rule: compare from the right, smaller interval wins. */
+function packedBefore(a: readonly number[], b: readonly number[]): boolean {
+  for (let i = a.length - 1; i > 0; i--) {
+    const d = (a[i] as number) - (b[i] as number);
+    if (d !== 0) return d < 0;
+  }
+  return false;
+}
+
+/** Every rotation of a set as `{ pcs, zero }`: the pitch classes in order
+ * and their intervals above the first. */
+function rotations(
+  pcs: readonly number[]
+): { pcs: number[]; zero: number[] }[] {
+  return pcs.map((first, i) => {
+    const rotated = [...pcs.slice(i), ...pcs.slice(0, i)];
+    return { pcs: rotated, zero: rotated.map((pc) => mod(pc - first, 12)) };
+  });
+}
+
+/**
+ * The normal form of a set: its pitch classes in the most compact rotation
+ * (smallest outer interval, ties packed toward the bottom, per Rahn).
+ *
+ * @example
+ * ```ts
+ * import { pcsetMask, pcsetNormalForm } from "musictheoryjs";
+ * pcsetNormalForm(pcsetMask([0, 7, 8, 11])); // => [7, 8, 11, 0]
+ * pcsetNormalForm(pcsetMask([0, 4, 7])); // => [0, 4, 7]
+ * pcsetNormalForm(0); // => []
+ * ```
+ */
+export function pcsetNormalForm(mask: number): number[] {
+  const pcs = pcsetPitchClasses(mask);
+  if (pcs.length === 0) return [];
+  let best = rotations(pcs)[0] as { pcs: number[]; zero: number[] };
+  for (const candidate of rotations(pcs)) {
+    if (packedBefore(candidate.zero, best.zero)) best = candidate;
+  }
+  return best.pcs;
+}
+
+/**
+ * The prime form of a set: its normal form or its inversion's, whichever is
+ * more packed, transposed to start on 0 (Rahn's convention, the one modern
+ * set-theory references use). Two sets with the same prime form are the
+ * same set class — every transposition and inversion collapses to one name.
+ *
+ * @example
+ * ```ts
+ * import { pcsetMask, pcsetPrimeForm } from "musictheoryjs";
+ * pcsetPrimeForm(pcsetMask([0, 4, 7])); // => [0, 3, 7]
+ * pcsetPrimeForm(pcsetMask([0, 3, 7])); // => [0, 3, 7]
+ * // Any major scale is set class 7-35.
+ * pcsetPrimeForm(pcsetMask([2, 4, 6, 7, 9, 11, 1])); // => [0, 1, 3, 5, 6, 8, 10]
+ * ```
+ */
+export function pcsetPrimeForm(mask: number): number[] {
+  const pcs = pcsetPitchClasses(mask);
+  if (pcs.length === 0) return [];
+  const zero = (m: number): number[] => {
+    const normal = pcsetNormalForm(m);
+    const first = normal[0] as number;
+    return normal.map((pc) => mod(pc - first, 12));
+  };
+  const upright = zero(mask & PCSET_ALL);
+  const mirrored = zero(pcsetInvert(mask));
+  return packedBefore(mirrored, upright) ? mirrored : upright;
+}
+
+/**
+ * The interval-class vector: how many of each interval class (1–6, minor
+ * second through tritone) the set contains between its pairs.
+ *
+ * @example
+ * ```ts
+ * import { pcsetMask, pcsetIntervalVector } from "musictheoryjs";
+ * pcsetIntervalVector(pcsetMask([0, 4, 7])); // => [0, 0, 1, 1, 1, 0]
+ * // The diatonic set's famous vector: one of everything scarce, six fifths.
+ * pcsetIntervalVector(pcsetMask([0, 2, 4, 5, 7, 9, 11])); // => [2, 5, 4, 3, 6, 1]
+ * ```
+ */
+export function pcsetIntervalVector(mask: number): number[] {
+  const pcs = pcsetPitchClasses(mask);
+  const vector = [0, 0, 0, 0, 0, 0];
+  for (let i = 0; i < pcs.length; i++) {
+    for (let j = i + 1; j < pcs.length; j++) {
+      const d = (pcs[j] as number) - (pcs[i] as number);
+      const ic = Math.min(d, 12 - d);
+      vector[ic - 1] = (vector[ic - 1] as number) + 1;
+    }
+  }
+  return vector;
+}

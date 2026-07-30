@@ -52,6 +52,16 @@ const { key, timeline, cadences } = analyzeHarmony(noteStream);
 // timeline: [{ …, roman: "ii" }, { …, roman: "V" }, { …, roman: "I" }]
 // cadences: [{ type: "authentic", index: 1 }]`;
 
+const seqSnippet = `import { compProgression, bassline, swing,
+         mergeStreams, sequenceToMidi, writeMidi } from "musictheoryjs";
+
+// A played ii-V-I: comped hits over a walking bass, swung.
+const comp = compProgression("C major", "ii-V-I", { rhythm: [1, 0, 0, 1, 0, 0, 0, 0] });
+const track = mergeStreams(swing(comp), bassline(["Dm7", "G7", "Cmaj7"]));
+
+// Beats convert exactly to ticks — straight into a real MIDI file.
+writeMidi(sequenceToMidi(track, { bpm: 140 }));`;
+
 const ioSnippet = `import { parseMidi, midiToNoteStream, writeMidi,
          noteStreamToMidi, detectNote } from "musictheoryjs";
 
@@ -106,13 +116,13 @@ const useCases = [
   },
   {
     title: "DAWs and sequencers",
-    body: "Read and write Standard MIDI Files, quantize to a grid, and turn Euclidean patterns into onset positions in ticks. No extra packages.",
-    api: "parseMidi · writeMidi · euclideanRhythm · quantizeTick",
+    body: "Read and write Standard MIDI Files, sequence beat-timed streams straight to tracks, quantize to a grid, and turn Euclidean patterns into onset positions in ticks. No extra packages.",
+    api: "parseMidi · sequenceToMidi · euclideanRhythm · quantizeTick",
   },
   {
     title: "Composition and arranging tools",
-    body: "Generate progressions from Roman numerals, then voice them with real voice-leading rules — minimal motion, no parallel fifths or octaves.",
-    api: "Key#progression · voiceProgression · nextVoicing",
+    body: "Generate progressions from Roman numerals, voice them with real voice-leading rules, then comp them onto a timeline with a walking bass and swing.",
+    api: "Key#progression · voiceProgression · compProgression · bassline",
   },
   {
     title: "Analysis and musicology",
@@ -121,8 +131,8 @@ const useCases = [
   },
   {
     title: "Notation and interchange",
-    body: "Export ABC or MusicXML for any notation program, and read ABC back in — so a tune can round-trip through your app unchanged.",
-    api: "toABC · toMusicXML · fromABC",
+    body: "Export ABC or MusicXML for any notation program, and read both back in — so a score can round-trip through your app unchanged.",
+    api: "toABC · toMusicXML · fromABC · fromMusicXML",
   },
   {
     title: "World and microtonal music",
@@ -136,8 +146,8 @@ const useCases = [
   },
   {
     title: "Generative and algorithmic music",
-    body: "Walk a pitch-class set as a scale, transform chords with Neo-Riemannian operations or negative harmony, and drive it all with seeded random rhythms.",
-    api: "pcsetStep · neoRiemannian · negativeChord · weightedRhythm",
+    body: "Walk a pitch-class set as a scale, transform chords with Neo-Riemannian operations, run motifs through retrograde and inversion, and drive it all with seeded random rhythms.",
+    api: "pcsetStep · neoRiemannian · retrograde · weightedRhythm",
   },
   {
     title: "Teaching tools and reference sites",
@@ -151,6 +161,56 @@ const stats = [
   { n: "~2 KB", label: "gzipped for one class" },
   { n: "~31 KB", label: "gzipped, whole library" },
   { n: "ESM + CJS", label: "with full types" },
+];
+
+// The module map. Every area is exported from the root and importable on its
+// own; each entry links to that area's guide.
+const guide = (slug: string) => `${base}guides/${slug}/`;
+
+const moduleGroups = [
+  {
+    group: "Core theory",
+    items: [
+      { path: "note", href: guide("notes"), desc: "Notes, ranges, sorting, circle-of-fifths transposition." },
+      { path: "interval", href: guide("intervals"), desc: "Intervals, transposition, inversion, simplification." },
+      { path: "scale", href: guide("scales"), desc: "Scales, modes, detection, chord-scale matching — 92 templates." },
+      { path: "chord", href: guide("chords"), desc: "Chords, symbols, detection, voicings, voice leading — 108 qualities." },
+      { path: "key", href: guide("keys"), desc: "Keys, signatures, Roman numerals, progressions." },
+    ],
+  },
+  {
+    group: "Rhythm & sequencing",
+    items: [
+      { path: "rhythm", href: guide("rhythm"), desc: "Durations, time signatures, bar/beat positions, quantization, Euclidean and generative patterns." },
+      { path: "sequence", href: guide("sequencing"), desc: "Notes placed in time: melodies, arpeggios, comped progressions, walking bass, swing, motif transforms, song form." },
+    ],
+  },
+  {
+    group: "Analysis",
+    items: [
+      { path: "analysis", href: guide("analysis"), desc: "Key detection, chord timelines with Roman numerals and cadences, modulations, set theory." },
+    ],
+  },
+  {
+    group: "Tuning",
+    items: [
+      { path: "tuning", href: guide("tuning"), desc: "Any EDO, Just Intonation, historical temperaments, maqam and raga presets, Scala files." },
+    ],
+  },
+  {
+    group: "Files & sound",
+    items: [
+      { path: "midi", href: guide("midi"), desc: "Standard MIDI File read/write, retuning." },
+      { path: "notation", href: guide("notation"), desc: "ABC and MusicXML, export and import." },
+      { path: "audio", href: guide("audio"), desc: "FFT, pitch, chroma, onsets, melody transcription." },
+    ],
+  },
+  {
+    group: "Helpers",
+    items: [
+      { path: "collection", href: api, desc: "Array helpers: ranges, rotation, permutations." },
+    ],
+  },
 ];
 ---
 
@@ -195,9 +255,9 @@ const stats = [
           <p class="mt-5 max-w-xl text-lg leading-relaxed text-slate-600 dark:text-slate-400">
             The fastest and most complete music theory library for JavaScript
             and TypeScript. Notes, scales, chords, keys, Roman numerals, key
-            detection, rhythm, MIDI, notation, audio analysis, and microtonal
-            tunings — one package, zero dependencies, typed to the edges and
-            tree-shakable down to ~2 KB.
+            detection, rhythm, sequencing, MIDI, notation, audio analysis, and
+            microtonal tunings — one package, zero dependencies, typed to the
+            edges and tree-shakable down to ~2 KB.
           </p>
           <div class="mt-8 flex flex-wrap items-center gap-3">
             <a
@@ -239,6 +299,44 @@ const stats = [
           </div>
         ))}
       </dl>
+    </div>
+  </section>
+
+  <!-- Module map -->
+  <section class="mx-auto max-w-6xl px-5 py-16">
+    <div class="max-w-2xl">
+      <h2 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+        What's inside
+      </h2>
+      <p class="mt-4 text-slate-600 dark:text-slate-400">
+        Thirteen areas cover theory, rhythm, sequencing, analysis, tuning, and
+        I/O. Everything is exported from the root, and each area is also its own
+        import path, so a bundler keeps only what you use. Every entry links to
+        its guide.
+      </p>
+    </div>
+    <div class="mt-10 columns-1 gap-5 sm:columns-2 lg:columns-3">
+      {moduleGroups.map((g) => (
+        <div class="mb-5 break-inside-avoid rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-white/[0.03]">
+          <h3 class="text-xs font-semibold tracking-widest text-violet-600 uppercase dark:text-violet-400">
+            {g.group}
+          </h3>
+          <ul class="mt-4 space-y-4">
+            {g.items.map((m) => (
+              <li>
+                <a href={m.href} class="group block">
+                  <span class="font-mono text-sm font-medium text-slate-900 group-hover:text-violet-600 dark:text-slate-100 dark:group-hover:text-violet-400">
+                    musictheoryjs/{m.path}
+                  </span>
+                  <span class="mt-1 block text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                    {m.desc}
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
     </div>
   </section>
 
@@ -360,7 +458,7 @@ const stats = [
       <div class="grid items-center gap-10 lg:grid-cols-2">
         <div>
           <h3 class="text-2xl font-bold text-slate-900 dark:text-white">
-            12-TET is a default, not a rule
+            Tunings beyond 12-TET
           </h3>
           <p class="mt-4 text-slate-600 dark:text-slate-400">
             Frequency comes from a tuning, and the tuning is something you pass
@@ -381,7 +479,7 @@ const stats = [
         </div>
         <div class="order-1 lg:order-2">
           <h3 class="text-2xl font-bold text-slate-900 dark:text-white">
-            Analysis, not just construction
+            Analysis built in
           </h3>
           <p class="mt-4 text-slate-600 dark:text-slate-400">
             Point it at a set of notes or a timed stream and it works backwards:
@@ -410,6 +508,26 @@ const stats = [
         </div>
       </div>
 
+      <div class="grid items-center gap-10 lg:grid-cols-2">
+        <div class="order-2 overflow-hidden rounded-2xl border border-slate-200 bg-[#011627] shadow-lg lg:order-1 dark:border-white/10 [&_pre]:!m-0 [&_pre]:!bg-transparent [&_pre]:p-5 [&_pre]:text-sm">
+          <Code code={seqSnippet} lang="ts" theme={CODE_THEME} />
+        </div>
+        <div class="order-1 lg:order-2">
+          <h3 class="text-2xl font-bold text-slate-900 dark:text-white">
+            From chords to a track
+          </h3>
+          <p class="mt-4 text-slate-600 dark:text-slate-400">
+            The sequence module places notes on a beat timeline: melodies,
+            arpeggios, comped progressions, walking bass, swing and humanize,
+            motif transforms, song form. Streams are plain arrays of timed
+            events, so everything composes — and beats convert exactly to MIDI
+            ticks, so a finished track writes straight to a
+            <code class="rounded bg-slate-100 px-1 py-0.5 text-sm dark:bg-white/10">.mid</code>
+            file or a score.
+          </p>
+        </div>
+      </div>
+
     </div>
   </section>
 
@@ -417,7 +535,7 @@ const stats = [
   <section class="mx-auto max-w-6xl px-5 py-20">
     <div class="max-w-2xl">
       <h2 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-        A few more things it does
+        More examples
       </h2>
       <p class="mt-4 text-slate-600 dark:text-slate-400">
         Real snippets, with the results in the comments. The

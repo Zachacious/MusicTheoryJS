@@ -36,6 +36,13 @@ export interface MidiTrack {
   readonly notes: MidiNote[];
 }
 
+/** A tempo change: from this tick on, this many microseconds per quarter. */
+export interface MidiTempoEvent {
+  readonly tick: number;
+  /** Microseconds per quarter note (500000 = 120 BPM). */
+  readonly tempo: number;
+}
+
 /** A parsed (or to-be-written) MIDI file. */
 export interface MidiFile {
   /** SMF format: 0 (single track), 1 (simultaneous tracks), or 2 (independent). */
@@ -45,6 +52,9 @@ export interface MidiFile {
   readonly tracks: MidiTrack[];
   /** Tempo in microseconds per quarter note (500000 = 120 BPM) if the file set one. */
   readonly tempo?: number;
+  /** Every FF 51 tempo event in tick order, when the file has any. Written
+   * back in place of `tempo` when present. */
+  readonly tempoMap?: readonly MidiTempoEvent[];
   /** Time signature from the first FF 58 meta event, if the file set one. */
   readonly timeSignature?: TimeSignature;
 }

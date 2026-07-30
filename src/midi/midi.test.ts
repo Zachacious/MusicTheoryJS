@@ -161,6 +161,55 @@ describe("tempo helpers", () => {
     // one quarter note = 0.5s, 480 ticks -> 0.5/480 s per tick
     expect(secondsPerTick(480, 500000)).toBeCloseTo(0.5 / 480, 9);
   });
+
+  test("a tempo map survives the byte round trip in tick order", () => {
+    const file: MidiFile = {
+      format: 0,
+      ppq: 480,
+      tempo: 500000,
+      tempoMap: [
+        { tick: 0, tempo: 500000 },
+        { tick: 960, tempo: 1000000 },
+      ],
+      tracks: [
+        {
+          notes: [
+            { note: 60, start: 0, duration: 480, velocity: 80, channel: 0 },
+          ],
+        },
+      ],
+    };
+    const back = parseMidi(writeMidi(file));
+    expect(back.tempoMap).toEqual([
+      { tick: 0, tempo: 500000 },
+      { tick: 960, tempo: 1000000 },
+    ]);
+    expect(back.tempo).toBe(500000);
+  });
+
+  test("midiToNoteStream integrates seconds across tempo changes", () => {
+    // 120 BPM for two beats, then 60: a note at beat 3 starts at
+    // 2 x 0.5s + 1 x 1s = 2s and lasts 1s.
+    const file: MidiFile = {
+      format: 0,
+      ppq: 480,
+      tempo: 500000,
+      tempoMap: [
+        { tick: 0, tempo: 500000 },
+        { tick: 960, tempo: 1000000 },
+      ],
+      tracks: [
+        {
+          notes: [
+            { note: 60, start: 1440, duration: 480, velocity: 80, channel: 0 },
+          ],
+        },
+      ],
+    };
+    const stream = midiToNoteStream(file);
+    expect(stream[0]?.start).toBeCloseTo(2, 9);
+    expect(stream[0]?.duration).toBeCloseTo(1, 9);
+  });
 });
 
 describe("NoteStream <-> MIDI", () => {

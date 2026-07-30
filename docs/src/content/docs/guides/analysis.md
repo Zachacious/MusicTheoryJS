@@ -1,5 +1,6 @@
 ---
 title: Symbolic Analysis
+description: "Work backward from notes: detect keys, build chord timelines with Roman numerals, and find cadences and modulations."
 ---
 
 The analysis module turns notes and note streams into music theory: it detects
@@ -182,6 +183,69 @@ pcsetDegree(triad, 60, 4);  // 72 — the same note, numbered from 1
 
 Together these are an arpeggiator in three functions: pick a set, walk it by
 step, and let a [rhythm pattern](/guides/patterns/) decide the timing.
+
+### Normal form, prime form, and Forte names
+
+The canonical operations of set theory: `pcsetNormalForm` finds a set's most
+compact rotation, `pcsetPrimeForm` collapses every transposition and
+inversion of a set to one zero-based representative (Rahn's convention), and
+`forteName` looks that representative up in the catalog — all 224 set
+classes have their name:
+
+```ts
+import { pcsetMask, pcsetNormalForm, pcsetPrimeForm, forteName, fortePrimeForm, forteZMate } from "musictheoryjs";
+
+pcsetNormalForm(pcsetMask([0, 7, 8, 11])); // [7, 8, 11, 0] — most compact rotation
+pcsetPrimeForm(pcsetMask([0, 4, 7]));      // [0, 3, 7] — major and minor collapse together
+
+forteName(pcsetMask([0, 4, 7]));                   // "3-11" — the consonant triad
+forteName(pcsetMask([2, 4, 6, 7, 9, 11, 1]));      // "7-35" — any major scale
+fortePrimeForm("5-35");                            // [0, 2, 4, 7, 9] — the pentatonic
+forteZMate("4-z15");                               // "4-z29" — same intervals, different set
+```
+
+`pcsetInvert`, `pcsetComplement`, and `pcsetIntervalVector` round out the
+toolbox — inversion around any axis, the notes a set leaves out, and the
+interval-class census z-relations are defined by.
+
+## Counterpoint checking
+
+The [voicing engine](/guides/chords/) avoids parallels when it writes;
+`checkCounterpoint` is the other direction — two existing lines, examined
+against the classroom rules. It reports parallel fifths and octaves
+(antiparallels included), direct fifths and octaves (similar motion into a
+perfect interval with a leap in the upper voice), voice crossing, and voice
+overlap, each with the time and the two notes involved:
+
+```ts
+import { checkCounterpoint, melody } from "musictheoryjs";
+
+const soprano = melody(["C5", "D5"], "q");
+const alto = melody(["F4", "G4"], "q");
+
+checkCounterpoint(soprano, alto).map((i) => i.type); // ["parallel-fifths"]
+checkCounterpoint(melody(["C5", "B4"], "q"), alto);  // [] — contrary motion is fine
+```
+
+An empty array is a clean pass. Unisons count as octaves and compound
+intervals as their simple class, the way the rules are actually taught.
+
+## Twelve-tone rows
+
+A row is the twelve pitch classes in a fixed order; `rowTransform` produces
+any of its forty-eight forms, `rowMatrix` the full twelve-by-twelve, and
+`identifyRowForm` names what a passage states:
+
+```ts
+import { toneRow, rowTransform, rowMatrix, identifyRowForm } from "musictheoryjs";
+
+// Schoenberg's op. 25 row.
+const row = toneRow([4, 5, 7, 1, 6, 3, 8, 2, 11, 0, 9, 10]);
+
+rowTransform(row, "I4")[0];  // 4 — inversions begin on their label
+rowMatrix(row).length;       // 12 — P forms across, I forms down
+identifyRowForm(row, rowTransform(row, "RI7")); // "RI7"
+```
 
 ## From MIDI and audio
 

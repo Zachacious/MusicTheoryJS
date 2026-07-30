@@ -1,5 +1,6 @@
 ---
 title: Notes
+description: "Create, parse, compare, and transpose correctly-spelled notes, with ranges, sorting, MIDI numbers, and frequencies."
 ---
 
 A `Note` is an immutable, correctly-spelled pitch: a **letter** (A–G), an

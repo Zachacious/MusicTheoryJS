@@ -153,6 +153,58 @@ and the paths everyone hits should be the fastest ones.
       pitch-class offsets instead of constructed scales, and chord-scale
       ranking that scores from masks and builds only the scales it returns.
 
+## Phase 9 — Sequencing and interchange
+
+Everything upstream answers "what notes"; this phase answers "when", and
+closes the one interchange gap left open.
+
+- [x] A `sequence` module timed in quarter-note beats: melodies from pitches
+      and durations (or a rhythm pattern), streams combined in time
+      (concat, merge, shift, loop), arpeggios and strums, comped
+      progressions (Roman numerals to voice-led hits in one call), bass
+      lines (roots, root–fifth, deterministic walking with chromatic
+      approaches), groove (swing as a piecewise time warp, meter-aware
+      accents, reproducible humanize, gate), the motif transforms of
+      counterpoint (retrograde, spelled chromatic and tonal inversion,
+      augmentation/diminution, the classical diatonic sequence), and song
+      form expanded over named parts.
+- [x] Exact conversions out of beat time: to MIDI files (beats are ticks
+      over PPQ — no tempo rounding), to notation `Score`s (chords grouped,
+      gaps as rests, triplets preserved), and back in from MIDI.
+- [x] MusicXML import to match the export: `score-partwise` and
+      `score-timewise`, spelled pitches, chords, ties merged across
+      barlines, multiple voices via backup/forward, multiple parts, and the
+      front matter — title, key, time signature, tempo — with a
+      dependency-free XML reader underneath.
+- [x] ABC import finishes what the Phase 8 reader started: durations
+      against the unit note length, broken rhythms, rests as gaps, tuplet
+      groups, chords, the tempo field, and ties merged across barlines — so
+      an ABC tune, like MusicXML and MIDI, lands as a beat-timed stream.
+- [x] The trims arrangers reach for: slicing a beat window out of a stream
+      (truncated at the edges, re-zeroed so it loops), and velocity ramps —
+      the crescendo mark as a groove function.
+
+## Phase 10 — Deep cuts
+
+Time that bends, drums, and the analysis classroom's remaining chapters.
+
+- [x] Tempo maps: a MIDI file keeps every tempo event, writes them all
+      back, and integrates them to seconds; the sequence layer speaks the
+      same map in beats — `sequenceSeconds` through a ritardando,
+      `sequenceToMidi` stamping real tempo changes, `midiTempoMap` reading
+      them back out.
+- [x] Set theory completed: inversion, complement, normal form, prime form
+      (Rahn's convention), interval-class vectors on masks, and the Forte
+      catalog — all 224 set classes named, z-mates included.
+- [x] Counterpoint checking: parallel and direct fifths and octaves, voice
+      crossing, and voice overlap between two lines, each issue timed and
+      pinned to its notes.
+- [x] Drum tracks: the General MIDI percussion map by name, and
+      drum-machine grids (`"x..X"` strings, or any rhythm pattern) laid
+      onto channel-9-ready streams.
+- [x] Twelve-tone rows: the forty-eight forms, the matrix, and naming
+      which form a passage states.
+
 ## Not planned
 
 - Audio capture and **polyphonic** transcription. These need platform APIs or a

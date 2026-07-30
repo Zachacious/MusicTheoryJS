@@ -27,6 +27,7 @@ const { equalTemperament } = require("musictheoryjs/tuning");
 const { scaleFromTuning } = require("musictheoryjs/scale");
 const { barTicks, durationTicks } = require("musictheoryjs/rhythm");
 const { toABC } = require("musictheoryjs/notation");
+const { melody, sequenceToMidi } = require("musictheoryjs/sequence");
 const { retuneMidi, justIntonation } = require("musictheoryjs");
 
 function sine(freq, n, sr = 44100) {
@@ -95,5 +96,9 @@ assert.equal(
   "I",
   "roman I"
 );
+
+// Sequence subpath resolves under require()
+const seq = sequenceToMidi(melody(["C4", "E4"], "q"));
+assert.equal(seq.tracks[0].notes[1].start, 480, "sequence beats to ticks");
 
 console.log("E2E (CJS): all assertions passed");

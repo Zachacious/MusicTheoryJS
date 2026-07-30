@@ -31,13 +31,20 @@ import { intervalClassVector } from "musictheoryjs/analysis";
 import { cqtChroma, detectPitch } from "musictheoryjs/audio";
 // Subpath entries
 import { parseChordSymbol } from "musictheoryjs/chord";
-import { toABC, toMusicXML } from "musictheoryjs/notation";
+import { fromMusicXML, toABC, toMusicXML } from "musictheoryjs/notation";
 import {
   durationName,
   durationTicks,
   quantizeTick,
   tickToPosition,
 } from "musictheoryjs/rhythm";
+import {
+  arpeggiate,
+  bassline,
+  compProgression,
+  sequenceToMidi,
+  swing,
+} from "musictheoryjs/sequence";
 import { justDeviations, maqamTuning } from "musictheoryjs/tuning";
 
 function sine(freq, n, sr = 44100) {
@@ -97,6 +104,25 @@ assert.ok(
 assert.ok(
   toMusicXML(["F#4"], { key: "D major" }).includes("<fifths>2</fifths>"),
   "MusicXML key signature"
+);
+
+// --- Sequence: progression to played events, MusicXML back in ---
+assert.equal(
+  arpeggiate("Cmaj7", { pattern: "updown" }).length,
+  6,
+  "updown arpeggio note count"
+);
+const played = swing(compProgression("C major", "ii-V-I"));
+assert.equal(played.length, 12, "comped ii-V-I events");
+const seqFile = sequenceToMidi(played, { bpm: 120 });
+assert.equal(seqFile.ppq, 480, "sequence MIDI ppq");
+assert.equal(bassline(["Dm7", "G7"]).length, 8, "walking bass beats");
+const reread = fromMusicXML(toMusicXML(["C4", "E4"], { tempo: 90 }));
+assert.equal(reread.tempo, 90, "MusicXML import tempo");
+assert.equal(
+  reread.stream.map((e) => e.pitch.toString()).join(" "),
+  "C4 E4",
+  "MusicXML import pitches"
 );
 
 // --- Tuning presets and comparison ---

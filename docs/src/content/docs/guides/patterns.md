@@ -1,5 +1,6 @@
 ---
 title: Rhythm Patterns
+description: "Generate rhythm patterns: Euclidean grooves, rotations, hex patterns, and seeded random rhythms mapped onto onsets."
 ---
 
 A rhythm pattern is an onset grid: a flat array of `1`s (a note starts here) and

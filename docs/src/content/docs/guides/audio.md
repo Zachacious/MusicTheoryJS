@@ -1,5 +1,6 @@
 ---
 title: Audio (DSP)
+description: "Dependency-free audio DSP: FFT, pitch detection, chroma, constant-Q, onset detection, and monophonic melody transcription."
 ---
 
 MusicTheoryJS includes a small, **dependency-free DSP toolkit** for turning audio

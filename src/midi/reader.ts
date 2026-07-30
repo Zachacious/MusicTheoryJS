@@ -4,13 +4,13 @@
  * Supports SMF formats 0–2 with metrical (PPQ) division. Note-on/note-off pairs
  * are matched into {@link MidiNote}s; a note-on with velocity 0 counts as a
  * note-off (as the spec allows). The first tempo and time-signature meta events
- * are surfaced on the file, and pitch bends are folded into the notes they
- * affect (the `bend` field). Running status and interleaved meta/sysex events
- * are handled.
+ * are surfaced on the file — every tempo event lands in `tempoMap`, in tick
+ * order — and pitch bends are folded into the notes they affect (the `bend`
+ * field). Running status and interleaved meta/sysex events are handled.
  */
 
 import type { TimeSignature } from "../rhythm/meter";
-import type { MidiFile, MidiNote, MidiTrack } from "./types";
+import type { MidiFile, MidiNote, MidiTempoEvent, MidiTrack } from "./types";
 
 /** A bounds-checked forward cursor over the file bytes. */
 class ByteReader {
@@ -75,7 +75,7 @@ interface OpenNote {
 function parseTrack(
   r: ByteReader,
   length: number,
-  onTempo: (t: number) => void,
+  onTempo: (t: number, tick: number) => void,
   onTimeSignature: (ts: TimeSignature) => void
 ): MidiTrack {
   const end = r.pos + length;
@@ -111,7 +111,8 @@ function parseTrack(
         onTempo(
           (data[0] as number) * 65536 +
             (data[1] as number) * 256 +
-            (data[2] as number)
+            (data[2] as number),
+          tick
         );
       } else if (metaType === 0x58 && len >= 2) {
         // FF 58: nn dd cc bb — numerator, denominator as a power of two,
@@ -224,6 +225,7 @@ export function parseMidi(data: Uint8Array | ArrayBuffer | number[]): MidiFile {
 
   let tempo: number | undefined;
   let timeSignature: TimeSignature | undefined;
+  const tempoMap: MidiTempoEvent[] = [];
   const tracks: MidiTrack[] = [];
   for (let i = 0; i < ntracks && !r.done; i++) {
     if (r.ascii(4) !== "MTrk") {
@@ -234,8 +236,9 @@ export function parseMidi(data: Uint8Array | ArrayBuffer | number[]): MidiFile {
       parseTrack(
         r,
         len,
-        (t) => {
+        (t, tick) => {
           if (tempo === undefined) tempo = t;
+          tempoMap.push({ tick, tempo: t });
         },
         (ts) => {
           if (timeSignature === undefined) timeSignature = ts;
@@ -243,12 +246,14 @@ export function parseMidi(data: Uint8Array | ArrayBuffer | number[]): MidiFile {
       )
     );
   }
+  tempoMap.sort((a, b) => a.tick - b.tick);
 
   return {
     format,
     ppq,
     tracks,
     ...(tempo === undefined ? {} : { tempo }),
+    ...(tempoMap.length === 0 ? {} : { tempoMap }),
     ...(timeSignature === undefined ? {} : { timeSignature }),
   };
 }

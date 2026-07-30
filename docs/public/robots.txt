@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://musictheoryjs.com/sitemap-index.xml

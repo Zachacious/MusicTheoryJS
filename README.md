@@ -21,17 +21,24 @@ MusicTheoryJS gives your code a working knowledge of music. It knows the notes
 in an `Fm9`, the key a melody is in, which scales fit over a `G7alt`, where the
 onsets of a tresillo fall, and what frequency a quarter tone above middle C
 sounds at. Use it to analyze performances and MIDI, generate progressions and
-voicings, label a score with Roman numerals, build ear trainers and theory apps,
-or drive a synth with tunings most software cannot represent.
+voicings, sequence backing tracks into real MIDI files, label a score with
+Roman numerals, build ear trainers and theory apps, or drive a synth with
+tunings most software cannot represent.
+
+## Highlights
 
 - **Fastest.** Faster on 13 of 14 head-to-head operations against the leading alternative — roughly 2× on chord and scale construction, 7–17× on parsing and chord detection, and far more on pitch-class work. [Numbers and method](#speed).
-- **Most complete.** Everything the leading library does, plus whole domains it has none of: microtonal tunings, MIDI file I/O, notation in and out, audio DSP, voice leading, and rhythm generation. [What it does](#what-it-does).
+- **Most complete.** Everything the leading library does, plus whole domains it has none of: microtonal tunings, MIDI file I/O, notation in and out, audio DSP, voice leading, rhythm generation, and sequencing. [What's in the library](#whats-in-the-library).
 - **Easy to use.** One import, no setup, no builders. Pass names (`"Cmaj7"`, `"C4 major"`, `"7/8"`), plain objects, or numbers — anything that could reasonably mean a chord is accepted as one, and you get a spelled, printable answer back.
-- **Small.** `Note` alone is ~2 KB gzipped, everything at once ~31 KB, zero runtime dependencies. Twelve subpaths let a bundler drop what you don't touch.
+- **Small.** `Note` alone is ~2 KB gzipped, everything at once ~31 KB, zero runtime dependencies. Thirteen subpaths let a bundler drop what you don't touch.
 - **Open dictionaries.** 108 chord qualities, 92 scales, and 34 tunings built in — and you can register your own at runtime, after which every part of the library treats them as native.
 - **Typed and immutable.** `.d.ts` for every export, no `any` at the edges, ESM and CommonJS. Every operation returns a new value, safe to share and memoize.
 - **Correct.** `transpose("Eb4", "P5")` is `Bb4`, and G♯ and A♭ stay different pitches when a tuning needs them to be. [Here's why](#why-the-answers-come-out-right).
 - **Documentation you can trust.** Every snippet in this README, every `@example` in the source, and every runnable block in the guides executes in CI. A wrong `// =>` comment fails the build.
+
+---
+
+## Quick start
 
 ```bash
 bun add musictheoryjs   # or: npm i · pnpm add · yarn add
@@ -52,6 +59,49 @@ examples that play through your speakers.
 > v3 is a rewrite and is not API-compatible with v2. On v2, pin it or read the
 > [migration guide](https://musictheoryjs.com/guides/migration/) before
 > upgrading — the v3 snippets on that page run as tests on every commit.
+
+---
+
+## What's in the library
+
+Thirteen areas cover theory, rhythm, sequencing, analysis, tuning, and I/O.
+Everything is exported from the root, and each area is also its own import
+path, so bundlers
+can split on the boundaries. Each entry links to its guide, and the
+[docs](https://musictheoryjs.com) have a full API reference.
+
+**Core theory**
+
+- [`musictheoryjs/note`](https://musictheoryjs.com/guides/notes/) — notes, ranges, sorting, circle-of-fifths transposition
+- [`musictheoryjs/interval`](https://musictheoryjs.com/guides/intervals/) — intervals, transposition, inversion, simplification
+- [`musictheoryjs/scale`](https://musictheoryjs.com/guides/scales/) — scales, modes and their relations, detection, subset/superset queries, chord-scale matching (92 templates, extensible)
+- [`musictheoryjs/chord`](https://musictheoryjs.com/guides/chords/) — chords, symbol parsing, detection, voicings and voicing dictionaries, voice leading, Neo-Riemannian transforms (108 qualities, extensible)
+- [`musictheoryjs/key`](https://musictheoryjs.com/guides/keys/) — keys, signatures, Roman numerals, secondary dominants, progressions, next-chord suggestion
+
+**Rhythm and sequencing**
+
+- [`musictheoryjs/rhythm`](https://musictheoryjs.com/guides/rhythm/) — durations, tuplets, time signatures, bar/beat positions, quantization, Euclidean and generative patterns
+- [`musictheoryjs/sequence`](https://musictheoryjs.com/guides/sequencing/) — notes placed in time: melodies, arpeggios and strums, comped progressions, walking bass, drum grids on GM percussion, swing/accent/humanize/crescendo, motif transforms (retrograde, inversion, augmentation, diatonic sequence), song form, tempo maps, and exact conversion to MIDI or notation
+
+**Analysis**
+
+- [`musictheoryjs/analysis`](https://musictheoryjs.com/guides/analysis/) — key detection, chord timelines with Roman numerals and cadences, modulations, pitch-class set theory with Forte set-class names, counterpoint checking, twelve-tone rows
+
+**Tuning**
+
+- [`musictheoryjs/tuning`](https://musictheoryjs.com/guides/tuning/) — tuning systems: any EDO, Just Intonation, historical temperaments, maqam/raga/gamelan presets, custom cents or ratios, Scala files
+
+**Files and sound**
+
+- [`musictheoryjs/midi`](https://musictheoryjs.com/guides/midi/) — Standard MIDI File read/write, retuning with per-note pitch bends
+- [`musictheoryjs/notation`](https://musictheoryjs.com/guides/notation/) — ABC and MusicXML, both directions: export scores, read them back as timed streams
+- [`musictheoryjs/audio`](https://musictheoryjs.com/guides/audio/) — FFT, pitch, chroma (FFT + constant-Q), onsets, melody transcription
+
+**Helpers**
+
+- `musictheoryjs/collection` — array helpers music code keeps needing: ranges, rotation, permutations
+
+---
 
 ## Common use cases
 
@@ -87,6 +137,18 @@ import { Key, voiceProgression } from "musictheoryjs";
 const chords = Key.major("C").progression("ii7 V7 Imaj7");
 voiceProgression(chords).map((v) => v.map(String))[0]; // => ["D3","F3","C4","A4"]
 // Each chord after the first moves as little as possible from the one before.
+```
+
+**Sequence a riff into a MIDI file.** Streams are timed in quarter-note beats
+and compose freely; beats convert exactly to ticks, so the result writes
+straight to a `.mid`.
+
+```ts
+import { melody, patternMelody, euclideanRhythm, mergeStreams, sequenceToMidi, writeMidi } from "musictheoryjs";
+
+const lead = melody(["C4", "E4", "G4", "E4"], "8");        // an eighth-note riff
+const bass = patternMelody(["C2"], euclideanRhythm(8, 3)); // a tresillo bass
+writeMidi(sequenceToMidi(mergeStreams(lead, bass), { bpm: 96 })); // a playable .mid, as bytes
 ```
 
 **Drive a sequencer or drum machine.** Euclidean patterns give you grooves from
@@ -130,6 +192,8 @@ toABC(Scale.from("D4", "dorian"), { title: "D dorian" });
 fromABC("K:D\nD2 E2 F2 |]").notes.map(String); // => ["D4","E4","F#4"]
 ```
 
+---
+
 ## Speed
 
 Benchmarked head to head against the leading alternative with
@@ -171,14 +235,20 @@ what you import.
 The package is marked `sideEffects: false`, so unused areas never make it into
 the bundle in the first place.
 
-## What it does
+---
 
-**Notes, intervals, and the spelling behind them.** A note here is a letter, an
-accidental, and an octave — not a number from 0 to 11. That distinction is the
-one thing most small libraries drop, and it's the thing theory is built on. `C#`
-and `Db` are the same key on a piano and different notes everywhere else: they
-belong to different scales, form different intervals, and get named differently.
-Keep them apart and the output matches what you'd write by hand.
+## A closer look
+
+Each area in more depth, with code you can paste and run.
+
+### Notes and intervals
+
+A note here is a letter, an accidental, and an octave — not a number from 0
+to 11. That distinction is the one thing most small libraries drop, and it's
+the thing theory is built on. `C#` and `Db` are the same key on a piano and
+different notes everywhere else: they belong to different scales, form
+different intervals, and get named differently. Keep them apart and the output
+matches what you'd write by hand.
 
 ```ts
 import { Note, interval } from "musictheoryjs";
@@ -188,11 +258,12 @@ new Note("E#4").isEnharmonic("F4");  // true  — same pitch
 new Note("C4").transpose(interval(4, "d")).toString(); // "Fb4"  (a diminished fourth, spelled right)
 ```
 
-**Scales and chords, in and out.** Construct them from names or symbols, or hand
-the library a set of notes and let it tell you what they are. 92 scale templates,
-108 chord qualities tested against a corpus of real-world chord symbols,
-voicings, and detection both directions — including subset matching ("which
-scales contain these notes?").
+### Scales and chords
+
+Construct them from names or symbols, or hand the library a set of notes and
+let it tell you what they are. 92 scale templates, 108 chord qualities tested
+against a corpus of real-world chord symbols, voicings, and detection both
+directions — including subset matching ("which scales contain these notes?").
 
 ```ts
 import { Scale, Chord, detectChord, detectScales, drop2 } from "musictheoryjs";
@@ -203,7 +274,7 @@ detectChord(["G4", "B4", "D5", "F5"])?.toString();  // "G7"
 drop2(Chord.from("Cmaj7")).map(String);             // ["G3","C4","E4","B4"]
 ```
 
-**Keys, Roman numerals, and progressions.**
+### Keys, Roman numerals, and progressions
 
 ```ts
 import { Key, Chord } from "musictheoryjs";
@@ -213,9 +284,11 @@ Key.major("C").romanNumeral(Chord.from("G7"));          // "V7"
 Key.minor("A").relative().toString();                    // "C major"
 ```
 
-**Analysis.** Point it at a set of notes or a stream of timed notes and it works
-backward: detects the key (Krumhansl–Schmuckler), segments a chord timeline,
-labels each chord with a Roman numeral, and marks cadences.
+### Analysis
+
+Point it at a set of notes or a stream of timed notes and it works backward:
+detects the key (Krumhansl–Schmuckler), segments a chord timeline, labels each
+chord with a Roman numeral, and marks cadences.
 
 ```ts
 import { detectKey, analyzeHarmony } from "musictheoryjs";
@@ -228,9 +301,23 @@ const { key, timeline, cadences } = analyzeHarmony([
 ]);
 ```
 
-**Rhythm, meter, and patterns.** Durations with dots and tuplets, time
-signatures from 4/4 to 7/8 with their felt beat groupings, bar/beat positions,
-and grid quantization for MIDI ticks or seconds.
+The theory classroom's other chapters are here too: prime forms and Forte
+names for all 224 set classes, counterpoint checking between two lines, and
+twelve-tone row operations.
+
+```ts
+import { forteName, pcsetMask, checkCounterpoint, melody } from "musictheoryjs";
+
+forteName(pcsetMask([0, 4, 7])); // => "3-11"
+const issues = checkCounterpoint(melody(["C5", "D5"], "q"), melody(["F4", "G4"], "q"));
+issues[0]?.type; // => "parallel-fifths"
+```
+
+### Rhythm, meter, and patterns
+
+Durations with dots and tuplets, time signatures from 4/4 to 7/8 with their
+felt beat groupings, bar/beat positions, and grid quantization for MIDI ticks
+or seconds.
 
 ```ts
 import { durationName, tickToPosition, quantizeTick, beatGrouping } from "musictheoryjs";
@@ -255,10 +342,34 @@ rotateRhythm(euclideanRhythm(8, 3), 2);   // a rotation is a different groove
 rhythmFromHex("8f");                      // [1,0,0,0,1,1,1,1] — drum-machine hex
 ```
 
-**MIDI and audio, no extra packages.** Read and write Standard MIDI Files with a
-byte codec, transcribe a monophonic melody straight from audio samples, and pull
-pitch, chroma (FFT or constant-Q), and onsets out of a buffer with a
-dependency-free DSP layer.
+### Sequencing
+
+The theory layers answer "what notes"; the sequence module answers "when".
+Streams are timed in quarter-note beats, so a comped progression, a walking
+bass, and a swung melody drop straight into a MIDI file — or a score — with
+no tick math.
+
+```ts
+import { compProgression, bassline, swing, arpeggiate, sequenceToMidi, writeMidi, mergeStreams } from "musictheoryjs";
+
+// A played ii-V-I: voice-led hits with a Charleston-style rhythm.
+const comp = compProgression("C major", "ii-V-I", { rhythm: [1, 0, 0, 1, 0, 0, 0, 0] });
+const bass = bassline(["Dm7", "G7", "Cmaj7"]); // walking quarters, chromatic approaches
+const bytes = writeMidi(sequenceToMidi(mergeStreams(swing(comp), bass), { bpm: 140 }));
+
+arpeggiate("Am", { pattern: "updown", octaves: 2 }).length; // => 10
+```
+
+Motif transforms cover the counterpoint classroom — retrograde, spelled
+inversion (chromatic or tonal), augmentation, and the diatonic sequence —
+and `songForm("AABA", parts)` lays sections onto one timeline.
+
+### MIDI and audio
+
+Read and write Standard MIDI Files with a byte codec, transcribe a monophonic
+melody straight from audio samples, and pull pitch, chroma (FFT or constant-Q),
+and onsets out of a buffer with a dependency-free DSP layer — no extra
+packages.
 
 ```ts no-run
 import { parseMidi, midiToNoteStream, transcribeMelody } from "musictheoryjs";
@@ -270,9 +381,12 @@ transcribeMelody(float32Samples, 44100);  // [{ pitch: A4, start, duration }, �
 Capturing audio and transcribing polyphony need a platform API or a model, so
 those stay in your app — the library takes the notes and hands back the theory.
 
-**Notation in and out.** Export notes, chords, scales, or full scores as ABC or
-MusicXML — key and time signatures, dots and tuplets, ties across barlines —
-ready for any notation program. ABC reads back in, so a tune can round-trip.
+### Notation
+
+Export notes, chords, scales, or full scores as ABC or MusicXML — key and time
+signatures, dots and tuplets, ties across barlines — ready for any notation
+program. Both formats read back in as beat-timed streams: ABC with its
+rhythm, chords, and ties, MusicXML with parts and voices resolved.
 
 ```ts
 import { toABC, fromABC, Scale } from "musictheoryjs";
@@ -281,13 +395,15 @@ toABC(Scale.from("C4", "major"));   // "X:1\nM:4/4\n..." — a complete ABC tune
 
 const tune = fromABC("X:1\nT:Scale\nM:4/4\nK:D\nD2 E2 F2 G2 |]");
 tune.notes.map(String);             // ["D4","E4","F#4","G4"] — F♯ from the key signature
+tune.stream.map((e) => e.start);    // [0, 1, 2, 3] — the rhythm too, in quarter-note beats
 ```
 
-**Any tuning, not just 12-TET.** Frequency comes from a tuning you pass in.
-Twelve-tone equal temperament is the default because it's what most people want,
-but it isn't wired into the core. Equal temperaments of any size, Pythagorean,
-meantone, Just Intonation, a maqam defined in cents, or a Scala file are all
-ordinary tunings.
+### Beyond 12-TET
+
+Frequency comes from a tuning you pass in. Twelve-tone equal temperament is
+the default because it's what most people want, but it isn't wired into the
+core. Equal temperaments of any size, Pythagorean, meantone, Just Intonation,
+a maqam defined in cents, or a Scala file are all ordinary tunings.
 
 ```ts
 import { equalTemperament, maqamTuning, justDeviations, scaleFromTuning } from "musictheoryjs";
@@ -320,10 +436,12 @@ Scala `.scl` file via `scalaTuning`.
 `retuneMidi` applies any of these tunings to a real MIDI file with per-note
 pitch bends.
 
-**Dictionaries you can extend.** The 108 chord qualities and 92 scales are a
-starting point, not a ceiling. Register your own at runtime and the whole
-library adopts it — building, symbol parsing, printing, detection, chord-scale
-matching, Roman numerals. Nothing has to be forked to teach it a chord.
+### Dictionaries you can extend
+
+The 108 chord qualities and 92 scales are a starting point, not a ceiling.
+Register your own at runtime and the whole library adopts it — building,
+symbol parsing, printing, detection, chord-scale matching, Roman numerals.
+Nothing has to be forked to teach it a chord.
 
 ```ts
 import {
@@ -342,6 +460,8 @@ detectScales(["C4","D4","E4","F#4","A4","B4"])[0]?.name;  // "hexatonicDream"
 resetChordTypes();  // put the built-in dictionaries back
 resetScaleTypes();
 ```
+
+---
 
 ## Why the answers come out right
 
@@ -396,28 +516,7 @@ import { spelled } from "musictheoryjs";
 transpose(spelled(0, 0, 4), interval(5, "P")); // a SpelledPitch for G4
 ```
 
-## Entry points
-
-Everything is exported from the root. Each area is also its own import path, so
-bundlers can split on the boundaries.
-
-| Import | Covers |
-| --- | --- |
-| `musictheoryjs/note` | notes, ranges, sorting, circle-of-fifths transposition |
-| `musictheoryjs/interval` | intervals, transposition, inversion, simplification |
-| `musictheoryjs/scale` | scales, modes and their relations, detection, subset/superset queries, chord-scale matching (92 templates, extensible) |
-| `musictheoryjs/chord` | chords, symbol parsing, detection, voicings and voicing dictionaries, voice leading, Neo-Riemannian transforms (108 qualities, extensible) |
-| `musictheoryjs/key` | keys, signatures, Roman numerals, secondary dominants, progressions, next-chord suggestion |
-| `musictheoryjs/rhythm` | durations, tuplets, time signatures, bar/beat positions, quantization, Euclidean and generative patterns |
-| `musictheoryjs/tuning` | tuning systems (EDO, JI, historical, custom, Scala) |
-| `musictheoryjs/analysis` | key detection, chord timelines, set theory |
-| `musictheoryjs/midi` | Standard MIDI File read/write, retuning |
-| `musictheoryjs/notation` | ABC and MusicXML export, ABC import |
-| `musictheoryjs/audio` | FFT, pitch, chroma (FFT + constant-Q), onsets, melody transcription |
-| `musictheoryjs/collection` | array helpers music code keeps needing: ranges, rotation, permutations |
-
-The [docs](https://musictheoryjs.com) have a guide for each plus a full API
-reference.
+---
 
 ## Development
 
@@ -438,4 +537,4 @@ Releases go through Changesets — see [RELEASING.md](RELEASING.md), and
 
 ## License
 
-[ISC](LICENSE.txt) © 2021-2026 Zach Moore
+[ISC](LICENSE.txt) © 2020-2026 Zach Moore

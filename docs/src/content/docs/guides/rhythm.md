@@ -1,5 +1,6 @@
 ---
 title: Rhythm & Meter
+description: "Durations, dots, and tuplets; time signatures and felt beat groupings; bar/beat positions and grid quantization."
 ---
 
 MusicTheoryJS gives time the same footing as pitch: note-value durations with

@@ -3,14 +3,15 @@
  *
  * Notes are expanded into note-on/note-off events, ordered by tick (note-offs
  * before note-ons at the same tick to avoid stuck notes), delta-timed, and
- * written as SMF format-1 (or format-0 for a single track). An optional tempo,
- * time signature, and per-track name are emitted as meta events; note `bend`
- * fields become pitch-bend events just before their note-ons.
+ * written as SMF format-1 (or format-0 for a single track). An optional tempo
+ * (or a whole tempo map), time signature, and per-track name are emitted as
+ * meta events; note `bend` fields become pitch-bend events just before their
+ * note-ons.
  */
 
 import { wholeNotes } from "../rhythm/duration";
 import { type TimeSignature, beatUnit } from "../rhythm/meter";
-import type { MidiFile, MidiNote, MidiTrack } from "./types";
+import type { MidiFile, MidiNote, MidiTempoEvent, MidiTrack } from "./types";
 
 /** A growable byte buffer. */
 class ByteWriter {
@@ -66,7 +67,8 @@ interface TickEvent {
 function trackEvents(
   track: MidiTrack,
   tempo?: number,
-  timeSignature?: TimeSignature
+  timeSignature?: TimeSignature,
+  tempoMap?: readonly MidiTempoEvent[]
 ): number[] {
   const events: TickEvent[] = [];
 
@@ -78,17 +80,24 @@ function trackEvents(
       bytes: [0xff, 0x03, name.length, ...name],
     });
   }
-  if (tempo !== undefined) {
+  // A tempo map replaces the single tempo event outright.
+  const tempi: readonly MidiTempoEvent[] =
+    tempoMap !== undefined && tempoMap.length > 0
+      ? tempoMap
+      : tempo !== undefined
+        ? [{ tick: 0, tempo }]
+        : [];
+  for (const t of tempi) {
     events.push({
-      tick: 0,
+      tick: t.tick,
       order: -1,
       bytes: [
         0xff,
         0x51,
         0x03,
-        (tempo >> 16) & 0xff,
-        (tempo >> 8) & 0xff,
-        tempo & 0xff,
+        (t.tempo >> 16) & 0xff,
+        (t.tempo >> 8) & 0xff,
+        t.tempo & 0xff,
       ],
     });
   }
@@ -188,7 +197,8 @@ export function writeMidi(file: MidiFile): Uint8Array {
     const body = trackEvents(
       track,
       i === 0 ? file.tempo : undefined,
-      i === 0 ? file.timeSignature : undefined
+      i === 0 ? file.timeSignature : undefined,
+      i === 0 ? file.tempoMap : undefined
     );
     w.ascii("MTrk");
     w.u32(body.length);

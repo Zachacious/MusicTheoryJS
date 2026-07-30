@@ -1,5 +1,6 @@
 ---
 title: Scales
+description: "Build any of 92 scale types, walk modes and their relations, detect scales from notes, and match scales to chords."
 ---
 
 A `Scale` is a tonic plus an ordered set of intervals. Because those intervals

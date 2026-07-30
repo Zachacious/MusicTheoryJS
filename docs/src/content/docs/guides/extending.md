@@ -1,5 +1,6 @@
 ---
 title: Custom Chords & Scales
+description: "Register custom chord qualities and scale types at runtime; parsing, detection, and naming all adopt them."
 ---
 
 The 108 chord qualities and 92 scale templates that ship with the library are a

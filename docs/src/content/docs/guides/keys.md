@@ -1,5 +1,6 @@
 ---
 title: Keys & Harmony
+description: "Keys and harmony: signatures, Roman numerals, secondary dominants, progressions, and next-chord suggestions."
 ---
 
 A `Key` is a tonic plus a mode (major or natural minor). Because it's built on

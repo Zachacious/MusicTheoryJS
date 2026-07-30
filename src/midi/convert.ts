@@ -9,7 +9,7 @@
 import type { NoteEvent, NoteStream, NoteStreamInput } from "../analysis/types";
 import { type EnharmonicPreference, Note } from "../note/note";
 import { type TimeSignatureLike, asTimeSignature } from "../rhythm/meter";
-import type { MidiFile, MidiNote } from "./types";
+import type { MidiFile, MidiNote, MidiTempoEvent } from "./types";
 
 /** Default MIDI tempo: 500000 µs/quarter = 120 BPM. */
 export const DEFAULT_TEMPO = 500000;
@@ -31,15 +31,43 @@ export function tempoToBpm(tempo: number): number {
   return 60_000_000 / tempo;
 }
 
+/** Seconds elapsed at an absolute tick, integrating a tempo map (each tempo
+ * holds until the next change; before the first change, the first applies). */
+function tickSeconds(
+  tick: number,
+  ppq: number,
+  map: readonly MidiTempoEvent[]
+): number {
+  let seconds = 0;
+  let prevTick = 0;
+  let tempo = map[0]?.tempo ?? DEFAULT_TEMPO;
+  for (const change of map) {
+    if (change.tick > tick) break;
+    seconds += (change.tick - prevTick) * secondsPerTick(ppq, tempo);
+    prevTick = change.tick;
+    tempo = change.tempo;
+  }
+  return seconds + (tick - prevTick) * secondsPerTick(ppq, tempo);
+}
+
 /**
  * Convert a parsed MIDI file to a {@link NoteStream} in seconds, spelling each
- * note. By default all tracks are merged; pass `track` to take just one.
+ * note. A file with tempo changes is integrated over its tempo map, so times
+ * stay honest through a ritardando. By default all tracks are merged; pass
+ * `track` to take just one.
  */
 export function midiToNoteStream(
   file: MidiFile,
   options: { track?: number; prefer?: EnharmonicPreference } = {}
 ): NoteStream {
-  const spt = secondsPerTick(file.ppq, file.tempo ?? DEFAULT_TEMPO);
+  const map = file.tempoMap;
+  let toSeconds: (tick: number) => number;
+  if (map !== undefined && map.length > 1) {
+    toSeconds = (tick) => tickSeconds(tick, file.ppq, map);
+  } else {
+    const spt = secondsPerTick(file.ppq, file.tempo ?? DEFAULT_TEMPO);
+    toSeconds = (tick) => tick * spt;
+  }
   const tracks =
     options.track !== undefined
       ? [file.tracks[options.track]].filter(Boolean)
@@ -48,10 +76,11 @@ export function midiToNoteStream(
   const events: NoteEvent[] = [];
   for (const track of tracks) {
     for (const n of (track as { notes: MidiNote[] }).notes) {
+      const start = toSeconds(n.start);
       events.push({
         pitch: Note.fromMidi(n.note, options.prefer ?? "sharp"),
-        start: n.start * spt,
-        duration: n.duration * spt,
+        start,
+        duration: toSeconds(n.start + n.duration) - start,
         velocity: n.velocity,
       });
     }

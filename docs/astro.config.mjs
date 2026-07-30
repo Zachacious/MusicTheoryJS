@@ -32,8 +32,25 @@ export default defineConfig({
     starlight({
       title: "MusicTheoryJS",
       description:
-        "A music theory library for JavaScript and TypeScript: notes, scales, chords, keys, tunings, MIDI, and audio analysis — with real support for microtonal and non-Western music.",
+        "A music theory library for JavaScript and TypeScript: notes, scales, chords, keys, rhythm, sequencing, tunings, MIDI, notation, and audio analysis — with real support for microtonal and non-Western music.",
       logo: { src: "./src/assets/logo.svg", alt: "MusicTheoryJS" },
+      // Default share-card metadata for every docs page. Starlight already
+      // emits og:title/description and canonical URLs; the image is the one
+      // thing it can't know about.
+      head: [
+        {
+          tag: "meta",
+          attrs: { property: "og:image", content: "https://musictheoryjs.com/og.jpg" },
+        },
+        {
+          tag: "meta",
+          attrs: { name: "twitter:card", content: "summary_large_image" },
+        },
+        {
+          tag: "meta",
+          attrs: { name: "twitter:image", content: "https://musictheoryjs.com/og.jpg" },
+        },
+      ],
       customCss: ["./src/styles/global.css"],
       components: {
         // Loads the playground script on every docs page (and still renders
@@ -66,6 +83,7 @@ export default defineConfig({
             { label: "Keys & harmony", slug: "guides/keys" },
             { label: "Rhythm & meter", slug: "guides/rhythm" },
             { label: "Rhythm patterns", slug: "guides/patterns" },
+            { label: "Sequencing", slug: "guides/sequencing" },
           ],
         },
         {

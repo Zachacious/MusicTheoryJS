@@ -1,5 +1,6 @@
 ---
 title: MIDI Files
+description: "Read and write Standard MIDI Files, convert to and from note streams, and retune MIDI with per-note pitch bends."
 ---
 
 MusicTheoryJS reads and writes **Standard MIDI Files** with a pure, dependency-free
@@ -22,10 +23,17 @@ const file = parseMidi(bytes);
 file.format;                  // 0, 1, or 2
 file.ppq;                     // ticks per quarter note
 file.tempo;                   // µs per quarter (if the file set one)
+file.tempoMap;                // every tempo event as { tick, tempo }, in order
 file.timeSignature;           // { numerator, denominator } (if the file set one)
 file.tracks[0].name;          // track name, if present
 file.tracks[0].notes;         // MidiNote[] — { note, start, duration, velocity, channel }
 ```
+
+A file with tempo changes keeps them all: `tempoMap` lists every tempo
+event, `writeMidi` writes them back, and `midiToNoteStream` integrates over
+them so seconds stay honest through a ritardando. The
+[sequence module](/guides/sequencing/) converts a map to and from beats
+with `midiTempoMap`.
 
 ## Writing a MIDI file
 

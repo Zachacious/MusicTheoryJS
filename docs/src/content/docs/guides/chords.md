@@ -1,5 +1,6 @@
 ---
 title: Chords
+description: "Build chords from 108 qualities, parse and print symbols, detect chords from notes, and generate voicings with voice leading."
 ---
 
 A `Chord` is a root plus a set of spelled intervals. Chords can be built from a
