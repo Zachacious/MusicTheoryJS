@@ -1,15 +1,59 @@
 @import "tailwindcss";
 
-/* Violet brand accent for Starlight (dark defaults, light overrides). */
-:root {
+/*
+ * Palette overrides for starlight-theme-black: the landing page's colors
+ * instead of the theme's pure-neutral monochrome. Dark mode gets the
+ * landing page's violet-tinted near-black (#0b0a10) with matching tinted
+ * greys; light mode swaps the neutral greys for the landing page's slate.
+ * These rules are unlayered, so they beat the theme's `@layer black`.
+ *
+ * The theme derives everything from a few vars: --background (page),
+ * --gray-7 (cards/muted/popovers), --gray-6 (borders/secondary),
+ * --gray-3/4 (muted text).
+ */
+:root[data-theme="dark"] {
+  --background: #0b0a10;
+  --gray-7: #16131f;
+  --gray-6: #292435;
+  --gray-5: #3d3650;
+  --gray-4: #837d95;
+  --gray-3: #a9a3ba;
   --sl-color-accent-low: #241a4d;
   --sl-color-accent: #7c5cff;
   --sl-color-accent-high: #d9d0ff;
+  --selection: color-mix(in oklab, #8b5cf6 25%, transparent);
+  --selection-foreground: var(--foreground);
 }
 :root[data-theme="light"] {
+  --gray-7: #f1f5f9;
+  --gray-6: #e2e8f0;
+  --gray-5: #cbd5e1;
+  --gray-4: #64748b;
+  --gray-3: #475569;
   --sl-color-accent-low: #e7dfff;
   --sl-color-accent: #6d28d9;
   --sl-color-accent-high: #2a1958;
+  --selection: color-mix(in oklab, #8b5cf6 25%, transparent);
+  --selection-foreground: var(--foreground);
+}
+
+/* Violet inside markdown content (tabs, asides); the chrome (sidebar, nav,
+ * pagination) keeps the theme's monochrome shadcn look. */
+.sl-markdown-content {
+  --sl-color-text-accent: #7c3aed;
+}
+:root[data-theme="dark"] .sl-markdown-content {
+  --sl-color-text-accent: #a78bfa;
+}
+
+/* Prose links keep theme-black's underlined-foreground style, but the
+ * underline is tinted the landing page's violet and hover goes full violet. */
+.sl-markdown-content a:not(.sl-anchor-link) {
+  text-decoration-color: color-mix(in srgb, var(--sl-color-text-accent) 55%, transparent);
+}
+.sl-markdown-content a:not(.sl-anchor-link):hover {
+  color: var(--sl-color-text-accent);
+  text-decoration-color: currentColor;
 }
 
 /* ------------------------------------------------------------- chrome */
@@ -98,12 +142,15 @@ body {
   );
 }
 
-/* Live playground blocks (see src/scripts/playground.ts). */
+/* Live playground blocks (see src/scripts/playground.ts). Pinned to the
+ * night-owl palette in both color schemes, so they match the static code
+ * blocks (and the landing page's code windows), which stay dark too. */
 .mtjs-live {
   margin: 1.25rem 0;
   border: 1px solid var(--sl-color-gray-5);
-  border-radius: 0.5rem;
+  border-radius: calc(var(--radius, 0.375rem) + 4px);
   overflow: hidden;
+  background: #011627;
 }
 .mtjs-live-fallback {
   margin: 0;
@@ -125,8 +172,8 @@ body {
   font-size: var(--sl-text-code, 0.875rem);
   line-height: 1.65;
   tab-size: 2;
-  background: var(--sl-color-gray-6);
-  color: var(--sl-color-white);
+  background: #011627;
+  color: #d6deeb;
 }
 .mtjs-live-editor:focus {
   outline: 2px solid var(--sl-color-accent);
@@ -136,17 +183,17 @@ body {
   display: flex;
   gap: 0.5rem;
   padding: 0.45rem 0.65rem;
-  border-top: 1px solid var(--sl-color-gray-5);
-  background: var(--sl-color-black);
+  border-top: 1px solid #10273f;
+  background: #010e1a;
 }
 .mtjs-live-btn {
   font: inherit;
   font-size: 0.8125rem;
   padding: 0.15rem 0.8rem;
   border-radius: 0.375rem;
-  border: 1px solid var(--sl-color-gray-4);
+  border: 1px solid #2a4157;
   background: transparent;
-  color: var(--sl-color-white);
+  color: #d6deeb;
   cursor: pointer;
 }
 .mtjs-live-btn:hover {
@@ -160,10 +207,11 @@ body {
 .mtjs-live-output {
   margin: 0;
   padding: 0.6rem 1rem;
-  border-top: 1px solid var(--sl-color-gray-5);
+  border-top: 1px solid #10273f;
   font-size: var(--sl-text-code, 0.875rem);
   white-space: pre-wrap;
   word-break: break-word;
+  color: #d6deeb;
 }
 .mtjs-live-output.error {
   color: var(--sl-color-red, #f87171);

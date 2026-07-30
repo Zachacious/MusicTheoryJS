@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { defineConfig, passthroughImageService } from "astro/config";
 import starlight from "@astrojs/starlight";
 import starlightLlmsTxt from "starlight-llms-txt";
+import starlightThemeBlack from "starlight-theme-black";
 import tailwindcss from "@tailwindcss/vite";
 import { remarkLive } from "./src/plugins/remark-live.mjs";
 
@@ -52,10 +53,38 @@ export default defineConfig({
           attrs: { name: "twitter:image", content: "https://musictheoryjs.com/og.jpg" },
         },
       ],
+      // Night-owl matches the code windows on the landing page — including
+      // staying dark in light mode, like the landing page does. The
+      // backgrounds pin the exact night-owl base color; without them the
+      // theme substitutes its own --code-background.
+      expressiveCode: {
+        themes: ["night-owl"],
+        styleOverrides: {
+          codeBackground: "#011627",
+          frames: {
+            editorBackground: "#011627",
+            terminalBackground: "#011627",
+            editorTabBarBackground: "#011627",
+            editorActiveTabBackground: "#011627",
+          },
+        },
+      },
       // Publishes the guides for AI tools as /llms.txt (annotated index),
       // /llms-full.txt (everything in one file), and /llms-small.txt
       // (abridged), generated from the same markdown as the pages.
       plugins: [
+        starlightThemeBlack({
+          // Mirrors the landing-page header nav; GitHub stays a social icon.
+          navLinks: [
+            { label: "Docs", link: "/guides/getting-started/" },
+            { label: "API", link: "/api/", attrs: { target: "_blank" } },
+            {
+              label: "npm",
+              link: "https://www.npmjs.com/package/musictheoryjs",
+              attrs: { target: "_blank", rel: "noopener" },
+            },
+          ],
+        }),
         starlightLlmsTxt({
           projectName: "MusicTheoryJS",
           description:

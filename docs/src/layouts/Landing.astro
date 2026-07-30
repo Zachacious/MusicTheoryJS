@@ -1,4 +1,5 @@
 ---
+import { Font } from "astro:assets";
 import "../styles/global.css";
 
 interface Props {
@@ -63,6 +64,20 @@ const jsonLd = {
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={`${site}og.jpg`} />
     <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    <!-- Same Geist faces the docs theme (starlight-theme-black) registers,
+         so the landing page and docs share one typeface. -->
+    <Font cssVariable="--font-geist" preload />
+    <Font cssVariable="--font-geist-mono" />
+    <style is:global>
+      body {
+        font-family: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+      }
+      .font-mono,
+      pre,
+      code {
+        font-family: var(--font-geist-mono), ui-monospace, "SFMono-Regular", monospace;
+      }
+    </style>
   </head>
   <body
     class="min-h-screen bg-white text-slate-700 antialiased selection:bg-violet-500/25 dark:bg-[#0b0a10] dark:text-slate-300"
