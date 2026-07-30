@@ -1,5 +1,5 @@
 ---
-import { Code } from "astro:components";
+import { Code } from "astro/components";
 import Landing from "../layouts/Landing.astro";
 
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
@@ -160,7 +160,7 @@ const useCases = [
 const stats = [
   { n: "0", label: "runtime dependencies" },
   { n: "~2 KB", label: "gzipped for one class" },
-  { n: "~31 KB", label: "gzipped, whole library" },
+  { n: "~41 KB", label: "gzipped, whole library" },
   { n: "ESM + CJS", label: "with full types" },
 ];
 
@@ -406,12 +406,12 @@ const moduleGroups = [
           </thead>
           <tbody class="divide-y divide-slate-100 dark:divide-white/5">
             {[
-              ["Rhythm patterns", "0.5 KB", "0.3 KB"],
+              ["Rhythm patterns", "0.4 KB", "0.3 KB"],
               ["Note", "4.7 KB", "2.0 KB"],
-              ["MIDI read", "7.3 KB", "3.2 KB"],
-              ["Note, Scale, Chord", "21.5 KB", "6.8 KB"],
-              ["Key + progressions", "26.4 KB", "8.3 KB"],
-              ["Everything", "90.4 KB", "30.9 KB"],
+              ["MIDI read", "7.6 KB", "3.3 KB"],
+              ["Note, Scale, Chord", "21.3 KB", "6.7 KB"],
+              ["Key + progressions", "34.4 KB", "11.0 KB"],
+              ["Everything", "120.0 KB", "41.4 KB"],
             ].map(([what, min, gz]) => (
               <tr>
                 <td class="px-5 py-3 font-mono text-slate-700 dark:text-slate-200">{what}</td>

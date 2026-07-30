@@ -7,7 +7,7 @@ MusicTheoryJS is a music theory library for JavaScript and TypeScript. It models
 notes, intervals, scales, chords, and keys — parse a chord symbol, spell a scale,
 name a Roman numeral, detect the key of a melody. It's written in TypeScript,
 has no runtime dependencies, ships ESM and CommonJS, and tree-shakes down to
-about 1.5 KB gzipped if all you import is `Note`. Non-standard tunings, MIDI
+about 2 KB gzipped if all you import is `Note`. Non-standard tunings, MIDI
 files, and audio analysis are in the same package.
 
 ## Install

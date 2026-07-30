@@ -7,9 +7,9 @@
 <p align="center">
   <a href="https://www.npmjs.com/package/musictheoryjs"><img src="https://img.shields.io/npm/v/musictheoryjs.svg?color=6d28d9" alt="npm" /></a>
   <a href="https://github.com/Zachacious/MusicTheoryJS/actions/workflows/ci.yml"><img src="https://github.com/Zachacious/MusicTheoryJS/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
-  <img src="https://img.shields.io/badge/tests-1396%20passing-brightgreen" alt="1396 tests passing" />
+  <img src="https://img.shields.io/badge/tests-1572%20passing-brightgreen" alt="1572 tests passing" />
   <img src="https://img.shields.io/badge/coverage-99%25-brightgreen" alt="99% coverage" />
-  <img src="https://img.shields.io/badge/gzipped-2%E2%80%9331%20KB-6d28d9" alt="2 to 31 KB gzipped" />
+  <img src="https://img.shields.io/badge/gzipped-2%E2%80%9341%20KB-6d28d9" alt="2 to 41 KB gzipped" />
   <a href="https://www.npmjs.com/package/musictheoryjs"><img src="https://img.shields.io/npm/types/musictheoryjs.svg?color=6d28d9" alt="types included" /></a>
   <img src="https://img.shields.io/badge/dependencies-0-brightgreen" alt="zero dependencies" />
   <a href="LICENSE.txt"><img src="https://img.shields.io/npm/l/musictheoryjs.svg?color=lightgrey" alt="ISC license" /></a>
@@ -30,7 +30,7 @@ tunings most software cannot represent.
 - **Fastest.** Faster on 13 of 14 head-to-head operations against the leading alternative — roughly 2× on chord and scale construction, 7–17× on parsing and chord detection, and far more on pitch-class work. [Numbers and method](#speed).
 - **Most complete.** Everything the leading library does, plus whole domains it has none of: microtonal tunings, MIDI file I/O, notation in and out, audio DSP, voice leading, rhythm generation, and sequencing. [What's in the library](#whats-in-the-library).
 - **Easy to use.** One import, no setup, no builders. Pass names (`"Cmaj7"`, `"C4 major"`, `"7/8"`), plain objects, or numbers — anything that could reasonably mean a chord is accepted as one, and you get a spelled, printable answer back.
-- **Small.** `Note` alone is ~2 KB gzipped, everything at once ~31 KB, zero runtime dependencies. Thirteen subpaths let a bundler drop what you don't touch.
+- **Small.** `Note` alone is ~2 KB gzipped, everything at once ~41 KB, zero runtime dependencies. Thirteen subpaths let a bundler drop what you don't touch.
 - **Open dictionaries.** 108 chord qualities, 92 scales, and 34 tunings built in — and you can register your own at runtime, after which every part of the library treats them as native.
 - **Typed and immutable.** `.d.ts` for every export, no `any` at the edges, ESM and CommonJS. Every operation returns a new value, safe to share and memoize.
 - **Correct.** `transpose("Eb4", "P5")` is `Bb4`, and G♯ and A♭ stay different pitches when a tuning needs them to be. [Here's why](#why-the-answers-come-out-right).
@@ -251,12 +251,12 @@ what you import.
 
 | You import | Minified | Gzipped |
 | --- | --- | --- |
-| Rhythm patterns | 0.5 KB | **0.3 KB** |
+| Rhythm patterns | 0.4 KB | **0.3 KB** |
 | `Note` | 4.7 KB | **2.0 KB** |
-| MIDI read | 7.3 KB | **3.2 KB** |
-| `Note`, `Scale`, `Chord` | 21.5 KB | **6.8 KB** |
-| `Key` + progressions | 26.4 KB | **8.3 KB** |
-| Everything | 90.4 KB | **30.9 KB** |
+| MIDI read | 7.6 KB | **3.3 KB** |
+| `Note`, `Scale`, `Chord` | 21.3 KB | **6.7 KB** |
+| `Key` + progressions | 34.4 KB | **11.0 KB** |
+| Everything | 120.0 KB | **41.4 KB** |
 
 The package is marked `sideEffects: false`, so unused areas never make it into
 the bundle in the first place.
