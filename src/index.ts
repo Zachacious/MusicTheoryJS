@@ -43,4 +43,4 @@ export * from "./notation/index";
 export * from "./audio/index";
 
 /** The library version. */
-export const VERSION = "3.2.1";
+export const VERSION = "3.2.2";

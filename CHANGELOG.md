@@ -1,5 +1,11 @@
 # musictheoryjs
 
+## 3.2.2
+
+### Patch Changes
+
+- fdf7139: Remove head-to-head comparison copy from the README
+
 ## 3.2.1
 
 ### Patch Changes
