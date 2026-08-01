@@ -27,14 +27,9 @@ tunings most software cannot represent.
 
 ## Highlights
 
-- **Fastest.** Faster on 13 of 14 head-to-head operations against the leading
-  alternative — roughly 2× on chord and scale construction, 7–17× on parsing
-  and chord detection, and far more on pitch-class work.
-  [Numbers and method](#speed).
-- **Most complete.** Everything the leading library does, plus whole domains
-  it has none of: microtonal tunings, MIDI file I/O, notation in and out,
-  audio DSP, voice leading, rhythm generation, and sequencing.
-  [What's in the library](#whats-in-the-library).
+- **Most complete.** Core theory through microtonal tunings, MIDI file I/O,
+  notation in and out, audio DSP, voice leading, rhythm generation, and
+  sequencing. [What's in the library](#whats-in-the-library).
 - **Zero runtime dependencies.** Nothing gets pulled into your tree but the
   code you call.
 - **Tree-shakable to the import.** Thirteen subpaths (`musictheoryjs/note`,
@@ -252,29 +247,6 @@ fromABC("K:D\nD2 E2 F2 |]").notes.map(String); // => ["D4","E4","F#4"]
 ```
 
 ---
-
-## Speed
-
-Benchmarked head to head against the leading alternative with
-`bun run bench:vs`. Inputs rotate through a corpus rather than repeating one
-literal — both libraries memoize, so a single hot value measures a cache hit,
-not the work. Samples are batched, rounds alternate which side runs first, and
-the figure is the median of seven rounds.
-
-| Operation | Ratio | | Operation | Ratio |
-| --- | ---: | --- | --- | ---: |
-| Pitch-class set rotations | **≥55×** | | Note → MIDI | **≥6.8×** |
-| Chord detection | **≥17×** | | Mode relations | **≥4.8×** |
-| Interval between notes | **≥9×** | | Euclidean rhythm | **≥3.4×** |
-| Parse a note name | **≥7×** | | Chord construction | **≥2.4×** |
-| Parse an interval | **≥1.9×** | | Scale detection | **≥1.7×** |
-
-Thirteen of fourteen operations come out ahead. The exception is chord-scale
-matching, where we are slower because we do more: ranked fits with avoid-note
-scoring and constructed scales, against a flat list of names.
-
-Ratios are the lower bound across runs, and they are machine-relative — run
-`bun run bench:vs` yourself and compare on one machine, not across them.
 
 ## Bundle size
 
