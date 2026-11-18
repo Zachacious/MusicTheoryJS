@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { Note } from "./note";
+import { Note } from "./note.js";
 
 describe("Note.fromMidi", () => {
   test("maps MIDI numbers to notes", () => {

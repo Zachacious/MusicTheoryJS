@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { Chord, chord } from "./chord";
-import { parseChordSymbol, tryParseChordSymbol } from "./parse";
+import { Chord, chord } from "./chord.js";
+import { parseChordSymbol, tryParseChordSymbol } from "./parse.js";
 
 describe("chord symbol parsing", () => {
   test("maps aliases to canonical qualities", () => {

@@ -4,12 +4,12 @@
  * sonority.
  */
 
-import { mod } from "../math/index";
-import { Note, type NoteLike } from "../note/note";
-import { pcsetMask } from "../pitch/pcset";
-import { pitchClass as pitchClassOf } from "../pitch/spelled";
+import { mod } from "../math/index.js";
+import { Note, type NoteLike } from "../note/note.js";
+import { pcsetMask } from "../pitch/pcset.js";
+import { pitchClass as pitchClassOf } from "../pitch/spelled.js";
 
-export * from "../pitch/pcset";
+export * from "../pitch/pcset.js";
 
 /** The six interval classes (ic1 … ic6). */
 export type IntervalClassVector = readonly [

@@ -13,8 +13,8 @@ import {
   noteStreamToMidi,
   parseMidi,
   writeMidi,
-} from "../src/index";
-import type { NoteStream } from "../src/index";
+} from "../src/index.js";
+import type { NoteStream } from "../src/index.js";
 
 const SR = 44100;
 const sine = (freq: number, n: number) =>

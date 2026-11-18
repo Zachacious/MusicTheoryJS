@@ -8,9 +8,9 @@
  * rests so every measure is full.
  */
 
-import { keySignatureOf } from "../key/key";
-import type { Note } from "../note/note";
-import { type Duration, wholeNotes } from "../rhythm/duration";
+import { keySignatureOf } from "../key/key.js";
+import type { Note } from "../note/note.js";
+import { type Duration, wholeNotes } from "../rhythm/duration.js";
 import {
   type EventPiece,
   type Measure,
@@ -20,7 +20,7 @@ import {
   asScore,
   decomposeWholeNotes,
   layoutMeasures,
-} from "./score";
+} from "./score.js";
 
 /** Divisions per quarter note — exact for dots and common tuplets. */
 const DIVISIONS = 480;

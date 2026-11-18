@@ -1,10 +1,10 @@
 import { describe, expect, test } from "bun:test";
-import { compareTunings, justDeviations } from "./compare";
+import { compareTunings, justDeviations } from "./compare.js";
 import {
   justIntonation,
   pythagorean,
   quarterCommaMeantone,
-} from "./historical";
+} from "./historical.js";
 import {
   MAQAM_NAMES,
   RAGA_NAMES,
@@ -12,8 +12,8 @@ import {
   pelog,
   ragaTuning,
   slendro,
-} from "./presets";
-import { TET12, degreeCents, frequencyOfDegree } from "./tuning";
+} from "./presets.js";
+import { TET12, degreeCents, frequencyOfDegree } from "./tuning.js";
 
 describe("maqam presets", () => {
   test("every named maqam builds a 7-degree octave tuning", () => {

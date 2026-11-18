@@ -6,12 +6,12 @@
  * transcription is a client concern that feeds {@link NoteEvent}s in.
  */
 
-export * from "./types";
-export * from "./pcset";
-export * from "./forte";
-export * from "./key";
-export * from "./chords";
-export * from "./harmony";
-export * from "./counterpoint";
-export * from "./serial";
-export * from "./modulation";
+export * from "./types.js";
+export * from "./pcset.js";
+export * from "./forte.js";
+export * from "./key.js";
+export * from "./chords.js";
+export * from "./harmony.js";
+export * from "./counterpoint.js";
+export * from "./serial.js";
+export * from "./modulation.js";

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { Note } from "../note/note";
-import { Key, respellInKey } from "./key";
+import { Note } from "../note/note.js";
+import { Key, respellInKey } from "./key.js";
 
 describe("key-aware respelling", () => {
   test("diatonic notes take the key's own spelling", () => {

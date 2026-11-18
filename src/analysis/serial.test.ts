@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { identifyRowForm, rowMatrix, rowTransform, toneRow } from "./serial";
+import { identifyRowForm, rowMatrix, rowTransform, toneRow } from "./serial.js";
 
 // Schoenberg's op. 25 row.
 const ROW = toneRow([4, 5, 7, 1, 6, 3, 8, 2, 11, 0, 9, 10]);

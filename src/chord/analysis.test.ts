@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { detectChord, detectQuality } from "./analysis";
+import { detectChord, detectQuality } from "./analysis.js";
 
 describe("detectQuality", () => {
   test("recognises common triads/sevenths from intervals above root", () => {

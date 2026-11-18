@@ -2,18 +2,18 @@
  * Regression tests for bugs found during the correctness audit.
  */
 import { describe, expect, test } from "bun:test";
-import { detectChord } from "./chord/analysis";
-import { Chord } from "./chord/chord";
+import { detectChord } from "./chord/analysis.js";
+import { Chord } from "./chord/chord.js";
 import {
   interval,
   intervalBetween,
   intervalName,
   negateInterval,
-} from "./interval/interval";
-import { Key } from "./key/key";
-import { Note } from "./note/note";
-import { detectScales } from "./scale/detection";
-import { scalaTuning } from "./tuning/custom";
+} from "./interval/interval.js";
+import { Key } from "./key/key.js";
+import { Note } from "./note/note.js";
+import { detectScales } from "./scale/detection.js";
+import { scalaTuning } from "./tuning/custom.js";
 
 describe("interval naming: diminished/augmented sign mismatch", () => {
   test("doubly/triply diminished seconds are named, not sign-flipped", () => {

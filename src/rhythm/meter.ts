@@ -14,7 +14,7 @@ import {
   type DurationLike,
   duration,
   wholeNotes,
-} from "./duration";
+} from "./duration.js";
 
 /** A time signature as a plain object: 6/8 is `{ numerator: 6, denominator: 8 }`. */
 export interface TimeSignature {

@@ -36,6 +36,19 @@ without touching anything. For a docs-only fix that has to hit npm immediately,
 `changeset publish`, tag push — but needs `npm login` first and skips the
 provenance you get from CI. Prefer the CI path unless you need it live now.
 
+## Where the release notes go
+
+A changeset's text is the release note. `bun run version` writes it into
+`CHANGELOG.md`, the release workflow posts it as the GitHub Release, and the
+docs site's [What's new](https://musictheoryjs.com/whats-new/) page is
+generated from `CHANGELOG.md` on every build
+(`docs/src/integrations/whats-new.mjs`), so nothing is written twice.
+
+In Claude Code sessions, a Stop hook (`.claude/hooks/changelog-check.sh`)
+notices when code that ships to npm (`src/`, `skills/`, `README.md`,
+`package.json`) changed but no changeset did, and asks for one once.
+`.claude/skills/changelog/SKILL.md` (or `/changelog`) says how to write it.
+
 ## The v3.0.0 release (this one is a major)
 
 - npm currently has `latest = 2.0.2`. `package.json` is intentionally set to
@@ -52,32 +65,29 @@ To add more changes before release, run `bun run changeset` and commit the file.
 
 ### 1. Let CI authenticate to npm
 
-If your npm account has two-factor auth on (it does by default), a plain publish
-from CI fails with `EOTP` because it can't enter a one-time password. Pick one of
-these so it doesn't need to:
+CI publishes with npm **trusted publishing**: npm accepts the workflow's GitHub
+OIDC identity in place of a token, so there is no secret to store, expire, or
+leak. (npm revoked classic and automation tokens in December 2025, and
+write-enabled granular tokens now expire within 90 days, so a token-based CI
+publish is not an option worth keeping.) This is already configured; releases
+since 3.0.0 have published this way.
 
-**Option A — automation token (simplest).** An npm *automation* token skips 2FA
-in CI.
-
-1. npmjs.com → avatar → **Access Tokens → Generate New Token**. Choose a classic
-   **Automation** token, or a **Granular** token with read/write scoped to
-   `musictheoryjs`.
-2. Copy it (shown once).
-3. GitHub repo → **Settings → Secrets and variables → Actions → New repository
-   secret**, name it **`NPM_TOKEN`**, paste the value.
-
-The workflow reads it as `NODE_AUTH_TOKEN`. Done.
-
-**Option B — trusted publishing (no token).** npm can authenticate the workflow
-directly through GitHub's OIDC, with no secret at all.
+To set it up again (a new package, or after a repo rename):
 
 1. npmjs.com → the **`musictheoryjs`** package → **Settings → Trusted Publisher**.
 2. Add a **GitHub Actions** publisher: organization/user `Zachacious`, repository
    `MusicTheoryJS`, workflow file `release.yml` (leave the environment blank).
-3. Save, then re-run the release. The workflow already has `id-token: write` and
-   upgrades npm to a version that supports OIDC.
+3. Run a release within 48 hours. npm drops a trusted-publisher configuration
+   that is never used. The workflow already has `id-token: write` and installs
+   an npm new enough for OIDC.
 
-Either way, provenance is signed automatically.
+Provenance is signed automatically. Renaming `release.yml` breaks publishing
+until the publisher on npmjs.com is updated to match.
+
+Once a release has gone through, harden the package: npmjs.com → package
+**Settings → Publishing access → "Require two-factor authentication and
+disallow tokens"**. Trusted publishing keeps working; a leaked token can no
+longer publish.
 
 ### 2. Enable GitHub Pages (for docs)
 

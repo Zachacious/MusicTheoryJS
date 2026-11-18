@@ -3,6 +3,6 @@
  * spelling-correct transposition.
  */
 
-export * from "./interval";
-export * from "./parse";
-export * from "./constants";
+export * from "./interval.js";
+export * from "./parse.js";
+export * from "./constants.js";

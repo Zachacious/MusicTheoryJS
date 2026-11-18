@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { mode, modes } from "./modes";
-import { Scale } from "./scale";
+import { mode, modes } from "./modes.js";
+import { Scale } from "./scale.js";
 
 describe("modes", () => {
   test("2nd mode of C major is D dorian", () => {

@@ -8,8 +8,8 @@
  * than hard-coded, so the derivations are auditable.
  */
 
-import { mod, ratioToCents } from "../math/index";
-import type { Tuning } from "./tuning";
+import { mod, ratioToCents } from "../math/index.js";
+import type { Tuning } from "./tuning.js";
 
 // The chromatic degrees, expressed as counts of fifths from C, using the
 // common sharp-based layout (F is -1 fifth from C):

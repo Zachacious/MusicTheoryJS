@@ -11,8 +11,8 @@
  * you have the real instrument's numbers.
  */
 
-import { centsTuning, ratioTuning } from "./custom";
-import type { Tuning } from "./tuning";
+import { centsTuning, ratioTuning } from "./custom.js";
+import type { Tuning } from "./tuning.js";
 
 /** Quarter-tone (24-EDO) approximations of common maqam scales, in cents. */
 const MAQAMAT: Record<string, readonly number[]> = {

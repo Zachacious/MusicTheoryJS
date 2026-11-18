@@ -7,7 +7,7 @@ import {
   point,
   toFrequency,
   transposeCents,
-} from "./point";
+} from "./point.js";
 
 describe("frequency <-> cents", () => {
   test("A4 (5700 cents) is 440 Hz", () => {

@@ -3,8 +3,14 @@
  * transposition, JSON round-trips, free functions, and widened voicings.
  */
 import { describe, expect, test } from "bun:test";
-import { Chord, chord, chordNoteNames, chordNotes, invertChord } from "./chord";
-import { closeVoicing, drop2 } from "./voicing";
+import {
+  Chord,
+  chord,
+  chordNoteNames,
+  chordNotes,
+  invertChord,
+} from "./chord.js";
+import { closeVoicing, drop2 } from "./voicing.js";
 
 describe("Chord.from widened inputs", () => {
   test("symbols still parse", () => {

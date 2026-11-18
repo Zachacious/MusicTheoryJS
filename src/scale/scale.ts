@@ -11,35 +11,39 @@
  * from a {@link Tuning} as cents/frequencies rather than spelled notes.
  */
 
-import { PERFECT_OCTAVE } from "../interval/constants";
+import { PERFECT_OCTAVE } from "../interval/constants.js";
 import {
   type Interval,
   addIntervals,
   intervalBetween,
   intervalName,
   transpose,
-} from "../interval/interval";
+} from "../interval/interval.js";
 import {
   type IntervalLike,
   asInterval,
   intervalFromSemitones,
-} from "../interval/parse";
-import { mod } from "../math/index";
-import { type EnharmonicPreference, Note, type NoteLike } from "../note/note";
-import { tryParseNote } from "../pitch/parse";
-import { pitchClass as pitchClassOf } from "../pitch/spelled";
+} from "../interval/parse.js";
+import { mod } from "../math/index.js";
+import {
+  type EnharmonicPreference,
+  Note,
+  type NoteLike,
+} from "../note/note.js";
+import { tryParseNote } from "../pitch/parse.js";
+import { pitchClass as pitchClassOf } from "../pitch/spelled.js";
 import {
   type Tuning,
   type TuningAnchor,
   degreeCents,
   frequencyOfDegree,
-} from "../tuning/tuning";
+} from "../tuning/tuning.js";
 import {
   SCALE_TEMPLATES,
   type ScaleName,
   isScaleName,
   scaleTemplate,
-} from "./templates";
+} from "./templates.js";
 
 /** A scale described as plain data: a tonic plus a template name and/or
  * explicit intervals (spelled or named). */

@@ -8,8 +8,8 @@
  * For runs filtered through a scale, see `scaleRange` in the scale module.
  */
 
-import { chroma } from "../pitch/spelled";
-import { type EnharmonicPreference, Note, type NoteLike } from "./note";
+import { chroma } from "../pitch/spelled.js";
+import { type EnharmonicPreference, Note, type NoteLike } from "./note.js";
 
 /**
  * Every chromatic note from `from` to `to`, inclusive, in order.

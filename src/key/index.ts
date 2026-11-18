@@ -3,6 +3,6 @@
  * Roman-numeral analysis/progressions.
  */
 
-export * from "./key";
-export * from "./roman";
-export * from "./progression";
+export * from "./key.js";
+export * from "./roman.js";
+export * from "./progression.js";

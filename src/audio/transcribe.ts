@@ -8,10 +8,10 @@
  * client app with a suitable model).
  */
 
-import type { NoteEvent, NoteStream } from "../analysis/types";
-import { type EnharmonicPreference, Note } from "../note/note";
-import { detectOnsets } from "./onset";
-import { type PitchOptions, detectPitch } from "./pitch";
+import type { NoteEvent, NoteStream } from "../analysis/types.js";
+import { type EnharmonicPreference, Note } from "../note/note.js";
+import { detectOnsets } from "./onset.js";
+import { type PitchOptions, detectPitch } from "./pitch.js";
 
 export interface TranscribeOptions extends PitchOptions {
   /** Analysis frame size in samples. Default 2048. */

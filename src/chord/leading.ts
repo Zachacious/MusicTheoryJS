@@ -15,10 +15,10 @@ import {
   type Interval,
   intervalBetween,
   intervalQuality,
-} from "../interval/interval";
-import { mod } from "../math/index";
-import { Note, type NoteLike } from "../note/note";
-import { Chord, type ChordLike } from "./chord";
+} from "../interval/interval.js";
+import { mod } from "../math/index.js";
+import { Note, type NoteLike } from "../note/note.js";
+import { Chord, type ChordLike } from "./chord.js";
 
 /** A voicing as the engine accepts it: notes low to high. */
 export type VoicingInput = ReadonlyArray<Note | NoteLike | string>;

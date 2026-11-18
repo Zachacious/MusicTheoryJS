@@ -7,7 +7,7 @@ import {
   pitchClass,
   spelled,
   spelledEquals,
-} from "./spelled";
+} from "./spelled.js";
 
 describe("chroma / midi", () => {
   test("middle C4 is chroma 48, midi 60", () => {

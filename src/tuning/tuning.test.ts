@@ -1,11 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { spelled } from "../pitch/spelled";
-import { centsTuning, ratioTuning, scalaTuning } from "./custom";
+import { spelled } from "../pitch/spelled.js";
+import { centsTuning, ratioTuning, scalaTuning } from "./custom.js";
 import {
   justIntonation,
   pythagorean,
   quarterCommaMeantone,
-} from "./historical";
+} from "./historical.js";
 import {
   TET12,
   degreeCents,
@@ -13,7 +13,7 @@ import {
   equalTemperament,
   frequencyOfDegree,
   frequencyOfNote,
-} from "./tuning";
+} from "./tuning.js";
 
 const C4 = spelled(0, 0, 4);
 const A4 = spelled(5, 0, 4);

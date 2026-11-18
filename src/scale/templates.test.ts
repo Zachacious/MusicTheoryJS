@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { Scale } from "./scale";
-import { SCALE_TEMPLATES, type ScaleName, scaleTemplate } from "./templates";
+import { Scale } from "./scale.js";
+import { SCALE_TEMPLATES, type ScaleName, scaleTemplate } from "./templates.js";
 
 describe("scale template coverage", () => {
   test("every scale builds correctly-lettered notes rooted on its tonic", () => {

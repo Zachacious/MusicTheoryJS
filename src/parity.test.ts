@@ -10,10 +10,10 @@ import {
   Interval as RefInterval,
   Note as RefNote,
 } from "tonal";
-import { Chord } from "./chord/chord";
-import { intervalBetween, intervalName } from "./interval/interval";
-import { parseInterval } from "./interval/parse";
-import { Note } from "./note/note";
+import { Chord } from "./chord/chord.js";
+import { intervalBetween, intervalName } from "./interval/interval.js";
+import { parseInterval } from "./interval/parse.js";
+import { Note } from "./note/note.js";
 
 /** Chord symbols to compare, spanning every quality family we support. */
 const CHORD_SYMBOLS = [

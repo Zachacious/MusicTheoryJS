@@ -4,7 +4,7 @@
  * MIDI (ticks) and analysis (seconds) layers.
  */
 
-export * from "./duration";
-export * from "./meter";
-export * from "./pattern";
-export * from "./quantize";
+export * from "./duration.js";
+export * from "./meter.js";
+export * from "./pattern.js";
+export * from "./quantize.js";

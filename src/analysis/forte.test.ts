@@ -6,13 +6,13 @@
  * non-z classes wholesale — which the spot checks of famous classes guard.
  */
 import { describe, expect, test } from "bun:test";
-import { forteName, fortePrimeForm, forteZMate } from "./forte";
+import { forteName, fortePrimeForm, forteZMate } from "./forte.js";
 import {
   pcsetComplement,
   pcsetIntervalVector,
   pcsetMask,
   pcsetPrimeForm,
-} from "./pcset";
+} from "./pcset.js";
 
 /** Every set-class name, by walking all 4096 masks through forteName. */
 function allClasses(): Map<string, number> {

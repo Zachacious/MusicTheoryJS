@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { Scale } from "../scale/scale";
-import { sequenceToScore } from "../sequence/convert";
-import { toABC } from "./abc";
-import { abcToNote, fromABC, noteToABC, tokenizeABC } from "./abc-parse";
+import { Scale } from "../scale/scale.js";
+import { sequenceToScore } from "../sequence/convert.js";
+import { abcToNote, fromABC, noteToABC, tokenizeABC } from "./abc-parse.js";
+import { toABC } from "./abc.js";
 
 describe("tokenizeABC", () => {
   test("splits accidental, letter, and octave marks", () => {

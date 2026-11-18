@@ -8,14 +8,18 @@
  * notes ("which scales can I play over these?").
  */
 
-import { type EnharmonicPreference, Note, type NoteLike } from "../note/note";
+import {
+  type EnharmonicPreference,
+  Note,
+  type NoteLike,
+} from "../note/note.js";
 import {
   pcsetIsSubset,
   pcsetMask,
   pcsetSize,
   pcsetTranspose,
-} from "../pitch/pcset";
-import { pitchClass as pitchClassOf } from "../pitch/spelled";
+} from "../pitch/pcset.js";
+import { pitchClass as pitchClassOf } from "../pitch/spelled.js";
 import {
   type CanonicalScaleName,
   SCALE_DEFINITIONS,
@@ -23,7 +27,7 @@ import {
   type ScaleDefinition,
   type ScaleName,
   scaleDictionaryVersion,
-} from "./templates";
+} from "./templates.js";
 
 /** A scale that fits a set of notes. */
 export interface ScaleMatch {

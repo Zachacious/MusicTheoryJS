@@ -8,11 +8,11 @@
  * to notation scores, and back.
  */
 
-export * from "./stream";
-export * from "./arpeggio";
-export * from "./comp";
-export * from "./drums";
-export * from "./groove";
-export * from "./motif";
-export * from "./form";
-export * from "./convert";
+export * from "./stream.js";
+export * from "./arpeggio.js";
+export * from "./comp.js";
+export * from "./drums.js";
+export * from "./groove.js";
+export * from "./motif.js";
+export * from "./form.js";
+export * from "./convert.js";

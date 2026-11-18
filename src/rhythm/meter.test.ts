@@ -16,7 +16,7 @@ import {
   tickToPosition,
   timeSignature,
   tryParseTimeSignature,
-} from "./meter";
+} from "./meter.js";
 
 describe("timeSignature factory and parsing", () => {
   test("builds and validates", () => {

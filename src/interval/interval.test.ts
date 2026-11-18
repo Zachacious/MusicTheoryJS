@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { formatNote } from "../pitch/format";
-import { spelled } from "../pitch/spelled";
+import { formatNote } from "../pitch/format.js";
+import { spelled } from "../pitch/spelled.js";
 import {
   addIntervals,
   interval,
@@ -10,7 +10,7 @@ import {
   intervalQuality,
   negateInterval,
   transpose,
-} from "./interval";
+} from "./interval.js";
 
 describe("interval construction", () => {
   test("perfect fifth is 4 steps, 7 semitones", () => {

@@ -1,12 +1,12 @@
 import { describe, expect, test } from "bun:test";
-import { Chord } from "../chord/chord";
+import { Chord } from "../chord/chord.js";
 import {
   chordToRoman,
   formatRomanNumeral,
   parseRomanNumeral,
   romanToChord,
   tryParseRomanNumeral,
-} from "./roman";
+} from "./roman.js";
 
 describe("parseRomanNumeral", () => {
   test("plain numerals carry degree, case, and accidentals", () => {

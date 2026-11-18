@@ -6,7 +6,7 @@ import {
   mod,
   parseRatio,
   ratioToCents,
-} from "./index";
+} from "./index.js";
 
 describe("mod", () => {
   test("wraps negatives into the positive range", () => {

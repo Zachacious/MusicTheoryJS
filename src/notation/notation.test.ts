@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { Chord } from "../chord/chord";
-import { Scale } from "../scale/scale";
-import { toABC } from "./abc";
-import { toMusicXML } from "./musicxml";
+import { Chord } from "../chord/chord.js";
+import { Scale } from "../scale/scale.js";
+import { toABC } from "./abc.js";
+import { toMusicXML } from "./musicxml.js";
 
 describe("toABC", () => {
   test("renders a scale run with header fields", () => {

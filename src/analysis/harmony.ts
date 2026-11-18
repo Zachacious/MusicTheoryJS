@@ -4,11 +4,11 @@
  * and chord-over-time segmentation.
  */
 
-import type { Chord } from "../chord/chord";
-import { Key, type KeyLike } from "../key/key";
-import { type ChordSpan, onsetTimes, segmentChords } from "./chords";
-import { detectKey, pitchClassWeightsFromStream } from "./key";
-import type { NoteStreamInput } from "./types";
+import type { Chord } from "../chord/chord.js";
+import { Key, type KeyLike } from "../key/key.js";
+import { type ChordSpan, onsetTimes, segmentChords } from "./chords.js";
+import { detectKey, pitchClassWeightsFromStream } from "./key.js";
+import type { NoteStreamInput } from "./types.js";
 
 /** The diatonic scale degree (1–7) of a chord's root in `key`, or `null`. */
 function rootDegree(key: Key, chord: Chord): number | null {

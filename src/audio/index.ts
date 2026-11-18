@@ -9,9 +9,9 @@
  * concern.
  */
 
-export * from "./fft";
-export * from "./pitch";
-export * from "./chroma";
-export * from "./cqt";
-export * from "./onset";
-export * from "./transcribe";
+export * from "./fft.js";
+export * from "./pitch.js";
+export * from "./chroma.js";
+export * from "./cqt.js";
+export * from "./onset.js";
+export * from "./transcribe.js";

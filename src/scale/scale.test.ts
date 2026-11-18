@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import { centsTuning } from "../tuning/custom";
-import { equalTemperament } from "../tuning/tuning";
-import { Scale, scaleFromTuning } from "./scale";
+import { centsTuning } from "../tuning/custom.js";
+import { equalTemperament } from "../tuning/tuning.js";
+import { Scale, scaleFromTuning } from "./scale.js";
 
 describe("Western scales spell correctly", () => {
   test("C major is C D E F G A B (not E# / Fb)", () => {

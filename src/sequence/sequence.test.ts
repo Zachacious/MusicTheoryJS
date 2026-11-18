@@ -4,22 +4,27 @@
  * full progression-to-MIDI integration.
  */
 import { describe, expect, test } from "bun:test";
-import { parseMidi } from "../midi/reader";
-import { writeMidi } from "../midi/writer";
-import { toABC } from "../notation/abc";
-import { arpeggiate, strum } from "./arpeggio";
-import { bassline, compChords, compProgression } from "./comp";
+import { parseMidi } from "../midi/reader.js";
+import { writeMidi } from "../midi/writer.js";
+import { toABC } from "../notation/abc.js";
+import { arpeggiate, strum } from "./arpeggio.js";
+import { bassline, compChords, compProgression } from "./comp.js";
 import {
   midiTempoMap,
   midiToSequence,
   sequenceSeconds,
   sequenceToMidi,
   sequenceToScore,
-} from "./convert";
-import { GM_DRUMS, drumPattern } from "./drums";
-import { songForm } from "./form";
-import { accent, gate, humanize, rampVelocity, swing } from "./groove";
-import { augment, diatonicSequence, invertMelody, retrograde } from "./motif";
+} from "./convert.js";
+import { GM_DRUMS, drumPattern } from "./drums.js";
+import { songForm } from "./form.js";
+import { accent, gate, humanize, rampVelocity, swing } from "./groove.js";
+import {
+  augment,
+  diatonicSequence,
+  invertMelody,
+  retrograde,
+} from "./motif.js";
 import {
   concatStreams,
   loopStream,
@@ -30,7 +35,7 @@ import {
   sliceStream,
   streamDuration,
   transposeStream,
-} from "./stream";
+} from "./stream.js";
 
 describe("stream building", () => {
   test("melody cycles a duration array and carries velocity", () => {

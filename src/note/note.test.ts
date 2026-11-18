@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { interval } from "../interval/interval";
-import { Note, note } from "./note";
+import { interval } from "../interval/interval.js";
+import { Note, note } from "./note.js";
 
 describe("construction", () => {
   test("from string", () => {

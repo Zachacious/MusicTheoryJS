@@ -16,18 +16,18 @@ import {
   intervalBetween,
   intervalFifths,
   transpose,
-} from "../interval/interval";
-import { type IntervalLike, asInterval } from "../interval/parse";
-import { mod } from "../math/index";
-import { type FormatOptions, formatNote } from "../pitch/format";
-import { parseNote } from "../pitch/parse";
+} from "../interval/interval.js";
+import { type IntervalLike, asInterval } from "../interval/parse.js";
+import { mod } from "../math/index.js";
+import { type FormatOptions, formatNote } from "../pitch/format.js";
+import { parseNote } from "../pitch/parse.js";
 import {
   type PitchPoint,
   type PitchReference,
   point,
   fromFrequency as pointFromFrequency,
   toFrequency as pointToFrequency,
-} from "../pitch/point";
+} from "../pitch/point.js";
 import {
   type Letter,
   STEP_SEMITONES,
@@ -39,7 +39,7 @@ import {
   pitchClass as pitchClassOf,
   isEnharmonic as pitchesEnharmonic,
   spelledEquals,
-} from "../pitch/spelled";
+} from "../pitch/spelled.js";
 
 /** How a note can be described when constructing one without a string. */
 export interface NoteLike {

@@ -7,10 +7,10 @@
  * outside the scale simply bound the run; they are not added to it.
  */
 
-import type { Note, NoteLike } from "../note/note";
-import { Note as NoteClass } from "../note/note";
-import { chroma } from "../pitch/spelled";
-import { Scale, type ScaleLike } from "./scale";
+import type { Note, NoteLike } from "../note/note.js";
+import { Note as NoteClass } from "../note/note.js";
+import { chroma } from "../pitch/spelled.js";
+import { Scale, type ScaleLike } from "./scale.js";
 
 /**
  * The scale's notes from `from` to `to`, inclusive at both ends, in order.

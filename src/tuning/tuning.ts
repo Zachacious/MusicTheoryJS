@@ -17,12 +17,12 @@
  *   {@link frequencyOfNote}.
  */
 
-import { CENTS_PER_OCTAVE, mod } from "../math/index";
-import { type SpelledPitch, chroma } from "../pitch/spelled";
+import { CENTS_PER_OCTAVE, mod } from "../math/index.js";
+import { type SpelledPitch, chroma } from "../pitch/spelled.js";
 // The registry imports this module for its built-ins, so this is a cycle.
 // It is safe because `asTuning` is only ever called from a function body, by
 // which time both modules have finished evaluating.
-import { type TuningLike, asTuning } from "./registry";
+import { type TuningLike, asTuning } from "./registry.js";
 
 /**
  * A tuning system. A tuning divides a repeating *period* (an octave, 1200

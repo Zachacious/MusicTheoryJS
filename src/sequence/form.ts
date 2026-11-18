@@ -6,8 +6,12 @@
  * application's job.
  */
 
-import type { NoteEvent, NoteStream, NoteStreamInput } from "../analysis/types";
-import { asNoteStream, streamDuration } from "./stream";
+import type {
+  NoteEvent,
+  NoteStream,
+  NoteStreamInput,
+} from "../analysis/types.js";
+import { asNoteStream, streamDuration } from "./stream.js";
 
 /** One expanded section of a form: its name and where it landed. */
 export interface FormSection {

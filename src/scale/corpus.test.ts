@@ -7,14 +7,14 @@
  */
 import { describe, expect, test } from "bun:test";
 import { ScaleType as RefScaleType } from "tonal";
-import { pcsetMask } from "../pitch/pcset";
-import { Scale } from "./scale";
+import { pcsetMask } from "../pitch/pcset.js";
+import { Scale } from "./scale.js";
 import {
   SCALE_DEFINITIONS,
   SCALE_TEMPLATES,
   isScaleName,
   scaleTemplate,
-} from "./templates";
+} from "./templates.js";
 
 describe("scale dictionary invariants", () => {
   test("the dictionary holds 92 scales", () => {

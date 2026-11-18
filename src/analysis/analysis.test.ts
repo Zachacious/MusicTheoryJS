@@ -1,9 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { Note } from "../note/note";
-import { detectChordAt, onsetTimes, segmentChords } from "./chords";
-import { detectKey, pitchClassWeightsFromStream } from "./key";
-import { intervalClassVector, pitchClasses } from "./pcset";
-import type { NoteStream } from "./types";
+import { Note } from "../note/note.js";
+import { detectChordAt, onsetTimes, segmentChords } from "./chords.js";
+import { detectKey, pitchClassWeightsFromStream } from "./key.js";
+import { intervalClassVector, pitchClasses } from "./pcset.js";
+import type { NoteStream } from "./types.js";
 
 describe("pitch-class set analysis", () => {
   test("pitchClasses is a sorted unique set", () => {

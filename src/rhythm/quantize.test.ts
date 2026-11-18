@@ -1,11 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import type { MidiFile } from "../midi/types";
+import type { MidiFile } from "../midi/types.js";
 import {
   quantizeMidi,
   quantizeSeconds,
   quantizeStream,
   quantizeTick,
-} from "./quantize";
+} from "./quantize.js";
 
 describe("quantizeTick", () => {
   test("snaps to the nearest grid line", () => {

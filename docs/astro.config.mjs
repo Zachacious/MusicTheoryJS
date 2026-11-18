@@ -6,6 +6,7 @@ import starlightLlmsTxt from "starlight-llms-txt";
 import starlightThemeBlack from "starlight-theme-black";
 import tailwindcss from "@tailwindcss/vite";
 import { remarkLive } from "./src/plugins/remark-live.mjs";
+import { whatsNew } from "./src/integrations/whats-new.mjs";
 
 export default defineConfig({
   site: "https://musictheoryjs.com",
@@ -31,6 +32,8 @@ export default defineConfig({
   },
 
   integrations: [
+    // Writes src/content/docs/whats-new.md from ../CHANGELOG.md.
+    whatsNew(),
     starlight({
       title: "MusicTheoryJS",
       description:
@@ -107,6 +110,10 @@ export default defineConfig({
             "guides/ai",
             "guides/migration",
           ],
+          // Release notes are history, not reference: last in llms-full.txt,
+          // and left out of the abridged llms-small.txt.
+          demote: ["whats-new"],
+          exclude: ["whats-new"],
           optionalLinks: [
             {
               label: "API reference",
@@ -174,6 +181,7 @@ export default defineConfig({
         {
           label: "Reference",
           items: [
+            { label: "What's new", slug: "whats-new" },
             {
               label: "API reference",
               link: "/api/",

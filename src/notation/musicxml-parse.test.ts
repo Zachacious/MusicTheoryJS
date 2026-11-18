@@ -4,9 +4,9 @@
  * backup, multiple parts, timewise arrangement, foreign divisions values.
  */
 import { describe, expect, test } from "bun:test";
-import { Chord } from "../chord/chord";
-import { toMusicXML } from "./musicxml";
-import { fromMusicXML } from "./musicxml-parse";
+import { Chord } from "../chord/chord.js";
+import { fromMusicXML } from "./musicxml-parse.js";
+import { toMusicXML } from "./musicxml.js";
 
 const wrap = (measures: string, extra = ""): string => `<?xml version="1.0"?>
 <!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 4.0 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">

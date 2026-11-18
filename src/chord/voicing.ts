@@ -6,8 +6,8 @@
  * {@link Note} array. Spelling is preserved; only octaves change.
  */
 
-import type { Note } from "../note/note";
-import { Chord, type ChordLike } from "./chord";
+import type { Note } from "../note/note.js";
+import { Chord, type ChordLike } from "./chord.js";
 
 function ascending(notes: Note[]): Note[] {
   return [...notes].sort((a, b) => a.compareTo(b));

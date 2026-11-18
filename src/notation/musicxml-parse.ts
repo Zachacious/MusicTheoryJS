@@ -16,10 +16,10 @@
  * any well-formed MusicXML file, not a general validating parser.
  */
 
-import type { NoteEvent, NoteStream } from "../analysis/types";
-import { Key } from "../key/key";
-import { Note, transposeFifths } from "../note/note";
-import { type TimeSignature, timeSignature } from "../rhythm/meter";
+import type { NoteEvent, NoteStream } from "../analysis/types.js";
+import { Key } from "../key/key.js";
+import { Note, transposeFifths } from "../note/note.js";
+import { type TimeSignature, timeSignature } from "../rhythm/meter.js";
 
 /* ------------------------------------------------------------------ */
 /* Minimal XML                                                         */

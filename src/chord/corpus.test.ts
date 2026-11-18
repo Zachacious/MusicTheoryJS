@@ -11,10 +11,10 @@
  */
 import { describe, expect, test } from "bun:test";
 import { Chord as RefChord } from "tonal";
-import { detectQuality } from "./analysis";
-import { Chord } from "./chord";
-import { normalizeChordQuality, tryParseChordSymbol } from "./parse";
-import { CHORD_DEFINITIONS } from "./templates";
+import { detectQuality } from "./analysis.js";
+import { Chord } from "./chord.js";
+import { normalizeChordQuality, tryParseChordSymbol } from "./parse.js";
+import { CHORD_DEFINITIONS } from "./templates.js";
 
 /** Symbols pulled from the wild: jazz charts, pop/rock tabs, hymnals. */
 const CORPUS: readonly string[] = [

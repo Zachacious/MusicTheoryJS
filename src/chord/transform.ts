@@ -5,16 +5,16 @@
  * negative-harmony reflection around a tonic's tonic–dominant axis.
  */
 
-import { interval, transpose } from "../interval/interval";
-import { mod } from "../math/index";
-import { Note, type NoteLike } from "../note/note";
-import { detectQuality } from "./analysis";
-import { Chord, type ChordLike } from "./chord";
+import { interval, transpose } from "../interval/interval.js";
+import { mod } from "../math/index.js";
+import { Note, type NoteLike } from "../note/note.js";
+import { detectQuality } from "./analysis.js";
+import { Chord, type ChordLike } from "./chord.js";
 import {
   CHORD_QUALITIES,
   type ChordQuality,
   chordDictionaryVersion,
-} from "./templates";
+} from "./templates.js";
 
 const MINOR_THIRD = interval(3, "m");
 const MAJOR_THIRD = interval(3, "M");

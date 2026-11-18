@@ -8,10 +8,10 @@
  * differs from the key signature and what the measure has already said.
  */
 
-import { keySignatureOf } from "../key/key";
-import type { Note } from "../note/note";
-import type { Duration } from "../rhythm/duration";
-import { formatTimeSignature } from "../rhythm/meter";
+import { keySignatureOf } from "../key/key.js";
+import type { Note } from "../note/note.js";
+import type { Duration } from "../rhythm/duration.js";
+import { formatTimeSignature } from "../rhythm/meter.js";
 import {
   type EventPiece,
   type NormalScore,
@@ -19,7 +19,7 @@ import {
   type ScoreInput,
   asScore,
   layoutMeasures,
-} from "./score";
+} from "./score.js";
 
 const ACCIDENTALS: Record<number, string> = {
   [-2]: "__",

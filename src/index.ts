@@ -27,20 +27,20 @@
  * @module
  */
 
-export * from "./collection/index";
-export * from "./pitch/index";
-export * from "./interval/index";
-export * from "./note/index";
-export * from "./tuning/index";
-export * from "./scale/index";
-export * from "./chord/index";
-export * from "./key/index";
-export * from "./rhythm/index";
-export * from "./sequence/index";
-export * from "./analysis/index";
-export * from "./midi/index";
-export * from "./notation/index";
-export * from "./audio/index";
+export * from "./collection/index.js";
+export * from "./pitch/index.js";
+export * from "./interval/index.js";
+export * from "./note/index.js";
+export * from "./tuning/index.js";
+export * from "./scale/index.js";
+export * from "./chord/index.js";
+export * from "./key/index.js";
+export * from "./rhythm/index.js";
+export * from "./sequence/index.js";
+export * from "./analysis/index.js";
+export * from "./midi/index.js";
+export * from "./notation/index.js";
+export * from "./audio/index.js";
 
 /** The library version. */
 export const VERSION = "3.2.2";

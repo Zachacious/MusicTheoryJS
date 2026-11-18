@@ -16,7 +16,7 @@ import {
   justIntonation,
   pythagorean,
   quarterCommaMeantone,
-} from "./historical";
+} from "./historical.js";
 import {
   MAQAM_NAMES,
   RAGA_NAMES,
@@ -24,8 +24,8 @@ import {
   pelog,
   ragaTuning,
   slendro,
-} from "./presets";
-import { type Tuning, equalTemperament, isTuning } from "./tuning";
+} from "./presets.js";
+import { type Tuning, equalTemperament, isTuning } from "./tuning.js";
 
 /** One registry entry: the name as written, plus the tuning itself. */
 interface Entry {

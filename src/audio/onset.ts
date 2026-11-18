@@ -7,7 +7,7 @@
  * or feed to the symbolic layer. Operates on caller-provided samples.
  */
 
-import { hann, magnitudeSpectrum } from "./fft";
+import { hann, magnitudeSpectrum } from "./fft.js";
 
 export interface OnsetOptions {
   /** Analysis frame size in samples (power of two recommended). Default 1024. */

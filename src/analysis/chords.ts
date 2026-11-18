@@ -7,9 +7,9 @@
  * Roman numerals through a {@link Key}.
  */
 
-import { type Chord, detectChord } from "../chord/index";
-import { Note } from "../note/note";
-import type { NoteEventInput, NoteStreamInput } from "./types";
+import { type Chord, detectChord } from "../chord/index.js";
+import { Note } from "../note/note.js";
+import type { NoteEventInput, NoteStreamInput } from "./types.js";
 
 const END = (e: NoteEventInput) => e.start + e.duration;
 

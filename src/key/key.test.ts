@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { Chord } from "../chord/chord";
-import { Key, parseRoman } from "./key";
+import { Chord } from "../chord/chord.js";
+import { Key, parseRoman } from "./key.js";
 
 describe("key signatures", () => {
   test("C major has no accidentals", () => {

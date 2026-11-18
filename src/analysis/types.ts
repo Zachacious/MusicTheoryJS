@@ -7,7 +7,7 @@
  * The library never touches audio itself — it works on these symbolic events.
  */
 
-import type { Note, NoteLike } from "../note/note";
+import type { Note, NoteLike } from "../note/note.js";
 
 /**
  * A single sounded note positioned in time. `start` and `duration` are in

@@ -17,7 +17,7 @@ import {
   type Letter,
   type SpelledPitch,
   type Step,
-} from "./spelled";
+} from "./spelled.js";
 
 /** Default octave used when a note string omits its octave. */
 export const DEFAULT_OCTAVE = 4;

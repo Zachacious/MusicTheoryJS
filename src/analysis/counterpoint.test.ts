@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { melody } from "../sequence/stream";
-import { checkCounterpoint } from "./counterpoint";
+import { melody } from "../sequence/stream.js";
+import { checkCounterpoint } from "./counterpoint.js";
 
 describe("checkCounterpoint", () => {
   test("catches parallel fifths, compound and antiparallel included", () => {

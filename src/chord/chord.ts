@@ -7,28 +7,32 @@
  * are immutable; inversions and quality changes return new chords.
  */
 
-import { PERFECT_OCTAVE } from "../interval/constants";
+import { PERFECT_OCTAVE } from "../interval/constants.js";
 import {
   type Interval,
   addIntervals,
   intervalName,
   intervalNumber,
   transpose,
-} from "../interval/interval";
+} from "../interval/interval.js";
 import {
   type IntervalLike,
   asInterval,
   intervalFromSemitones,
-} from "../interval/parse";
-import { type EnharmonicPreference, Note, type NoteLike } from "../note/note";
-import { detectQuality } from "./analysis";
-import { normalizeChordQuality, parseChordSymbol } from "./parse";
+} from "../interval/parse.js";
+import {
+  type EnharmonicPreference,
+  Note,
+  type NoteLike,
+} from "../note/note.js";
+import { detectQuality } from "./analysis.js";
+import { normalizeChordQuality, parseChordSymbol } from "./parse.js";
 import {
   CHORD_SUFFIXES,
   CHORD_TEMPLATES,
   type ChordQuality,
   chordTemplate,
-} from "./templates";
+} from "./templates.js";
 
 /** A chord described as plain data: a root plus a canonical quality and/or
  * explicit intervals (spelled or named). */

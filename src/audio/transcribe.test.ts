@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { cqt, cqtChroma } from "./cqt";
-import { trackPitch, transcribeMelody } from "./transcribe";
+import { cqt, cqtChroma } from "./cqt.js";
+import { trackPitch, transcribeMelody } from "./transcribe.js";
 
 const SR = 44100;
 

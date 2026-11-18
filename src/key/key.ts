@@ -7,21 +7,21 @@
  * the ii chord in C major is `Dm`, not `Ebbm`.
  */
 
-import { Chord, type ChordLike } from "../chord/chord";
-import type { ChordQuality } from "../chord/templates";
+import { Chord, type ChordLike } from "../chord/chord.js";
+import type { ChordQuality } from "../chord/templates.js";
 import {
   type Interval,
   interval,
   intervalBetween,
   transpose,
-} from "../interval/interval";
-import { type IntervalLike, asInterval } from "../interval/parse";
-import { mod } from "../math/index";
-import { Note, type NoteLike } from "../note/note";
-import { tryParseNote } from "../pitch/parse";
-import { chroma } from "../pitch/spelled";
-import { scaleChord } from "../scale/harmony";
-import { Scale } from "../scale/scale";
+} from "../interval/interval.js";
+import { type IntervalLike, asInterval } from "../interval/parse.js";
+import { mod } from "../math/index.js";
+import { Note, type NoteLike } from "../note/note.js";
+import { tryParseNote } from "../pitch/parse.js";
+import { chroma } from "../pitch/spelled.js";
+import { scaleChord } from "../scale/harmony.js";
+import { Scale } from "../scale/scale.js";
 
 export type Mode = "major" | "minor";
 

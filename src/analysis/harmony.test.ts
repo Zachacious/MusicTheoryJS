@@ -1,14 +1,14 @@
 import { describe, expect, test } from "bun:test";
-import { Chord } from "../chord/chord";
-import { Key } from "../key/key";
-import { Note } from "../note/note";
+import { Chord } from "../chord/chord.js";
+import { Key } from "../key/key.js";
+import { Note } from "../note/note.js";
 import {
   analyzeHarmony,
   detectCadences,
   harmonicRhythm,
   romanProgression,
-} from "./harmony";
-import type { NoteStream } from "./types";
+} from "./harmony.js";
+import type { NoteStream } from "./types.js";
 
 const cMajor = Key.major("C");
 

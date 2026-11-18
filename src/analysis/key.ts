@@ -8,11 +8,11 @@
  * no dependencies.
  */
 
-import { Key, type Mode } from "../key/key";
-import { mod } from "../math/index";
-import { Note, type NoteLike } from "../note/note";
-import { pitchClass as pitchClassOf } from "../pitch/spelled";
-import type { NoteStreamInput } from "./types";
+import { Key, type Mode } from "../key/key.js";
+import { mod } from "../math/index.js";
+import { Note, type NoteLike } from "../note/note.js";
+import { pitchClass as pitchClassOf } from "../pitch/spelled.js";
+import type { NoteStreamInput } from "./types.js";
 
 // Krumhansl–Kessler probe-tone profiles (tonic-relative weights).
 const MAJOR_PROFILE = [

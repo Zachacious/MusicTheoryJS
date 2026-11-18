@@ -7,10 +7,10 @@
  * with each chord's quality detected when the dictionary knows it.
  */
 
-import { detectQuality } from "../chord/analysis";
-import { Chord } from "../chord/chord";
-import { type Interval, intervalBetween } from "../interval/interval";
-import { Scale, type ScaleLike } from "./scale";
+import { detectQuality } from "../chord/analysis.js";
+import { Chord } from "../chord/chord.js";
+import { type Interval, intervalBetween } from "../interval/interval.js";
+import { Scale, type ScaleLike } from "./scale.js";
 
 /** Options for {@link scaleChord} and {@link scaleChords}. */
 export interface ScaleChordOptions {

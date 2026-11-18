@@ -1,12 +1,12 @@
 import { describe, expect, test } from "bun:test";
-import { Key } from "./key";
+import { Key } from "./key.js";
 import {
   COMMON_PROGRESSIONS,
   parseProgression,
   progressionChords,
   progressionRomans,
   suggestNextChords,
-} from "./progression";
+} from "./progression.js";
 
 describe("parseProgression", () => {
   test("mixes numerals, symbols, and N.C. in one input", () => {

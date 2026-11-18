@@ -14,7 +14,7 @@ import {
   keySignatureOf,
   parallelKey,
   relativeKey,
-} from "./key";
+} from "./key.js";
 
 describe("Key.from widened inputs", () => {
   test("parses strings, with major implied", () => {

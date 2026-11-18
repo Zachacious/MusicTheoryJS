@@ -4,25 +4,29 @@
  * {@link Score} for the ABC and MusicXML exporters, or back in from MIDI.
  */
 
-import type { NoteEvent, NoteStream, NoteStreamInput } from "../analysis/types";
-import type { KeyLike } from "../key/key";
+import type {
+  NoteEvent,
+  NoteStream,
+  NoteStreamInput,
+} from "../analysis/types.js";
+import type { KeyLike } from "../key/key.js";
 import {
   DEFAULT_PPQ,
   DEFAULT_TEMPO,
   bpmToTempo,
   tempoToBpm,
-} from "../midi/convert";
-import type { MidiFile, MidiNote } from "../midi/types";
-import type { Score, ScoreEvent } from "../notation/score";
-import { type EnharmonicPreference, Note } from "../note/note";
+} from "../midi/convert.js";
+import type { MidiFile, MidiNote } from "../midi/types.js";
+import type { Score, ScoreEvent } from "../notation/score.js";
+import { type EnharmonicPreference, Note } from "../note/note.js";
 import {
   type Duration,
   type DurationLike,
   durationBeats,
-} from "../rhythm/duration";
-import type { TimeSignatureLike } from "../rhythm/meter";
-import { asTimeSignature } from "../rhythm/meter";
-import { asNoteStream } from "./stream";
+} from "../rhythm/duration.js";
+import type { TimeSignatureLike } from "../rhythm/meter.js";
+import { asTimeSignature } from "../rhythm/meter.js";
+import { asNoteStream } from "./stream.js";
 
 const EPS = 1e-6;
 

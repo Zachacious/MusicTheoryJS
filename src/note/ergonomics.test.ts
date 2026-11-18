@@ -3,8 +3,8 @@
  * JSON round-trips, bulk transposition, and chromatic ranges.
  */
 import { describe, expect, test } from "bun:test";
-import { Note, note, transposeNotes } from "./note";
-import { noteRange } from "./range";
+import { Note, note, transposeNotes } from "./note.js";
+import { noteRange } from "./range.js";
 
 describe("Note.transpose widened inputs", () => {
   test("accepts interval names", () => {

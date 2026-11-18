@@ -9,8 +9,8 @@
  * field). Running status and interleaved meta/sysex events are handled.
  */
 
-import type { TimeSignature } from "../rhythm/meter";
-import type { MidiFile, MidiNote, MidiTempoEvent, MidiTrack } from "./types";
+import type { TimeSignature } from "../rhythm/meter.js";
+import type { MidiFile, MidiNote, MidiTempoEvent, MidiTrack } from "./types.js";
 
 /** A bounds-checked forward cursor over the file bytes. */
 class ByteReader {

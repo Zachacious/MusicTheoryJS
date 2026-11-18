@@ -34,3 +34,6 @@ jobs:
         run: |
           node scripts/e2e.mjs
           node scripts/e2e.cjs
+
+      - name: End-to-end types (node16, nodenext, bundler)
+        run: node scripts/e2e-types.mjs

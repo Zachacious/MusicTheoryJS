@@ -14,7 +14,7 @@
  * the `tuning` module.
  */
 
-import { CENTS_PER_OCTAVE } from "../math/index";
+import { CENTS_PER_OCTAVE } from "../math/index.js";
 
 /** An exact pitch as cents above C0 (C0 = 0). */
 export interface PitchPoint {

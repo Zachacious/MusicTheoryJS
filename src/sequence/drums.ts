@@ -9,10 +9,10 @@
  * and `retuneMidi` already knows to leave that channel alone.
  */
 
-import type { NoteEvent, NoteStream } from "../analysis/types";
-import { Note } from "../note/note";
-import { type DurationLike, durationBeats } from "../rhythm/duration";
-import type { RhythmStep } from "../rhythm/pattern";
+import type { NoteEvent, NoteStream } from "../analysis/types.js";
+import { Note } from "../note/note.js";
+import { type DurationLike, durationBeats } from "../rhythm/duration.js";
+import type { RhythmStep } from "../rhythm/pattern.js";
 
 /** General MIDI percussion note numbers by name (`kick` = 36, the GM Bass
  * Drum 1). `hihat` is an alias for `closed-hihat`. */

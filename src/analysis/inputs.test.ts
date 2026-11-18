@@ -3,11 +3,11 @@
  * strings — no Note construction required at the boundary.
  */
 import { describe, expect, test } from "bun:test";
-import { noteStreamToMidi } from "../midi/convert";
-import { detectChordAt, notesSoundingAt, segmentChords } from "./chords";
-import { analyzeHarmony } from "./harmony";
-import { pitchClassWeightsFromStream } from "./key";
-import type { NoteStreamInput } from "./types";
+import { noteStreamToMidi } from "../midi/convert.js";
+import { detectChordAt, notesSoundingAt, segmentChords } from "./chords.js";
+import { analyzeHarmony } from "./harmony.js";
+import { pitchClassWeightsFromStream } from "./key.js";
+import type { NoteStreamInput } from "./types.js";
 
 const plainStream: NoteStreamInput = [
   { pitch: "C4", start: 0, duration: 1 },

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { formatAccidental, formatNote } from "./format";
-import { spelled } from "./spelled";
+import { formatAccidental, formatNote } from "./format.js";
+import { spelled } from "./spelled.js";
 
 describe("formatAccidental", () => {
   test("natural is empty", () => {

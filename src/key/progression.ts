@@ -6,10 +6,10 @@
  * resolution — never a uniform tie).
  */
 
-import { Chord } from "../chord/chord";
-import { tryParseChordSymbol } from "../chord/parse";
-import { Note } from "../note/note";
-import { scaleChord } from "../scale/harmony";
+import { Chord } from "../chord/chord.js";
+import { tryParseChordSymbol } from "../chord/parse.js";
+import { Note } from "../note/note.js";
+import { scaleChord } from "../scale/harmony.js";
 import {
   type HarmonicFunction,
   Key,
@@ -17,13 +17,13 @@ import {
   type MinorVariant,
   diatonicChords,
   secondaryDominants,
-} from "./key";
+} from "./key.js";
 import {
   type RomanNumeral,
   chordToRoman,
   romanToChord,
   tryParseRomanNumeral,
-} from "./roman";
+} from "./roman.js";
 
 /** One slot of a parsed progression. `chord`/`roman` are `null` for "N.C.". */
 export interface ProgressionStep {

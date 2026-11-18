@@ -8,11 +8,11 @@
  * beats, or ticks — as with the rest of the analysis layer.
  */
 
-import type { Key } from "../key/key";
-import { Note } from "../note/note";
-import { pitchClass as pitchClassOf } from "../pitch/spelled";
-import { detectKey } from "./key";
-import type { NoteStreamInput } from "./types";
+import type { Key } from "../key/key.js";
+import { Note } from "../note/note.js";
+import { pitchClass as pitchClassOf } from "../pitch/spelled.js";
+import { detectKey } from "./key.js";
+import type { NoteStreamInput } from "./types.js";
 
 /** A stretch of the stream governed by one key. */
 export interface KeySegment {

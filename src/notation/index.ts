@@ -11,8 +11,8 @@ export type {
   Score,
   ScoreEvent,
   ScoreInput,
-} from "./score";
-export * from "./abc";
-export * from "./abc-parse";
-export * from "./musicxml";
-export * from "./musicxml-parse";
+} from "./score.js";
+export * from "./abc.js";
+export * from "./abc-parse.js";
+export * from "./musicxml.js";
+export * from "./musicxml-parse.js";

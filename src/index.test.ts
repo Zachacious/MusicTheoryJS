@@ -4,7 +4,7 @@
 
 import { describe, expect, test } from "bun:test";
 import pkg from "../package.json" with { type: "json" };
-import { VERSION } from "./index";
+import { VERSION } from "./index.js";
 
 describe("VERSION", () => {
   test("matches the version in package.json", () => {

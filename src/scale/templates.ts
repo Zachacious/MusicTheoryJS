@@ -16,9 +16,9 @@
  * tuning module and `scaleFromTuning`.
  */
 
-import type { Interval } from "../interval/interval";
-import { intervalFromSemitones } from "../interval/parse";
-import { parseInterval } from "../interval/parse";
+import type { Interval } from "../interval/interval.js";
+import { intervalFromSemitones } from "../interval/parse.js";
+import { parseInterval } from "../interval/parse.js";
 
 /** A named scale template: the intervals of each degree above the tonic. */
 export type ScaleTemplate = readonly Interval[];

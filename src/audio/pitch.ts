@@ -8,7 +8,7 @@
  * app with a suitable model.
  */
 
-import { Note } from "../note/note";
+import { Note } from "../note/note.js";
 
 export interface PitchOptions {
   /** YIN absolute threshold (lower = stricter). Default 0.15. */

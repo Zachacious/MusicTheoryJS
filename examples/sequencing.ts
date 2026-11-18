@@ -25,7 +25,7 @@ import {
   toMusicXML,
   transposeStream,
   writeMidi,
-} from "../src/index";
+} from "../src/index.js";
 
 // A played ii-V-I: comped hits, voice-led through the changes.
 const comp = compProgression("C major", "ii-V-I", {

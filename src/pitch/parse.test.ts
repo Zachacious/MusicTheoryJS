@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { parseNote, tryParseNote } from "./parse";
+import { parseNote, tryParseNote } from "./parse.js";
 
 describe("parseNote", () => {
   test("plain letter defaults to octave 4, natural", () => {

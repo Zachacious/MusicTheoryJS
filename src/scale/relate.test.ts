@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { intervalName } from "../interval/interval";
-import { scaleSubsets, scaleSupersets } from "./detection";
-import { modeDistance, relativeTonic } from "./modes";
-import { tokenizeScaleName } from "./templates";
+import { intervalName } from "../interval/interval.js";
+import { scaleSubsets, scaleSupersets } from "./detection.js";
+import { modeDistance, relativeTonic } from "./modes.js";
+import { tokenizeScaleName } from "./templates.js";
 
 describe("modeDistance", () => {
   test("measures between modes of one parent", () => {

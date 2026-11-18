@@ -11,7 +11,7 @@ import {
   detectScales,
   drop2,
   mode,
-} from "../src/index";
+} from "../src/index.js";
 
 // Keys and diatonic harmony
 const c = Key.major("C");

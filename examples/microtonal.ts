@@ -9,7 +9,7 @@ import {
   ratioTuning,
   scalaTuning,
   scaleFromTuning,
-} from "../src/index";
+} from "../src/index.js";
 
 // 24-EDO quarter tones
 const edo24 = scaleFromTuning(equalTemperament(24));

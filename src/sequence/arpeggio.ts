@@ -7,11 +7,11 @@
  * {@link NoteStream}s like everything else in the sequence module.
  */
 
-import type { NoteEvent, NoteStream } from "../analysis/types";
-import { Chord, type ChordLike } from "../chord/chord";
-import { Note } from "../note/note";
-import { type DurationLike, durationBeats } from "../rhythm/duration";
-import type { PitchInput } from "./stream";
+import type { NoteEvent, NoteStream } from "../analysis/types.js";
+import { Chord, type ChordLike } from "../chord/chord.js";
+import { Note } from "../note/note.js";
+import { type DurationLike, durationBeats } from "../rhythm/duration.js";
+import type { PitchInput } from "./stream.js";
 
 /**
  * The order an arpeggio visits its tones: a named contour, or explicit

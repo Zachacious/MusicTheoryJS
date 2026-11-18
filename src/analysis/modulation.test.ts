@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { detectModulations } from "./modulation";
-import type { NoteEventInput } from "./types";
+import { detectModulations } from "./modulation.js";
+import type { NoteEventInput } from "./types.js";
 
 /** One note per unit of time from `at`. */
 function bar(names: readonly string[], at: number): NoteEventInput[] {

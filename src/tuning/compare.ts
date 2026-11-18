@@ -3,8 +3,8 @@
  * Just Intonation, to see exactly what the temperament traded away.
  */
 
-import { justIntonation } from "./historical";
-import { TET12, type Tuning } from "./tuning";
+import { justIntonation } from "./historical.js";
+import { TET12, type Tuning } from "./tuning.js";
 
 /** One degree of a tuning comparison, all values in cents. */
 export interface DegreeComparison {

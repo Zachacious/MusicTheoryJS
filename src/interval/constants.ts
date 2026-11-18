@@ -3,7 +3,7 @@
  * Tree-shakable: importing one interval does not pull in the rest.
  */
 
-import { type Interval, interval } from "./interval";
+import { type Interval, interval } from "./interval.js";
 
 export const PERFECT_UNISON: Interval = interval(1, "P");
 export const MINOR_SECOND: Interval = interval(2, "m");

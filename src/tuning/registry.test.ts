@@ -4,9 +4,9 @@
  */
 
 import { afterEach, describe, expect, test } from "bun:test";
-import { parseNote } from "../pitch/parse";
-import { centsTuning } from "./custom";
-import { justIntonation } from "./historical";
+import { parseNote } from "../pitch/parse.js";
+import { centsTuning } from "./custom.js";
+import { justIntonation } from "./historical.js";
 import {
   asTuning,
   getTuning,
@@ -17,14 +17,14 @@ import {
   tryGetTuning,
   tuningNames,
   tuningRegistryVersion,
-} from "./registry";
+} from "./registry.js";
 import {
   TET12,
   equalTemperament,
   frequencyOfDegree,
   frequencyOfNote,
   isTuning,
-} from "./tuning";
+} from "./tuning.js";
 
 afterEach(() => {
   resetTunings();

@@ -6,9 +6,9 @@
  * are left alone unless asked for, and never quantize to nothing.
  */
 
-import type { NoteEventInput } from "../analysis/types";
-import type { MidiFile, MidiNote, MidiTrack } from "../midi/types";
-import { type DurationLike, durationSeconds, wholeNotes } from "./duration";
+import type { NoteEventInput } from "../analysis/types.js";
+import type { MidiFile, MidiNote, MidiTrack } from "../midi/types.js";
+import { type DurationLike, durationSeconds, wholeNotes } from "./duration.js";
 
 /** Snap to the nearest multiple of `grid`; durations get a one-grid floor. */
 function snap(value: number, grid: number, min = false): number {

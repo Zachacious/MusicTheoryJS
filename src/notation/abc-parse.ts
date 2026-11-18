@@ -19,16 +19,16 @@
  * another rather than overlaid.
  */
 
-import type { NoteEvent, NoteStream } from "../analysis/types";
-import { keySignatureOf } from "../key/key";
-import { Note } from "../note/note";
-import type { Step } from "../pitch/spelled";
+import type { NoteEvent, NoteStream } from "../analysis/types.js";
+import { keySignatureOf } from "../key/key.js";
+import { Note } from "../note/note.js";
+import type { Step } from "../pitch/spelled.js";
 import {
   barWholeNotes,
   meterClass,
   tryParseTimeSignature,
-} from "../rhythm/meter";
-import { relativeTonic } from "../scale/modes";
+} from "../rhythm/meter.js";
+import { relativeTonic } from "../scale/modes.js";
 
 const EPS = 1e-6;
 

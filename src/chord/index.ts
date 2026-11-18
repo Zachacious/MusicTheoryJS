@@ -3,11 +3,11 @@
  * chord-symbol parsing.
  */
 
-export * from "./templates";
-export * from "./parse";
-export * from "./chord";
-export * from "./analysis";
-export * from "./dictionary";
-export * from "./voicing";
-export * from "./leading";
-export * from "./transform";
+export * from "./templates.js";
+export * from "./parse.js";
+export * from "./chord.js";
+export * from "./analysis.js";
+export * from "./dictionary.js";
+export * from "./voicing.js";
+export * from "./leading.js";
+export * from "./transform.js";

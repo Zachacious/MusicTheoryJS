@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { Note, sortNotes, sortNotesUnique, transposeFifths } from "./note";
+import { Note, sortNotes, sortNotesUnique, transposeFifths } from "./note.js";
 
 describe("transposeFifths", () => {
   test("moves around the circle, keeping the circle's spelling", () => {

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { compact, permutations, range, rotate, shuffle } from "./index";
+import { compact, permutations, range, rotate, shuffle } from "./index.js";
 
 describe("range", () => {
   test("ascends, descends, and handles a single value", () => {

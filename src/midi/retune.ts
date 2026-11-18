@@ -9,8 +9,8 @@
  * so simultaneous notes with different bends don't fight.
  */
 
-import { type Tuning, degreeCents } from "../tuning/tuning";
-import type { MidiFile, MidiNote, MidiTrack } from "./types";
+import { type Tuning, degreeCents } from "../tuning/tuning.js";
+import type { MidiFile, MidiNote, MidiTrack } from "./types.js";
 
 export interface RetuneOptions {
   /** The MIDI key mapped to degree 0 of the tuning (and left unbent when the

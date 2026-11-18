@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { Chord } from "./chord";
-import { closeVoicing, drop2, drop3, spread } from "./voicing";
+import { Chord } from "./chord.js";
+import { closeVoicing, drop2, drop3, spread } from "./voicing.js";
 
 const cmaj7 = Chord.from("Cmaj7"); // C4 E4 G4 B4
 

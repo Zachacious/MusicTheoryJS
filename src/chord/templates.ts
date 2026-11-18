@@ -13,8 +13,8 @@
  * reports the one listed first.
  */
 
-import type { Interval } from "../interval/interval";
-import { intervalFromSemitones, parseInterval } from "../interval/parse";
+import type { Interval } from "../interval/interval.js";
+import { intervalFromSemitones, parseInterval } from "../interval/parse.js";
 
 /** A named chord template: intervals of each chord tone above the root. */
 export type ChordTemplate = readonly Interval[];

@@ -1,13 +1,13 @@
 import { describe, expect, test } from "bun:test";
-import { Note } from "../note/note";
-import { Chord } from "./chord";
+import { Note } from "../note/note.js";
+import { Chord } from "./chord.js";
 import {
   findParallels,
   nextVoicing,
   voiceChord,
   voiceLeadingCost,
   voiceProgression,
-} from "./leading";
+} from "./leading.js";
 
 describe("voiceChord", () => {
   test("deterministic close voicings with the root in the bass", () => {

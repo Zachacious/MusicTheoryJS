@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { detectScales, scalesContaining } from "./detection";
+import { detectScales, scalesContaining } from "./detection.js";
 
 describe("detectScales", () => {
   test("the white keys match C major (and its modes)", () => {

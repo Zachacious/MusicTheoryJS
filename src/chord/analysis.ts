@@ -9,16 +9,16 @@
  * symbol.
  */
 
-import { Note, type NoteLike } from "../note/note";
-import { pcsetMask, pcsetSize, pcsetTranspose } from "../pitch/pcset";
-import { pitchClass as pitchClassOf } from "../pitch/spelled";
-import { Chord } from "./chord";
+import { Note, type NoteLike } from "../note/note.js";
+import { pcsetMask, pcsetSize, pcsetTranspose } from "../pitch/pcset.js";
+import { pitchClass as pitchClassOf } from "../pitch/spelled.js";
+import { Chord } from "./chord.js";
 import {
   CHORD_DEFINITIONS,
   CHORD_TEMPLATES,
   type ChordQuality,
   chordDictionaryVersion,
-} from "./templates";
+} from "./templates.js";
 
 /** Mask of semitones-above-root, or -1 when the input isn't whole semitones. */
 function maskFromSemitones(semitones: Iterable<number>): number {

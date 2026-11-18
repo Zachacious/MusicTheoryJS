@@ -13,9 +13,9 @@
  * simple class, as the classroom rules have it.
  */
 
-import { mod } from "../math/index";
-import { Note } from "../note/note";
-import type { NoteEvent, NoteStreamInput } from "./types";
+import { mod } from "../math/index.js";
+import { Note } from "../note/note.js";
+import type { NoteEvent, NoteStreamInput } from "./types.js";
 
 const EPS = 1e-6;
 

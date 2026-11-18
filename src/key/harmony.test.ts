@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { Key, harmonicFunctions, secondaryDominants } from "./key";
+import { Key, harmonicFunctions, secondaryDominants } from "./key.js";
 
 describe("harmonic functions", () => {
   test("major and minor tables", () => {

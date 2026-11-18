@@ -1,11 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { interval, intervalName } from "./interval";
+import { interval, intervalName } from "./interval.js";
 import {
   asInterval,
   intervalFromSemitones,
   parseInterval,
   tryParseInterval,
-} from "./parse";
+} from "./parse.js";
 
 describe("parseInterval", () => {
   test("parses the common names", () => {

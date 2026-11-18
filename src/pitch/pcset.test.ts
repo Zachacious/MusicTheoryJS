@@ -8,7 +8,7 @@ import {
   pcsetPitchClasses,
   pcsetSize,
   pcsetTranspose,
-} from "./pcset";
+} from "./pcset.js";
 
 describe("pcset masks", () => {
   test("mask round-trips through pitch classes", () => {

@@ -10,11 +10,15 @@
  * analysis layer accepts these streams unchanged.
  */
 
-import type { NoteEvent, NoteStream, NoteStreamInput } from "../analysis/types";
-import { type IntervalLike, asInterval } from "../interval/parse";
-import { Note, type NoteLike } from "../note/note";
-import { type DurationLike, durationBeats } from "../rhythm/duration";
-import type { RhythmStep } from "../rhythm/pattern";
+import type {
+  NoteEvent,
+  NoteStream,
+  NoteStreamInput,
+} from "../analysis/types.js";
+import { type IntervalLike, asInterval } from "../interval/parse.js";
+import { Note, type NoteLike } from "../note/note.js";
+import { type DurationLike, durationBeats } from "../rhythm/duration.js";
+import type { RhythmStep } from "../rhythm/pattern.js";
 
 /** Anything a sequence function accepts as one pitch. */
 export type PitchInput = Note | NoteLike | string;

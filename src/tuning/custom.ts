@@ -4,8 +4,8 @@
  * tables, gamelan slendro/pelog, xenharmonic scales — as first-class tunings.
  */
 
-import { mod, parseRatio, ratioToCents } from "../math/index";
-import type { Tuning } from "./tuning";
+import { mod, parseRatio, ratioToCents } from "../math/index.js";
+import type { Tuning } from "./tuning.js";
 
 export interface CustomTuningOptions {
   /** Tuning name. */

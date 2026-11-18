@@ -19,7 +19,7 @@ import {
   pcsetMask,
   pcsetPrimeForm,
   pcsetSize,
-} from "../pitch/pcset";
+} from "../pitch/pcset.js";
 
 /** Set classes of cardinality 0–6 in Forte's numbering, ordinal by
  * position. Representatives are Forte's published prime forms — any member

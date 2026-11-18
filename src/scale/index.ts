@@ -3,10 +3,10 @@
  * tuning-sourced microtonal/non-Western scales.
  */
 
-export * from "./templates";
-export * from "./scale";
-export * from "./range";
-export * from "./modes";
-export * from "./detection";
-export * from "./harmony";
-export * from "./chordscales";
+export * from "./templates.js";
+export * from "./scale.js";
+export * from "./range.js";
+export * from "./modes.js";
+export * from "./detection.js";
+export * from "./harmony.js";
+export * from "./chordscales.js";

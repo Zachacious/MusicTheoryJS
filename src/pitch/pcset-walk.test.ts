@@ -6,7 +6,7 @@ import {
   pcsetNearest,
   pcsetPitchClasses,
   pcsetStep,
-} from "./pcset";
+} from "./pcset.js";
 
 const MAJOR = pcsetMask([0, 2, 4, 5, 7, 9, 11]);
 const TRIAD = pcsetMask([0, 4, 7]);

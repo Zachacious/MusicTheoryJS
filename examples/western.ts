@@ -9,7 +9,7 @@ import {
   Scale,
   frequencyOfNote,
   interval,
-} from "../src/index";
+} from "../src/index.js";
 
 // Correct enharmonic spelling
 console.log("C4 up a P5:", new Note("C4").transpose(PERFECT_FIFTH).toString());

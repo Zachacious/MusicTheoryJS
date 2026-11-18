@@ -8,7 +8,7 @@
  * and `RIn` are `Pn` and `In` read backwards.
  */
 
-import { mod } from "../math/index";
+import { mod } from "../math/index.js";
 
 /** A tone row: each pitch class 0–11 exactly once, in order. */
 export type ToneRow = readonly number[];

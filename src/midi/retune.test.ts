@@ -1,11 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { justIntonation } from "../tuning/historical";
-import { pelog, slendro } from "../tuning/presets";
-import { TET12, equalTemperament } from "../tuning/tuning";
-import { parseMidi } from "./reader";
-import { retuneMidi } from "./retune";
-import type { MidiFile } from "./types";
-import { writeMidi } from "./writer";
+import { justIntonation } from "../tuning/historical.js";
+import { pelog, slendro } from "../tuning/presets.js";
+import { TET12, equalTemperament } from "../tuning/tuning.js";
+import { parseMidi } from "./reader.js";
+import { retuneMidi } from "./retune.js";
+import type { MidiFile } from "./types.js";
+import { writeMidi } from "./writer.js";
 
 const note = (n: number, start = 0, channel = 0) => ({
   note: n,

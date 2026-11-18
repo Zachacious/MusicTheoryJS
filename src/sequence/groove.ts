@@ -8,15 +8,15 @@
  * `humanize(accent(swing(part), "4/4"))`.
  */
 
-import type { NoteStream, NoteStreamInput } from "../analysis/types";
-import { type DurationLike, durationBeats } from "../rhythm/duration";
+import type { NoteStream, NoteStreamInput } from "../analysis/types.js";
+import { type DurationLike, durationBeats } from "../rhythm/duration.js";
 import {
   type TimeSignatureLike,
   asTimeSignature,
   barWholeNotes,
   beatGrouping,
-} from "../rhythm/meter";
-import { asNoteStream } from "./stream";
+} from "../rhythm/meter.js";
+import { asNoteStream } from "./stream.js";
 
 const EPS = 1e-9;
 

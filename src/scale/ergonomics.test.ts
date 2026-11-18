@@ -3,9 +3,9 @@
  * diatonic stepping, transposition, JSON round-trips, and scale ranges.
  */
 import { describe, expect, test } from "bun:test";
-import { note } from "../note/note";
-import { mode } from "./modes";
-import { scaleRange } from "./range";
+import { note } from "../note/note.js";
+import { mode } from "./modes.js";
+import { scaleRange } from "./range.js";
 import {
   Scale,
   scale,
@@ -14,7 +14,7 @@ import {
   scaleNoteNames,
   scaleNotes,
   scaleStep,
-} from "./scale";
+} from "./scale.js";
 
 describe("Scale.from widened inputs", () => {
   test("two-argument form still works", () => {

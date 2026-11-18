@@ -17,21 +17,21 @@
  * detail, which parsing must not).
  */
 
-import { detectQuality } from "../chord/analysis";
-import { Chord, type ChordLike } from "../chord/chord";
-import { normalizeChordQuality } from "../chord/parse";
+import { detectQuality } from "../chord/analysis.js";
+import { Chord, type ChordLike } from "../chord/chord.js";
+import { normalizeChordQuality } from "../chord/parse.js";
 import {
   CHORD_SUFFIXES,
   CHORD_TEMPLATES,
   type ChordQuality,
   chordTemplate,
-} from "../chord/templates";
-import { interval, negateInterval, transpose } from "../interval/interval";
-import { Note } from "../note/note";
-import { STEP_SEMITONES } from "../pitch/spelled";
-import { scaleChord } from "../scale/harmony";
-import { Key, type KeyLike } from "./key";
-import type { MinorVariant } from "./key";
+} from "../chord/templates.js";
+import { interval, negateInterval, transpose } from "../interval/interval.js";
+import { Note } from "../note/note.js";
+import { STEP_SEMITONES } from "../pitch/spelled.js";
+import { scaleChord } from "../scale/harmony.js";
+import { Key, type KeyLike } from "./key.js";
+import type { MinorVariant } from "./key.js";
 
 /** A parsed roman numeral. Instances are frozen. */
 export interface RomanNumeral {

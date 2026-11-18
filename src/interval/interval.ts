@@ -13,13 +13,13 @@
  * `PitchPoint`/tuning layer; this module handles the diatonic 12-TET grid.
  */
 
-import { mod } from "../math/index";
+import { mod } from "../math/index.js";
 import {
   STEP_SEMITONES,
   type SpelledPitch,
   type Step,
   chroma,
-} from "../pitch/spelled";
+} from "../pitch/spelled.js";
 
 /**
  * An interval between two spelled pitches.

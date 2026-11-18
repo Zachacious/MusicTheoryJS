@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { chromagram } from "./chroma";
-import { fft, magnitudeSpectrum, nextPow2 } from "./fft";
-import { detectOnsets } from "./onset";
-import { detectNote, detectPitch } from "./pitch";
+import { chromagram } from "./chroma.js";
+import { fft, magnitudeSpectrum, nextPow2 } from "./fft.js";
+import { detectOnsets } from "./onset.js";
+import { detectNote, detectPitch } from "./pitch.js";
 
 const SR = 44100;
 

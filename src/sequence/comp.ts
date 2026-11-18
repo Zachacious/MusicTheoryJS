@@ -7,19 +7,22 @@
  * walks (or just roots) underneath.
  */
 
-import type { NoteEvent, NoteStream } from "../analysis/types";
-import { Chord, type ChordLike } from "../chord/chord";
-import { type VoiceLeadingOptions, voiceProgression } from "../chord/leading";
-import { closeVoicing, drop2, drop3, spread } from "../chord/voicing";
-import type { KeyLike } from "../key/key";
-import { parseProgression } from "../key/progression";
-import { Note } from "../note/note";
+import type { NoteEvent, NoteStream } from "../analysis/types.js";
+import { Chord, type ChordLike } from "../chord/chord.js";
+import {
+  type VoiceLeadingOptions,
+  voiceProgression,
+} from "../chord/leading.js";
+import { closeVoicing, drop2, drop3, spread } from "../chord/voicing.js";
+import type { KeyLike } from "../key/key.js";
+import { parseProgression } from "../key/progression.js";
+import { Note } from "../note/note.js";
 import {
   type TimeSignatureLike,
   asTimeSignature,
   barWholeNotes,
-} from "../rhythm/meter";
-import { type RhythmStep, rhythmToOnsets } from "../rhythm/pattern";
+} from "../rhythm/meter.js";
+import { type RhythmStep, rhythmToOnsets } from "../rhythm/pattern.js";
 
 /** How comp voicings are built for each chord. */
 export type CompVoicing = "led" | "close" | "drop2" | "drop3" | "spread";

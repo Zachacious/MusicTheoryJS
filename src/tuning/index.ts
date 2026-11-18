@@ -5,9 +5,9 @@
  * maqamat, ragas, and gamelan, and degree-by-degree tuning comparison.
  */
 
-export * from "./tuning";
-export * from "./historical";
-export * from "./custom";
-export * from "./presets";
-export * from "./compare";
-export * from "./registry";
+export * from "./tuning.js";
+export * from "./historical.js";
+export * from "./custom.js";
+export * from "./presets.js";
+export * from "./compare.js";
+export * from "./registry.js";

@@ -12,8 +12,8 @@ import {
   intervalClassVector,
   onsetTimes,
   segmentChords,
-} from "../src/index";
-import type { NoteStream } from "../src/index";
+} from "../src/index.js";
+import type { NoteStream } from "../src/index.js";
 
 // Key detection from a set of notes (Krumhansl-Schmuckler)
 const [bestKey] = detectKey(["C4", "E4", "G4", "A4", "D5", "F5"]);

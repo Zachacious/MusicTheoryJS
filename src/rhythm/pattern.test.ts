@@ -9,7 +9,7 @@ import {
   rhythmToOnsets,
   rotateRhythm,
   weightedRhythm,
-} from "./pattern";
+} from "./pattern.js";
 
 describe("euclideanRhythm", () => {
   test("produces the canonical world rhythms", () => {

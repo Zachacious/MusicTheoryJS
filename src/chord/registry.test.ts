@@ -7,19 +7,19 @@
  */
 
 import { afterEach, describe, expect, test } from "bun:test";
-import { chordScales } from "../scale/chordscales";
-import { detectScales } from "../scale/detection";
-import { Scale } from "../scale/scale";
+import { chordScales } from "../scale/chordscales.js";
+import { detectScales } from "../scale/detection.js";
+import { Scale } from "../scale/scale.js";
 import {
   addScaleType,
   isScaleName,
   removeScaleType,
   resetScaleTypes,
   scaleTemplate,
-} from "../scale/templates";
-import { detectChord } from "./analysis";
-import { Chord } from "./chord";
-import { parseChordSymbol } from "./parse";
+} from "../scale/templates.js";
+import { detectChord } from "./analysis.js";
+import { Chord } from "./chord.js";
+import { parseChordSymbol } from "./parse.js";
 import {
   CHORD_QUALITIES,
   addChordType,
@@ -28,7 +28,7 @@ import {
   isChordQuality,
   removeChordType,
   resetChordTypes,
-} from "./templates";
+} from "./templates.js";
 
 afterEach(() => {
   resetChordTypes();

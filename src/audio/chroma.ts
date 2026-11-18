@@ -7,7 +7,7 @@
  * `detectKey`. Pure DSP over caller-provided samples.
  */
 
-import { hann, magnitudeSpectrum, nextPow2 } from "./fft";
+import { hann, magnitudeSpectrum, nextPow2 } from "./fft.js";
 
 export interface ChromaOptions {
   /** Ignore spectral content below this frequency (Hz). Default 55 (A1). */

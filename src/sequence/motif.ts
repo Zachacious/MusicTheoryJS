@@ -10,12 +10,12 @@
  * is a major third below (Ab under C, not G#).
  */
 
-import type { NoteStream, NoteStreamInput } from "../analysis/types";
-import { intervalBetween } from "../interval/interval";
-import { Note } from "../note/note";
-import { Scale, type ScaleLike } from "../scale/scale";
-import type { PitchInput } from "./stream";
-import { asNoteStream, concatStreams, streamDuration } from "./stream";
+import type { NoteStream, NoteStreamInput } from "../analysis/types.js";
+import { intervalBetween } from "../interval/interval.js";
+import { Note } from "../note/note.js";
+import { Scale, type ScaleLike } from "../scale/scale.js";
+import type { PitchInput } from "./stream.js";
+import { asNoteStream, concatStreams, streamDuration } from "./stream.js";
 
 /**
  * Reverse a stream in time: the last note comes first, durations kept, the

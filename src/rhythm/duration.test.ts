@@ -11,7 +11,7 @@ import {
   tryParseDuration,
   tuplet,
   wholeNotes,
-} from "./duration";
+} from "./duration.js";
 
 describe("duration factory", () => {
   test("accepts denominator numbers and names", () => {

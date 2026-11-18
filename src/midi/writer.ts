@@ -9,9 +9,9 @@
  * note-ons.
  */
 
-import { wholeNotes } from "../rhythm/duration";
-import { type TimeSignature, beatUnit } from "../rhythm/meter";
-import type { MidiFile, MidiNote, MidiTempoEvent, MidiTrack } from "./types";
+import { wholeNotes } from "../rhythm/duration.js";
+import { type TimeSignature, beatUnit } from "../rhythm/meter.js";
+import type { MidiFile, MidiNote, MidiTempoEvent, MidiTrack } from "./types.js";
 
 /** A growable byte buffer. */
 class ByteWriter {

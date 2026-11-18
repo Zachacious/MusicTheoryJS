@@ -11,7 +11,7 @@
  * builds a mask from notes.
  */
 
-import { mod } from "../math/index";
+import { mod } from "../math/index.js";
 
 /** The mask with all twelve pitch classes present. */
 export const PCSET_ALL = 0xfff;

@@ -1,6 +1,10 @@
 import { describe, expect, test } from "bun:test";
-import { Chord } from "./chord";
-import { CHORD_TEMPLATES, type ChordQuality, chordTemplate } from "./templates";
+import { Chord } from "./chord.js";
+import {
+  CHORD_TEMPLATES,
+  type ChordQuality,
+  chordTemplate,
+} from "./templates.js";
 
 describe("chord template coverage", () => {
   test("every quality round-trips symbol -> parse -> quality", () => {

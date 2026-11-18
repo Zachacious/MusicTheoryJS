@@ -1,16 +1,16 @@
 import { describe, expect, test } from "bun:test";
-import type { NoteStream } from "../analysis/types";
-import { Note } from "../note/note";
+import type { NoteStream } from "../analysis/types.js";
+import { Note } from "../note/note.js";
 import {
   bpmToTempo,
   midiToNoteStream,
   noteStreamToMidi,
   secondsPerTick,
   tempoToBpm,
-} from "./convert";
-import { parseMidi } from "./reader";
-import type { MidiFile } from "./types";
-import { writeMidi } from "./writer";
+} from "./convert.js";
+import { parseMidi } from "./reader.js";
+import type { MidiFile } from "./types.js";
+import { writeMidi } from "./writer.js";
 
 const sampleFile: MidiFile = {
   format: 1,

@@ -6,10 +6,14 @@
  * PPQ and tempo, and map MIDI note numbers to spelled {@link Note}s.
  */
 
-import type { NoteEvent, NoteStream, NoteStreamInput } from "../analysis/types";
-import { type EnharmonicPreference, Note } from "../note/note";
-import { type TimeSignatureLike, asTimeSignature } from "../rhythm/meter";
-import type { MidiFile, MidiNote, MidiTempoEvent } from "./types";
+import type {
+  NoteEvent,
+  NoteStream,
+  NoteStreamInput,
+} from "../analysis/types.js";
+import { type EnharmonicPreference, Note } from "../note/note.js";
+import { type TimeSignatureLike, asTimeSignature } from "../rhythm/meter.js";
+import type { MidiFile, MidiNote, MidiTempoEvent } from "./types.js";
 
 /** Default MIDI tempo: 500000 µs/quarter = 120 BPM. */
 export const DEFAULT_TEMPO = 500000;

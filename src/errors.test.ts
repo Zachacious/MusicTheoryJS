@@ -2,13 +2,13 @@
  * Error-path and guard coverage — the branches that reject bad input.
  */
 import { describe, expect, test } from "bun:test";
-import { isChordQuality } from "./chord/templates";
-import { interval } from "./interval/interval";
-import { writeMidi } from "./midi/writer";
-import { parseNote, tryParseNote } from "./pitch/parse";
-import { isScaleName } from "./scale/templates";
-import { centsTuning, scalaTuning } from "./tuning/custom";
-import { equalTemperament } from "./tuning/tuning";
+import { isChordQuality } from "./chord/templates.js";
+import { interval } from "./interval/interval.js";
+import { writeMidi } from "./midi/writer.js";
+import { parseNote, tryParseNote } from "./pitch/parse.js";
+import { isScaleName } from "./scale/templates.js";
+import { centsTuning, scalaTuning } from "./tuning/custom.js";
+import { equalTemperament } from "./tuning/tuning.js";
 
 describe("tuning input validation", () => {
   test("centsTuning rejects an empty degree list", () => {

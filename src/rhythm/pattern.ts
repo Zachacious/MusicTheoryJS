@@ -12,7 +12,7 @@
  * shorthand, and weighted randomness.
  */
 
-import { rotate } from "../collection/index";
+import { rotate } from "../collection/index.js";
 
 /** One step of a pattern: an onset (1) or a rest (0). */
 export type RhythmStep = 0 | 1;

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { Chord } from "./chord";
+import { Chord } from "./chord.js";
 import {
   chromaticMediants,
   leadingToneExchange,
@@ -8,7 +8,7 @@ import {
   neoRiemannian,
   parallelTriad,
   relativeTriad,
-} from "./transform";
+} from "./transform.js";
 
 describe("Neo-Riemannian operations", () => {
   test("known mappings", () => {

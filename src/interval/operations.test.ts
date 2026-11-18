@@ -6,8 +6,8 @@ import {
   invertInterval,
   simplifyInterval,
   subtractIntervals,
-} from "./interval";
-import { parseInterval } from "./parse";
+} from "./interval.js";
+import { parseInterval } from "./parse.js";
 
 const name = (s: string) => intervalName(parseInterval(s));
 

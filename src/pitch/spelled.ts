@@ -13,7 +13,7 @@
  * 12-tone-per-octave diatonic grid.
  */
 
-import { mod } from "../math/index";
+import { mod } from "../math/index.js";
 
 /** Diatonic step: 0 = C, 1 = D, 2 = E, 3 = F, 4 = G, 5 = A, 6 = B. */
 export type Step = 0 | 1 | 2 | 3 | 4 | 5 | 6;

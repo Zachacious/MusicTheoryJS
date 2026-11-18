@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import { Chord } from "../chord/chord";
-import { pcsetIsSubset, pcsetMask, pcsetTranspose } from "../pitch/pcset";
-import { chordScales } from "./chordscales";
+import { Chord } from "../chord/chord.js";
+import { pcsetIsSubset, pcsetMask, pcsetTranspose } from "../pitch/pcset.js";
+import { chordScales } from "./chordscales.js";
 
 describe("chordScales", () => {
   test("classic jazz answers lead the ranking", () => {

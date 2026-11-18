@@ -36,74 +36,144 @@
   "files": ["dist", "skills"],
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     },
     "./collection": {
-      "types": "./dist/collection/index.d.ts",
-      "import": "./dist/collection/index.js",
-      "require": "./dist/collection/index.cjs"
+      "import": {
+        "types": "./dist/collection/index.d.ts",
+        "default": "./dist/collection/index.js"
+      },
+      "require": {
+        "types": "./dist/collection/index.d.cts",
+        "default": "./dist/collection/index.cjs"
+      }
     },
     "./note": {
-      "types": "./dist/note/index.d.ts",
-      "import": "./dist/note/index.js",
-      "require": "./dist/note/index.cjs"
+      "import": {
+        "types": "./dist/note/index.d.ts",
+        "default": "./dist/note/index.js"
+      },
+      "require": {
+        "types": "./dist/note/index.d.cts",
+        "default": "./dist/note/index.cjs"
+      }
     },
     "./interval": {
-      "types": "./dist/interval/index.d.ts",
-      "import": "./dist/interval/index.js",
-      "require": "./dist/interval/index.cjs"
+      "import": {
+        "types": "./dist/interval/index.d.ts",
+        "default": "./dist/interval/index.js"
+      },
+      "require": {
+        "types": "./dist/interval/index.d.cts",
+        "default": "./dist/interval/index.cjs"
+      }
     },
     "./scale": {
-      "types": "./dist/scale/index.d.ts",
-      "import": "./dist/scale/index.js",
-      "require": "./dist/scale/index.cjs"
+      "import": {
+        "types": "./dist/scale/index.d.ts",
+        "default": "./dist/scale/index.js"
+      },
+      "require": {
+        "types": "./dist/scale/index.d.cts",
+        "default": "./dist/scale/index.cjs"
+      }
     },
     "./chord": {
-      "types": "./dist/chord/index.d.ts",
-      "import": "./dist/chord/index.js",
-      "require": "./dist/chord/index.cjs"
+      "import": {
+        "types": "./dist/chord/index.d.ts",
+        "default": "./dist/chord/index.js"
+      },
+      "require": {
+        "types": "./dist/chord/index.d.cts",
+        "default": "./dist/chord/index.cjs"
+      }
     },
     "./key": {
-      "types": "./dist/key/index.d.ts",
-      "import": "./dist/key/index.js",
-      "require": "./dist/key/index.cjs"
+      "import": {
+        "types": "./dist/key/index.d.ts",
+        "default": "./dist/key/index.js"
+      },
+      "require": {
+        "types": "./dist/key/index.d.cts",
+        "default": "./dist/key/index.cjs"
+      }
     },
     "./rhythm": {
-      "types": "./dist/rhythm/index.d.ts",
-      "import": "./dist/rhythm/index.js",
-      "require": "./dist/rhythm/index.cjs"
+      "import": {
+        "types": "./dist/rhythm/index.d.ts",
+        "default": "./dist/rhythm/index.js"
+      },
+      "require": {
+        "types": "./dist/rhythm/index.d.cts",
+        "default": "./dist/rhythm/index.cjs"
+      }
     },
     "./sequence": {
-      "types": "./dist/sequence/index.d.ts",
-      "import": "./dist/sequence/index.js",
-      "require": "./dist/sequence/index.cjs"
+      "import": {
+        "types": "./dist/sequence/index.d.ts",
+        "default": "./dist/sequence/index.js"
+      },
+      "require": {
+        "types": "./dist/sequence/index.d.cts",
+        "default": "./dist/sequence/index.cjs"
+      }
     },
     "./analysis": {
-      "types": "./dist/analysis/index.d.ts",
-      "import": "./dist/analysis/index.js",
-      "require": "./dist/analysis/index.cjs"
+      "import": {
+        "types": "./dist/analysis/index.d.ts",
+        "default": "./dist/analysis/index.js"
+      },
+      "require": {
+        "types": "./dist/analysis/index.d.cts",
+        "default": "./dist/analysis/index.cjs"
+      }
     },
     "./midi": {
-      "types": "./dist/midi/index.d.ts",
-      "import": "./dist/midi/index.js",
-      "require": "./dist/midi/index.cjs"
+      "import": {
+        "types": "./dist/midi/index.d.ts",
+        "default": "./dist/midi/index.js"
+      },
+      "require": {
+        "types": "./dist/midi/index.d.cts",
+        "default": "./dist/midi/index.cjs"
+      }
     },
     "./notation": {
-      "types": "./dist/notation/index.d.ts",
-      "import": "./dist/notation/index.js",
-      "require": "./dist/notation/index.cjs"
+      "import": {
+        "types": "./dist/notation/index.d.ts",
+        "default": "./dist/notation/index.js"
+      },
+      "require": {
+        "types": "./dist/notation/index.d.cts",
+        "default": "./dist/notation/index.cjs"
+      }
     },
     "./audio": {
-      "types": "./dist/audio/index.d.ts",
-      "import": "./dist/audio/index.js",
-      "require": "./dist/audio/index.cjs"
+      "import": {
+        "types": "./dist/audio/index.d.ts",
+        "default": "./dist/audio/index.js"
+      },
+      "require": {
+        "types": "./dist/audio/index.d.cts",
+        "default": "./dist/audio/index.cjs"
+      }
     },
     "./tuning": {
-      "types": "./dist/tuning/index.d.ts",
-      "import": "./dist/tuning/index.js",
-      "require": "./dist/tuning/index.cjs"
+      "import": {
+        "types": "./dist/tuning/index.d.ts",
+        "default": "./dist/tuning/index.js"
+      },
+      "require": {
+        "types": "./dist/tuning/index.d.cts",
+        "default": "./dist/tuning/index.cjs"
+      }
     }
   },
   "main": "./dist/index.cjs",
@@ -112,13 +182,13 @@
   "scripts": {
     "build": "bun run clean && bun run build:js && bun run build:types",
     "build:js": "bun run scripts/build.ts",
-    "build:types": "tsc -p tsconfig.build.json",
+    "build:types": "tsc -p tsconfig.build.json && bun run scripts/cts-types.ts",
     "clean": "rm -rf dist",
     "test": "bun test",
     "test:cov": "bun test --coverage",
     "bench": "bun run bench/index.ts",
     "bench:vs": "bun run bench/vs.ts",
-    "e2e": "bun run build && node scripts/e2e.mjs && node scripts/e2e.cjs",
+    "e2e": "bun run build && node scripts/e2e.mjs && node scripts/e2e.cjs && node scripts/e2e-types.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
@@ -130,7 +200,7 @@
     "release:cut": "bun run scripts/release.ts",
     "version": "changeset version && bun run scripts/sync-version.ts && biome check --write .",
     "release": "bun run build && changeset publish",
-    "prepublishOnly": "bun run lint && bun run typecheck && bun test && bun run build && node scripts/e2e.mjs && node scripts/e2e.cjs"
+    "prepublishOnly": "bun run lint && bun run typecheck && bun test && bun run build && node scripts/e2e.mjs && node scripts/e2e.cjs && node scripts/e2e-types.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",

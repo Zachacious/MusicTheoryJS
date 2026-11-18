@@ -8,7 +8,7 @@
  * quality; only the tritone is ambiguous, settled by a sharp/flat preference.
  */
 
-import { type Interval, type Quality, interval } from "./interval";
+import { type Interval, type Quality, interval } from "./interval.js";
 
 /** Anything the ergonomic layer accepts as an interval: a spelled
  * {@link Interval}, a name like `"P5"`, or a bare semitone count. */

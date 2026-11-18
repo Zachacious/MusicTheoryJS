@@ -8,14 +8,14 @@
  * accidentals in the suffix (`♭9`, `♯11`) are read as `b9`, `#11`.
  */
 
-import { parseNote, tryParseNote } from "../pitch/parse";
-import type { SpelledPitch } from "../pitch/spelled";
+import { parseNote, tryParseNote } from "../pitch/parse.js";
+import type { SpelledPitch } from "../pitch/spelled.js";
 import {
   CHORD_DEFINITIONS,
   type ChordQuality,
   chordDictionaryVersion,
   isChordQuality,
-} from "./templates";
+} from "./templates.js";
 
 /**
  * Suffix → canonical quality, generated from the chord dictionary. Rebuilt

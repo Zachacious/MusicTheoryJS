@@ -7,7 +7,7 @@
  * baked into the data.
  */
 
-import { STEP_LETTERS, type SpelledPitch } from "./spelled";
+import { STEP_LETTERS, type SpelledPitch } from "./spelled.js";
 
 export interface FormatOptions {
   /** Use Unicode `♯`/`♭` instead of ASCII `#`/`b`. Default `false`. */

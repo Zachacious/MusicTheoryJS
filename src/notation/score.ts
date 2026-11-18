@@ -8,21 +8,21 @@
  * one stacked event, and a plain array of note names a melody.
  */
 
-import { Chord, type ChordLike } from "../chord/chord";
-import { type Key, type KeyLike, key as toKey } from "../key/key";
-import { Note, type NoteLike } from "../note/note";
+import { Chord, type ChordLike } from "../chord/chord.js";
+import { type Key, type KeyLike, key as toKey } from "../key/key.js";
+import { Note, type NoteLike } from "../note/note.js";
 import {
   type Duration,
   type DurationLike,
   asDuration,
   wholeNotes,
-} from "../rhythm/duration";
+} from "../rhythm/duration.js";
 import {
   type TimeSignature,
   type TimeSignatureLike,
   asTimeSignature,
-} from "../rhythm/meter";
-import { Scale } from "../scale/scale";
+} from "../rhythm/meter.js";
+import { Scale } from "../scale/scale.js";
 
 /** One event in a score: a note, several notes sounding together, or —
  * with `notes` and `chord` both absent — a rest. */

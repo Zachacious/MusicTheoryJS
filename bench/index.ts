@@ -7,16 +7,16 @@
  */
 
 import { Bench } from "tinybench";
-import { detectKey } from "../src/analysis/key";
-import { detectChord } from "../src/chord/analysis";
-import { Chord } from "../src/chord/chord";
-import { interval, transpose } from "../src/interval/interval";
-import { parseInterval } from "../src/interval/parse";
-import { Note, transposeNotes } from "../src/note/note";
-import { noteRange } from "../src/note/range";
-import { parseNote } from "../src/pitch/parse";
-import { detectScales } from "../src/scale/detection";
-import { Scale } from "../src/scale/scale";
+import { detectKey } from "../src/analysis/key.js";
+import { detectChord } from "../src/chord/analysis.js";
+import { Chord } from "../src/chord/chord.js";
+import { interval, transpose } from "../src/interval/interval.js";
+import { parseInterval } from "../src/interval/parse.js";
+import { Note, transposeNotes } from "../src/note/note.js";
+import { noteRange } from "../src/note/range.js";
+import { parseNote } from "../src/pitch/parse.js";
+import { detectScales } from "../src/scale/detection.js";
+import { Scale } from "../src/scale/scale.js";
 
 const P5 = interval(5, "P");
 const C4 = parseNote("C4");

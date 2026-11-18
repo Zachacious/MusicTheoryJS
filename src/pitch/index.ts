@@ -6,7 +6,7 @@
  * - parsing/formatting of scientific pitch notation.
  */
 
-export * from "./spelled";
-export * from "./point";
-export * from "./parse";
-export * from "./format";
+export * from "./spelled.js";
+export * from "./point.js";
+export * from "./parse.js";
+export * from "./format.js";

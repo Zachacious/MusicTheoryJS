@@ -30,24 +30,24 @@ import {
   RhythmPattern as RefRhythm,
   Scale as RefScale,
 } from "tonal";
-import { detectChord } from "../src/chord/analysis";
-import { Chord } from "../src/chord/chord";
+import { detectChord } from "../src/chord/analysis.js";
+import { Chord } from "../src/chord/chord.js";
 import {
   intervalBetween,
   intervalName,
   transpose,
-} from "../src/interval/interval";
-import { parseInterval } from "../src/interval/parse";
-import { formatNote } from "../src/pitch/format";
-import { parseNote } from "../src/pitch/parse";
-import { pcsetMask, pcsetModes } from "../src/pitch/pcset";
-import { chroma, midi } from "../src/pitch/spelled";
-import { euclideanRhythm } from "../src/rhythm/pattern";
-import { chordScales } from "../src/scale/chordscales";
-import { detectScales } from "../src/scale/detection";
-import { modeDistance } from "../src/scale/modes";
-import { Scale } from "../src/scale/scale";
-import { frequencyOfNote } from "../src/tuning/tuning";
+} from "../src/interval/interval.js";
+import { parseInterval } from "../src/interval/parse.js";
+import { formatNote } from "../src/pitch/format.js";
+import { parseNote } from "../src/pitch/parse.js";
+import { pcsetMask, pcsetModes } from "../src/pitch/pcset.js";
+import { chroma, midi } from "../src/pitch/spelled.js";
+import { euclideanRhythm } from "../src/rhythm/pattern.js";
+import { chordScales } from "../src/scale/chordscales.js";
+import { detectScales } from "../src/scale/detection.js";
+import { modeDistance } from "../src/scale/modes.js";
+import { Scale } from "../src/scale/scale.js";
+import { frequencyOfNote } from "../src/tuning/tuning.js";
 
 /** Corpora wide enough that neither side is just replaying one cache entry. */
 const NOTES = [

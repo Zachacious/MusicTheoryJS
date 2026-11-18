@@ -1,11 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { intervalName } from "../interval/interval";
+import { intervalName } from "../interval/interval.js";
 import {
   LEFTHAND_VOICINGS,
   TRIAD_VOICINGS,
   lookupVoicings,
   voicingsOf,
-} from "./dictionary";
+} from "./dictionary.js";
 
 describe("lookupVoicings", () => {
   test("parses a dictionary entry into intervals", () => {

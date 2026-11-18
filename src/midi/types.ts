@@ -7,7 +7,7 @@
  * tempo to get seconds (see the `convert` module).
  */
 
-import type { TimeSignature } from "../rhythm/meter";
+import type { TimeSignature } from "../rhythm/meter.js";
 
 /** A note with tick timing, as read from or written to a MIDI file. */
 export interface MidiNote {

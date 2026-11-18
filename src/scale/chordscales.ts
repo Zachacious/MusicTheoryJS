@@ -6,17 +6,17 @@
  * leads with dorian and `chordScales("Cmaj7")` with lydian.
  */
 
-import { Chord, type ChordLike } from "../chord/chord";
-import { mod } from "../math/index";
-import type { Note } from "../note/note";
-import { pcsetHas, pcsetIsSubset, pcsetMask } from "../pitch/pcset";
-import { pitchClass } from "../pitch/spelled";
-import { Scale } from "./scale";
+import { Chord, type ChordLike } from "../chord/chord.js";
+import { mod } from "../math/index.js";
+import type { Note } from "../note/note.js";
+import { pcsetHas, pcsetIsSubset, pcsetMask } from "../pitch/pcset.js";
+import { pitchClass } from "../pitch/spelled.js";
+import { Scale } from "./scale.js";
 import {
   SCALE_DEFINITIONS,
   type ScaleDefinition,
   scaleDictionaryVersion,
-} from "./templates";
+} from "./templates.js";
 
 /** One ranked chord-scale fit. */
 export interface ChordScaleMatch {

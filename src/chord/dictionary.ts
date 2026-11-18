@@ -12,11 +12,11 @@
  * any object of the same shape.
  */
 
-import type { Interval } from "../interval/interval";
-import { parseInterval } from "../interval/parse";
-import type { Note } from "../note/note";
-import { Chord, type ChordLike } from "./chord";
-import type { ChordQuality } from "./templates";
+import type { Interval } from "../interval/interval.js";
+import { parseInterval } from "../interval/parse.js";
+import type { Note } from "../note/note.js";
+import { Chord, type ChordLike } from "./chord.js";
+import type { ChordQuality } from "./templates.js";
 
 /** Voicings for a chord quality, each a list of intervals above the root. */
 export type VoicingDictionary = Readonly<Record<string, readonly string[]>>;
